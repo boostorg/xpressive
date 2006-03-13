@@ -24,12 +24,12 @@ namespace boost { namespace xpressive { namespace detail
 
     ///////////////////////////////////////////////////////////////////////////////
     // keeper_matcher
-    //       Xpr can be either a static_xpression, or a shared_ptr<matchable>
+    //       Xpr can be either a static_xpression, or a shared_ptr<dynamic_xpression_base>
     template<typename Xpr>
     struct keeper_matcher
-      : quant_style_auto<width_of<Xpr>, is_pure<Xpr> >
+      : quant_style<quant_variable_width, unknown_width, mpl::false_>
     {
-        keeper_matcher(Xpr const &xpr, bool do_save = !is_pure<Xpr>::value)
+        keeper_matcher(Xpr const &xpr, bool do_save)
           : xpr_(xpr)
           , do_save_(do_save)
         {
@@ -38,11 +38,9 @@ namespace boost { namespace xpressive { namespace detail
         template<typename BidiIter, typename Next>
         bool match(state_type<BidiIter> &state, Next const &next) const
         {
-            // Note that if is_pure<Xpr>::value is true, the compiler can tell which
-            // branch to take.
-            return is_pure<Xpr>::value || !this->do_save_
-                ? this->match_(state, next, mpl::true_())
-                : this->match_(state, next, mpl::false_());
+            return this->do_save_
+                ? this->match_(state, next, mpl::false_())
+                : this->match_(state, next, mpl::true_());
         }
 
         template<typename BidiIter, typename Next>
@@ -87,6 +85,11 @@ namespace boost { namespace xpressive { namespace detail
             state.cur_ = tmp;
             return false;
         }
+
+        //std::size_t get_width() const
+        //{
+        //    return this->xpr_.get_width();
+        //}
 
         Xpr xpr_;
         bool do_save_; // true if matching xpr_ could modify the sub-matches

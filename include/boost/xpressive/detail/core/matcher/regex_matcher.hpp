@@ -53,7 +53,7 @@ namespace boost { namespace xpressive { namespace detail
             BOOST_MPL_ASSERT((is_static_xpression<Next>));
 
             // wrap the static xpression in a matchable interface
-            xpression_adaptor<Next const &, BidiIter> adaptor(next);
+            xpression_adaptor<reference_wrapper<Next const>, BidiIter> adaptor(boost::cref(next));
             return push_context_match(this->impl_, state, adaptor);
         }
     };

@@ -30,6 +30,7 @@ namespace boost { namespace xpressive { namespace detail
         explicit xpression_visitor_base(shared_ptr<regex_impl<BidiIter> > const &self)
           : impl_()
           , self_(self)
+          //, width_(0)
         {
         }
 
@@ -53,6 +54,11 @@ namespace boost { namespace xpressive { namespace detail
             }
         }
 
+        //void width(std::size_t w)
+        //{
+        //    this->width_ = w;
+        //}
+
         shared_ptr<regex_impl<BidiIter> > &self()
         {
             return this->self_;
@@ -66,9 +72,12 @@ namespace boost { namespace xpressive { namespace detail
     protected:
 
         template<typename Matcher>
-        void visit_(Matcher const &)
+        void visit_(Matcher const &) //matcher)
         {
-            // no-op
+            //if(this->width_ != unknown_width() && matcher.get_width() != unknown_width())
+            //{
+            //    this->width_ += matcher.get_width();
+            //}
         }
 
         template<bool ByRef>
@@ -76,6 +85,7 @@ namespace boost { namespace xpressive { namespace detail
         {
             // when visiting an embedded regex, track the references
             this->impl_.track_reference(rex.impl_);
+            //this->width_ = unknown_width();
         }
 
         void visit_(mark_placeholder const &backref)
@@ -94,6 +104,7 @@ namespace boost { namespace xpressive { namespace detail
 
         regex_impl<BidiIter> impl_;
         shared_ptr<regex_impl<BidiIter> > self_;
+        //std::size_t width_;
     };
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -123,6 +134,7 @@ namespace boost { namespace xpressive { namespace detail
         typename apply<Matcher>::type
         call(Matcher const &matcher)
         {
+            //std::cout << typeid(Matcher).name() << std::endl;
             this->visit_(matcher);
             return transmogrify<BidiIter, ICase, Traits, Matcher>::call(matcher, *this);
         }

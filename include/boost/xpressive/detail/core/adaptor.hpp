@@ -13,8 +13,9 @@
 # pragma once
 #endif
 
+#include <boost/ref.hpp>
+#include <boost/implicit_cast.hpp>
 #include <boost/shared_ptr.hpp>
-#include <boost/call_traits.hpp>
 #include <boost/xpressive/detail/detail_fwd.hpp>
 #include <boost/xpressive/detail/dynamic/matchable.hpp>
 #include <boost/xpressive/detail/core/state.hpp>
@@ -31,23 +32,20 @@ template<typename Xpr, typename BidiIter>
 struct xpression_adaptor
   : matchable<BidiIter>
 {
+    typedef BidiIter iterator_type;
     typedef typename iterator_value<BidiIter>::type char_type;
 
     Xpr xpr_;
 
-    xpression_adaptor(typename call_traits<Xpr>::param_type xpr)
+    xpression_adaptor(Xpr const &xpr)
       : xpr_(xpr)
     {
     }
 
-    bool match(state_type<BidiIter> &state) const
+    virtual bool match(state_type<BidiIter> &state) const
     {
-        return this->xpr_.match(state);
-    }
-
-    std::size_t get_width(state_type<BidiIter> *state) const
-    {
-        return this->xpr_.get_width(state);
+        typedef typename unwrap_reference<Xpr const>::type xpr_type;
+        return implicit_cast<xpr_type &>(this->xpr_).match(state);
     }
 
     void link(xpression_linker<char_type> &linker) const
@@ -68,9 +66,9 @@ private:
 // make_adaptor
 //
 template<typename BidiIter, typename Xpr>
-inline shared_ptr<matchable<BidiIter> const> make_adaptor(Xpr const &xpr)
+inline shared_ptr<xpression_adaptor<Xpr, BidiIter> const> make_adaptor(Xpr const &xpr)
 {
-    return shared_ptr<matchable<BidiIter> const>(new xpression_adaptor<Xpr, BidiIter>(xpr));
+    return shared_ptr<xpression_adaptor<Xpr, BidiIter> >(new xpression_adaptor<Xpr, BidiIter>(xpr));
 }
 
 }}} // namespace boost::xpressive::detail

@@ -60,7 +60,6 @@ struct is_xpr
 enum quant_enum
 {
     quant_none,
-    quant_auto,
     quant_fixed_width,
     quant_variable_width
 };
@@ -76,8 +75,7 @@ struct quant_style
     typedef Width width;                   // how many characters this matcher consumes
     typedef Pure pure;                     // whether this matcher has observable side-effects
 
-    template<typename BidiIter>
-    static std::size_t get_width(state_type<BidiIter> *)
+    static std::size_t get_width()
     {
         return Width::value;
     }
@@ -118,37 +116,11 @@ struct quant_style_assertion
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-// quant_style_auto
-//  automatically pick the quantification style based on width and purity
-template<typename Width, typename Pure>
-struct quant_style_auto
-  : quant_style<quant_auto, Width, Pure>
-{
-};
-
-///////////////////////////////////////////////////////////////////////////////
 // quant_type
 //
-template<typename Matcher, typename QuantStyle = typename Matcher::quant>
-struct quant_type
-  : QuantStyle
-{
-};
-
-///////////////////////////////////////////////////////////////////////////////
-// when the quant_type is auto, determine the quant type from the width and purity
 template<typename Matcher>
-struct quant_type<Matcher, mpl::int_<quant_auto> >
-  : mpl::if_
-    <
-        mpl::and_
-        <
-            mpl::not_equal_to<typename Matcher::width, unknown_width>
-          , typename Matcher::pure
-        >
-      , mpl::int_<quant_fixed_width>
-      , mpl::int_<quant_variable_width>
-    >::type
+struct quant_type
+  : Matcher::quant
 {
 };
 

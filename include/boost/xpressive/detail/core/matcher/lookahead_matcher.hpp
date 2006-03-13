@@ -27,13 +27,13 @@ namespace boost { namespace xpressive { namespace detail
 
     ///////////////////////////////////////////////////////////////////////////////
     // lookahead_matcher
-    //   Xpr can be either a static_xpression, or a shared_ptr<matchable>
+    //   Xpr can be either a static_xpression, or a shared_ptr<dynamic_xpression_base>
     //
     template<typename Xpr>
     struct lookahead_matcher
-      : quant_style<quant_none, mpl::size_t<0>, is_pure<Xpr> >
+      : quant_style<quant_none, mpl::size_t<0>, mpl::false_>
     {
-        lookahead_matcher(Xpr const &xpr, bool no = false, bool do_save = !is_pure<Xpr>::value)
+        lookahead_matcher(Xpr const &xpr, bool no, bool do_save)
           : xpr_(xpr)
           , not_(no)
           , do_save_(do_save)
@@ -43,10 +43,9 @@ namespace boost { namespace xpressive { namespace detail
         template<typename BidiIter, typename Next>
         bool match(state_type<BidiIter> &state, Next const &next) const
         {
-            // Note that if is_pure<Xpr>::value is true, the compiler can optimize this.
-            return is_pure<Xpr>::value || !this->do_save_
-                ? this->match_(state, next, mpl::true_())
-                : this->match_(state, next, mpl::false_());
+            return this->do_save_
+                ? this->match_(state, next, mpl::false_())
+                : this->match_(state, next, mpl::true_());
         }
 
         template<typename BidiIter, typename Next>

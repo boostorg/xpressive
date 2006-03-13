@@ -140,56 +140,56 @@ struct xpression_linker
     }
 
     template<typename Matcher>
-    void link(Matcher const &, xpression_base const *)
+    void accept(Matcher const &, xpression_base const *)
     {
         // no-op
     }
 
-    void link(repeat_begin_matcher const &, xpression_base const *next)
+    void accept(repeat_begin_matcher const &, xpression_base const *next)
     {
         this->back_stack_.push(next);
     }
 
     template<bool Greedy>
-    void link(repeat_end_matcher<Greedy> const &matcher, xpression_base const *)
+    void accept(repeat_end_matcher<Greedy> const &matcher, xpression_base const *)
     {
         matcher.back_ = this->back_stack_.top();
         this->back_stack_.pop();
     }
 
     template<typename Alternates, typename Traits>
-    void link(alternate_matcher<Alternates, Traits> const &matcher, xpression_base const *next)
+    void accept(alternate_matcher<Alternates, Traits> const &matcher, xpression_base const *next)
     {
-        xpression_peeker<Char> peeker(&matcher.bset_, this->get_traits<Traits>());
+        xpression_peeker<Char> peeker(matcher.bset_, this->get_traits<Traits>());
         this->alt_link(matcher.alternates_, next, peeker);
     }
 
-    void link(alternate_end_matcher const &matcher, xpression_base const *)
+    void accept(alternate_end_matcher const &matcher, xpression_base const *)
     {
         matcher.back_ = this->back_stack_.top();
         this->back_stack_.pop();
     }
 
     template<typename Xpr>
-    void link(keeper_matcher<Xpr> const &matcher, xpression_base const *)
+    void accept(keeper_matcher<Xpr> const &matcher, xpression_base const *)
     {
         get_pointer(matcher.xpr_)->link(*this);
     }
 
     template<typename Xpr>
-    void link(lookahead_matcher<Xpr> const &matcher, xpression_base const *)
+    void accept(lookahead_matcher<Xpr> const &matcher, xpression_base const *)
     {
         get_pointer(matcher.xpr_)->link(*this);
     }
 
     template<typename Xpr>
-    void link(lookbehind_matcher<Xpr> const &matcher, xpression_base const *)
+    void accept(lookbehind_matcher<Xpr> const &matcher, xpression_base const *)
     {
         get_pointer(matcher.xpr_)->link(*this);
     }
 
     template<typename Xpr, bool Greedy>
-    void link(simple_repeat_matcher<Xpr, Greedy> const &matcher, xpression_base const *)
+    void accept(simple_repeat_matcher<Xpr, Greedy> const &matcher, xpression_base const *)
     {
         matcher.xpr_.link(*this);
     }
@@ -239,7 +239,7 @@ private:
     template<typename BidiIter>
     void alt_link
     (
-        std::vector<shared_ptr<matchable<BidiIter> const> > const &alternates
+        alternates_vector<BidiIter> const &alternates
       , xpression_base const *next
       , xpression_peeker<Char> &peeker
     )

@@ -22,12 +22,10 @@
 #include <boost/mpl/front.hpp>
 #include <boost/mpl/times.hpp>
 #include <boost/mpl/assert.hpp>
-#include <boost/mpl/lambda.hpp>
 #include <boost/mpl/size_t.hpp>
 #include <boost/mpl/logical.hpp>
 #include <boost/mpl/identity.hpp>
 #include <boost/mpl/equal_to.hpp>
-#include <boost/mpl/transform_view.hpp>
 #include <boost/type_traits/is_same.hpp>
 #include <boost/xpressive/detail/detail_fwd.hpp>
 #include <boost/xpressive/detail/static/as_xpr.hpp>
@@ -84,7 +82,7 @@ namespace boost { namespace xpressive { namespace detail
     ///////////////////////////////////////////////////////////////////////////////
     // width_of
     //
-    template<typename Xpr>
+    template<typename Op>
     struct width_of;
 
     template<>
@@ -123,50 +121,28 @@ namespace boost { namespace xpressive { namespace detail
     {
     };
 
-    template<typename Modifier, typename Xpr>
-    struct width_of<proto::binary_op<Modifier, Xpr, modifier_tag> >
-      : width_of<Xpr>
+    template<typename Modifier, typename Op>
+    struct width_of<proto::binary_op<Modifier, Op, modifier_tag> >
+      : width_of<Op>
     {
     };
 
-    template<typename Xpr, bool Positive>
-    struct width_of<proto::unary_op<Xpr, lookahead_tag<Positive> > >
+    template<typename Op, bool Positive>
+    struct width_of<proto::unary_op<Op, lookahead_tag<Positive> > >
       : mpl::size_t<0>
     {
     };
 
-    template<typename Xpr, bool Positive>
-    struct width_of<proto::unary_op<Xpr, lookbehind_tag<Positive> > >
+    template<typename Op, bool Positive>
+    struct width_of<proto::unary_op<Op, lookbehind_tag<Positive> > >
       : mpl::size_t<0>
     {
     };
 
-    template<typename Xpr>
-    struct width_of<proto::unary_op<Xpr, keeper_tag> >
-      : width_of<Xpr>
-    {
-    };
-
-    template<typename Matcher, typename Next>
-    struct width_of<static_xpression<Matcher, Next> >
-      : add_width<typename Matcher::width, width_of<Next> >
-    {
-    };
-
-    template<typename BidiIter>
-    struct width_of<shared_ptr<matchable<BidiIter> const> >
-      : unknown_width
-    {
-    };
-
-    template<typename BidiIter>
-    struct width_of<std::vector<shared_ptr<matchable<BidiIter> const> > >
-      : unknown_width
-    {
-    };
-
-    template<typename BidiIter>
-    struct width_of<proto::unary_op<basic_regex<BidiIter>, proto::noop_tag> >
+    // keep() is used to turn off backtracking, so they're generally only used
+    // for things that are not fixed width
+    template<typename Op>
+    struct width_of<proto::unary_op<Op, keeper_tag> >
       : unknown_width
     {
     };
@@ -197,7 +173,7 @@ namespace boost { namespace xpressive { namespace detail
 
     template<typename Op, uint_t Min, uint_t Max>
     struct width_of<proto::unary_op<Op, generic_quant_tag<Min, Max> > >
-      : mpl::if_c<Min==Max, mult_width<width_of<Op>, mpl::size_t<Min> >, unknown_width>::type
+      : mpl::if_c<Min == Max, mult_width<width_of<Op>, mpl::size_t<Min> >, unknown_width>::type
     {
     };
 
@@ -238,29 +214,160 @@ namespace boost { namespace xpressive { namespace detail
         ));
     };
 
-    // The width of a list of alternates is N if all the alternates have width N, otherwise unknown_width
-    template<typename Widths>
-    struct alt_width_of
-      : mpl::fold
-        <
-            Widths
-          , typename mpl::front<Widths>::type
-          , equal_width<mpl::_1, mpl::_2>
-        >::type
-    {
-    };
-
-    template<typename Alternates>
-    struct width_of<alternates_list<Alternates> >
-      : alt_width_of<mpl::transform_view<Alternates, width_of<mpl::_1> > >
-    {
-    };
-
     template<typename Op, typename Arg>
     struct width_of<proto::op_proxy<Op, Arg> >
       : width_of<Op>
     {
     };
+
+
+    /////////////////////////////////////////////////////////////////////////////////
+    //// fixed_width
+    ////
+    //template<typename Op>
+    //struct fixed_width;
+
+    //template<>
+    //struct fixed_width<no_next>
+    //  : mpl::true_
+    //{
+    //};
+
+    //template<typename Matcher>
+    //struct fixed_width<proto::unary_op<Matcher, proto::noop_tag> >
+    //  : mpl::equal_to<typename as_matcher_type<Matcher>::type::quant, mpl::int_<quant_fixed_width> >
+    //{
+    //};
+
+    //template<typename Left, typename Right>
+    //struct fixed_width<proto::binary_op<Left, Right, proto::right_shift_tag> >
+    //  : mpl::and_<fixed_width<Left>, fixed_width<Right> >
+    //{
+    //};
+
+    //template<typename Left, typename Right>
+    //struct fixed_width<proto::binary_op<Left, Right, proto::bitor_tag> >
+    //  : mpl::equal_to<width_of<Left>, width_of<Right> >
+    //{
+    //};
+
+    //template<typename Right>
+    //struct fixed_width<proto::binary_op<mark_tag, Right, proto::assign_tag> >
+    //  : fixed_width<Right>
+    //{
+    //};
+
+    //template<typename Right>
+    //struct fixed_width<proto::binary_op<set_initializer_type, Right, proto::assign_tag> >
+    //  : mpl::true_
+    //{
+    //};
+
+    //template<typename Modifier, typename Op>
+    //struct fixed_width<proto::binary_op<Modifier, Op, modifier_tag> >
+    //  : fixed_width<Op>
+    //{
+    //};
+
+    //template<typename Op, bool Positive>
+    //struct fixed_width<proto::unary_op<Op, lookahead_tag<Positive> > >
+    //  : mpl::true_
+    //{
+    //};
+
+    //template<typename Op, bool Positive>
+    //struct fixed_width<proto::unary_op<Op, lookbehind_tag<Positive> > >
+    //  : mpl::true_
+    //{
+    //};
+
+    //template<typename Op>
+    //struct fixed_width<proto::unary_op<Op, keeper_tag> >
+    //  : fixed_width<Op>
+    //{
+    //};
+
+    //template<typename BidiIter>
+    //struct fixed_width<shared_ptr<dynamic_xpression_base<BidiIter> const> >
+    //  : mpl::false_
+    //{
+    //};
+
+    //template<typename BidiIter>
+    //struct fixed_width<alternates_vector<BidiIter> >
+    //  : mpl::false_
+    //{
+    //};
+
+    //template<typename BidiIter>
+    //struct fixed_width<proto::unary_op<basic_regex<BidiIter>, proto::noop_tag> >
+    //  : mpl::false_
+    //{
+    //};
+
+    //template<typename BidiIter>
+    //struct fixed_width<proto::unary_op<reference_wrapper<basic_regex<BidiIter> const>, proto::noop_tag> >
+    //  : mpl::false_
+    //{
+    //};
+
+    //template<typename Op>
+    //struct fixed_width<proto::unary_op<Op, proto::unary_plus_tag> >
+    //  : mpl::false_
+    //{
+    //};
+
+    //template<typename Op>
+    //struct fixed_width<proto::unary_op<Op, proto::unary_star_tag> >
+    //  : mpl::false_
+    //{
+    //};
+
+    //template<typename Op>
+    //struct fixed_width<proto::unary_op<Op, proto::logical_not_tag> >
+    //  : mpl::false_
+    //{
+    //};
+
+    //template<typename Op, uint_t Min, uint_t Max>
+    //struct fixed_width<proto::unary_op<Op, generic_quant_tag<Min, Max> > >
+    //  : mpl::and_<fixed_width<Op>, mpl::bool_<Min == Max> >
+    //{
+    //};
+
+    //template<typename Op>
+    //struct fixed_width<proto::unary_op<Op, proto::unary_minus_tag> >
+    //  : fixed_width<Op>
+    //{
+    //};
+
+    //// Only complement a set or an assertion, and both are fixed width
+    //template<typename Op>
+    //struct fixed_width<proto::unary_op<Op, proto::complement_tag> >
+    //  : mpl::true_
+    //{
+    //};
+
+    //// The comma is used in list-initialized sets, and the width of sets are 1
+    //template<typename Left, typename Right>
+    //struct fixed_width<proto::binary_op<Left, Right, proto::comma_tag> >
+    //  : mpl::true_
+    //{
+    //};
+
+    //// The subscript operator[] is used for sets, as in set['a' | range('b','h')], 
+    //// or for actions as in (any >> expr)[ action ]
+    //template<typename Left, typename Right>
+    //struct fixed_width<proto::binary_op<Left, Right, proto::subscript_tag> >
+    //  : mpl::or_<is_same<Left, set_initializer_type>, fixed_width<Left> >
+    //{
+    //};
+
+    //template<typename Op, typename Arg>
+    //struct fixed_width<proto::op_proxy<Op, Arg> >
+    //  : fixed_width<Op>
+    //{
+    //};
 
 }}} // namespace boost::xpressive::detail
 

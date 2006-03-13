@@ -108,19 +108,13 @@ struct regex_compiler
         detail::sequence<BidiIter> seq = detail::alternates_to_matchable(alternates, alternates_factory());
         seq += detail::make_dynamic_xpression<BidiIter>(detail::end_matcher());
 
-        // fill in the back-pointers by visiting the regex parse tree
-        detail::xpression_linker<char_type> linker(this->rxtraits());
-        seq.first->link(linker);
-
         // bundle the regex information into a regex_impl object
         detail::regex_impl<BidiIter> impl;
-        impl.xpr_ = seq.first;
+        detail::common_compile(seq.first, impl, this->rxtraits());
+
         impl.traits_.reset(new RegexTraits(this->rxtraits()));
         impl.mark_count_ = this->mark_count_;
         impl.hidden_mark_count_ = this->hidden_mark_count_;
-
-        // optimization: get the peek chars OR the boyer-moore search string
-        detail::optimize_regex(impl, this->rxtraits(), detail::is_random<BidiIter>());
 
         return detail::core_access<BidiIter>::make_regex(impl);
     }
@@ -257,7 +251,7 @@ private:
         seq += detail::alternates_to_matchable(alternates, alternates_factory());
         seq += seq_end;
 
-        typedef shared_ptr<detail::matchable<BidiIter> const> xpr_type;
+        typedef shared_ptr<detail::dynamic_xpression_base<BidiIter> const> xpr_type;
         bool do_save = (this->mark_count_ != old_mark_count);
 
         if(lookahead)
@@ -267,7 +261,8 @@ private:
         }
         else if(lookbehind)
         {
-            detail::lookbehind_matcher<xpr_type> lookbehind(seq.first, negative, do_save);
+            BOOST_ASSERT(seq.is_pure != do_save);
+            detail::lookbehind_matcher<xpr_type> lookbehind(seq.first, seq.width_of, negative, do_save);
             seq = detail::make_dynamic_xpression<BidiIter>(lookbehind);
         }
         else if(keeper) // independent sub-expression

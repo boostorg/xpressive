@@ -54,8 +54,14 @@ boost::iterator_range<test_case<BidiIterT> const *> get_test_cases()
         (
             "test20"
           , L("+1234.56789")
-          , regex_type( !(s1= as_xpr(L('+'))|L('-')) >> (s2= +range(L('0'),L('9')) >> !as_xpr(L('.')) >> *range(L('0'),L('9')) |
-                        L('.') >> +range(L('0'),L('9'))) >> !(s3= (set=L('e'),L('E')) >> !(s4= as_xpr(L('+'))|L('-')) >> +range(L('0'),L('9'))))
+          , regex_type
+            (
+                !(s1= as_xpr(L('+'))|L('-'))
+              >> (s2= +range(L('0'),L('9')) >> !as_xpr(L('.')) >> *range(L('0'),L('9'))
+                    | L('.') >> +range(L('0'),L('9'))
+                 )
+              >> !(s3= (set=L('e'),L('E')) >> !(s4= as_xpr(L('+'))|L('-')) >> +range(L('0'),L('9')))
+            )
           , backrefs(L("+1234.56789"), L("+"), L("1234.56789"), L(""), L(""), nilbr)
         )
     };

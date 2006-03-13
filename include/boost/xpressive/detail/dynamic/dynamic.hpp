@@ -29,13 +29,12 @@ namespace boost { namespace xpressive { namespace detail
 
 ///////////////////////////////////////////////////////////////////////////////
 // invalid_xpression
-//
 template<typename BidiIter>
 struct invalid_xpression
-  : matchable<BidiIter>
+  : dynamic_xpression_base<BidiIter>
 {
     invalid_xpression()
-      : matchable<BidiIter>()
+      : dynamic_xpression_base<BidiIter>()
     {
     }
     
@@ -45,27 +44,21 @@ struct invalid_xpression
         return false;
     }
 
-    std::size_t get_width(state_type<BidiIter> *) const
-    {
-        return 0;
-    }
-
-    static void noop(matchable<BidiIter> const *)
+    static void noop(dynamic_xpression_base<BidiIter> const *)
     {
     }
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 // get_invalid_xpression
-//
 template<typename BidiIter>
-inline shared_ptr<matchable<BidiIter> const> const &get_invalid_xpression()
+inline shared_ptr<dynamic_xpression_base<BidiIter> const> const &get_invalid_xpression()
 {
     static invalid_xpression<BidiIter> const invalid_xpr;
 
-    static shared_ptr<matchable<BidiIter> const> const invalid_ptr
+    static shared_ptr<dynamic_xpression_base<BidiIter> const> const invalid_ptr
     (
-        static_cast<matchable<BidiIter> const *>(&invalid_xpr)
+        static_cast<dynamic_xpression_base<BidiIter> const *>(&invalid_xpr)
       , &invalid_xpression<BidiIter>::noop
     );
 
@@ -74,15 +67,14 @@ inline shared_ptr<matchable<BidiIter> const> const &get_invalid_xpression()
 
 ///////////////////////////////////////////////////////////////////////////////
 // dynamic_xpression
-//
 template<typename Matcher, typename BidiIter>
 struct dynamic_xpression
   : Matcher
-  , matchable<BidiIter>
+  , dynamic_xpression_base<BidiIter>
 {
     typedef typename iterator_value<BidiIter>::type char_type;
 
-    shared_ptr<matchable<BidiIter> const> next_;
+    shared_ptr<dynamic_xpression_base<BidiIter> const> next_;
 
     dynamic_xpression(Matcher const &matcher = Matcher())
       : Matcher(matcher)
@@ -95,26 +87,15 @@ struct dynamic_xpression
         return this->Matcher::match(state, *this->next_);
     }
 
-    std::size_t get_width(state_type<BidiIter> *state) const
-    {
-        std::size_t this_width = this->Matcher::get_width(state);
-        if(this_width == unknown_width())
-            return unknown_width();
-        std::size_t that_width = this->next_->get_width(state);
-        if(that_width == unknown_width())
-            return unknown_width();
-        return this_width + that_width;
-    }
-
     void link(xpression_linker<char_type> &linker) const
     {
-        linker.link(*static_cast<Matcher const *>(this), this->next_.get());
+        linker.accept(*static_cast<Matcher const *>(this), this->next_.get());
         this->next_->link(linker);
     }
 
     void peek(xpression_peeker<char_type> &peeker) const
     {
-        this->peek_next_(peeker.peek(*static_cast<Matcher const *>(this)), peeker);
+        this->peek_next_(peeker.accept(*static_cast<Matcher const *>(this)), peeker);
     }
 
     sequence<BidiIter> quantify
@@ -188,7 +169,6 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 // make_dynamic_xpression
-//
 template<typename BidiIter, typename Matcher>
 inline sequence<BidiIter> make_dynamic_xpression(Matcher const &matcher)
 {
@@ -196,23 +176,29 @@ inline sequence<BidiIter> make_dynamic_xpression(Matcher const &matcher)
     std::auto_ptr<xpression_type> xpr(new xpression_type(matcher));
 
     sequence<BidiIter> seq;
+    seq.width_of = xpr->Matcher::get_width();
+    seq.is_pure = Matcher::pure::value;
     seq.second = &xpr->next_;
-    seq.first = xpr;
+    seq.first = xpr; // transfer ownership
 
     return seq;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// alternates_vector
+template<typename BidiIter>
+struct alternates_vector
+  : std::vector<shared_ptr<dynamic_xpression_base<BidiIter> const> >
+{
+};
+
+///////////////////////////////////////////////////////////////////////////////
 // alternates_factory
-//
 template<typename BidiIter>
 struct alternates_factory
 {
-    typedef std::vector<shared_ptr<matchable<BidiIter> const> > alternates_vector;
-
     virtual ~alternates_factory() {}
-
-    virtual std::pair<sequence<BidiIter>, alternates_vector *>
+    virtual std::pair<sequence<BidiIter>, alternates_vector<BidiIter> *>
     operator ()() const = 0;
 };
 
@@ -220,12 +206,10 @@ template<typename BidiIter, typename Traits>
 struct alternates_factory_impl
   : alternates_factory<BidiIter>
 {
-    typedef typename alternates_factory<BidiIter>::alternates_vector alternates_vector;
-
-    std::pair<sequence<BidiIter>, alternates_vector *>
+    std::pair<sequence<BidiIter>, alternates_vector<BidiIter> *>
     operator ()() const
     {
-        typedef alternate_matcher<alternates_vector, Traits> alternate_matcher;
+        typedef alternate_matcher<alternates_vector<BidiIter>, Traits> alternate_matcher;
         typedef dynamic_xpression<alternate_matcher, BidiIter> alternate_xpression;
         shared_ptr<alternate_xpression> alt_xpr(new alternate_xpression);
         sequence<BidiIter> seq(alt_xpr, &alt_xpr->next_);
@@ -235,7 +219,6 @@ struct alternates_factory_impl
 
 ///////////////////////////////////////////////////////////////////////////////
 // alternates_to_matchable
-//
 template<typename BidiIter>
 inline sequence<BidiIter> alternates_to_matchable
 (
@@ -251,8 +234,7 @@ inline sequence<BidiIter> alternates_to_matchable
         return alternates.front();
     }
 
-    typedef std::vector<shared_ptr<matchable<BidiIter> const> > alternates_vector;
-    std::pair<sequence<BidiIter>, alternates_vector *> result = factory();
+    std::pair<sequence<BidiIter>, alternates_vector<BidiIter> *> result = factory();
 
     // through the wonders of reference counting, all alternates can share an end_alternate
     typedef dynamic_xpression<alternate_end_matcher, BidiIter> alternate_end_xpression;
@@ -262,25 +244,32 @@ inline sequence<BidiIter> alternates_to_matchable
     result.second->reserve(alternates.size());
     typedef std::list<sequence<BidiIter> > alternates_list;
     typename alternates_list::const_iterator begin = alternates.begin(), end = alternates.end();
+    result.first.width_of = begin->width_of;
+    result.first.is_pure = begin->is_pure;
     for(; begin != end; ++begin)
     {
         if(!begin->is_empty())
         {
             result.second->push_back(begin->first);
             *begin->second = end_alt_xpr;
+            if(result.first.width_of != begin->width_of)
+                result.first.width_of = unknown_width();
+            result.first.is_pure = result.first.is_pure && begin->is_pure;
         }
         else
         {
             result.second->push_back(end_alt_xpr);
+            if(result.first.width_of != 0)
+                result.first.width_of = unknown_width();
         }
     }
 
+    //result.second->width_ = result.first.width_of;
     return result.first;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // matcher_wrapper
-//
 template<typename Matcher>
 struct matcher_wrapper
   : Matcher
@@ -299,19 +288,18 @@ struct matcher_wrapper
     template<typename Char>
     void link(xpression_linker<Char> &linker) const
     {
-        linker.link(*static_cast<Matcher const *>(this), 0);
+        linker.accept(*static_cast<Matcher const *>(this), 0);
     }
 
     template<typename Char>
     void peek(xpression_peeker<Char> &peeker) const
     {
-        peeker.peek(*static_cast<Matcher const *>(this));
+        peeker.accept(*static_cast<Matcher const *>(this));
     }
 };
 
 //////////////////////////////////////////////////////////////////////////
 // dynamic_xpression::quantify_
-//
 //   unquantifiable
 template<typename Matcher, typename BidiIter>
 inline sequence<BidiIter> dynamic_xpression<Matcher, BidiIter>::quantify_
@@ -346,15 +334,16 @@ inline sequence<BidiIter> dynamic_xpression<Matcher, BidiIter>::quantify_
     }
 
     typedef matcher_wrapper<Matcher> xpr_type;
+    BOOST_ASSERT(seq.width_of == this->Matcher::get_width());
 
     if(spec.greedy_)
     {
-        simple_repeat_matcher<xpr_type, true> quant(*this, spec.min_, spec.max_);
+        simple_repeat_matcher<xpr_type, true> quant(*this, spec.min_, spec.max_, seq.width_of);
         return make_dynamic_xpression<BidiIter>(quant);
     }
     else
     {
-        simple_repeat_matcher<xpr_type, false> quant(*this, spec.min_, spec.max_);
+        simple_repeat_matcher<xpr_type, false> quant(*this, spec.min_, spec.max_, seq.width_of);
         return make_dynamic_xpression<BidiIter>(quant);
     }
 }

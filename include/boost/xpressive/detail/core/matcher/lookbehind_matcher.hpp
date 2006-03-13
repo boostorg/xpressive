@@ -27,32 +27,17 @@ namespace boost { namespace xpressive { namespace detail
 {
 
     ///////////////////////////////////////////////////////////////////////////////
-    // get_width
-    //
-    template<typename Xpr>
-    inline std::size_t get_width(Xpr const &xpr)
-    {
-        return xpr.get_width(static_cast<state_type<char const *>*>(0));
-    }
-
-    template<typename BidiIter>
-    inline std::size_t get_width(shared_ptr<matchable<BidiIter> const> const &xpr)
-    {
-        return xpr->get_width(0);
-    }
-
-    ///////////////////////////////////////////////////////////////////////////////
     // lookbehind_matcher
-    //   Xpr can be either a static_xpression, or a shared_ptr<matchable>
+    //   Xpr can be either a static_xpression, or a shared_ptr<dynamic_xpression_base>
     template<typename Xpr>
     struct lookbehind_matcher
-      : quant_style<quant_none, mpl::size_t<0>, is_pure<Xpr> >
+      : quant_style<quant_none, mpl::size_t<0>, mpl::false_>
     {
-        lookbehind_matcher(Xpr const &xpr, bool no = false, bool do_save = !is_pure<Xpr>::value)
+        lookbehind_matcher(Xpr const &xpr, std::size_t width, bool no, bool do_save)
           : xpr_(xpr)
           , not_(no)
           , do_save_(do_save)
-          , width_(detail::get_width(xpr))
+          , width_(width)
         {
             detail::ensure(this->width_ != unknown_width(), regex_constants::error_badlookbehind,
                 "Variable-width look-behind assertions are not supported");
@@ -61,10 +46,9 @@ namespace boost { namespace xpressive { namespace detail
         template<typename BidiIter, typename Next>
         bool match(state_type<BidiIter> &state, Next const &next) const
         {
-            // Note that if is_pure<Xpr>::value is true, the compiler can optimize this.
-            return is_pure<Xpr>::value || !this->do_save_
-                ? this->match_(state, next, mpl::true_())
-                : this->match_(state, next, mpl::false_());
+            return this->do_save_
+                ? this->match_(state, next, mpl::false_())
+                : this->match_(state, next, mpl::true_());
         }
 
         template<typename BidiIter, typename Next>

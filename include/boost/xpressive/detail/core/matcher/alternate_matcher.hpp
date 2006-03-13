@@ -70,12 +70,12 @@ namespace boost { namespace xpressive { namespace detail
     template<typename BidiIter>
     inline bool alt_match
     (
-        std::vector<shared_ptr<matchable<BidiIter> const> > const &alternates
+        alternates_vector<BidiIter> const &alternates
       , state_type<BidiIter> &state
-      , matchable<BidiIter> const &
+      , dynamic_xpression_base<BidiIter> const &
     )
     {
-        typedef alt_match_pred<BidiIter, matchable<BidiIter> > alt_match_pred;
+        typedef alt_match_pred<BidiIter, dynamic_xpression_base<BidiIter> > alt_match_pred;
         return detail::any(alternates.begin(), alternates.end(), alt_match_pred(state));
     }
 
@@ -101,16 +101,12 @@ namespace boost { namespace xpressive { namespace detail
 
     ///////////////////////////////////////////////////////////////////////////////
     // alt_get_width_pred
-    //
-    template<typename BidiIter>
     struct alt_get_width_pred
     {
-        state_type<BidiIter> *state_;
         std::size_t *width_;
 
-        alt_get_width_pred(state_type<BidiIter> *state, std::size_t *width)
-          : state_(state)
-          , width_(width)
+        alt_get_width_pred(std::size_t *width)
+          : width_(width)
         {
         }
 
@@ -119,7 +115,7 @@ namespace boost { namespace xpressive { namespace detail
         {
             if(*this->width_ != unknown_width())
             {
-                std::size_t that_width = get_pointer(xpr)->get_width(this->state_);
+                std::size_t that_width = get_pointer(xpr)->get_width();
                 if(*this->width_ != that_width)
                 {
                     *this->width_ = unknown_width();
@@ -128,45 +124,29 @@ namespace boost { namespace xpressive { namespace detail
         }
     };
 
-    ///////////////////////////////////////////////////////////////////////////////
-    // alt_get_width
-    //
-    template<typename BidiIter>
-    inline std::size_t alt_get_width
-    (
-        std::vector<shared_ptr<matchable<BidiIter> const> > const &alternates
-      , state_type<BidiIter> *state
-    )
-    {
-        typedef alt_get_width_pred<BidiIter> alt_get_width_pred;
-        std::size_t width = alternates.front()->get_width(state);
-        std::for_each(alternates.begin() + 1, alternates.end(), alt_get_width_pred(state, &width));
-        return width;
-    }
+    //template<typename BidiIter>
+    //std::size_t alt_get_width(alternates_vector<BidiIter> const &alternates)
+    //{
+    //    return alternaltes.get_width();
+    //}
 
-    template<typename BidiIter, typename Alternates>
-    inline std::size_t alt_get_width
-    (
-        fusion::sequence_base<Alternates> const &alternates
-      , state_type<BidiIter> *state
-    )
+    template<typename Alternates>
+    std::size_t alt_get_width(fusion::sequence_base<Alternates> const &alternates)
     {
-        typedef alt_get_width_pred<BidiIter> alt_get_width_pred;
-        std::size_t width = (*fusion::begin(alternates.cast())).get_width(state);
+        std::size_t width = (*fusion::begin(alternates.cast())).get_width();
         fusion::for_each
         (
             make_range(fusion::next(fusion::begin(alternates.cast())), fusion::end(alternates.cast()))
-          , alt_get_width_pred(state, &width)
+          , alt_get_width_pred(&width)
         );
         return width;
     }
 
     ///////////////////////////////////////////////////////////////////////////////
     // alternate_matcher
-    //
     template<typename Alternates, typename Traits>
     struct alternate_matcher
-      : quant_style_auto<width_of<Alternates>, is_pure<Alternates> >
+      : quant_style<quant_variable_width, unknown_width, mpl::false_>
     {
         typedef Alternates alternates_type;
         typedef typename Traits::char_type char_type;
@@ -191,10 +171,9 @@ namespace boost { namespace xpressive { namespace detail
             return detail::alt_match(this->alternates_, state, next);
         }
 
-        template<typename BidiIter>
-        std::size_t get_width(state_type<BidiIter> *state) const
+        std::size_t get_width() const
         {
-            return detail::alt_get_width(this->alternates_, state);
+            return detail::alt_get_width(this->alternates_);
         }
 
     private:

@@ -22,7 +22,6 @@
 #include <boost/mpl/lambda.hpp>
 #include <boost/mpl/assert.hpp>
 #include <boost/mpl/not_equal_to.hpp>
-#include <boost/mpl/transform_view.hpp>
 #include <boost/xpressive/detail/detail_fwd.hpp>
 #include <boost/xpressive/detail/static/as_xpr.hpp>
 #include <boost/xpressive/detail/static/width_of.hpp>
@@ -101,36 +100,6 @@ namespace boost { namespace xpressive { namespace detail
     {
     };
 
-    template<typename Matcher, typename Next>
-    struct is_pure<static_xpression<Matcher, Next> >
-      : mpl::and_<typename Matcher::pure, is_pure<Next> >::type
-    {
-    };
-
-    template<typename BidiIter>
-    struct is_pure<shared_ptr<matchable<BidiIter> const> >
-      : mpl::false_
-    {
-    };
-
-    template<typename BidiIter>
-    struct is_pure<std::vector<shared_ptr<matchable<BidiIter> const> > >
-        : mpl::false_
-    {
-    };
-
-    //template<typename BidiIter>
-    //struct is_pure<basic_regex<BidiIter> >
-    //    : mpl::false_
-    //{
-    //};
-
-    template<typename BidiIter>
-    struct is_pure<proto::unary_op<basic_regex<BidiIter>, proto::noop_tag> >
-      : mpl::false_
-    {
-    };
-
     template<typename BidiIter>
     struct is_pure<proto::unary_op<reference_wrapper<basic_regex<BidiIter> const>, proto::noop_tag> >
       : mpl::false_
@@ -169,7 +138,6 @@ namespace boost { namespace xpressive { namespace detail
     };
 
     // Quantified expressions are pure IFF they use the simple_repeat_matcher
-
     template<typename Op>
     struct is_pure<proto::unary_op<Op, proto::unary_plus_tag> >
       : use_simple_repeat<Op>
@@ -200,27 +168,15 @@ namespace boost { namespace xpressive { namespace detail
     {
     };
 
-    template<typename Alternates>
-    struct is_pure<alternates_list<Alternates> >
-      : mpl::fold
-        <
-            mpl::transform_view<Alternates, is_pure<mpl::_1> >
-          , mpl::true_
-          , mpl::and_<mpl::_1, mpl::_2>
-        >::type
-    {
-    };
-
-
     ///////////////////////////////////////////////////////////////////////////////
     // use_simple_repeat
-    // BUGBUG this doesn't handle +(_ >> s1) correctly, right?
+    //  TODO this doesn't optimize +(_ >> "hello")
     template<typename Xpr>
     struct use_simple_repeat
       : mpl::and_<mpl::not_equal_to<width_of<Xpr>, unknown_width>, is_pure<Xpr> >
     {
         // should never try to quantify something of 0-width
-        BOOST_MPL_ASSERT((mpl::not_equal_to<width_of<Xpr>, mpl::size_t<0> >));
+        BOOST_MPL_ASSERT_RELATION(0, !=, width_of<Xpr>::value);
     };
 
     template<typename Matcher>

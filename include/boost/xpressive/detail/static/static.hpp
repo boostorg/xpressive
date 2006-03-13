@@ -168,7 +168,7 @@ struct static_xpression
     template<typename Char>
     void link(xpression_linker<Char> &linker) const
     {
-        linker.link(*static_cast<Matcher const *>(this), &this->next_);
+        linker.accept(*static_cast<Matcher const *>(this), &this->next_);
         this->next_.link(linker);
     }
 
@@ -176,25 +176,22 @@ struct static_xpression
     template<typename Char>
     void peek(xpression_peeker<Char> &peeker) const
     {
-        this->peek_next_(peeker.peek(*static_cast<Matcher const *>(this)), peeker);
+        this->peek_next_(peeker.accept(*static_cast<Matcher const *>(this)), peeker);
     }
 
     // for getting xpression width
-    template<typename BidiIter>
-    std::size_t get_width(state_type<BidiIter> *state) const
+    std::size_t get_width() const
     {
-        // BUGBUG this gets called from the simple_repeat_matcher::match(), so this is slow.
-        // or will the compiler be able to optimize this all away?
-        std::size_t this_width = this->Matcher::get_width(state);
+        std::size_t this_width = this->Matcher::get_width();
         if(this_width == unknown_width())
             return unknown_width();
-        std::size_t that_width = this->next_.get_width(state);
+        std::size_t that_width = this->next_.get_width();
         if(that_width == unknown_width())
             return unknown_width();
         return this_width + that_width;
     }
 
-private: // hide this
+private:
 
     static_xpression &operator =(static_xpression const &);
 
@@ -257,8 +254,7 @@ struct no_next
         peeker.fail();
     }
 
-    template<typename BidiIter>
-    static std::size_t get_width(state_type<BidiIter> *)
+    static std::size_t get_width()
     {
         return 0;
     }

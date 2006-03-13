@@ -56,7 +56,7 @@ struct string_placeholder
 // mark_placeholder
 //
 struct mark_placeholder
-  : quant_style_fixed_unknown_width
+  : quant_style_variable_width
 {
     int mark_number_;
 

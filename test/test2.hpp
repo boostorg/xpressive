@@ -18,8 +18,13 @@ boost::iterator_range<test_case<BidiIterT> const *> get_test_cases()
     typedef basic_regex<BidiIterT> regex_type;
 
     // "(\\+|-)?([0-9]+\\.?[0-9]*|\\.[0-9]+)([eE](\\+|-)?[0-9]+)?"
-    static regex_type const test21 = !(s1= as_xpr(L('+'))|L('-')) >> (s2= +range(L('0'),L('9')) >> !as_xpr(L('.')) >> *range(L('0'),L('9')) |
-        L('.') >> +range(L('0'),L('9'))) >> !(s3= (set=L('e'),L('E')) >> !(s4= as_xpr(L('+'))|L('-')) >> +range(L('0'),L('9')));
+    static regex_type const test21 =
+        !(s1= as_xpr(L('+'))|L('-'))
+      >> (s2= +range(L('0'),L('9')) >> !as_xpr(L('.')) >> *range(L('0'),L('9')) 
+            | L('.') >> +range(L('0'),L('9'))
+         )
+      >> !(s3= (set=L('e'),L('E')) >> !(s4= as_xpr(L('+'))|L('-')) >> +range(L('0'),L('9')))
+    ;
 
     // "^(\\+|-)?([0-9]+\\.?[0-9]*|\\.[0-9]+)([eE](\\+|-)?[0-9]+)?$"
     static regex_type const test23 = bos >> test21 >> eos;

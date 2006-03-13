@@ -33,18 +33,19 @@ namespace boost { namespace xpressive { namespace detail
             typedef static_xpression<simple_repeat_matcher<Op, Greedy>, State> type;
         };
 
-        template<typename Op, typename State, typename Visitor>
-        static typename apply<Op, State, Visitor>::type
-        call(Op const &op, State const &state, Visitor &)
+        template<typename Op, typename State>
+        static static_xpression<simple_repeat_matcher<Op, Greedy>, State>
+        call(Op const &op, State const &state, dont_care)
         {
-            return make_static_xpression(simple_repeat_matcher<Op, Greedy>(op, Min, Max), state);
+            std::size_t width = op.get_width();
+            return make_static_xpression(simple_repeat_matcher<Op, Greedy>(op, Min, Max, width), state);
         }
     };
 
     ///////////////////////////////////////////////////////////////////////////////
-    // repeater_transform
+    // repeater_insert_transform
     template<bool Greedy, uint_t Min, uint_t Max>
-    struct repeater_transform
+    struct repeater_insert_transform
     {
         template<typename Op, typename, typename>
         struct apply
@@ -135,33 +136,29 @@ namespace boost { namespace xpressive { namespace detail
     };
 
     ///////////////////////////////////////////////////////////////////////////////
-    // marker_if_transform
-    //   Insert marker matchers before and after the expression
-    typedef proto::conditional_transform<
-        is_marker_predicate
-      , marker_assign_transform
-      , marker_transform
-    > marker_if_transform;
-
-    ///////////////////////////////////////////////////////////////////////////////
-    // repeater_if_transform
+    // repeater_transform
     //   Insert repeat and marker matcher before and after the expression
     template<bool Greedy, uint_t Min, uint_t Max>
-    struct repeater_if_transform
+    struct repeater_transform
       : proto::compose_transforms
         <
-            marker_if_transform
-          , repeater_transform<Greedy, Min, Max>
+            proto::conditional_transform
+            <
+                is_marker_predicate
+              , marker_replace_transform
+              , marker_insert_transform
+            >
+          , repeater_insert_transform<Greedy, Min, Max>
         >
     {
     };
 
     // transform *foo to (+foo | nil)
     template<bool Greedy, uint_t Max>
-    struct repeater_if_transform<Greedy, 0, Max>
+    struct repeater_transform<Greedy, 0, Max>
       : proto::compose_transforms
         <
-            repeater_if_transform<Greedy, 1, Max>
+            repeater_transform<Greedy, 1, Max>
           , optional_transform<Greedy, epsilon_mark_matcher>
         >
     {
@@ -170,7 +167,7 @@ namespace boost { namespace xpressive { namespace detail
     // transform !(foo) to (foo | nil), with care to make sure
     // that !(s1= foo) sets s1 to null if foo doesn't match.
     template<bool Greedy>
-    struct repeater_if_transform<Greedy, 0, 1>
+    struct repeater_transform<Greedy, 0, 1>
       : proto::conditional_transform
         <
             is_marker_predicate
