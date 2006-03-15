@@ -139,12 +139,16 @@ namespace boost { namespace xpressive { namespace detail
     {
     };
 
-    // keep() is used to turn off backtracking, so they're generally only used
-    // for things that are not fixed width
+    // keep() is used to turn off backtracking, so they should only be used
+    // for things that are variable-width (eg. quantified)
     template<typename Op>
     struct width_of<proto::unary_op<Op, keeper_tag> >
       : unknown_width
     {
+        // If this assert fires, you put something that doesn't require backtracking
+        // in a keep(). In that case, the keep() is not necessary and you should just
+        // remove it.
+        BOOST_MPL_ASSERT((mpl::equal_to<width_of<Op>, unknown_width>));
     };
 
     template<typename BidiIter>

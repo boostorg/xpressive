@@ -100,7 +100,8 @@ template<typename BidiIter>
 struct matchable
   : xpression_base
 {
-    typedef typename iterator_value<BidiIter>::type char_type;
+    typedef BidiIter iterator_type;
+    typedef typename iterator_value<iterator_type>::type char_type;
     virtual ~matchable() {}
     virtual bool match(state_type<BidiIter> &state) const = 0;
 };
@@ -113,6 +114,7 @@ struct dynamic_xpression_base
   : matchable<BidiIter>
 {
     typedef BidiIter iterator_type;
+    typedef typename iterator_value<iterator_type>::type char_type;
 
     virtual void link(xpression_linker<char_type> &) const
     {
