@@ -76,6 +76,7 @@ namespace boost { namespace xpressive { namespace detail
             BOOST_ASSERT(min <= max);
             BOOST_ASSERT(0 != max);
             BOOST_ASSERT(0 != width && unknown_width() != width);
+            BOOST_ASSERT(Xpr::width == unknown_width() || Xpr::width == width);
         }
 
         template<typename BidiIter, typename Next>
@@ -90,7 +91,7 @@ namespace boost { namespace xpressive { namespace detail
         template<typename BidiIter, typename Next>
         bool match_(state_type<BidiIter> &state, Next const &next, greedy_slow_tag) const
         {
-            int const diff = -static_cast<int>(this->width_);
+            int const diff = -static_cast<int>(Xpr::width == unknown_width::value ? this->width_ : Xpr::width);
             unsigned int matches = 0;
             BidiIter const tmp = state.cur_;
 

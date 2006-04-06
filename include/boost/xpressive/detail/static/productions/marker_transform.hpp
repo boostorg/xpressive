@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-// marker_insert_transform.hpp
+// marker_transform.hpp
 //
 //  Copyright 2004 Eric Niebler. Distributed under the Boost
 //  Software License, Version 1.0. (See accompanying file
