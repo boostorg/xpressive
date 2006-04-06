@@ -32,7 +32,7 @@ namespace boost { namespace xpressive { namespace detail
     //
     template<typename BidiIter>
     struct regex_byref_matcher
-      : quant_style<quant_variable_width, unknown_width, mpl::false_>
+      : quant_style<quant_variable_width, unknown_width::value, false>
     {
         // avoid cyclic references by holding a weak_ptr to the
         // regex_impl struct

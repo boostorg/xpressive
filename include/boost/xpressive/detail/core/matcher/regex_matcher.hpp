@@ -30,7 +30,7 @@ namespace boost { namespace xpressive { namespace detail
     //
     template<typename BidiIter>
     struct regex_matcher
-      : quant_style<quant_variable_width, unknown_width, mpl::false_>
+      : quant_style<quant_variable_width, unknown_width::value, false>
     {
         regex_impl<BidiIter> impl_;
 

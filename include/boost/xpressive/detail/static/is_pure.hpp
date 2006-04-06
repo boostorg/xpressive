@@ -15,11 +15,8 @@
 
 #include <vector>
 #include <boost/ref.hpp>
-#include <boost/shared_ptr.hpp>
 #include <boost/mpl/and.hpp>
 #include <boost/mpl/bool.hpp>
-#include <boost/mpl/fold.hpp>
-#include <boost/mpl/lambda.hpp>
 #include <boost/mpl/assert.hpp>
 #include <boost/mpl/not_equal_to.hpp>
 #include <boost/xpressive/detail/detail_fwd.hpp>
@@ -48,7 +45,7 @@ namespace boost { namespace xpressive { namespace detail
 
     template<typename Matcher>
     struct is_pure<proto::unary_op<Matcher, proto::noop_tag> >
-      : as_matcher_type<Matcher>::type::pure
+      : mpl::bool_<as_matcher<Matcher>::type::pure>
     {
     };
 
@@ -179,19 +176,14 @@ namespace boost { namespace xpressive { namespace detail
         BOOST_MPL_ASSERT_RELATION(0, !=, width_of<Xpr>::value);
     };
 
+    template<bool B, quant_enum Q> struct use_simple_repeat_helper : mpl::false_ {};
+    template<> struct use_simple_repeat_helper<true, quant_fixed_width> : mpl::true_ {};
+
     template<typename Matcher>
     struct use_simple_repeat<proto::unary_op<Matcher, proto::noop_tag> >
-      : mpl::and_
-        <
-            mpl::equal_to
-            <
-                quant_type<typename as_matcher_type<Matcher>::type>
-              , mpl::int_<quant_fixed_width>
-            >
-          , typename as_matcher_type<Matcher>::type::pure
-        >
+      : use_simple_repeat_helper<as_matcher<Matcher>::type::pure, as_matcher<Matcher>::type::quant>
     {
-        BOOST_MPL_ASSERT_RELATION(0, !=, as_matcher_type<Matcher>::type::width::value);
+        BOOST_MPL_ASSERT_RELATION(0, !=, as_matcher<Matcher>::type::width);
     };
 
     template<typename Op, typename Arg>

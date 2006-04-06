@@ -71,7 +71,7 @@ struct mark_placeholder
 //
 template<typename BidiIter, bool ByRef>
 struct regex_placeholder
-  : quant_style<quant_variable_width, unknown_width, mpl::false_>
+  : quant_style<quant_variable_width, unknown_width::value, false>
 {
     shared_ptr<regex_impl<BidiIter> > impl_;
 
@@ -153,7 +153,7 @@ struct logical_newline_placeholder
 // self_placeholder
 //
 struct self_placeholder
-  : quant_style<quant_variable_width, unknown_width, mpl::false_>
+  : quant_style<quant_variable_width, unknown_width::value, false>
 {
 };
 

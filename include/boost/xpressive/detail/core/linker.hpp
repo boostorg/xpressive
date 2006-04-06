@@ -173,19 +173,19 @@ struct xpression_linker
     template<typename Xpr>
     void accept(keeper_matcher<Xpr> const &matcher, xpression_base const *)
     {
-        get_pointer(matcher.xpr_)->link(*this);
+        matcher.xpr_.link(*this);
     }
 
     template<typename Xpr>
     void accept(lookahead_matcher<Xpr> const &matcher, xpression_base const *)
     {
-        get_pointer(matcher.xpr_)->link(*this);
+        matcher.xpr_.link(*this);
     }
 
     template<typename Xpr>
     void accept(lookbehind_matcher<Xpr> const &matcher, xpression_base const *)
     {
-        get_pointer(matcher.xpr_)->link(*this);
+        matcher.xpr_.link(*this);
     }
 
     template<typename Xpr, bool Greedy>
@@ -199,8 +199,8 @@ struct xpression_linker
     void alt_branch_link(Xpr const &xpr, xpression_base const *next, xpression_peeker<Char> &peeker)
     {
         this->back_stack_.push(next);
-        get_pointer(xpr)->link(*this);
-        get_pointer(xpr)->peek(peeker);
+        xpr.link(*this);
+        xpr.peek(peeker);
     }
 
 private:

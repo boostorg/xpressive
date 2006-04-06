@@ -57,7 +57,7 @@ namespace boost { namespace xpressive { namespace detail
         template<typename Xpr>
         bool operator ()(Xpr const &xpr) const
         {
-            return get_pointer(xpr)->BOOST_NESTED_TEMPLATE push_match<Next>(this->state_);
+            return xpr.BOOST_NESTED_TEMPLATE push_match<Next>(this->state_);
         }
 
     private:
@@ -115,7 +115,7 @@ namespace boost { namespace xpressive { namespace detail
         {
             if(*this->width_ != unknown_width())
             {
-                std::size_t that_width = get_pointer(xpr)->get_width();
+                std::size_t that_width = xpr.get_width();
                 if(*this->width_ != that_width)
                 {
                     *this->width_ = unknown_width();
@@ -146,7 +146,11 @@ namespace boost { namespace xpressive { namespace detail
     // alternate_matcher
     template<typename Alternates, typename Traits>
     struct alternate_matcher
-      : quant_style<quant_variable_width, unknown_width, mpl::false_>
+      : quant_style<
+            Alternates::width != unknown_width::value && Alternates::pure ? quant_fixed_width : quant_variable_width
+          , Alternates::width
+          , Alternates::pure
+        >
     {
         typedef Alternates alternates_type;
         typedef typename Traits::char_type char_type;

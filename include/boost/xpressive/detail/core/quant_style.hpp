@@ -48,9 +48,9 @@ struct xpression_base
 ///////////////////////////////////////////////////////////////////////////////
 // is_xpr
 //
-template<typename T>
+template<typename Xpr>
 struct is_xpr
-  : is_base_and_derived<xpression_base, T>
+  : is_base_and_derived<xpression_base, Xpr>
 {
 };
 
@@ -67,17 +67,22 @@ enum quant_enum
 ///////////////////////////////////////////////////////////////////////////////
 // quant_style
 //
-template<quant_enum QuantStyle, typename Width = unknown_width, typename Pure = mpl::true_>
+template<quant_enum QuantStyle, std::size_t Width = unknown_width::value, bool Pure = true>
 struct quant_style
   : xpression_base
 {
-    typedef mpl::int_<QuantStyle> quant;   // Which quantification strategy to use?
-    typedef Width width;                   // how many characters this matcher consumes
-    typedef Pure pure;                     // whether this matcher has observable side-effects
+    // Which quantification strategy to use?
+    BOOST_STATIC_CONSTANT(quant_enum, quant = QuantStyle);
+
+    // how many characters this matcher consumes
+    BOOST_STATIC_CONSTANT(std::size_t, width = Width);
+
+    // whether this matcher has observable side-effects
+    BOOST_STATIC_CONSTANT(bool, pure = Pure);
 
     static std::size_t get_width()
     {
-        return Width::value;
+        return width;
     }
 };
 
@@ -103,7 +108,7 @@ typedef quant_style<quant_variable_width> quant_style_variable_width;
 //  for when the sub-expression has a fixed width that is known at compile time
 template<std::size_t Width>
 struct quant_style_fixed_width
-  : quant_style<quant_fixed_width, mpl::size_t<Width> >
+  : quant_style<quant_fixed_width, Width>
 {
 };
 
@@ -111,7 +116,7 @@ struct quant_style_fixed_width
 // quant_style_assertion
 //  a zero-width assertion.
 struct quant_style_assertion
-  : quant_style<quant_none, mpl::size_t<0> >
+  : quant_style<quant_none, 0>
 {
 };
 
@@ -120,7 +125,7 @@ struct quant_style_assertion
 //
 template<typename Matcher>
 struct quant_type
-  : Matcher::quant
+  : mpl::int_<Matcher::quant>
 {
 };
 

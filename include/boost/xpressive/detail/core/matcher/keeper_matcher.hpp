@@ -24,12 +24,12 @@ namespace boost { namespace xpressive { namespace detail
 
     ///////////////////////////////////////////////////////////////////////////////
     // keeper_matcher
-    //       Xpr can be either a static_xpression, or a shared_ptr<dynamic_xpression_base>
+    //  Xpr can be either a static_xpression, or a shared_matchable
     template<typename Xpr>
     struct keeper_matcher
-      : quant_style<quant_variable_width, unknown_width, mpl::false_>
+      : quant_style<quant_variable_width, unknown_width::value, Xpr::pure>
     {
-        keeper_matcher(Xpr const &xpr, bool do_save)
+        keeper_matcher(Xpr const &xpr, bool do_save = !Xpr::pure)
           : xpr_(xpr)
           , do_save_(do_save)
         {
@@ -38,9 +38,9 @@ namespace boost { namespace xpressive { namespace detail
         template<typename BidiIter, typename Next>
         bool match(state_type<BidiIter> &state, Next const &next) const
         {
-            return this->do_save_
-                ? this->match_(state, next, mpl::false_())
-                : this->match_(state, next, mpl::true_());
+            return !Xpr::pure && this->do_save_
+              ? this->match_(state, next, mpl::false_())
+              : this->match_(state, next, mpl::true_());
         }
 
         template<typename BidiIter, typename Next>
@@ -49,7 +49,7 @@ namespace boost { namespace xpressive { namespace detail
             BidiIter const tmp = state.cur_;
 
             // matching xpr is guaranteed to not produce side-effects, don't bother saving state
-            if(!get_pointer(this->xpr_)->match(state))
+            if(!this->xpr_.match(state))
             {
                 return false;
             }
@@ -70,7 +70,7 @@ namespace boost { namespace xpressive { namespace detail
             // matching xpr could produce side-effects, save state
             memento<BidiIter> mem = save_sub_matches(state);
 
-            if(!get_pointer(this->xpr_)->match(state))
+            if(!this->xpr_.match(state))
             {
                 reclaim_sub_matches(mem, state);
                 return false;

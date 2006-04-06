@@ -251,7 +251,8 @@ private:
         seq += detail::alternates_to_matchable(alternates, alternates_factory());
         seq += seq_end;
 
-        typedef shared_ptr<detail::dynamic_xpression_base<BidiIter> const> xpr_type;
+        //typedef shared_ptr<detail::dynamic_xpression_base<BidiIter> const> xpr_type;
+        typedef detail::shared_matchable<BidiIter> xpr_type;
         bool do_save = (this->mark_count_ != old_mark_count);
 
         if(lookahead)

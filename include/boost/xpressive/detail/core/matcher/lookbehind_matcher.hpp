@@ -31,9 +31,9 @@ namespace boost { namespace xpressive { namespace detail
     //   Xpr can be either a static_xpression, or a shared_ptr<dynamic_xpression_base>
     template<typename Xpr>
     struct lookbehind_matcher
-      : quant_style<quant_none, mpl::size_t<0>, mpl::false_>
+      : quant_style<quant_none, 0, Xpr::pure>
     {
-        lookbehind_matcher(Xpr const &xpr, std::size_t width, bool no, bool do_save)
+        lookbehind_matcher(Xpr const &xpr, std::size_t width, bool no, bool do_save = !Xpr::pure)
           : xpr_(xpr)
           , not_(no)
           , do_save_(do_save)
@@ -46,9 +46,9 @@ namespace boost { namespace xpressive { namespace detail
         template<typename BidiIter, typename Next>
         bool match(state_type<BidiIter> &state, Next const &next) const
         {
-            return this->do_save_
-                ? this->match_(state, next, mpl::false_())
-                : this->match_(state, next, mpl::true_());
+            return !Xpr::pure && this->do_save_
+              ? this->match_(state, next, mpl::false_())
+              : this->match_(state, next, mpl::true_());
         }
 
         template<typename BidiIter, typename Next>
@@ -64,7 +64,7 @@ namespace boost { namespace xpressive { namespace detail
 
             if(this->not_)
             {
-                if(get_pointer(this->xpr_)->match(state))
+                if(this->xpr_.match(state))
                 {
                     BOOST_ASSERT(state.cur_ == tmp);
                     return false;
@@ -77,7 +77,7 @@ namespace boost { namespace xpressive { namespace detail
             }
             else
             {
-                if(!get_pointer(this->xpr_)->match(state))
+                if(!this->xpr_.match(state))
                 {
                     state.cur_ = tmp;
                     return false;
@@ -113,7 +113,7 @@ namespace boost { namespace xpressive { namespace detail
                 save_restore<bool> partial_match(state.found_partial_match_);
                 detail::ignore_unused(&partial_match);
 
-                if(get_pointer(this->xpr_)->match(state))
+                if(this->xpr_.match(state))
                 {
                     restore_sub_matches(mem, state);
                     BOOST_ASSERT(state.cur_ == tmp);
@@ -129,7 +129,7 @@ namespace boost { namespace xpressive { namespace detail
             }
             else
             {
-                if(!get_pointer(this->xpr_)->match(state))
+                if(!this->xpr_.match(state))
                 {
                     state.cur_ = tmp;
                     reclaim_sub_matches(mem, state);

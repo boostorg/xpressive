@@ -58,48 +58,6 @@ namespace boost { namespace proto
         }
     };
 
-    ///////////////////////////////////////////////////////////////////////////////
-    // branch_compiler_ex
-    template<typename Lambda, typename DomainTag>
-    struct branch_compiler_ex
-    {
-        template<typename Op, typename State, typename Visitor>
-        struct apply
-        {
-            typedef proto::compiler<typename tag_type<Op>::type, DomainTag> compiler_type;
-
-            // Compile the branch
-            typedef typename compiler_type::BOOST_NESTED_TEMPLATE apply
-            <
-                Op
-              , typename Lambda::state_type
-              , Visitor
-            >::type branch_type;
-
-            // Pass the branch, state and visitor to the lambda
-            typedef typename Lambda::BOOST_NESTED_TEMPLATE apply
-            <
-                branch_type
-              , State
-              , Visitor
-              , Op
-            >::type type;
-        };
-
-        template<typename Op, typename State, typename Visitor>
-        static typename apply<Op, State, Visitor>::type
-        call(Op const &op, State const &state, Visitor &visitor)
-        {
-            return Lambda::call
-            (
-                proto::compile(op, typename Lambda::state_type(), visitor, DomainTag())
-              , state
-              , visitor
-              , op
-            );
-        }
-    };
-
 }}
 
 #endif

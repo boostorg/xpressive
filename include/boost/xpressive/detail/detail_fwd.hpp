@@ -138,7 +138,7 @@ namespace boost { namespace xpressive { namespace detail
     template<typename Xpr>
     struct is_modifiable;
 
-    template<typename Alternates>
+    template<typename Head, typename Tail>
     struct alternates_list;
 
     template<typename Modifier>
@@ -242,6 +242,9 @@ namespace boost { namespace xpressive { namespace detail
 
     template<typename Matcher, typename BidiIter>
     struct dynamic_xpression;
+
+    template<typename BidiIter>
+    struct shared_matchable;
 
     template<typename BidiIter>
     struct alternates_vector;

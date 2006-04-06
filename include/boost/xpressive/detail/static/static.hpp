@@ -133,6 +133,15 @@ struct static_xpression
 {
     Next next_;
 
+    BOOST_STATIC_CONSTANT(bool, pure = Matcher::pure && Next::pure);
+    BOOST_STATIC_CONSTANT(
+        std::size_t
+      , width = 
+            (Matcher::width == unknown_width::value || Next::width == unknown_width::value)
+          ? unknown_width::value
+          : Matcher::width + Next::width
+    );
+
     static_xpression(Matcher const &matcher = Matcher(), Next const &next = Next())
       : Matcher(matcher)
       , next_(next)
@@ -206,19 +215,7 @@ private:
     {
         // no-op
     }
-
-    using Matcher::width;
-    using Matcher::pure;
 };
-
-// syntactic sugar so this xpression can be treated the same as
-// (a smart pointer to) a dynamic xpression from templates
-template<typename Matcher, typename Next>
-inline static_xpression<Matcher, Next> const *
-get_pointer(static_xpression<Matcher, Next> const &xpr)
-{
-	return &xpr;
-}
 
 ///////////////////////////////////////////////////////////////////////////////
 // make_static_xpression
@@ -243,6 +240,9 @@ make_static_xpression(Matcher const &matcher, Next const &next)
 struct no_next
   : xpression_base
 {
+    BOOST_STATIC_CONSTANT(std::size_t, width = 0);
+    BOOST_STATIC_CONSTANT(bool, pure = true);
+
     template<typename Char>
     void link(xpression_linker<Char> &) const
     {
@@ -258,21 +258,6 @@ struct no_next
     {
         return 0;
     }
-};
-
-///////////////////////////////////////////////////////////////////////////////
-// alternates_list
-//
-template<typename Alternates>
-struct alternates_list
-  : Alternates
-{
-    alternates_list(Alternates const &alternates)
-      : Alternates(alternates)
-    {
-    }
-private:
-    alternates_list &operator =(alternates_list const &);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

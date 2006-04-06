@@ -34,7 +34,7 @@ namespace boost { namespace xpressive { namespace detail
 //   tell whether or not to keep looking for a peek optimization
 template<typename Matcher>
 struct peek_next 
-  : mpl::equal_to<typename Matcher::width, mpl::size_t<0> >
+  : mpl::bool_<Matcher::width == 0>
 {
 };
 

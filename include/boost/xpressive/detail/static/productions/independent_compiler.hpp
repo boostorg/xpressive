@@ -31,17 +31,17 @@ namespace boost { namespace xpressive { namespace detail
     {
         typedef true_xpression state_type;
 
-        template<typename Op, typename State, typename, typename>
+        template<typename Op, typename State, typename>
         struct apply
         {
             typedef static_xpression<lookahead_matcher<Op>, State> type;
         };
 
-        template<typename Op, typename State, typename Visitor, typename Orig>
+        template<typename Op, typename State, typename Visitor>
         static static_xpression<lookahead_matcher<Op>, State>
-        call(Op const &op, State const &state, Visitor &, Orig const &)
+        call(Op const &op, State const &state, Visitor &)
         {
-            return make_static_xpression(lookahead_matcher<Op>(op, !Positive, !is_pure<Orig>::value), state);
+            return make_static_xpression(lookahead_matcher<Op>(op, !Positive), state);
         }
     };
 
@@ -52,18 +52,18 @@ namespace boost { namespace xpressive { namespace detail
     {
         typedef true_xpression state_type;
 
-        template<typename Op, typename State, typename, typename>
+        template<typename Op, typename State, typename>
         struct apply
         {
             typedef static_xpression<lookbehind_matcher<Op>, State> type;
         };
 
-        template<typename Op, typename State, typename Visitor, typename Orig>
+        template<typename Op, typename State, typename Visitor>
         static static_xpression<lookbehind_matcher<Op>, State>
-        call(Op const &op, State const &state, Visitor &, Orig const &)
+        call(Op const &op, State const &state, Visitor &)
         {
             std::size_t width = op.get_width();
-            return make_static_xpression(lookbehind_matcher<Op>(op, width, !Positive, !is_pure<Orig>::value), state);
+            return make_static_xpression(lookbehind_matcher<Op>(op, width, !Positive), state);
         }
     };
 
@@ -71,17 +71,17 @@ namespace boost { namespace xpressive { namespace detail
     {
         typedef true_xpression state_type;
 
-        template<typename Op, typename State, typename, typename Orig>
+        template<typename Op, typename State, typename>
         struct apply
         {
             typedef static_xpression<keeper_matcher<Op>, State> type;
         };
 
-        template<typename Op, typename State, typename Visitor, typename Orig>
+        template<typename Op, typename State, typename Visitor>
         static static_xpression<keeper_matcher<Op>, State>
-        call(Op const &op, State const &state, Visitor &, Orig const &)
+        call(Op const &op, State const &state, Visitor &)
         {
-            return make_static_xpression(keeper_matcher<Op>(op, !is_pure<Orig>::value), state);
+            return make_static_xpression(keeper_matcher<Op>(op), state);
         }
     };
 
@@ -93,19 +93,19 @@ namespace boost { namespace proto
 
     template<bool Positive>
     struct compiler<xpressive::detail::lookahead_tag<Positive>, xpressive::detail::seq_tag, void>
-      : branch_compiler_ex<xpressive::detail::lookahead_branch<Positive>, xpressive::detail::ind_tag>
+      : branch_compiler<xpressive::detail::lookahead_branch<Positive>, xpressive::detail::ind_tag>
     {
     };
 
     template<bool Positive>
     struct compiler<xpressive::detail::lookbehind_tag<Positive>, xpressive::detail::seq_tag, void>
-      : branch_compiler_ex<xpressive::detail::lookbehind_branch<Positive>, xpressive::detail::ind_tag>
+      : branch_compiler<xpressive::detail::lookbehind_branch<Positive>, xpressive::detail::ind_tag>
     {
     };
 
     template<>
     struct compiler<xpressive::detail::keeper_tag, xpressive::detail::seq_tag, void>
-      : branch_compiler_ex<xpressive::detail::keeper_branch, xpressive::detail::ind_tag>
+      : branch_compiler<xpressive::detail::keeper_branch, xpressive::detail::ind_tag>
     {
     };
 

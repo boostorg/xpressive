@@ -29,6 +29,43 @@ template<typename BidiIter>
 struct dynamic_xpression_base;
 
 ///////////////////////////////////////////////////////////////////////////////
+// width_
+//
+struct width_
+{
+    explicit width_(std::size_t v = 0)
+      : value(v)
+    {
+    }
+
+    width_ &operator +=(width_ const &that)
+    {
+        this->value =
+            this->value != unknown_width() && that.value != unknown_width()
+          ? this->value + that.value
+          : unknown_width();
+        return *this;
+    }
+
+    width_ &operator |=(width_ const &that)
+    {
+        this->value = 
+            this->value == that.value
+          ? this->value
+          : unknown_width();
+        return *this;
+    }
+
+    operator std::size_t () const
+    {
+        return this->value;
+    }
+
+private:
+    std::size_t value;
+};
+
+///////////////////////////////////////////////////////////////////////////////
 // sequence
 //
 template<typename BidiIter>
@@ -46,7 +83,7 @@ struct sequence
     (
         matchable_ptr_t head = matchable_ptr_t()
       , matchable_ptr_t *tail_ptr = 0
-      , int width = 0
+      , std::size_t width = 0
       , bool pure = true
     )
       : base_t(head, tail_ptr)
@@ -71,15 +108,13 @@ struct sequence
             *this->second = that.first;
             this->second = that.second;
             // keep track of sequence width and purity
-            this->width_of = (this->width_of != unknown_width() && that.width_of != unknown_width())
-                ? this->width_of + that.width_of
-                : unknown_width();
+            this->width_of += that.width_of;
             this->is_pure = this->is_pure && that.is_pure;
         }
         return *this;
     }
 
-    std::size_t width_of;
+    width_ width_of;
     bool is_pure;
 };
 
