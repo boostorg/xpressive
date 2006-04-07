@@ -137,9 +137,9 @@ struct static_xpression
     BOOST_STATIC_CONSTANT(
         std::size_t
       , width = 
-            (Matcher::width == unknown_width::value || Next::width == unknown_width::value)
-          ? unknown_width::value
-          : Matcher::width + Next::width
+            Matcher::width != unknown_width::value && Next::width != unknown_width::value
+          ? Matcher::width + Next::width
+          : unknown_width::value
     );
 
     static_xpression(Matcher const &matcher = Matcher(), Next const &next = Next())

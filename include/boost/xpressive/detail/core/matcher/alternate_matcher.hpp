@@ -26,8 +26,6 @@ namespace boost { namespace fusion
 #endif
 
 #include <boost/shared_ptr.hpp>
-#include <boost/spirit/fusion/sequence/range.hpp>
-#include <boost/spirit/fusion/algorithm/for_each.hpp>
 #include <boost/xpressive/detail/detail_fwd.hpp>
 #include <boost/xpressive/detail/core/quant_style.hpp>
 #include <boost/xpressive/detail/core/state.hpp>
@@ -44,24 +42,22 @@ namespace boost { namespace xpressive { namespace detail
     ///////////////////////////////////////////////////////////////////////////////
     // alt_match_pred
     //
-    template<typename BidiIter, typename Next>
+    template<typename BidiIter, typename Next = dynamic_xpression_base<BidiIter> >
     struct alt_match_pred
     {
-        state_type<BidiIter> &state_;
-
         alt_match_pred(state_type<BidiIter> &state)
-          : state_(state)
+          : state_(&state)
         {
         }
 
         template<typename Xpr>
         bool operator ()(Xpr const &xpr) const
         {
-            return xpr.BOOST_NESTED_TEMPLATE push_match<Next>(this->state_);
+            return xpr.BOOST_NESTED_TEMPLATE push_match<Next>(*this->state_);
         }
 
     private:
-        alt_match_pred &operator =(alt_match_pred const &);
+        state_type<BidiIter> *state_;
     };
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -70,76 +66,19 @@ namespace boost { namespace xpressive { namespace detail
     template<typename BidiIter>
     inline bool alt_match
     (
-        alternates_vector<BidiIter> const &alternates
-      , state_type<BidiIter> &state
-      , dynamic_xpression_base<BidiIter> const &
+        alternates_vector<BidiIter> const &alts, state_type<BidiIter> &state, matchable<BidiIter> const &
     )
     {
-        typedef alt_match_pred<BidiIter, dynamic_xpression_base<BidiIter> > alt_match_pred;
-        return detail::any(alternates.begin(), alternates.end(), alt_match_pred(state));
+        return detail::any(alts.begin(), alts.end(), alt_match_pred<BidiIter>(state));
     }
 
-    template<typename BidiIter, typename Next, typename Alternates>
+    template<typename Head, typename Tail, typename BidiIter, typename Next>
     inline bool alt_match
     (
-        fusion::sequence_base<Alternates> const &alternates
-      , state_type<BidiIter> &state
-      , Next const &
+        alternates_list<Head, Tail> const &alts, state_type<BidiIter> &state, Next const &
     )
     {
-        typedef alt_match_pred<BidiIter, Next> alt_match_pred;
-        return fusion::any(alternates.cast(), alt_match_pred(state));
-    }
-
-    ///////////////////////////////////////////////////////////////////////////////
-    // make_range
-    template<typename Begin, typename End>
-    inline fusion::range<Begin, End> make_range(Begin const &begin, End const &end)
-    {
-        return fusion::range<Begin, End>(begin, end);
-    }
-
-    ///////////////////////////////////////////////////////////////////////////////
-    // alt_get_width_pred
-    struct alt_get_width_pred
-    {
-        std::size_t *width_;
-
-        alt_get_width_pred(std::size_t *width)
-          : width_(width)
-        {
-        }
-
-        template<typename Xpr>
-        void operator ()(Xpr const &xpr) const
-        {
-            if(*this->width_ != unknown_width())
-            {
-                std::size_t that_width = xpr.get_width();
-                if(*this->width_ != that_width)
-                {
-                    *this->width_ = unknown_width();
-                }
-            }
-        }
-    };
-
-    //template<typename BidiIter>
-    //std::size_t alt_get_width(alternates_vector<BidiIter> const &alternates)
-    //{
-    //    return alternaltes.get_width();
-    //}
-
-    template<typename Alternates>
-    std::size_t alt_get_width(fusion::sequence_base<Alternates> const &alternates)
-    {
-        std::size_t width = (*fusion::begin(alternates.cast())).get_width();
-        fusion::for_each
-        (
-            make_range(fusion::next(fusion::begin(alternates.cast())), fusion::end(alternates.cast()))
-          , alt_get_width_pred(&width)
-        );
-        return width;
+        return fusion::any(alts, alt_match_pred<BidiIter, Next>(state));
     }
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -177,7 +116,11 @@ namespace boost { namespace xpressive { namespace detail
 
         std::size_t get_width() const
         {
-            return detail::alt_get_width(this->alternates_);
+            // Only called when constructing static regexes, and this is a
+            // set of same-width alternates where the widths are known at compile
+            // time, as in: sregex rx = +(_ | 'a' | _n);
+            BOOST_MPL_ASSERT_RELATION(unknown_width::value, !=, Alternates::width);
+            return Alternates::width;
         }
 
     private:
