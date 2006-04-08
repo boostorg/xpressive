@@ -86,11 +86,6 @@ namespace boost { namespace xpressive { namespace detail
             return false;
         }
 
-        //std::size_t get_width() const
-        //{
-        //    return this->xpr_.get_width();
-        //}
-
         Xpr xpr_;
         bool do_save_; // true if matching xpr_ could modify the sub-matches
     };

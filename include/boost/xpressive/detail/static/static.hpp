@@ -191,13 +191,7 @@ struct static_xpression
     // for getting xpression width
     std::size_t get_width() const
     {
-        std::size_t this_width = this->Matcher::get_width();
-        if(this_width == unknown_width())
-            return unknown_width();
-        std::size_t that_width = this->next_.get_width();
-        if(that_width == unknown_width())
-            return unknown_width();
-        return this_width + that_width;
+        return this->get_width_(mpl::size_t<width>());
     }
 
 private:
@@ -214,6 +208,24 @@ private:
     static void peek_next_(mpl::false_, xpression_peeker<Char> &)
     {
         // no-op
+    }
+
+    template<std::size_t Width>
+    std::size_t get_width_(mpl::size_t<Width>) const
+    {
+        return Width;
+    }
+
+    std::size_t get_width_(unknown_width) const
+    {
+        // Should only be called in contexts where the width is
+        // known to be fixed.
+        // BUGBUG this will assert on invalid lookbehinds.
+        std::size_t this_width = this->Matcher::get_width();
+        std::size_t that_width = this->next_.get_width();
+        BOOST_ASSERT(this_width != unknown_width());
+        BOOST_ASSERT(that_width != unknown_width());
+        return this_width + that_width;
     }
 };
 
