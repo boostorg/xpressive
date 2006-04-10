@@ -37,6 +37,7 @@ struct quant_spec
 // matchable
 template<typename BidiIter>
 struct matchable
+  : xpression_base
 {
     typedef BidiIter iterator_type;
     typedef typename iterator_value<iterator_type>::type char_type;
@@ -72,22 +73,54 @@ struct matchable_ex
     {
         throw regex_error(regex_constants::error_badrepeat, "expression cannot be quantified");
     }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // The following 4 functions (push_match, top_match, pop_match and skip_match) are
+    // used to implement looping and branching across the matchers. Call push_match to record
+    // a position. Then, another matcher further down the xpression chain has the
+    // option to call either top_match, pop_match or skip_match. top_match and pop_match will
+    // jump back to the place recorded by push_match, whereas skip_match will skip the jump and
+    // pass execution down the xpression chain. top_match will leave the xpression on top of the
+    // stack, whereas pop_match will remove it. Each function comes in 2 flavors: one for
+    // statically bound xpressions and one for dynamically bound xpressions.
+    //
+
+    template<typename Top>
+    bool push_match(state_type<BidiIter> &state) const
+    {
+        BOOST_MPL_ASSERT((is_same<Top, matchable_ex<BidiIter> >));
+        return this->match(state);
+    }
+
+    static bool top_match(state_type<BidiIter> &state, xpression_base const *top)
+    {
+        return static_cast<matchable_ex<BidiIter> const *>(top)->match(state);
+    }
+
+    static bool pop_match(state_type<BidiIter> &state, xpression_base const *top)
+    {
+        return static_cast<matchable_ex<BidiIter> const *>(top)->match(state);
+    }
+
+    bool skip_match(state_type<BidiIter> &state) const
+    {
+        return this->match(state);
+    }
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 // shared_matchable
 template<typename BidiIter>
 struct shared_matchable
-  : xpression_base
 {
     typedef BidiIter iterator_type;
     typedef typename iterator_value<BidiIter>::type char_type;
-    typedef shared_ptr<matchable_ex<BidiIter> const> matchable_type;
+    typedef shared_ptr<matchable_ex<BidiIter> const> matchable_ptr;
 
     BOOST_STATIC_CONSTANT(std::size_t, width = unknown_width::value);
     BOOST_STATIC_CONSTANT(bool, pure = false);
 
-    shared_matchable(matchable_type const &xpr = matchable_type())
+    shared_matchable(matchable_ptr const &xpr = matchable_ptr())
       : xpr_(xpr)
     {
     }
@@ -107,7 +140,7 @@ struct shared_matchable
         return left.xpr_ != right.xpr_;
     }
 
-    matchable_type const &matchable() const
+    matchable_ptr const &matchable() const
     {
         return this->xpr_;
     }
@@ -127,41 +160,8 @@ struct shared_matchable
         this->xpr_->peek(peeker);
     }
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-    // The following 4 functions (push_match, top_match, pop_match and skip_match) are
-    // used to implement looping and branching across the matchers. Call push_match to record
-    // a position. Then, another matcher further down the xpression chain has the
-    // option to call either top_match, pop_match or skip_match. top_match and pop_match will
-    // jump back to the place recorded by push_match, whereas skip_match will skip the jump and
-    // pass execution down the xpression chain. top_match will leave the xpression on top of the
-    // stack, whereas pop_match will remove it. Each function comes in 2 flavors: one for
-    // statically bound xpressions and one for dynamically bound xpressions.
-    //
-
-    template<typename Top>
-    bool push_match(state_type<BidiIter> &state) const
-    {
-        BOOST_MPL_ASSERT((is_same<Top, shared_matchable<BidiIter> >));
-        return this->match(state);
-    }
-
-    static bool top_match(state_type<BidiIter> &state, xpression_base const *top)
-    {
-        return static_cast<shared_matchable<BidiIter> const *>(top)->match(state);
-    }
-
-    static bool pop_match(state_type<BidiIter> &state, xpression_base const *top)
-    {
-        return static_cast<shared_matchable<BidiIter> const *>(top)->match(state);
-    }
-
-    bool skip_match(state_type<BidiIter> &state) const
-    {
-        return this->match(state);
-    }
-
 private:
-    matchable_type xpr_;
+    matchable_ptr xpr_;
 };
 
 }}} // namespace boost::xpressive::detail

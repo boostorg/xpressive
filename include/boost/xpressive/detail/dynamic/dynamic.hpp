@@ -19,6 +19,7 @@
 #include <boost/assert.hpp>
 #include <boost/mpl/int.hpp>
 #include <boost/mpl/assert.hpp>
+#include <boost/iterator/transform_iterator.hpp>
 #include <boost/xpressive/detail/detail_fwd.hpp>
 #include <boost/xpressive/detail/core/quant_style.hpp>
 #include <boost/xpressive/detail/dynamic/matchable.hpp>
@@ -66,6 +67,18 @@ inline shared_matchable<BidiIter> const &get_invalid_xpression()
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// to_matchable
+template<typename BidiIter>
+struct to_matchable
+  : std::unary_function<shared_matchable<BidiIter>, matchable_ex<BidiIter> const &>
+{
+    matchable_ex<BidiIter> const &operator ()(shared_matchable<BidiIter> const &that) const
+    {
+        return *that.matchable();
+    }
+};
+
+///////////////////////////////////////////////////////////////////////////////
 // dynamic_xpression
 template<typename Matcher, typename BidiIter>
 struct dynamic_xpression
@@ -82,12 +95,12 @@ struct dynamic_xpression
 
     bool match(state_type<BidiIter> &state) const
     {
-        return this->Matcher::match(state, this->next_);
+        return this->Matcher::match(state, *this->next_.matchable());
     }
 
     void link(xpression_linker<char_type> &linker) const
     {
-        linker.accept(*static_cast<Matcher const *>(this), &this->next_);
+        linker.accept(*static_cast<Matcher const *>(this), this->next_.matchable().get());
         this->next_.link(linker);
     }
 
@@ -177,10 +190,38 @@ inline sequence<BidiIter> make_dynamic_xpression(Matcher const &matcher)
 // alternates_vector
 template<typename BidiIter>
 struct alternates_vector
-  : std::vector<shared_matchable<BidiIter> >
 {
     BOOST_STATIC_CONSTANT(std::size_t, width = unknown_width::value);
     BOOST_STATIC_CONSTANT(bool, pure = false);
+
+    typedef transform_iterator
+    <
+        to_matchable<BidiIter>
+      , typename std::vector<shared_matchable<BidiIter> >::const_iterator
+    > const_iterator;
+
+    const_iterator begin() const
+    {
+        return make_transform_iterator(this->alternates_.begin(), to_matchable<BidiIter>());
+    }
+
+    const_iterator end() const
+    {
+        return make_transform_iterator(this->alternates_.end(), to_matchable<BidiIter>());
+    }
+
+    bool empty() const
+    {
+        return this->alternates_.empty();
+    }
+
+    void push_back(shared_matchable<BidiIter> const &value)
+    {
+        this->alternates_.push_back(value);
+    }
+
+private:
+    std::vector<shared_matchable<BidiIter> > alternates_;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

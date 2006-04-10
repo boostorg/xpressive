@@ -42,7 +42,7 @@ namespace boost { namespace xpressive { namespace detail
     ///////////////////////////////////////////////////////////////////////////////
     // alt_match_pred
     //
-    template<typename BidiIter, typename Next = shared_matchable<BidiIter> >
+    template<typename BidiIter, typename Next>
     struct alt_match_pred
     {
         alt_match_pred(state_type<BidiIter> &state)
@@ -63,13 +63,13 @@ namespace boost { namespace xpressive { namespace detail
     ///////////////////////////////////////////////////////////////////////////////
     // alt_match
     //
-    template<typename BidiIter>
+    template<typename BidiIter, typename Next>
     inline bool alt_match
     (
-        alternates_vector<BidiIter> const &alts, state_type<BidiIter> &state, shared_matchable<BidiIter> const &
+        alternates_vector<BidiIter> const &alts, state_type<BidiIter> &state, Next const &
     )
     {
-        return detail::any(alts.begin(), alts.end(), alt_match_pred<BidiIter>(state));
+        return detail::any(alts.begin(), alts.end(), alt_match_pred<BidiIter, Next>(state));
     }
 
     template<typename Head, typename Tail, typename BidiIter, typename Next>
