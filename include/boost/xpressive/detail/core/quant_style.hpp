@@ -18,6 +18,7 @@
 #include <boost/mpl/if.hpp>
 #include <boost/mpl/and.hpp>
 #include <boost/mpl/not_equal_to.hpp>
+#include <boost/xpressive/detail/utility/width.hpp>
 #include <boost/xpressive/detail/detail_fwd.hpp>
 
 #if defined(NDEBUG) & defined(BOOST_XPR_DEBUG_STACK)
@@ -80,7 +81,7 @@ struct quant_style
     // whether this matcher has observable side-effects
     BOOST_STATIC_CONSTANT(bool, pure = Pure);
 
-    static std::size_t get_width()
+    static detail::width get_width()
     {
         return width;
     }

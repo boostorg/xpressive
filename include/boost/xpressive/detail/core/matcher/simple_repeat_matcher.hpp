@@ -181,11 +181,11 @@ namespace boost { namespace xpressive { namespace detail
             }
         }
 
-        std::size_t get_width() const
+        detail::width get_width() const
         {
             if(this->min_ != this->max_)
             {
-                return unknown_width();
+                return unknown_width::value;
             }
             return this->min_ * this->width_;
         }

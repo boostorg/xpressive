@@ -62,7 +62,7 @@ namespace boost { namespace xpressive { namespace detail
         static static_xpression<lookbehind_matcher<Op>, State>
         call(Op const &op, State const &state, Visitor &)
         {
-            std::size_t width = op.get_width();
+            std::size_t width = op.get_width().value();
             return make_static_xpression(lookbehind_matcher<Op>(op, width, !Positive), state);
         }
     };

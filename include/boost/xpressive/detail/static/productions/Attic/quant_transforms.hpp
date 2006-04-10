@@ -37,7 +37,7 @@ namespace boost { namespace xpressive { namespace detail
         static static_xpression<simple_repeat_matcher<Op, Greedy>, State>
         call(Op const &op, State const &state, dont_care)
         {
-            std::size_t width = op.get_width();
+            std::size_t width = op.get_width().value();
             return make_static_xpression(simple_repeat_matcher<Op, Greedy>(op, Min, Max, width), state);
         }
     };

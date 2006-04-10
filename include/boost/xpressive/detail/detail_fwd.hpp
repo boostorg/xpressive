@@ -238,7 +238,7 @@ namespace boost { namespace xpressive { namespace detail
     struct matchable;
 
     template<typename BidiIter>
-    struct dynamic_xpression_base;
+    struct matchable_ex;
 
     template<typename Matcher, typename BidiIter>
     struct dynamic_xpression;

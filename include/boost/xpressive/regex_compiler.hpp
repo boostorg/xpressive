@@ -110,7 +110,7 @@ struct regex_compiler
 
         // bundle the regex information into a regex_impl object
         detail::regex_impl<BidiIter> impl;
-        detail::common_compile(seq.first, impl, this->rxtraits());
+        detail::common_compile(seq.xpr().matchable(), impl, this->rxtraits());
 
         impl.traits_.reset(new RegexTraits(this->rxtraits()));
         impl.mark_count_ = this->mark_count_;
@@ -181,7 +181,6 @@ private:
         bool lookahead = false;
         bool lookbehind = false;
         bool negative = false;
-        std::size_t old_mark_count = this->mark_count_;
 
         detail::sequence<BidiIter> seq, seq_end;
         string_iterator tmp = string_iterator();
@@ -252,22 +251,20 @@ private:
         seq += seq_end;
 
         typedef detail::shared_matchable<BidiIter> xpr_type;
-        bool do_save = (this->mark_count_ != old_mark_count);
 
         if(lookahead)
         {
-            detail::lookahead_matcher<xpr_type> lookahead(seq.first, negative, do_save);
+            detail::lookahead_matcher<xpr_type> lookahead(seq.xpr(), negative, !seq.pure());
             seq = detail::make_dynamic_xpression<BidiIter>(lookahead);
         }
         else if(lookbehind)
         {
-            BOOST_ASSERT(seq.is_pure != do_save);
-            detail::lookbehind_matcher<xpr_type> lookbehind(seq.first, seq.width_of, negative, do_save);
+            detail::lookbehind_matcher<xpr_type> lookbehind(seq.xpr(), seq.width().value(), negative, !seq.pure());
             seq = detail::make_dynamic_xpression<BidiIter>(lookbehind);
         }
         else if(keeper) // independent sub-expression
         {
-            detail::keeper_matcher<xpr_type> keeper(seq.first, do_save);
+            detail::keeper_matcher<xpr_type> keeper(seq.xpr(), !seq.pure());
             seq = detail::make_dynamic_xpression<BidiIter>(keeper);
         }
 
@@ -405,7 +402,7 @@ private:
         detail::sequence<BidiIter> seq = this->parse_atom(begin, end);
 
         // BUGBUG this doesn't handle the degenerate (?:)+ correctly
-        if(!seq.is_empty() && begin != end && seq.first->is_quantifiable())
+        if(!seq.empty() && begin != end && detail::quant_none != seq.quant())
         {
             if(this->traits_.get_quant_spec(begin, end, spec))
             {
@@ -417,7 +414,7 @@ private:
                 }
                 else
                 {
-                    seq = seq.first->quantify(spec, this->hidden_mark_count_, seq, alternates_factory());
+                    seq = seq.quantify(spec, this->hidden_mark_count_, alternates_factory());
                 }
             }
         }
@@ -437,7 +434,7 @@ private:
             detail::sequence<BidiIter> seq_quant = this->parse_quant(begin, end);
 
             // did we find a quantified atom?
-            if(seq_quant.is_empty())
+            if(seq_quant.empty())
                 break;
 
             // chain it to the end of the xpression sequence

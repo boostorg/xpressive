@@ -18,6 +18,7 @@
 #include <boost/xpressive/detail/core/state.hpp>
 #include <boost/xpressive/detail/core/linker.hpp>
 #include <boost/xpressive/detail/core/peeker.hpp>
+#include <boost/xpressive/detail/utility/width.hpp>
 
 // Random thoughts:
 // - must support indirect repeat counts {$n,$m}
@@ -189,7 +190,7 @@ struct static_xpression
     }
 
     // for getting xpression width
-    std::size_t get_width() const
+    detail::width get_width() const
     {
         return this->get_width_(mpl::size_t<width>());
     }
@@ -205,27 +206,22 @@ private:
     }
 
     template<typename Char>
-    static void peek_next_(mpl::false_, xpression_peeker<Char> &)
+    void peek_next_(mpl::false_, xpression_peeker<Char> &) const
     {
         // no-op
     }
 
     template<std::size_t Width>
-    std::size_t get_width_(mpl::size_t<Width>) const
+    detail::width get_width_(mpl::size_t<Width>) const
     {
         return Width;
     }
 
-    std::size_t get_width_(unknown_width) const
+    detail::width get_width_(unknown_width) const
     {
         // Should only be called in contexts where the width is
         // known to be fixed.
-        // BUGBUG this will assert on invalid lookbehinds.
-        std::size_t this_width = this->Matcher::get_width();
-        std::size_t that_width = this->next_.get_width();
-        BOOST_ASSERT(this_width != unknown_width());
-        BOOST_ASSERT(that_width != unknown_width());
-        return this_width + that_width;
+        return this->Matcher::get_width() + this->next_.get_width();
     }
 };
 
@@ -266,7 +262,7 @@ struct no_next
         peeker.fail();
     }
 
-    static std::size_t get_width()
+    detail::width get_width() const
     {
         return 0;
     }

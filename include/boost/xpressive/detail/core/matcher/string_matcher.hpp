@@ -75,7 +75,7 @@ namespace boost { namespace xpressive { namespace detail
             return false;
         }
 
-        std::size_t get_width() const
+        detail::width get_width() const
         {
             return this->str_.size();
         }

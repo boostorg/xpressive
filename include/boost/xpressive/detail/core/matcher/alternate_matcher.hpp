@@ -42,7 +42,7 @@ namespace boost { namespace xpressive { namespace detail
     ///////////////////////////////////////////////////////////////////////////////
     // alt_match_pred
     //
-    template<typename BidiIter, typename Next = dynamic_xpression_base<BidiIter> >
+    template<typename BidiIter, typename Next = shared_matchable<BidiIter> >
     struct alt_match_pred
     {
         alt_match_pred(state_type<BidiIter> &state)
@@ -66,7 +66,7 @@ namespace boost { namespace xpressive { namespace detail
     template<typename BidiIter>
     inline bool alt_match
     (
-        alternates_vector<BidiIter> const &alts, state_type<BidiIter> &state, matchable<BidiIter> const &
+        alternates_vector<BidiIter> const &alts, state_type<BidiIter> &state, shared_matchable<BidiIter> const &
     )
     {
         return detail::any(alts.begin(), alts.end(), alt_match_pred<BidiIter>(state));
@@ -114,7 +114,7 @@ namespace boost { namespace xpressive { namespace detail
             return detail::alt_match(this->alternates_, state, next);
         }
 
-        std::size_t get_width() const
+        detail::width get_width() const
         {
             // Only called when constructing static regexes, and this is a
             // set of same-width alternates where the widths are known at compile

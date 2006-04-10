@@ -28,7 +28,7 @@ namespace boost { namespace xpressive { namespace detail
 
     ///////////////////////////////////////////////////////////////////////////////
     // lookbehind_matcher
-    //   Xpr can be either a static_xpression, or a shared_ptr<dynamic_xpression_base>
+    //   Xpr can be either a static_xpression or a shared_matchable
     template<typename Xpr>
     struct lookbehind_matcher
       : quant_style<quant_none, 0, Xpr::pure>
@@ -39,7 +39,7 @@ namespace boost { namespace xpressive { namespace detail
           , do_save_(do_save)
           , width_(width)
         {
-            detail::ensure(this->width_ != unknown_width(), regex_constants::error_badlookbehind,
+            detail::ensure(!is_unknown(this->width_), regex_constants::error_badlookbehind,
                 "Variable-width look-behind assertions are not supported");
         }
 
