@@ -84,16 +84,10 @@ struct sequence
         return *this;
     }
 
-    sequence<BidiIter> &operator |=(sequence<BidiIter> const &that)
+    sequence<BidiIter> &operator |=(sequence<BidiIter> that)
     {
         BOOST_ASSERT(!this->empty());
         BOOST_ASSERT(0 != this->alternates_);
-
-        // through the wonders of reference counting, all alternates_ can share an end_alternate
-        if(!this->alt_end_xpr_)
-        {
-            this->alt_end_xpr_ = make_dynamic_xpression<BidiIter>(alternate_end_matcher()).xpr();
-        }
 
         // Keep track of width and purity
         if(this->alternates_->empty())
@@ -107,18 +101,15 @@ struct sequence
             this->pure_ = this->pure_ && that.pure_;
         }
 
-        // terminate each alternate with an alternate_end_matcher
-        if(that.empty())
+        // through the wonders of reference counting, all alternates_ can share an end_alternate
+        if(!this->alt_end_xpr_)
         {
-            BOOST_ASSERT(!that.width_ && that.pure_);
-            this->alternates_->push_back(this->alt_end_xpr_);
-        }
-        else
-        {
-            this->alternates_->push_back(that.head_);
-            *that.tail_ = this->alt_end_xpr_;
+            this->alt_end_xpr_.reset(new alt_end_xpr_type);
         }
 
+        // terminate each alternate with an alternate_end_matcher
+        that += sequence(this->alt_end_xpr_);
+        this->alternates_->push_back(that.head_);
         this->set_quant_();
         return *this;
     }
@@ -153,6 +144,7 @@ struct sequence
     }
 
 private:
+    typedef dynamic_xpression<alternate_end_matcher, BidiIter> alt_end_xpr_type;
 
     void set_quant_()
     {
@@ -166,7 +158,7 @@ private:
     quant_enum quant_;
     shared_matchable<BidiIter> head_;
     shared_matchable<BidiIter> *tail_;
-    shared_matchable<BidiIter> alt_end_xpr_;
+    shared_ptr<alt_end_xpr_type> alt_end_xpr_;
     alternates_vector<BidiIter> *alternates_;
 };
 
