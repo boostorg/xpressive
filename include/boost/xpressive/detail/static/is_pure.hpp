@@ -166,7 +166,7 @@ namespace boost { namespace xpressive { namespace detail
     struct use_simple_repeat
       : mpl::bool_<width_of<Xpr>::value != unknown_width::value && is_pure<Xpr>::value>
     {
-        // should never try to quantify something of 0-width
+        // should never try to repeat something of 0-width
         BOOST_MPL_ASSERT_RELATION(0, !=, width_of<Xpr>::value);
     };
 

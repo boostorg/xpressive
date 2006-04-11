@@ -114,13 +114,9 @@ struct sequence
         return *this;
     }
 
-    sequence<BidiIter> quantify
-    (
-        quant_spec const &spec
-      , alternates_factory<BidiIter> const &factory
-    ) const
+    sequence<BidiIter> repeat(quant_spec const &spec) const
     {
-        return this->xpr().matchable()->quantify(spec, *this, factory);
+        return this->xpr().matchable()->repeat(spec, *this);
     }
 
     shared_matchable<BidiIter> const &xpr() const

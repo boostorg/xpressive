@@ -64,11 +64,10 @@ struct matchable_ex
         peeker.fail();
     }
 
-    virtual sequence<BidiIter> quantify
+    virtual sequence<BidiIter> repeat
     (
         quant_spec const &                      // spec
       , sequence<BidiIter> const &              // seq
-      , alternates_factory<BidiIter> const &    // factory
     ) const
     {
         throw regex_error(regex_constants::error_badrepeat, "expression cannot be quantified");
@@ -158,6 +157,14 @@ struct shared_matchable
     void peek(xpression_peeker<char_type> &peeker) const
     {
         this->xpr_->peek(peeker);
+    }
+
+    // BUGBUG yuk! 
+    template<typename Top>
+    bool push_match(state_type<BidiIter> &state) const
+    {
+        BOOST_MPL_ASSERT((is_same<Top, matchable_ex<BidiIter> >));
+        return this->match(state);
     }
 
 private:

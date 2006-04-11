@@ -8,6 +8,7 @@
 #ifndef BOOST_XPRESSIVE_DETAIL_STATIC_PRODUCTIONS_QUANT_TRANSFORMS_HPP_EAN_10_04_2005
 #define BOOST_XPRESSIVE_DETAIL_STATIC_PRODUCTIONS_QUANT_TRANSFORMS_HPP_EAN_10_04_2005
 
+#include <boost/mpl/or.hpp>
 #include <boost/mpl/size_t.hpp>
 #include <boost/mpl/assert.hpp>
 #include <boost/mpl/not_equal_to.hpp>
@@ -19,6 +20,31 @@
 
 namespace boost { namespace xpressive { namespace detail
 {
+    typedef proto::unary_op<repeat_begin_matcher, proto::noop_tag> repeat_tag;
+
+    ///////////////////////////////////////////////////////////////////////////////
+    // is_repeater
+    template<typename Op>
+    struct is_repeater
+      : mpl::false_
+    {};
+
+    template<typename Op>
+    struct is_repeater<proto::binary_op<repeat_tag, Op, proto::right_shift_tag> >
+      : mpl::true_
+    {};
+
+    ///////////////////////////////////////////////////////////////////////////////
+    // is_marker_or_repeater_predicate
+    struct is_marker_or_repeater_predicate
+    {
+        template<typename Op, typename, typename>
+        struct apply
+        {
+            typedef typename proto::arg_type<Op>::type op_type;
+            typedef typename mpl::or_<is_marker<op_type>, is_repeater<op_type> >::type type;
+        };
+    };
 
     ///////////////////////////////////////////////////////////////////////////////
     // simple_repeat_branch
@@ -39,6 +65,48 @@ namespace boost { namespace xpressive { namespace detail
         {
             std::size_t width = op.get_width().value();
             return make_static_xpression(simple_repeat_matcher<Op, Greedy>(op, Min, Max, width), state);
+        }
+    };
+
+    ///////////////////////////////////////////////////////////////////////////////
+    // optional_branch
+    template<bool Greedy>
+    struct optional_branch
+    {
+        typedef alternate_end_xpression state_type;
+
+        template<typename Op, typename State, typename>
+        struct apply
+        {
+            typedef static_xpression<optional_matcher<Op, Greedy>, State> type;
+        };
+
+        template<typename Op, typename State>
+        static static_xpression<optional_matcher<Op, Greedy>, State>
+        call(Op const &op, State const &state, dont_care)
+        {
+            return make_static_xpression(optional_matcher<Op, Greedy>(op), state);
+        }
+    };
+
+    ///////////////////////////////////////////////////////////////////////////////
+    // optional_mark_branch
+    template<bool Greedy>
+    struct optional_mark_branch
+    {
+        typedef alternate_end_xpression state_type;
+
+        template<typename Op, typename State, typename>
+        struct apply
+        {
+            typedef static_xpression<optional_mark_matcher<Op, Greedy>, State> type;
+        };
+
+        template<typename Op, typename State>
+        static static_xpression<optional_mark_matcher<Op, Greedy>, State>
+        call(Op const &op, State const &state, dont_care)
+        {
+            return make_static_xpression(optional_mark_matcher<Op, Greedy>(op, op.mark_number_), state);
         }
     };
 
@@ -76,62 +144,20 @@ namespace boost { namespace xpressive { namespace detail
         }
     };
 
-    template<typename Op>
-    epsilon_mark_matcher make_eps(Op const &op, epsilon_mark_matcher *)
-    {
-        return epsilon_mark_matcher(proto::arg(proto::left(op)).mark_number_);
-    }
-
-    template<typename Op>
-    epsilon_matcher make_eps(Op const &op, epsilon_matcher *)
-    {
-        return epsilon_matcher();
-    }
-
-    ///////////////////////////////////////////////////////////////////////////////
-    // optional_transform
-    //   make alternate with epsilon_mark_matcher
-    template<bool Greedy, typename Epsilon>
+    template<bool Greedy>
     struct optional_transform
     {
         template<typename Op, typename, typename>
         struct apply
         {
-            typedef proto::binary_op
-            <
-                Op
-              , proto::unary_op<Epsilon, proto::noop_tag>
-              , proto::bitor_tag
-            > type;
+            typedef proto::unary_op<Op, proto::logical_not_tag> type;
         };
 
         template<typename Op, typename State, typename Visitor>
         static typename apply<Op, State, Visitor>::type
         call(Op const &op, State const &, Visitor &)
         {
-            return op | proto::noop(make_eps(op, (Epsilon *)0));
-        }
-    };
-
-    template<typename Epsilon>
-    struct optional_transform<false, Epsilon>
-    {
-        template<typename Op, typename, typename>
-        struct apply
-        {
-            typedef proto::binary_op
-            <
-                proto::unary_op<Epsilon, proto::noop_tag>
-              , Op
-              , proto::bitor_tag
-            > type;
-        };
-
-        template<typename Op, typename State, typename Visitor>
-        static typename apply<Op, State, Visitor>::type
-        call(Op const &op, State const &, Visitor &)
-        {
-            return proto::noop(make_eps(op, (Epsilon *)0)) | op;
+            return !op;
         }
     };
 
@@ -153,28 +179,16 @@ namespace boost { namespace xpressive { namespace detail
     {
     };
 
-    // transform *foo to (+foo | nil)
+    // transform *foo to !+foo
     template<bool Greedy, uint_t Max>
     struct repeater_transform<Greedy, 0, Max>
       : proto::compose_transforms
         <
             repeater_transform<Greedy, 1, Max>
-          , optional_transform<Greedy, epsilon_mark_matcher>
+          , optional_transform<Greedy>
         >
     {
-    };
-
-    // transform !(foo) to (foo | nil), with care to make sure
-    // that !(s1= foo) sets s1 to null if foo doesn't match.
-    template<bool Greedy>
-    struct repeater_transform<Greedy, 0, 1>
-      : proto::conditional_transform
-        <
-            is_marker_predicate
-          , optional_transform<Greedy, epsilon_mark_matcher>
-          , optional_transform<Greedy, epsilon_matcher>
-        >
-    {
+        BOOST_MPL_ASSERT_RELATION(1, <, Max);
     };
 
 }}}

@@ -121,7 +121,7 @@ private:
 
     typedef typename string_type::const_iterator string_iterator;
     typedef detail::escape_value<char_type, char_class_type> escape_value;
-    typedef detail::alternates_factory_impl<BidiIter, traits_type> alternates_factory;
+    typedef detail::alternate_matcher<detail::alternates_vector<BidiIter>, RegexTraits> alternate_matcher;
 
     ///////////////////////////////////////////////////////////////////////////
     // reset
@@ -157,7 +157,6 @@ private:
         using namespace regex_constants;
         int count = 0;
         string_iterator tmp = begin;
-        alternates_factory factory;
         detail::sequence<BidiIter> seq;
 
         do switch(++count)
@@ -166,7 +165,7 @@ private:
             seq = this->parse_sequence(tmp, end);
             break;
         case 2:
-            seq = (factory() |= seq);
+            seq = (detail::make_dynamic_xpression<BidiIter>(alternate_matcher()) |= seq);
             // fall-through
         default:
             seq |= this->parse_sequence(tmp, end);
@@ -416,7 +415,7 @@ private:
                 }
                 else
                 {
-                    seq = seq.quantify(spec, alternates_factory());
+                    seq = seq.repeat(spec);
                 }
             }
         }

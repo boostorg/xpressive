@@ -161,13 +161,27 @@ struct xpression_linker
     void accept(alternate_matcher<Alternates, Traits> const &matcher, xpression_base const *next)
     {
         xpression_peeker<Char> peeker(matcher.bset_, this->get_traits<Traits>());
-        this->alt_link(matcher.alternates_, next, peeker);
+        this->alt_link(matcher.alternates_, next, &peeker);
     }
 
     void accept(alternate_end_matcher const &matcher, xpression_base const *)
     {
         matcher.back_ = this->back_stack_.top();
         this->back_stack_.pop();
+    }
+
+    template<typename Xpr, bool Greedy>
+    void accept(optional_matcher<Xpr, Greedy> const &matcher, xpression_base const *next)
+    {
+        this->back_stack_.push(next);
+        matcher.xpr_.link(*this);
+    }
+
+    template<typename Xpr, bool Greedy>
+    void accept(optional_mark_matcher<Xpr, Greedy> const &matcher, xpression_base const *next)
+    {
+        this->back_stack_.push(next);
+        matcher.xpr_.link(*this);
     }
 
     template<typename Xpr>
@@ -196,11 +210,11 @@ struct xpression_linker
 
     // for use by alt_link_pred below
     template<typename Xpr>
-    void alt_branch_link(Xpr const &xpr, xpression_base const *next, xpression_peeker<Char> &peeker)
+    void alt_branch_link(Xpr const &xpr, xpression_base const *next, xpression_peeker<Char> *peeker)
     {
         this->back_stack_.push(next);
         xpr.link(*this);
-        xpr.peek(peeker);
+        xpr.peek(*peeker);
     }
 
 private:
@@ -210,14 +224,14 @@ private:
     //
     struct alt_link_pred
     {
-        xpression_linker<Char> &linker_;
-        xpression_peeker<Char> &peeker_;
+        xpression_linker<Char> *linker_;
+        xpression_peeker<Char> *peeker_;
         xpression_base const *next_;
 
         alt_link_pred
         (
-            xpression_linker<Char> &linker
-          , xpression_peeker<Char> &peeker
+            xpression_linker<Char> *linker
+          , xpression_peeker<Char> *peeker
           , xpression_base const *next
         )
           : linker_(linker)
@@ -229,11 +243,8 @@ private:
         template<typename Xpr>
         void operator ()(Xpr const &xpr) const
         {
-            this->linker_.alt_branch_link(xpr, this->next_, this->peeker_);
+            this->linker_->alt_branch_link(xpr, this->next_, this->peeker_);
         }
-
-    private:
-        alt_link_pred &operator =(alt_link_pred const &);
     };
 
     template<typename BidiIter>
@@ -241,10 +252,10 @@ private:
     (
         alternates_vector<BidiIter> const &alternates
       , xpression_base const *next
-      , xpression_peeker<Char> &peeker
+      , xpression_peeker<Char> *peeker
     )
     {
-        std::for_each(alternates.begin(), alternates.end(), alt_link_pred(*this, peeker, next));
+        std::for_each(alternates.begin(), alternates.end(), alt_link_pred(this, peeker, next));
     }
 
     template<typename Alternates>
@@ -252,10 +263,10 @@ private:
     (
         fusion::sequence_base<Alternates> const &alternates
       , xpression_base const *next
-      , xpression_peeker<Char> &peeker
+      , xpression_peeker<Char> *peeker
     )
     {
-        fusion::for_each(alternates.cast(), alt_link_pred(*this, peeker, next));
+        fusion::for_each(alternates.cast(), alt_link_pred(this, peeker, next));
     }
 
     template<typename Traits>

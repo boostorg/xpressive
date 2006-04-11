@@ -58,6 +58,18 @@ namespace boost { namespace xpressive { namespace detail
     {
     };
 
+    // foo{0,1} or !foo uses the optional transforms
+    template<bool Greedy>
+    struct repeater_compiler<Greedy, 0, 1>
+      : proto::conditional_compiler
+        <
+            is_marker_or_repeater_predicate
+          , proto::branch_compiler<optional_mark_branch<Greedy>, ind_tag>
+          , proto::branch_compiler<optional_branch<Greedy>, ind_tag>
+        >
+    {
+    };
+
     ///////////////////////////////////////////////////////////////////////////////
     // min_repeater_compiler
     struct min_repeater_compiler

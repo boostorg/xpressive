@@ -19,6 +19,7 @@
 #include <boost/assert.hpp>
 #include <boost/mpl/int.hpp>
 #include <boost/mpl/assert.hpp>
+#include <boost/type_traits/is_same.hpp>
 #include <boost/iterator/transform_iterator.hpp>
 #include <boost/xpressive/detail/detail_fwd.hpp>
 #include <boost/xpressive/detail/core/quant_style.hpp>
@@ -39,7 +40,7 @@ struct invalid_xpression
       : matchable_ex<BidiIter>()
     {
     }
-    
+
     bool match(state_type<BidiIter> &) const
     {
         BOOST_ASSERT(false);
@@ -97,14 +98,9 @@ struct dynamic_xpression
         this->peek_next_(peeker.accept(*static_cast<Matcher const *>(this)), peeker);
     }
 
-    sequence<BidiIter> quantify
-    (
-        quant_spec const &spec
-      , sequence<BidiIter> const &seq
-      , alternates_factory<BidiIter> const &factory
-    ) const
+    sequence<BidiIter> repeat(quant_spec const &spec, sequence<BidiIter> const &seq) const
     {
-        return this->quantify_(spec, seq, quant_type<Matcher>(), factory, this);
+        return this->repeat_(spec, seq, quant_type<Matcher>(), is_same<Matcher, mark_begin_matcher>());
     }
 
 private:
@@ -120,41 +116,68 @@ private:
         // no-op
     }
 
-    sequence<BidiIter> quantify_
+    sequence<BidiIter> repeat_
     (
         quant_spec const &
       , sequence<BidiIter> const &
       , mpl::int_<quant_none>
-      , alternates_factory<BidiIter> const &
-      , void const *
-    ) const;
+      , mpl::false_
+    ) const
+    {
+        BOOST_ASSERT(false); // should never get here
+        throw regex_error(regex_constants::error_badrepeat, "expression cannot be quantified");
+    }
 
-    sequence<BidiIter> quantify_
+    sequence<BidiIter> repeat_
     (
-        quant_spec const &
-      , sequence<BidiIter> const &
+        quant_spec const &spec
+      , sequence<BidiIter> const &seq
       , mpl::int_<quant_fixed_width>
-      , alternates_factory<BidiIter> const &
-      , void const *
-    ) const;
+      , mpl::false_
+    ) const
+    {
+        if(this->next_ == get_invalid_xpression<BidiIter>())
+        {
+            return make_simple_repeat(spec, seq, matcher_wrapper<Matcher>(*this));
+        }
+        else if(!is_unknown(seq.width()) && seq.pure())
+        {
+            return make_simple_repeat(spec, seq);
+        }
+        else
+        {
+            return make_repeat(spec, seq);
+        }
+    }
 
-    sequence<BidiIter> quantify_
+    sequence<BidiIter> repeat_
     (
-        quant_spec const &
-      , sequence<BidiIter> const &
+        quant_spec const &spec
+      , sequence<BidiIter> const &seq
       , mpl::int_<quant_variable_width>
-      , alternates_factory<BidiIter> const &
-      , void const *
-    ) const;
+      , mpl::false_
+    ) const
+    {
+        if(!is_unknown(seq.width()) && seq.pure())
+        {
+            return make_simple_repeat(spec, seq);
+        }
+        else
+        {
+            return make_repeat(spec, seq);
+        }
+    }
 
-    sequence<BidiIter> quantify_
+    sequence<BidiIter> repeat_
     (
-        quant_spec const &
-      , sequence<BidiIter> const &
+        quant_spec const &spec
+      , sequence<BidiIter> const &seq
       , mpl::int_<quant_fixed_width>
-      , alternates_factory<BidiIter> const &
-      , mark_begin_matcher const *
-    ) const;
+      , mpl::true_
+    ) const
+    {
+        return make_repeat(spec, seq, this->mark_number_);
+    }
 
     shared_matchable<BidiIter> next_;
 };
@@ -191,12 +214,12 @@ struct alternates_vector
 
     const_iterator begin() const
     {
-        return make_transform_iterator(this->alternates_.begin(), to_matchable());
+        return const_iterator(this->alternates_.begin(), to_matchable());
     }
 
     const_iterator end() const
     {
-        return make_transform_iterator(this->alternates_.end(), to_matchable());
+        return const_iterator(this->alternates_.end(), to_matchable());
     }
 
     bool empty() const
@@ -211,28 +234,6 @@ struct alternates_vector
 
 private:
     std::vector<shared_matchable<BidiIter> > alternates_;
-};
-
-///////////////////////////////////////////////////////////////////////////////
-// alternates_factory
-template<typename BidiIter>
-struct alternates_factory
-{
-    virtual ~alternates_factory() {}
-    virtual sequence<BidiIter> operator ()() const = 0;
-};
-
-template<typename BidiIter, typename Traits>
-struct alternates_factory_impl
-  : alternates_factory<BidiIter>
-{
-    sequence<BidiIter> operator ()() const
-    {
-        typedef alternate_matcher<alternates_vector<BidiIter>, Traits> alternate_matcher;
-        typedef dynamic_xpression<alternate_matcher, BidiIter> alternate_xpression;
-        shared_ptr<alternate_xpression> alt_xpr(new alternate_xpression);
-        return sequence<BidiIter>(alt_xpr);
-    }
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -266,129 +267,94 @@ struct matcher_wrapper
 };
 
 //////////////////////////////////////////////////////////////////////////
-// dynamic_xpression::quantify_
-//   unquantifiable
-template<typename Matcher, typename BidiIter>
-inline sequence<BidiIter> dynamic_xpression<Matcher, BidiIter>::quantify_
-(
-    quant_spec const &
-  , sequence<BidiIter> const &
-  , mpl::int_<quant_none>
-  , alternates_factory<BidiIter> const &
-  , void const *
-) const
+// make_simple_repeat
+template<typename BidiIter, typename Xpr>
+inline sequence<BidiIter>
+make_simple_repeat(quant_spec const &spec, sequence<BidiIter> const &seq, Xpr const &xpr)
 {
-    BOOST_ASSERT(false); // should never get here
-    throw regex_error(regex_constants::error_badrepeat, "expression cannot be quantified");
-}
-
-//   fixed-width matchers
-template<typename Matcher, typename BidiIter>
-inline sequence<BidiIter> dynamic_xpression<Matcher, BidiIter>::quantify_
-(
-    quant_spec const &spec
-  , sequence<BidiIter> const &seq
-  , mpl::int_<quant_fixed_width>
-  , alternates_factory<BidiIter> const &factory
-  , void const *
-) const
-{
-    if(this->next_ != get_invalid_xpression<BidiIter>())
-    {
-        return this->quantify_(spec, seq, mpl::int_<quant_variable_width>(), factory, this);
-    }
-
-    typedef matcher_wrapper<Matcher> xpr_type;
-    BOOST_ASSERT(seq.width() == this->Matcher::get_width());
-
     if(spec.greedy_)
     {
-        simple_repeat_matcher<xpr_type, true> quant(*this, spec.min_, spec.max_, seq.width().value());
+        simple_repeat_matcher<Xpr, true> quant(xpr, spec.min_, spec.max_, seq.width().value());
         return make_dynamic_xpression<BidiIter>(quant);
     }
     else
     {
-        simple_repeat_matcher<xpr_type, false> quant(*this, spec.min_, spec.max_, seq.width().value());
+        simple_repeat_matcher<Xpr, false> quant(xpr, spec.min_, spec.max_, seq.width().value());
         return make_dynamic_xpression<BidiIter>(quant);
     }
 }
 
-//   variable-width, no mark
-template<typename Matcher, typename BidiIter>
-inline sequence<BidiIter> dynamic_xpression<Matcher, BidiIter>::quantify_
-(
-    quant_spec const &spec
-  , sequence<BidiIter> const &seq
-  , mpl::int_<quant_variable_width>
-  , alternates_factory<BidiIter> const &factory
-  , void const *
-) const
+//////////////////////////////////////////////////////////////////////////
+// make_simple_repeat
+template<typename BidiIter>
+inline sequence<BidiIter>
+make_simple_repeat(quant_spec const &spec, sequence<BidiIter> seq)
+{
+    seq += make_dynamic_xpression<BidiIter>(true_matcher());
+    return make_simple_repeat(spec, seq, seq.xpr());
+}
+
+//////////////////////////////////////////////////////////////////////////
+// make_repeat
+template<typename BidiIter>
+inline sequence<BidiIter>
+make_repeat(quant_spec const &spec, sequence<BidiIter> seq)
 {
     // create a hidden mark so this expression can be quantified
     int mark_nbr = -static_cast<int>(++*spec.hidden_mark_count_);
     mark_begin_matcher mark_begin(mark_nbr);
     mark_end_matcher mark_end(mark_nbr);
-    sequence<BidiIter> new_seq = make_dynamic_xpression<BidiIter>(mark_begin);
-    new_seq += seq;
-    new_seq += make_dynamic_xpression<BidiIter>(mark_end);
-    return new_seq.quantify(spec, factory);
+    seq = (make_dynamic_xpression<BidiIter>(mark_begin) += seq);
+    seq += make_dynamic_xpression<BidiIter>(mark_end);
+    return make_repeat(spec, seq, mark_nbr);
 }
 
-//   variable-width with mark
-template<typename Matcher, typename BidiIter>
-inline sequence<BidiIter> dynamic_xpression<Matcher, BidiIter>::quantify_
-(
-    quant_spec const &spec
-  , sequence<BidiIter> const &seq
-  , mpl::int_<quant_fixed_width>
-  , alternates_factory<BidiIter> const &factory
-  , mark_begin_matcher const *
-) const
+//////////////////////////////////////////////////////////////////////////
+// make_repeat
+template<typename BidiIter>
+inline sequence<BidiIter>
+make_repeat(quant_spec const &spec, sequence<BidiIter> seq, int mark_nbr)
 {
     BOOST_ASSERT(spec.max_); // we should never get here if max is 0
-    sequence<BidiIter> res_seq = seq;
-    int mark_number = this->mark_number_;
 
     // only bother creating a quantifier if max is greater than one
     if(1 < spec.max_)
     {
         unsigned int min = spec.min_ ? spec.min_ : 1U;
         detail::sequence<BidiIter> seq_quant;
-        // TODO: statically bind the repeat_begin_matcher to the mark_begin for better perf
-        seq_quant += make_dynamic_xpression<BidiIter>(repeat_begin_matcher(mark_number));
-        // TODO: statically bind the mark_end to the quantifier_end for better perf
+        // TODO: statically bind the repeat_begin_matcher to the mark_begin_matcher for better perf
+        seq_quant += make_dynamic_xpression<BidiIter>(repeat_begin_matcher(mark_nbr));
+        // TODO: statically bind the mark_end_matcher to the repeat_end_matcher for better perf
         if(spec.greedy_)
         {
-            repeat_end_matcher<true> end_quant(mark_number, min, spec.max_);
-            res_seq += make_dynamic_xpression<BidiIter>(end_quant);
+            repeat_end_matcher<true> end_quant(mark_nbr, min, spec.max_);
+            seq += make_dynamic_xpression<BidiIter>(end_quant);
         }
         else
         {
-            repeat_end_matcher<false> end_quant(mark_number, min, spec.max_);
-            res_seq += make_dynamic_xpression<BidiIter>(end_quant);
+            repeat_end_matcher<false> end_quant(mark_nbr, min, spec.max_);
+            seq += make_dynamic_xpression<BidiIter>(end_quant);
         }
-        seq_quant += res_seq;
-        res_seq = seq_quant;
+        seq_quant += seq;
+        seq = seq_quant;
     }
 
     // if min is 0, the quant must be made alternate with an empty matcher.
     if(0 == spec.min_)
     {
-        sequence<BidiIter> tmp = res_seq;
-        res_seq = factory();
+        typedef shared_matchable<BidiIter> xpr_type;
+        seq += make_dynamic_xpression<BidiIter>(alternate_end_matcher());
         if(spec.greedy_)
         {
-            res_seq |= tmp;
-            res_seq |= make_dynamic_xpression<BidiIter>(epsilon_mark_matcher(mark_number));
+            seq = make_dynamic_xpression<BidiIter>(optional_mark_matcher<xpr_type, true>(seq.xpr(), mark_nbr));
         }
         else
         {
-            res_seq |= make_dynamic_xpression<BidiIter>(epsilon_mark_matcher(mark_number));
-            res_seq |= tmp;
+            seq = make_dynamic_xpression<BidiIter>(optional_mark_matcher<xpr_type, false>(seq.xpr(), mark_nbr));
         }
     }
 
-    return res_seq;
+    return seq;
 }
 
 }}} // namespace boost::xpressive::detail

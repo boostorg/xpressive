@@ -88,9 +88,6 @@ namespace boost { namespace xpressive { namespace detail
     struct posix_charset_matcher;
 
     template<typename BidiIter>
-    struct alternates_factory;
-
-    template<typename BidiIter>
     struct sequence;
 
     template<typename Traits, bool ICase>
@@ -135,6 +132,12 @@ namespace boost { namespace xpressive { namespace detail
     template<typename Action>
     struct action_matcher;
 
+    template<typename Xpr, bool Greedy>
+    struct optional_matcher;
+
+    template<typename Xpr, bool Greedy>
+    struct optional_mark_matcher;
+
     template<typename Xpr>
     struct is_modifiable;
 
@@ -159,8 +162,6 @@ namespace boost { namespace xpressive { namespace detail
     struct regex_matcher;
 
     struct epsilon_matcher;
-
-    struct epsilon_mark_matcher;
 
     template<typename BidiIter>
     struct nested_results;
@@ -329,6 +330,24 @@ namespace boost { namespace xpressive { namespace detail
 
     template<typename Xpr, typename BidiIter>
     void static_compile(Xpr const &xpr, regex_impl<BidiIter> &impl);
+
+    struct quant_spec;
+
+    template<typename BidiIter, typename Xpr>
+    sequence<BidiIter>
+    make_simple_repeat(quant_spec const &spec, sequence<BidiIter> const &seq, Xpr const &xpr);
+
+    template<typename BidiIter>
+    sequence<BidiIter>
+    make_simple_repeat(quant_spec const &spec, sequence<BidiIter> seq);
+
+    template<typename BidiIter>
+    sequence<BidiIter>
+    make_repeat(quant_spec const &spec, sequence<BidiIter> seq, int mark_nbr);
+
+    template<typename BidiIter>
+    sequence<BidiIter>
+    make_repeat(quant_spec const &spec, sequence<BidiIter> seq);
 
 }}} // namespace boost::xpressive::detail
 
