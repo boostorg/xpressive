@@ -100,12 +100,10 @@ struct regex_compiler
         string_iterator begin = pat.begin(), end = pat.end();
 
         // at the top level, a regex is a sequence of alternates
-        alternates_list alternates;
-        this->parse_alternates(begin, end, alternates);
+        detail::sequence<BidiIter> seq = this->parse_alternates(begin, end);
         detail::ensure(begin == end, regex_constants::error_paren, "mismatched parenthesis");
 
-        // convert the alternates list to the appropriate matcher and terminate the sequence
-        detail::sequence<BidiIter> seq = detail::alternates_to_matchable(alternates, alternates_factory());
+        // terminate the sequence
         seq += detail::make_dynamic_xpression<BidiIter>(detail::end_matcher());
 
         // bundle the regex information into a regex_impl object
@@ -122,7 +120,6 @@ struct regex_compiler
 private:
 
     typedef typename string_type::const_iterator string_iterator;
-    typedef std::list<detail::sequence<BidiIter> > alternates_list;
     typedef detail::escape_value<char_type, char_class_type> escape_value;
     typedef detail::alternates_factory_impl<BidiIter, traits_type> alternates_factory;
 
@@ -155,19 +152,28 @@ private:
     ///////////////////////////////////////////////////////////////////////////
     // parse_alternates
     /// INTERNAL ONLY
-    void parse_alternates(string_iterator &begin, string_iterator end, alternates_list &alternates)
+    detail::sequence<BidiIter> parse_alternates(string_iterator &begin, string_iterator end)
     {
         using namespace regex_constants;
-        string_iterator old_begin;
+        int count = 0;
+        string_iterator tmp = begin;
+        alternates_factory factory;
+        detail::sequence<BidiIter> seq;
 
-        do
+        do switch(++count)
         {
-            alternates.push_back(this->parse_sequence(begin, end));
-            old_begin = begin;
+        case 1:
+            seq = this->parse_sequence(tmp, end);
+            break;
+        case 2:
+            seq = (factory() |= seq);
+            // fall-through
+        default:
+            seq |= this->parse_sequence(tmp, end);
         }
-        while(begin != end && token_alternate == this->traits_.get_token(begin, end));
+        while((begin = tmp) != end && token_alternate == this->traits_.get_token(tmp, end));
 
-        begin = old_begin;
+        return seq;
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -238,8 +244,8 @@ private:
         }
 
         // alternates
-        alternates_list alternates;
-        this->parse_alternates(begin, end, alternates);
+        seq += this->parse_alternates(begin, end);
+        seq += seq_end;
         detail::ensure
         (
             begin != end && token_group_end == this->traits_.get_token(begin, end)
@@ -247,11 +253,7 @@ private:
           , "mismatched parenthesis"
         );
 
-        seq += detail::alternates_to_matchable(alternates, alternates_factory());
-        seq += seq_end;
-
         typedef detail::shared_matchable<BidiIter> xpr_type;
-
         if(lookahead)
         {
             detail::lookahead_matcher<xpr_type> lookahead(seq.xpr(), negative, !seq.pure());
@@ -398,7 +400,7 @@ private:
     detail::sequence<BidiIter> parse_quant(string_iterator &begin, string_iterator end)
     {
         BOOST_ASSERT(begin != end);
-        detail::quant_spec spec = { 0, 0, false };
+        detail::quant_spec spec = { 0, 0, false, &this->hidden_mark_count_ };
         detail::sequence<BidiIter> seq = this->parse_atom(begin, end);
 
         // BUGBUG this doesn't handle the degenerate (?:)+ correctly
@@ -414,7 +416,7 @@ private:
                 }
                 else
                 {
-                    seq = seq.quantify(spec, this->hidden_mark_count_, alternates_factory());
+                    seq = seq.quantify(spec, alternates_factory());
                 }
             }
         }
@@ -458,7 +460,7 @@ private:
 
         for(string_iterator prev = begin, tmp = ++begin; begin != end; prev = begin, begin = tmp)
         {
-            detail::quant_spec spec;
+            detail::quant_spec spec = { 0, 0, false, &this->hidden_mark_count_ };
             if(this->traits_.get_quant_spec(tmp, end, spec))
             {
                 if(literal.size() != 1)

@@ -31,6 +31,7 @@ struct quant_spec
     unsigned int min_;
     unsigned int max_;
     bool greedy_;
+    std::size_t *hidden_mark_count_;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -66,7 +67,6 @@ struct matchable_ex
     virtual sequence<BidiIter> quantify
     (
         quant_spec const &                      // spec
-      , std::size_t &                           // hidden_mark_count
       , sequence<BidiIter> const &              // seq
       , alternates_factory<BidiIter> const &    // factory
     ) const

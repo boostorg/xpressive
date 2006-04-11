@@ -92,7 +92,7 @@ struct sequence
         // through the wonders of reference counting, all alternates_ can share an end_alternate
         if(!this->alt_end_xpr_)
         {
-            this->alt_end_xpr_ = make_dynamic_xpression<BidiIter>(alternate_end_matcher()).head_;
+            this->alt_end_xpr_ = make_dynamic_xpression<BidiIter>(alternate_end_matcher()).xpr();
         }
 
         // Keep track of width and purity
@@ -126,11 +126,10 @@ struct sequence
     sequence<BidiIter> quantify
     (
         quant_spec const &spec
-      , std::size_t &hidden_mark_count
       , alternates_factory<BidiIter> const &factory
     ) const
     {
-        return this->xpr().matchable()->quantify(spec, hidden_mark_count, *this, factory);
+        return this->xpr().matchable()->quantify(spec, *this, factory);
     }
 
     shared_matchable<BidiIter> const &xpr() const

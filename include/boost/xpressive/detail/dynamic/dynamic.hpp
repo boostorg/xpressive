@@ -67,18 +67,6 @@ inline shared_matchable<BidiIter> const &get_invalid_xpression()
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// to_matchable
-template<typename BidiIter>
-struct to_matchable
-  : std::unary_function<shared_matchable<BidiIter>, matchable_ex<BidiIter> const &>
-{
-    matchable_ex<BidiIter> const &operator ()(shared_matchable<BidiIter> const &that) const
-    {
-        return *that.matchable();
-    }
-};
-
-///////////////////////////////////////////////////////////////////////////////
 // dynamic_xpression
 template<typename Matcher, typename BidiIter>
 struct dynamic_xpression
@@ -112,12 +100,11 @@ struct dynamic_xpression
     sequence<BidiIter> quantify
     (
         quant_spec const &spec
-      , std::size_t &hidden_mark_count
       , sequence<BidiIter> const &seq
       , alternates_factory<BidiIter> const &factory
     ) const
     {
-        return this->quantify_(spec, hidden_mark_count, seq, quant_type<Matcher>(), factory, this);
+        return this->quantify_(spec, seq, quant_type<Matcher>(), factory, this);
     }
 
 private:
@@ -136,7 +123,6 @@ private:
     sequence<BidiIter> quantify_
     (
         quant_spec const &
-      , std::size_t &
       , sequence<BidiIter> const &
       , mpl::int_<quant_none>
       , alternates_factory<BidiIter> const &
@@ -146,7 +132,6 @@ private:
     sequence<BidiIter> quantify_
     (
         quant_spec const &
-      , std::size_t &
       , sequence<BidiIter> const &
       , mpl::int_<quant_fixed_width>
       , alternates_factory<BidiIter> const &
@@ -156,7 +141,6 @@ private:
     sequence<BidiIter> quantify_
     (
         quant_spec const &
-      , std::size_t &
       , sequence<BidiIter> const &
       , mpl::int_<quant_variable_width>
       , alternates_factory<BidiIter> const &
@@ -166,7 +150,6 @@ private:
     sequence<BidiIter> quantify_
     (
         quant_spec const &
-      , std::size_t &
       , sequence<BidiIter> const &
       , mpl::int_<quant_fixed_width>
       , alternates_factory<BidiIter> const &
@@ -194,20 +177,26 @@ struct alternates_vector
     BOOST_STATIC_CONSTANT(std::size_t, width = unknown_width::value);
     BOOST_STATIC_CONSTANT(bool, pure = false);
 
-    typedef transform_iterator
-    <
-        to_matchable<BidiIter>
-      , typename std::vector<shared_matchable<BidiIter> >::const_iterator
-    > const_iterator;
+    struct to_matchable
+      : std::unary_function<shared_matchable<BidiIter>, matchable_ex<BidiIter> const &>
+    {
+        matchable_ex<BidiIter> const &operator ()(shared_matchable<BidiIter> const &that) const
+        {
+            return *that.matchable();
+        }
+    };
+
+    typedef typename std::vector<shared_matchable<BidiIter> >::const_iterator vector_iterator;
+    typedef transform_iterator<to_matchable, vector_iterator> const_iterator;
 
     const_iterator begin() const
     {
-        return make_transform_iterator(this->alternates_.begin(), to_matchable<BidiIter>());
+        return make_transform_iterator(this->alternates_.begin(), to_matchable());
     }
 
     const_iterator end() const
     {
-        return make_transform_iterator(this->alternates_.end(), to_matchable<BidiIter>());
+        return make_transform_iterator(this->alternates_.end(), to_matchable());
     }
 
     bool empty() const
@@ -247,33 +236,6 @@ struct alternates_factory_impl
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-// alternates_to_matchable
-template<typename BidiIter>
-inline sequence<BidiIter> alternates_to_matchable
-(
-    std::list<sequence<BidiIter> > const &alternates
-  , alternates_factory<BidiIter> const &factory
-)
-{
-    BOOST_ASSERT(0 != alternates.size());
-
-    // If there is only 1 alternate, just return it.
-    if(1 == alternates.size())
-    {
-        return alternates.front();
-    }
-
-    sequence<BidiIter> result = factory();
-    typename std::list<sequence<BidiIter> >::const_iterator begin = alternates.begin();
-    for(; begin != alternates.end(); ++begin)
-    {
-        result |= *begin;
-    }
-
-    return result;
-}
-
-///////////////////////////////////////////////////////////////////////////////
 // matcher_wrapper
 template<typename Matcher>
 struct matcher_wrapper
@@ -310,7 +272,6 @@ template<typename Matcher, typename BidiIter>
 inline sequence<BidiIter> dynamic_xpression<Matcher, BidiIter>::quantify_
 (
     quant_spec const &
-  , std::size_t &
   , sequence<BidiIter> const &
   , mpl::int_<quant_none>
   , alternates_factory<BidiIter> const &
@@ -326,7 +287,6 @@ template<typename Matcher, typename BidiIter>
 inline sequence<BidiIter> dynamic_xpression<Matcher, BidiIter>::quantify_
 (
     quant_spec const &spec
-  , std::size_t &hidden_mark_count
   , sequence<BidiIter> const &seq
   , mpl::int_<quant_fixed_width>
   , alternates_factory<BidiIter> const &factory
@@ -335,7 +295,7 @@ inline sequence<BidiIter> dynamic_xpression<Matcher, BidiIter>::quantify_
 {
     if(this->next_ != get_invalid_xpression<BidiIter>())
     {
-        return this->quantify_(spec, hidden_mark_count, seq, mpl::int_<quant_variable_width>(), factory, this);
+        return this->quantify_(spec, seq, mpl::int_<quant_variable_width>(), factory, this);
     }
 
     typedef matcher_wrapper<Matcher> xpr_type;
@@ -358,7 +318,6 @@ template<typename Matcher, typename BidiIter>
 inline sequence<BidiIter> dynamic_xpression<Matcher, BidiIter>::quantify_
 (
     quant_spec const &spec
-  , std::size_t &hidden_mark_count
   , sequence<BidiIter> const &seq
   , mpl::int_<quant_variable_width>
   , alternates_factory<BidiIter> const &factory
@@ -366,13 +325,13 @@ inline sequence<BidiIter> dynamic_xpression<Matcher, BidiIter>::quantify_
 ) const
 {
     // create a hidden mark so this expression can be quantified
-    int mark_nbr = -static_cast<int>(++hidden_mark_count);
+    int mark_nbr = -static_cast<int>(++*spec.hidden_mark_count_);
     mark_begin_matcher mark_begin(mark_nbr);
     mark_end_matcher mark_end(mark_nbr);
     sequence<BidiIter> new_seq = make_dynamic_xpression<BidiIter>(mark_begin);
     new_seq += seq;
     new_seq += make_dynamic_xpression<BidiIter>(mark_end);
-    return new_seq.quantify(spec, hidden_mark_count, factory);
+    return new_seq.quantify(spec, factory);
 }
 
 //   variable-width with mark
@@ -380,7 +339,6 @@ template<typename Matcher, typename BidiIter>
 inline sequence<BidiIter> dynamic_xpression<Matcher, BidiIter>::quantify_
 (
     quant_spec const &spec
-  , std::size_t &
   , sequence<BidiIter> const &seq
   , mpl::int_<quant_fixed_width>
   , alternates_factory<BidiIter> const &factory
@@ -416,13 +374,18 @@ inline sequence<BidiIter> dynamic_xpression<Matcher, BidiIter>::quantify_
     // if min is 0, the quant must be made alternate with an empty matcher.
     if(0 == spec.min_)
     {
-        epsilon_mark_matcher mark(mark_number);
-        std::list<sequence<BidiIter> > alts;
-        alts.push_back(make_dynamic_xpression<BidiIter>(mark));
-        alts.push_back(res_seq);
+        sequence<BidiIter> tmp = res_seq;
+        res_seq = factory();
         if(spec.greedy_)
-            alts.reverse();
-        res_seq = alternates_to_matchable(alts, factory);
+        {
+            res_seq |= tmp;
+            res_seq |= make_dynamic_xpression<BidiIter>(epsilon_mark_matcher(mark_number));
+        }
+        else
+        {
+            res_seq |= make_dynamic_xpression<BidiIter>(epsilon_mark_matcher(mark_number));
+            res_seq |= tmp;
+        }
     }
 
     return res_seq;
