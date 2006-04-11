@@ -64,7 +64,7 @@ namespace boost { namespace xpressive { namespace detail
         call(Op const &op, State const &state, dont_care)
         {
             std::size_t width = op.get_width().value();
-            return make_static_xpression(simple_repeat_matcher<Op, Greedy>(op, Min, Max, width), state);
+            return make_static(simple_repeat_matcher<Op, Greedy>(op, Min, Max, width), state);
         }
     };
 
@@ -85,7 +85,7 @@ namespace boost { namespace xpressive { namespace detail
         static static_xpression<optional_matcher<Op, Greedy>, State>
         call(Op const &op, State const &state, dont_care)
         {
-            return make_static_xpression(optional_matcher<Op, Greedy>(op), state);
+            return make_static(optional_matcher<Op, Greedy>(op), state);
         }
     };
 
@@ -106,7 +106,7 @@ namespace boost { namespace xpressive { namespace detail
         static static_xpression<optional_mark_matcher<Op, Greedy>, State>
         call(Op const &op, State const &state, dont_care)
         {
-            return make_static_xpression(optional_mark_matcher<Op, Greedy>(op, op.mark_number_), state);
+            return make_static(optional_mark_matcher<Op, Greedy>(op, op.mark_number_), state);
         }
     };
 

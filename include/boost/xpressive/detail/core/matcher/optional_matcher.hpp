@@ -13,28 +13,10 @@
 # pragma once
 #endif
 
-#include <vector>
-
-#include <boost/version.hpp>
-#if BOOST_VERSION <= 103200
-// WORKAROUND for Fusion bug in Boost 1.32
-namespace boost { namespace fusion
-{
-    namespace detail { struct iterator_root; }
-    using detail::iterator_root;
-}}
-#endif
-
-#include <boost/shared_ptr.hpp>
+#include <boost/mpl/bool.hpp>
 #include <boost/xpressive/detail/detail_fwd.hpp>
 #include <boost/xpressive/detail/core/quant_style.hpp>
 #include <boost/xpressive/detail/core/state.hpp>
-#include <boost/xpressive/detail/static/width_of.hpp>
-#include <boost/xpressive/detail/static/is_pure.hpp>
-#include <boost/xpressive/detail/dynamic/matchable.hpp>
-#include <boost/xpressive/detail/utility/hash_peek_bitset.hpp>
-#include <boost/xpressive/detail/utility/algorithm.hpp>
-#include <boost/xpressive/detail/utility/any.hpp>
 
 namespace boost { namespace xpressive { namespace detail
 {

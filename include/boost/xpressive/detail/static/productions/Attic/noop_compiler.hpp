@@ -34,7 +34,7 @@ namespace boost { namespace xpressive { namespace detail
         call(Op const &op, State const &state, Visitor &visitor)
         {
             typedef typename proto::arg_type<Op>::type arg_type;
-            return make_static_xpression(visitor.call(as_matcher<arg_type>::call(proto::arg(op))), state);
+            return make_static(visitor.call(as_matcher<arg_type>::call(proto::arg(op))), state);
         }
     };
 

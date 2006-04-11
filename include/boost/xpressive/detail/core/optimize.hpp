@@ -66,6 +66,7 @@ shared_ptr<finder<BidiIter> > optimize_regex
     std::pair<std::basic_string<char_type> const *, bool> str = peeker.get_string();
     if(0 != str.first)
     {
+        BOOST_ASSERT(1 == peeker.bitset().count());
         return shared_ptr<finder<BidiIter> >
         (
             new boyer_moore_finder<BidiIter, Traits>

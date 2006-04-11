@@ -185,7 +185,7 @@ namespace boost { namespace xpressive { namespace detail
     struct word_boundary;
 
     template<typename BidiIter, typename Matcher>
-    sequence<BidiIter> make_dynamic_xpression(Matcher const &matcher);
+    sequence<BidiIter> make_dynamic(Matcher const &matcher);
 
     template<typename Char>
     struct xpression_linker;
@@ -320,11 +320,11 @@ namespace boost { namespace xpressive { namespace detail
 
     template<typename Matcher>
     static_xpression<Matcher> const
-    make_static_xpression(Matcher const &matcher);
+    make_static(Matcher const &matcher);
 
     template<typename Matcher, typename Next>
     static_xpression<Matcher, Next> const
-    make_static_xpression(Matcher const &matcher, Next const &next);
+    make_static(Matcher const &matcher, Next const &next);
 
     int get_mark_number(mark_tag const &);
 
@@ -348,6 +348,14 @@ namespace boost { namespace xpressive { namespace detail
     template<typename BidiIter>
     sequence<BidiIter>
     make_repeat(quant_spec const &spec, sequence<BidiIter> seq);
+
+    template<typename BidiIter>
+    inline sequence<BidiIter>
+    make_optional(quant_spec const &spec, sequence<BidiIter> seq);
+
+    template<typename BidiIter>
+    inline sequence<BidiIter>
+    make_optional(quant_spec const &spec, sequence<BidiIter> seq, int mark_nbr);
 
 }}} // namespace boost::xpressive::detail
 

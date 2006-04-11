@@ -72,7 +72,7 @@ namespace boost { namespace xpressive { namespace detail
         call(Op const &op, State const &state, Visitor &)
         {
             typedef typename Visitor::traits_type traits_type;
-            return make_static_xpression(alternate_matcher<Op, traits_type>(op), state);
+            return make_static(alternate_matcher<Op, traits_type>(op), state);
         }
     };
 

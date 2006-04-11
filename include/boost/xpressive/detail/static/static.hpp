@@ -226,18 +226,18 @@ private:
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-// make_static_xpression
+// make_static
 //
 template<typename Matcher>
 inline static_xpression<Matcher> const
-make_static_xpression(Matcher const &matcher)
+make_static(Matcher const &matcher)
 {
     return static_xpression<Matcher>(matcher);
 }
 
 template<typename Matcher, typename Next>
 inline static_xpression<Matcher, Next> const
-make_static_xpression(Matcher const &matcher, Next const &next)
+make_static(Matcher const &matcher, Next const &next)
 {
     return static_xpression<Matcher, Next>(matcher, next);
 }

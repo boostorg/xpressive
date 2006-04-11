@@ -104,7 +104,7 @@ struct regex_compiler
         detail::ensure(begin == end, regex_constants::error_paren, "mismatched parenthesis");
 
         // terminate the sequence
-        seq += detail::make_dynamic_xpression<BidiIter>(detail::end_matcher());
+        seq += detail::make_dynamic<BidiIter>(detail::end_matcher());
 
         // bundle the regex information into a regex_impl object
         detail::regex_impl<BidiIter> impl;
@@ -165,7 +165,7 @@ private:
             seq = this->parse_sequence(tmp, end);
             break;
         case 2:
-            seq = (detail::make_dynamic_xpression<BidiIter>(alternate_matcher()) |= seq);
+            seq = detail::make_dynamic<BidiIter>(alternate_matcher()) | seq;
             // fall-through
         default:
             seq |= this->parse_sequence(tmp, end);
@@ -207,19 +207,19 @@ private:
             negative = true; // fall-through
         case token_positive_lookahead:
             lookahead = true;
-            seq_end = detail::make_dynamic_xpression<BidiIter>(detail::true_matcher());
+            seq_end = detail::make_dynamic<BidiIter>(detail::true_matcher());
             break;
 
         case token_negative_lookbehind:
             negative = true; // fall-through
         case token_positive_lookbehind:
             lookbehind = true;
-            seq_end = detail::make_dynamic_xpression<BidiIter>(detail::true_matcher());
+            seq_end = detail::make_dynamic<BidiIter>(detail::true_matcher());
             break;
 
         case token_independent_sub_expression:
             keeper = true;
-            seq_end = detail::make_dynamic_xpression<BidiIter>(detail::true_matcher());
+            seq_end = detail::make_dynamic<BidiIter>(detail::true_matcher());
             break;
 
         case token_comment:
@@ -237,8 +237,8 @@ private:
 
         default:
             mark_nbr = static_cast<int>(++this->mark_count_);
-            seq = detail::make_dynamic_xpression<BidiIter>(detail::mark_begin_matcher(mark_nbr));
-            seq_end = detail::make_dynamic_xpression<BidiIter>(detail::mark_end_matcher(mark_nbr));
+            seq = detail::make_dynamic<BidiIter>(detail::mark_begin_matcher(mark_nbr));
+            seq_end = detail::make_dynamic<BidiIter>(detail::mark_end_matcher(mark_nbr));
             break;
         }
 
@@ -256,17 +256,17 @@ private:
         if(lookahead)
         {
             detail::lookahead_matcher<xpr_type> lookahead(seq.xpr(), negative, !seq.pure());
-            seq = detail::make_dynamic_xpression<BidiIter>(lookahead);
+            seq = detail::make_dynamic<BidiIter>(lookahead);
         }
         else if(lookbehind)
         {
             detail::lookbehind_matcher<xpr_type> lookbehind(seq.xpr(), seq.width().value(), negative, !seq.pure());
-            seq = detail::make_dynamic_xpression<BidiIter>(lookbehind);
+            seq = detail::make_dynamic<BidiIter>(lookbehind);
         }
         else if(keeper) // independent sub-expression
         {
             detail::keeper_matcher<xpr_type> keeper(seq.xpr(), !seq.pure());
-            seq = detail::make_dynamic_xpression<BidiIter>(keeper);
+            seq = detail::make_dynamic<BidiIter>(keeper);
         }
 
         // restore the modifiers
@@ -313,10 +313,10 @@ private:
             return detail::make_any_xpression<BidiIter>(this->traits_.flags(), this->rxtraits());
 
         case token_assert_begin_sequence:
-            return detail::make_dynamic_xpression<BidiIter>(detail::assert_bos_matcher());
+            return detail::make_dynamic<BidiIter>(detail::assert_bos_matcher());
 
         case token_assert_end_sequence:
-            return detail::make_dynamic_xpression<BidiIter>(detail::assert_eos_matcher());
+            return detail::make_dynamic<BidiIter>(detail::assert_eos_matcher());
 
         case token_assert_begin_line:
             return detail::make_assert_begin_line<BidiIter>(this->traits_.flags(), this->rxtraits());

@@ -136,16 +136,30 @@ struct xpression_peeker
     template<typename Xpr, bool Greedy>
     mpl::false_ accept(optional_matcher<Xpr, Greedy> const &xpr)
     {
-        this->fail(); // could be a union of xpr and next
+        this->fail();  // a union of xpr and next
         return mpl::false_();
     }
 
     template<typename Xpr, bool Greedy>
     mpl::false_ accept(optional_mark_matcher<Xpr, Greedy> const &xpr)
     {
-        this->fail(); // could be a union of xpr and next
+        this->fail();  // a union of xpr and next
         return mpl::false_();
     }
+
+    //template<typename Xpr, bool Greedy>
+    //mpl::true_ accept(optional_matcher<Xpr, Greedy> const &xpr)
+    //{
+    //    xpr.xpr_.peek(*this);  // a union of xpr and next
+    //    return mpl::true_();
+    //}
+
+    //template<typename Xpr, bool Greedy>
+    //mpl::true_ accept(optional_mark_matcher<Xpr, Greedy> const &xpr)
+    //{
+    //    xpr.xpr_.peek(*this);  // a union of xpr and next
+    //    return mpl::true_();
+    //}
 
     template<typename Traits>
     mpl::false_ accept(posix_charset_matcher<Traits> const &xpr)

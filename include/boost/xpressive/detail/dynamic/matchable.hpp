@@ -64,11 +64,7 @@ struct matchable_ex
         peeker.fail();
     }
 
-    virtual sequence<BidiIter> repeat
-    (
-        quant_spec const &                      // spec
-      , sequence<BidiIter> const &              // seq
-    ) const
+    virtual sequence<BidiIter> repeat(quant_spec const &, sequence<BidiIter> const &) const
     {
         throw regex_error(regex_constants::error_badrepeat, "expression cannot be quantified");
     }

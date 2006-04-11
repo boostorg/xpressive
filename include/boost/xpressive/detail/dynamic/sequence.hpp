@@ -158,6 +158,18 @@ private:
     alternates_vector<BidiIter> *alternates_;
 };
 
+template<typename BidiIter>
+inline sequence<BidiIter> operator +(sequence<BidiIter> left, sequence<BidiIter> const &right)
+{
+    return left += right;
+}
+
+template<typename BidiIter>
+inline sequence<BidiIter> operator |(sequence<BidiIter> left, sequence<BidiIter> const &right)
+{
+    return left |= right;
+}
+
 }}} // namespace boost::xpressive::detail
 
 #endif
