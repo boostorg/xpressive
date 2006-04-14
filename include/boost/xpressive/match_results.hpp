@@ -212,6 +212,7 @@ public:
     }
 
     /// \overload
+    ///
     const_reference operator [](detail::mark_tag const &mark) const
     {
         return this->sub_matches_[ detail::get_mark_number(mark) ];
