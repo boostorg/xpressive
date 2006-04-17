@@ -11,6 +11,7 @@
 #include <string>
 #include <utility>
 #include <boost/mpl/bool.hpp>
+#include <boost/intrusive_ptr.hpp>
 #include <boost/iterator/iterator_traits.hpp>
 #include <boost/xpressive/detail/core/finder.hpp>
 #include <boost/xpressive/detail/core/linker.hpp>
@@ -24,7 +25,7 @@ namespace boost { namespace xpressive { namespace detail
 // optimize_regex
 //
 template<typename BidiIter, typename Traits>
-shared_ptr<finder<BidiIter> > optimize_regex
+intrusive_ptr<finder<BidiIter> > optimize_regex
 (
     xpression_peeker<typename iterator_value<BidiIter>::type> const &peeker
   , Traits const &traits
@@ -33,27 +34,27 @@ shared_ptr<finder<BidiIter> > optimize_regex
 {
     if(peeker.line_start())
     {
-        return shared_ptr<finder<BidiIter> >
+        return intrusive_ptr<finder<BidiIter> >
         (
             new line_start_finder<BidiIter, Traits>(traits)
         );
     }
     else if(256 != peeker.bitset().count())
     {
-        return shared_ptr<finder<BidiIter> >
+        return intrusive_ptr<finder<BidiIter> >
         (
             new hash_peek_finder<BidiIter, Traits>(peeker.bitset())
         );
     }
 
-    return shared_ptr<finder<BidiIter> >();
+    return intrusive_ptr<finder<BidiIter> >();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // optimize_regex
 //
 template<typename BidiIter, typename Traits>
-shared_ptr<finder<BidiIter> > optimize_regex
+intrusive_ptr<finder<BidiIter> > optimize_regex
 (
     xpression_peeker<typename iterator_value<BidiIter>::type> const &peeker
   , Traits const &traits
@@ -67,7 +68,7 @@ shared_ptr<finder<BidiIter> > optimize_regex
     if(0 != str.first)
     {
         BOOST_ASSERT(1 == peeker.bitset().count());
-        return shared_ptr<finder<BidiIter> >
+        return intrusive_ptr<finder<BidiIter> >
         (
             new boyer_moore_finder<BidiIter, Traits>
             (
@@ -88,7 +89,7 @@ shared_ptr<finder<BidiIter> > optimize_regex
 template<typename RegEx, typename Traits>
 void common_compile
 (
-    shared_ptr<RegEx const> const &regex
+    intrusive_ptr<RegEx const> const &regex
   , regex_impl<typename RegEx::iterator_type> &impl
   , Traits const &traits
 )

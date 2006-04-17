@@ -25,7 +25,6 @@ namespace boost { namespace fusion
 }}
 #endif
 
-#include <boost/shared_ptr.hpp>
 #include <boost/xpressive/detail/detail_fwd.hpp>
 #include <boost/xpressive/detail/core/quant_style.hpp>
 #include <boost/xpressive/detail/core/state.hpp>

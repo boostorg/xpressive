@@ -14,7 +14,7 @@
 #endif
 
 #include <boost/assert.hpp>
-#include <boost/shared_ptr.hpp>
+#include <boost/intrusive_ptr.hpp>
 #include <boost/xpressive/detail/utility/width.hpp>
 #include <boost/xpressive/detail/detail_fwd.hpp>
 
@@ -38,7 +38,7 @@ struct sequence
     }
 
     template<typename Matcher>
-    sequence(shared_ptr<dynamic_xpression<Matcher, BidiIter> > const &xpr)
+    sequence(intrusive_ptr<dynamic_xpression<Matcher, BidiIter> > const &xpr)
       : pure_(Matcher::pure)
       , width_(xpr->Matcher::get_width())
       , quant_(Matcher::quant)
@@ -50,7 +50,7 @@ struct sequence
     }
 
     template<typename Traits>
-    sequence(shared_ptr<dynamic_xpression<alternate_matcher<alternates_vector<BidiIter>, Traits>, BidiIter> > const &xpr)
+    sequence(intrusive_ptr<dynamic_xpression<alternate_matcher<alternates_vector<BidiIter>, Traits>, BidiIter> > const &xpr)
       : pure_(true)
       , width_(0)
       , quant_(quant_none)
@@ -104,7 +104,7 @@ struct sequence
         // through the wonders of reference counting, all alternates_ can share an end_alternate
         if(!this->alt_end_xpr_)
         {
-            this->alt_end_xpr_.reset(new alt_end_xpr_type);
+            this->alt_end_xpr_ = new alt_end_xpr_type;
         }
 
         // terminate each alternate with an alternate_end_matcher
@@ -114,9 +114,9 @@ struct sequence
         return *this;
     }
 
-    sequence<BidiIter> repeat(quant_spec const &spec) const
+    void repeat(quant_spec const &spec)
     {
-        return this->xpr().matchable()->repeat(spec, *this);
+        this->xpr().matchable()->repeat(spec, *this);
     }
 
     shared_matchable<BidiIter> const &xpr() const
@@ -154,7 +154,7 @@ private:
     quant_enum quant_;
     shared_matchable<BidiIter> head_;
     shared_matchable<BidiIter> *tail_;
-    shared_ptr<alt_end_xpr_type> alt_end_xpr_;
+    intrusive_ptr<alt_end_xpr_type> alt_end_xpr_;
     alternates_vector<BidiIter> *alternates_;
 };
 

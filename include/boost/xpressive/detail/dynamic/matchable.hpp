@@ -15,9 +15,11 @@
 
 #include <boost/assert.hpp>
 #include <boost/mpl/assert.hpp>
+#include <boost/intrusive_ptr.hpp>
 #include <boost/type_traits/is_same.hpp>
 #include <boost/xpressive/detail/core/state.hpp>
 #include <boost/xpressive/detail/core/quant_style.hpp>
+#include <boost/xpressive/detail/utility/counted_base.hpp>
 #include <boost/xpressive/detail/detail_fwd.hpp>
 #include <boost/xpressive/regex_error.hpp>
 
@@ -51,6 +53,7 @@ struct matchable
 template<typename BidiIter>
 struct matchable_ex
   : matchable<BidiIter>
+  , counted_base<matchable_ex<BidiIter> >
 {
     typedef BidiIter iterator_type;
     typedef typename iterator_value<iterator_type>::type char_type;
@@ -64,7 +67,7 @@ struct matchable_ex
         peeker.fail();
     }
 
-    virtual sequence<BidiIter> repeat(quant_spec const &, sequence<BidiIter> const &) const
+    virtual void repeat(quant_spec const &, sequence<BidiIter> &) const
     {
         throw regex_error(regex_constants::error_badrepeat, "expression cannot be quantified");
     }
@@ -110,7 +113,7 @@ struct shared_matchable
 {
     typedef BidiIter iterator_type;
     typedef typename iterator_value<BidiIter>::type char_type;
-    typedef shared_ptr<matchable_ex<BidiIter> const> matchable_ptr;
+    typedef intrusive_ptr<matchable_ex<BidiIter> const> matchable_ptr;
 
     BOOST_STATIC_CONSTANT(std::size_t, width = unknown_width::value);
     BOOST_STATIC_CONSTANT(bool, pure = false);

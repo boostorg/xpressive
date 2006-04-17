@@ -15,10 +15,9 @@
 
 #include <boost/ref.hpp>
 #include <boost/implicit_cast.hpp>
-#include <boost/shared_ptr.hpp>
+#include <boost/intrusive_ptr.hpp>
 #include <boost/xpressive/detail/detail_fwd.hpp>
 #include <boost/xpressive/detail/dynamic/matchable.hpp>
-#include <boost/xpressive/detail/core/state.hpp>
 
 namespace boost { namespace xpressive { namespace detail
 {
@@ -28,12 +27,12 @@ namespace boost { namespace xpressive { namespace detail
 //
 //   wrap a static xpression in a matchable interface so it can be stored
 //   in and invoked from a basic_regex object.
-template<typename Xpr, typename BidiIter>
+template<typename Xpr, typename Base>
 struct xpression_adaptor
-  : matchable<BidiIter>
+  : Base // either matchable or matchable_ex
 {
-    typedef BidiIter iterator_type;
-    typedef typename iterator_value<BidiIter>::type char_type;
+    typedef typename Base::iterator_type iterator_type;
+    typedef typename iterator_value<iterator_type>::type char_type;
 
     Xpr xpr_;
 
@@ -42,7 +41,7 @@ struct xpression_adaptor
     {
     }
 
-    virtual bool match(state_type<BidiIter> &state) const
+    virtual bool match(state_type<iterator_type> &state) const
     {
         typedef typename unwrap_reference<Xpr const>::type xpr_type;
         return implicit_cast<xpr_type &>(this->xpr_).match(state);
@@ -65,10 +64,10 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 // make_adaptor
 //
-template<typename BidiIter, typename Xpr>
-inline shared_ptr<xpression_adaptor<Xpr, BidiIter> const> make_adaptor(Xpr const &xpr)
+template<typename Base, typename Xpr>
+inline intrusive_ptr<Base const> make_adaptor(Xpr const &xpr)
 {
-    return shared_ptr<xpression_adaptor<Xpr, BidiIter> >(new xpression_adaptor<Xpr, BidiIter>(xpr));
+    return intrusive_ptr<Base const>(new xpression_adaptor<Xpr, Base>(xpr));
 }
 
 }}} // namespace boost::xpressive::detail

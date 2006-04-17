@@ -107,14 +107,15 @@ struct regex_compiler
         seq += detail::make_dynamic<BidiIter>(detail::end_matcher());
 
         // bundle the regex information into a regex_impl object
-        detail::regex_impl<BidiIter> impl;
-        detail::common_compile(seq.xpr().matchable(), impl, this->rxtraits());
+        basic_regex<BidiIter> rex;
+        shared_ptr<detail::regex_impl<BidiIter> > const &impl = detail::core_access<BidiIter>::get_regex_impl(rex);
+        detail::common_compile(seq.xpr().matchable(), *impl, this->rxtraits());
 
-        impl.traits_.reset(new RegexTraits(this->rxtraits()));
-        impl.mark_count_ = this->mark_count_;
-        impl.hidden_mark_count_ = this->hidden_mark_count_;
+        impl->traits_.reset(new RegexTraits(this->rxtraits()));
+        impl->mark_count_ = this->mark_count_;
+        impl->hidden_mark_count_ = this->hidden_mark_count_;
 
-        return detail::core_access<BidiIter>::make_regex(impl);
+        return rex;
     }
 
 private:
@@ -415,7 +416,7 @@ private:
                 }
                 else
                 {
-                    seq = seq.repeat(spec);
+                    seq.repeat(spec);
                 }
             }
         }

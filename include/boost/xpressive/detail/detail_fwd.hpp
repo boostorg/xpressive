@@ -334,28 +334,22 @@ namespace boost { namespace xpressive { namespace detail
     struct quant_spec;
 
     template<typename BidiIter, typename Xpr>
-    sequence<BidiIter>
-    make_simple_repeat(quant_spec const &spec, sequence<BidiIter> const &seq, Xpr const &xpr);
+    void make_simple_repeat(quant_spec const &spec, sequence<BidiIter> &seq, Xpr const &xpr);
 
     template<typename BidiIter>
-    sequence<BidiIter>
-    make_simple_repeat(quant_spec const &spec, sequence<BidiIter> seq);
+    void make_simple_repeat(quant_spec const &spec, sequence<BidiIter> &seq);
 
     template<typename BidiIter>
-    sequence<BidiIter>
-    make_repeat(quant_spec const &spec, sequence<BidiIter> seq, int mark_nbr);
+    void make_repeat(quant_spec const &spec, sequence<BidiIter> &seq, int mark_nbr);
 
     template<typename BidiIter>
-    sequence<BidiIter>
-    make_repeat(quant_spec const &spec, sequence<BidiIter> seq);
+    void make_repeat(quant_spec const &spec, sequence<BidiIter> &seq);
 
     template<typename BidiIter>
-    inline sequence<BidiIter>
-    make_optional(quant_spec const &spec, sequence<BidiIter> seq);
+    void make_optional(quant_spec const &spec, sequence<BidiIter> &seq);
 
     template<typename BidiIter>
-    inline sequence<BidiIter>
-    make_optional(quant_spec const &spec, sequence<BidiIter> seq, int mark_nbr);
+    void make_optional(quant_spec const &spec, sequence<BidiIter> &seq, int mark_nbr);
 
 }}} // namespace boost::xpressive::detail
 
