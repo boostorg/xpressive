@@ -29,18 +29,18 @@ namespace boost { namespace xpressive { namespace detail
     struct keeper_matcher
       : quant_style<quant_variable_width, unknown_width::value, Xpr::pure>
     {
-        keeper_matcher(Xpr const &xpr, bool do_save = !Xpr::pure)
+        keeper_matcher(Xpr const &xpr, bool pure = Xpr::pure)
           : xpr_(xpr)
-          , do_save_(do_save)
+          , pure_(pure)
         {
         }
 
         template<typename BidiIter, typename Next>
         bool match(state_type<BidiIter> &state, Next const &next) const
         {
-            return !Xpr::pure && this->do_save_
-              ? this->match_(state, next, mpl::false_())
-              : this->match_(state, next, mpl::true_());
+            return Xpr::pure || this->pure_
+              ? this->match_(state, next, mpl::true_())
+              : this->match_(state, next, mpl::false_());
         }
 
         template<typename BidiIter, typename Next>
@@ -87,7 +87,7 @@ namespace boost { namespace xpressive { namespace detail
         }
 
         Xpr xpr_;
-        bool do_save_; // true if matching xpr_ could modify the sub-matches
+        bool pure_; // false if matching xpr_ could modify the sub-matches
     };
 
 }}}

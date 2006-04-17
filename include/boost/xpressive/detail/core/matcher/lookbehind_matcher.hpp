@@ -33,10 +33,10 @@ namespace boost { namespace xpressive { namespace detail
     struct lookbehind_matcher
       : quant_style<quant_none, 0, Xpr::pure>
     {
-        lookbehind_matcher(Xpr const &xpr, std::size_t width, bool no, bool do_save = !Xpr::pure)
+        lookbehind_matcher(Xpr const &xpr, std::size_t width, bool no, bool pure = Xpr::pure)
           : xpr_(xpr)
           , not_(no)
-          , do_save_(do_save)
+          , pure_(pure)
           , width_(width)
         {
             detail::ensure(!is_unknown(this->width_), regex_constants::error_badlookbehind,
@@ -46,9 +46,9 @@ namespace boost { namespace xpressive { namespace detail
         template<typename BidiIter, typename Next>
         bool match(state_type<BidiIter> &state, Next const &next) const
         {
-            return !Xpr::pure && this->do_save_
-              ? this->match_(state, next, mpl::false_())
-              : this->match_(state, next, mpl::true_());
+            return Xpr::pure || this->pure_
+              ? this->match_(state, next, mpl::true_())
+              : this->match_(state, next, mpl::false_());
         }
 
         template<typename BidiIter, typename Next>
@@ -150,7 +150,7 @@ namespace boost { namespace xpressive { namespace detail
 
         Xpr xpr_;
         bool not_;
-        bool do_save_; // true if matching xpr_ could modify the sub-matches
+        bool pure_; // false if matching xpr_ could modify the sub-matches
         std::size_t width_;
     };
 

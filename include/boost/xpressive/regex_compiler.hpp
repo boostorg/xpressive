@@ -256,17 +256,17 @@ private:
         typedef detail::shared_matchable<BidiIter> xpr_type;
         if(lookahead)
         {
-            detail::lookahead_matcher<xpr_type> lookahead(seq.xpr(), negative, !seq.pure());
+            detail::lookahead_matcher<xpr_type> lookahead(seq.xpr(), negative, seq.pure());
             seq = detail::make_dynamic<BidiIter>(lookahead);
         }
         else if(lookbehind)
         {
-            detail::lookbehind_matcher<xpr_type> lookbehind(seq.xpr(), seq.width().value(), negative, !seq.pure());
+            detail::lookbehind_matcher<xpr_type> lookbehind(seq.xpr(), seq.width().value(), negative, seq.pure());
             seq = detail::make_dynamic<BidiIter>(lookbehind);
         }
         else if(keeper) // independent sub-expression
         {
-            detail::keeper_matcher<xpr_type> keeper(seq.xpr(), !seq.pure());
+            detail::keeper_matcher<xpr_type> keeper(seq.xpr(), seq.pure());
             seq = detail::make_dynamic<BidiIter>(keeper);
         }
 

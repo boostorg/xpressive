@@ -33,19 +33,19 @@ namespace boost { namespace xpressive { namespace detail
     struct lookahead_matcher
       : quant_style<quant_none, 0, Xpr::pure>
     {
-        lookahead_matcher(Xpr const &xpr, bool no, bool do_save = !Xpr::pure)
+        lookahead_matcher(Xpr const &xpr, bool no, bool pure = Xpr::pure)
           : xpr_(xpr)
           , not_(no)
-          , do_save_(do_save)
+          , pure_(pure)
         {
         }
 
         template<typename BidiIter, typename Next>
         bool match(state_type<BidiIter> &state, Next const &next) const
         {
-            return !Xpr::pure && this->do_save_
-              ? this->match_(state, next, mpl::false_())
-              : this->match_(state, next, mpl::true_());
+            return Xpr::pure || this->pure_
+              ? this->match_(state, next, mpl::true_())
+              : this->match_(state, next, mpl::false_());
         }
 
         template<typename BidiIter, typename Next>
@@ -135,7 +135,7 @@ namespace boost { namespace xpressive { namespace detail
 
         Xpr xpr_;
         bool not_;
-        bool do_save_; // true if matching xpr_ could modify the sub-matches
+        bool pure_; // false if matching xpr_ could modify the sub-matches
     };
 
 }}}
