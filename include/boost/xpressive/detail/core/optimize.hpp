@@ -86,16 +86,15 @@ intrusive_ptr<finder<BidiIter> > optimize_regex
 ///////////////////////////////////////////////////////////////////////////////
 // common_compile
 //
-template<typename RegEx, typename Traits>
+template<typename BidiIter, typename Traits>
 void common_compile
 (
-    intrusive_ptr<RegEx const> const &regex
-  , regex_impl<typename RegEx::iterator_type> &impl
+    intrusive_ptr<matchable_ex<BidiIter> const> const &regex
+  , regex_impl<BidiIter> &impl
   , Traits const &traits
 )
 {
-    typedef typename RegEx::iterator_type iterator_type;
-    typedef typename iterator_value<iterator_type>::type char_type;
+    typedef typename iterator_value<BidiIter>::type char_type;
 
     // "link" the regex
     xpression_linker<char_type> linker(traits);
@@ -107,7 +106,7 @@ void common_compile
     regex->peek(peeker);
 
     // optimization: get the peek chars OR the boyer-moore search string
-    impl.finder_ = optimize_regex<iterator_type>(peeker, traits, is_random<iterator_type>());
+    impl.finder_ = optimize_regex<BidiIter>(peeker, traits, is_random<BidiIter>());
     impl.xpr_ = regex;
 }
 

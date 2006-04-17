@@ -16,6 +16,7 @@
 #include <climits> // for INT_MAX
 #include <boost/mpl/bool.hpp>
 #include <boost/mpl/size_t.hpp>
+#include <boost/shared_ptr.hpp>
 #include <boost/xpressive/xpressive_fwd.hpp>
 
 namespace boost { namespace xpressive { namespace detail
@@ -329,7 +330,7 @@ namespace boost { namespace xpressive { namespace detail
     int get_mark_number(mark_tag const &);
 
     template<typename Xpr, typename BidiIter>
-    void static_compile(Xpr const &xpr, regex_impl<BidiIter> &impl);
+    void static_compile(Xpr const &xpr, shared_ptr<regex_impl<BidiIter> > const &impl);
 
     struct quant_spec;
 
