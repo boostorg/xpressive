@@ -220,7 +220,7 @@ template<typename Matcher, typename Next>
 inline static_xpression<Matcher, Next> const *
 get_pointer(static_xpression<Matcher, Next> const &xpr)
 {
-	return &xpr;
+    return &xpr;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

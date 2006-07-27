@@ -354,7 +354,7 @@ struct tracking_ptr
 {
 private:
     struct dummy_ { int n_; };
-	BOOST_MPL_ASSERT((is_base_and_derived<enable_reference_tracking<Type>, Type>));
+    BOOST_MPL_ASSERT((is_base_and_derived<enable_reference_tracking<Type>, Type>));
 
 public:
 
