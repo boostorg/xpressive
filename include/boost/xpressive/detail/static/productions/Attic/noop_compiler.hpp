@@ -16,26 +16,26 @@ namespace boost { namespace xpressive { namespace detail
 {
     ///////////////////////////////////////////////////////////////////////////////
     // regex compiler productions
-    struct noop_compiler
+    struct terminal_compiler
     {
         ///////////////////////////////////////////////////////////////////////////////
         // transformation that happens to leaf nodes in the parse tree
-        template<typename Node, typename State, typename Visitor>
+        template<typename Expr, typename State, typename Visitor>
         struct apply
         {
-            typedef typename Node::arg0_type arg_type;
+            typedef typename Expr::arg0_type arg_type;
             typedef typename as_matcher_type<arg_type>::type matcher1;
             typedef typename Visitor::BOOST_NESTED_TEMPLATE apply<matcher1>::type matcher2;
             typedef static_xpression<matcher2, State> type;
         };
 
-        template<typename Node, typename State, typename Visitor>
-        static typename apply<Node, State, Visitor>::type
-        call(Node const &node, State const &state, Visitor &visitor)
+        template<typename Expr, typename State, typename Visitor>
+        static typename apply<Expr, State, Visitor>::type
+        call(Expr const &expr, State const &state, Visitor &visitor)
         {
-            typedef typename Node::arg0_type arg_type;
+            typedef typename Expr::arg0_type arg_type;
             return make_static(
-                visitor.call(detail::as_matcher(proto2::arg(node)))
+                visitor.call(detail::as_matcher(proto2::arg(expr)))
               , state
             );
         }
@@ -48,8 +48,8 @@ namespace boost { namespace proto2
 
     // production for terminals in sequence
     template<>
-    struct compiler<noop_tag, xpressive::detail::seq_tag, void>
-      : xpressive::detail::noop_compiler
+    struct compiler<terminal_tag, xpressive::detail::seq_tag, void>
+      : xpressive::detail::terminal_compiler
     {
     };
 

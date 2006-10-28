@@ -54,14 +54,14 @@ namespace boost { namespace xpressive { namespace detail
     ///////////////////////////////////////////////////////////////////////////////
     // width_of
     //
-    template<typename Node>
+    template<typename Expr>
     struct width_of;
 
     template<typename Tag, typename Arg0, typename Arg1>
     struct width_of_impl;
 
     template<typename Matcher>
-    struct width_of_impl<proto2::noop_tag, Matcher, void>
+    struct width_of_impl<proto2::terminal_tag, Matcher, void>
       : mpl::size_t<as_matcher_type<Matcher>::type::width>
     {};
 
@@ -85,67 +85,67 @@ namespace boost { namespace xpressive { namespace detail
       : mpl::size_t<1>
     {};
 
-    template<typename Modifier, typename Node>
-    struct width_of_impl<modifier_tag, Modifier, Node>
-      : width_of<Node>
+    template<typename Modifier, typename Expr>
+    struct width_of_impl<modifier_tag, Modifier, Expr>
+      : width_of<Expr>
     {};
 
-    template<typename Node, bool Positive>
-    struct width_of_impl<lookahead_tag<Positive>, Node, void>
+    template<typename Expr, bool Positive>
+    struct width_of_impl<lookahead_tag<Positive>, Expr, void>
       : mpl::size_t<0>
     {};
 
-    template<typename Node, bool Positive>
-    struct width_of_impl<lookbehind_tag<Positive>, Node, void>
+    template<typename Expr, bool Positive>
+    struct width_of_impl<lookbehind_tag<Positive>, Expr, void>
       : mpl::size_t<0>
     {};
 
     // keep() is used to turn off backtracking, so they should only be used
     // for things that are variable-width (eg. quantified)
-    template<typename Node>
-    struct width_of_impl<keeper_tag, Node, void>
+    template<typename Expr>
+    struct width_of_impl<keeper_tag, Expr, void>
       : unknown_width
     {
         // If this assert fires, you put something that doesn't require backtracking
         // in a keep(). In that case, the keep() is not necessary and you should just
         // remove it.
-        BOOST_MPL_ASSERT_RELATION(width_of<Node>::value, ==, unknown_width::value);
+        BOOST_MPL_ASSERT_RELATION(width_of<Expr>::value, ==, unknown_width::value);
     };
 
-    template<typename Node>
-    struct width_of_impl<proto2::unary_plus_tag, Node, void>
+    template<typename Expr>
+    struct width_of_impl<proto2::unary_plus_tag, Expr, void>
       : unknown_width
     {};
 
-    template<typename Node>
-    struct width_of_impl<proto2::unary_star_tag, Node, void>
+    template<typename Expr>
+    struct width_of_impl<proto2::unary_star_tag, Expr, void>
       : unknown_width
     {};
 
-    template<typename Node>
-    struct width_of_impl<proto2::logical_not_tag, Node, void>
+    template<typename Expr>
+    struct width_of_impl<proto2::logical_not_tag, Expr, void>
       : unknown_width
     {};
 
-    template<typename Node, uint_t Min, uint_t Max>
-    struct width_of_impl<generic_quant_tag<Min, Max>, Node, void>
+    template<typename Expr, uint_t Min, uint_t Max>
+    struct width_of_impl<generic_quant_tag<Min, Max>, Expr, void>
       : unknown_width
     {};
 
-    template<typename Node, uint_t Count>
-    struct width_of_impl<generic_quant_tag<Count, Count>, Node, void>
-      : BOOST_XPR_MULT_WIDTH_(width_of<Node>, mpl::size_t<Count>)
+    template<typename Expr, uint_t Count>
+    struct width_of_impl<generic_quant_tag<Count, Count>, Expr, void>
+      : BOOST_XPR_MULT_WIDTH_(width_of<Expr>, mpl::size_t<Count>)
     {};
 
-    template<typename Node>
-    struct width_of_impl<proto2::unary_minus_tag, Node, void>
-      : width_of<Node>
+    template<typename Expr>
+    struct width_of_impl<proto2::unary_minus_tag, Expr, void>
+      : width_of<Expr>
     {};
 
     // when complementing a set or an assertion, the width is that of the set (1) or the assertion (0)
-    template<typename Node>
-    struct width_of_impl<proto2::complement_tag, Node, void>
-      : width_of<Node>
+    template<typename Expr>
+    struct width_of_impl<proto2::complement_tag, Expr, void>
+      : width_of<Expr>
     {};
 
     // The comma is used in list-initialized sets, and the width of sets are 1
@@ -170,12 +170,12 @@ namespace boost { namespace xpressive { namespace detail
     };
 
     // width_of
-    template<typename Node>
+    template<typename Expr>
     struct width_of
       : width_of_impl<
-            typename Node::tag_type
-          , typename proto2::unref<typename Node::arg0_type>::type
-          , typename proto2::unref<typename Node::arg1_type>::type
+            typename Expr::tag_type
+          , typename proto2::unref<typename Expr::arg0_type>::type
+          , typename proto2::unref<typename Expr::arg1_type>::type
         >
     {};
 

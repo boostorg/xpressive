@@ -20,16 +20,16 @@ namespace boost { namespace xpressive { namespace detail
     ///////////////////////////////////////////////////////////////////////////////
     // is_marker
     // (s1= ...) is a marker
-    template<typename Node, long Arity = Node::arity::value>
+    template<typename Expr, long Arity = Expr::arity::value>
     struct is_marker
       : mpl::false_
     {};
 
-    template<typename Node>
-    struct is_marker<Node, 2>
+    template<typename Expr>
+    struct is_marker<Expr, 2>
       : mpl::and_<
-            is_same<proto2::assign_tag, typename Node::tag_type>
-          , is_same<mark_tag, typename proto2::unref<typename Node::arg0_type>::type>
+            is_same<proto2::assign_tag, typename Expr::tag_type>
+          , is_same<mark_tag, typename proto2::unref<typename Expr::arg0_type>::type>
         >
     {};
 
@@ -37,9 +37,9 @@ namespace boost { namespace xpressive { namespace detail
     // is_marker_predicate
     struct is_marker_predicate
     {
-        template<typename Node, typename, typename>
+        template<typename Expr, typename, typename>
         struct apply
-          : is_marker<Node>
+          : is_marker<Expr>
         {};
     };
 
@@ -48,25 +48,25 @@ namespace boost { namespace xpressive { namespace detail
     //   Insert mark tags before and after the expression
     struct marker_insert_transform
     {
-        template<typename Node, typename, typename>
+        template<typename Expr, typename, typename>
         struct apply
         {
-            typedef typename proto2::binary_op
+            typedef typename proto2::binary_expr
             <
                 proto2::right_shift_tag
               , proto2::literal<mark_begin_matcher>::type
-              , typename proto2::binary_op
+              , typename proto2::binary_expr
                 <
                     proto2::right_shift_tag
-                  , Node
+                  , Expr
                   , proto2::literal<mark_end_matcher>::type
                 >::type
             >::type type;
         };
 
-        template<typename Node, typename State, typename Visitor>
-        static typename apply<Node, State, Visitor>::type
-        call(Node const &node, State const &, Visitor &visitor, int mark_nbr = 0)
+        template<typename Expr, typename State, typename Visitor>
+        static typename apply<Expr, State, Visitor>::type
+        call(Expr const &expr, State const &, Visitor &visitor, int mark_nbr = 0)
         {
             // if we're inserting a mark, and we're not being told the mark number,
             // we're inserting a hidden mark ... so grab the next hidden mark number.
@@ -75,11 +75,11 @@ namespace boost { namespace xpressive { namespace detail
                 mark_nbr = visitor.get_hidden_mark();
             }
 
-            typename apply<Node, State, Visitor>::type that =
+            typename apply<Expr, State, Visitor>::type that =
                 {
                     {mark_begin_matcher(mark_nbr)}
                   , {
-                        node
+                        expr
                       , {mark_end_matcher(mark_nbr)}
                     }
                 };
@@ -92,16 +92,16 @@ namespace boost { namespace xpressive { namespace detail
     struct marker_replace_transform
       : proto2::compose_transforms<proto2::right_transform, marker_insert_transform>
     {
-        template<typename Node, typename State, typename Visitor>
-        static typename apply<Node, State, Visitor>::type
-        call(Node const &node, State const &state, Visitor &visitor)
+        template<typename Expr, typename State, typename Visitor>
+        static typename apply<Expr, State, Visitor>::type
+        call(Expr const &expr, State const &state, Visitor &visitor)
         {
             return marker_insert_transform::call
             (
-                proto2::right(node)
+                proto2::right(expr)
               , state
               , visitor
-              , proto2::arg(proto2::left(node)).mark_number_
+              , proto2::arg(proto2::left(expr)).mark_number_
             );
         }
     };

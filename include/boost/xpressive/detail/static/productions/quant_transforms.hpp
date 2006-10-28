@@ -24,11 +24,11 @@ namespace boost { namespace xpressive { namespace detail
 
     ///////////////////////////////////////////////////////////////////////////////
     // is_repeater
-    template<typename Node>
+    template<typename Expr>
     struct is_repeater
       : is_same<
             repeat_tag
-          , typename proto2::unref<typename Node::arg0_type>::type
+          , typename proto2::unref<typename Expr::arg0_type>::type
         >
     {};
 
@@ -36,11 +36,11 @@ namespace boost { namespace xpressive { namespace detail
     // is_marker_or_repeater_predicate
     struct is_marker_or_repeater_predicate
     {
-        template<typename Node, typename, typename>
+        template<typename Expr, typename, typename>
         struct apply
         {
-            typedef typename Node::arg0_type op_type;
-            typedef typename mpl::or_<is_marker<op_type>, is_repeater<op_type> >::type type;
+            typedef typename Expr::arg0_type expr_type;
+            typedef typename mpl::or_<is_marker<expr_type>, is_repeater<expr_type> >::type type;
         };
     };
 
@@ -51,18 +51,18 @@ namespace boost { namespace xpressive { namespace detail
     {
         typedef true_xpression state_type;
 
-        template<typename Node, typename State, typename>
+        template<typename Expr, typename State, typename>
         struct apply
         {
-            typedef static_xpression<simple_repeat_matcher<Node, Greedy>, State> type;
+            typedef static_xpression<simple_repeat_matcher<Expr, Greedy>, State> type;
         };
 
-        template<typename Node, typename State>
-        static static_xpression<simple_repeat_matcher<Node, Greedy>, State>
-        call(Node const &node, State const &state, dont_care)
+        template<typename Expr, typename State>
+        static static_xpression<simple_repeat_matcher<Expr, Greedy>, State>
+        call(Expr const &expr, State const &state, dont_care)
         {
-            std::size_t width = node.get_width().value();
-            return make_static(simple_repeat_matcher<Node, Greedy>(node, Min, Max, width), state);
+            std::size_t width = expr.get_width().value();
+            return make_static(simple_repeat_matcher<Expr, Greedy>(expr, Min, Max, width), state);
         }
     };
 
@@ -73,17 +73,17 @@ namespace boost { namespace xpressive { namespace detail
     {
         typedef alternate_end_xpression state_type;
 
-        template<typename Node, typename State, typename>
+        template<typename Expr, typename State, typename>
         struct apply
         {
-            typedef static_xpression<optional_matcher<Node, Greedy>, State> type;
+            typedef static_xpression<optional_matcher<Expr, Greedy>, State> type;
         };
 
-        template<typename Node, typename State>
-        static static_xpression<optional_matcher<Node, Greedy>, State>
-        call(Node const &node, State const &state, dont_care)
+        template<typename Expr, typename State>
+        static static_xpression<optional_matcher<Expr, Greedy>, State>
+        call(Expr const &expr, State const &state, dont_care)
         {
-            return make_static(optional_matcher<Node, Greedy>(node), state);
+            return make_static(optional_matcher<Expr, Greedy>(expr), state);
         }
     };
 
@@ -94,17 +94,17 @@ namespace boost { namespace xpressive { namespace detail
     {
         typedef alternate_end_xpression state_type;
 
-        template<typename Node, typename State, typename>
+        template<typename Expr, typename State, typename>
         struct apply
         {
-            typedef static_xpression<optional_mark_matcher<Node, Greedy>, State> type;
+            typedef static_xpression<optional_mark_matcher<Expr, Greedy>, State> type;
         };
 
-        template<typename Node, typename State>
-        static static_xpression<optional_mark_matcher<Node, Greedy>, State>
-        call(Node const &node, State const &state, dont_care)
+        template<typename Expr, typename State>
+        static static_xpression<optional_mark_matcher<Expr, Greedy>, State>
+        call(Expr const &expr, State const &state, dont_care)
         {
-            return make_static(optional_mark_matcher<Node, Greedy>(node, node.mark_number_), state);
+            return make_static(optional_mark_matcher<Expr, Greedy>(expr, expr.mark_number_), state);
         }
     };
 
@@ -113,35 +113,35 @@ namespace boost { namespace xpressive { namespace detail
     template<bool Greedy, uint_t Min, uint_t Max>
     struct repeater_insert_transform
     {
-        template<typename Node, typename, typename>
+        template<typename Expr, typename, typename>
         struct apply
         {
-            typedef typename proto2::binary_op
+            typedef typename proto2::binary_expr
             <
                 proto2::right_shift_tag
               , proto2::literal<repeat_begin_matcher>::type
-              , typename proto2::binary_op
+              , typename proto2::binary_expr
                 <
                     proto2::right_shift_tag
-                  , Node
+                  , Expr
                   , typename proto2::literal<repeat_end_matcher<Greedy> >::type
                 >::type
             >::type type;
         };
 
-        template<typename Node, typename State, typename Visitor>
-        static typename apply<Node, State, Visitor>::type
-        call(Node const &node, State const &, Visitor &)
+        template<typename Expr, typename State, typename Visitor>
+        static typename apply<Expr, State, Visitor>::type
+        call(Expr const &expr, State const &, Visitor &)
         {
             // Get the mark_number from the begin_mark_matcher
-            int mark_number = proto2::arg(proto2::left(node)).mark_number_;
+            int mark_number = proto2::arg(proto2::left(expr)).mark_number_;
             BOOST_ASSERT(0 != mark_number);
 
-            typename apply<Node, State, Visitor>::type that =
+            typename apply<Expr, State, Visitor>::type that =
                 {
                     {repeat_begin_matcher(mark_number)}
                   , {
-                        node
+                        expr
                       , {repeat_end_matcher<Greedy>(mark_number, Min, Max)}
                     }
                 };
@@ -152,17 +152,17 @@ namespace boost { namespace xpressive { namespace detail
     template<bool Greedy>
     struct optional_transform
     {
-        template<typename Node, typename, typename>
+        template<typename Expr, typename, typename>
         struct apply
         {
-            typedef typename proto2::unary_op<proto2::logical_not_tag, Node>::type type;
+            typedef typename proto2::unary_expr<proto2::logical_not_tag, Expr>::type type;
         };
 
-        template<typename Node, typename State, typename Visitor>
-        static typename apply<Node, State, Visitor>::type
-        call(Node const &node, State const &, Visitor &)
+        template<typename Expr, typename State, typename Visitor>
+        static typename apply<Expr, State, Visitor>::type
+        call(Expr const &expr, State const &, Visitor &)
         {
-            typename apply<Node, State, Visitor>::type that = {node};
+            typename apply<Expr, State, Visitor>::type that = {expr};
             return that;
         }
     };

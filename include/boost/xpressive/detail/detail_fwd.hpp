@@ -199,11 +199,11 @@ namespace boost { namespace xpressive { namespace detail
     template<typename Traits>
     struct logical_newline_matcher;
 
-    typedef proto2::basic_op<proto2::noop_tag, mpl::vector1<logical_newline_placeholder> > logical_newline_xpression;
+    typedef proto2::basic_expr<proto2::terminal_tag, mpl::vector1<logical_newline_placeholder> > logical_newline_xpression;
 
     struct set_initializer;
 
-    typedef proto2::basic_op<proto2::noop_tag, mpl::vector1<set_initializer> > set_initializer_type;
+    typedef proto2::basic_expr<proto2::terminal_tag, mpl::vector1<set_initializer> > set_initializer_type;
 
     struct seq_tag;
 
@@ -345,10 +345,10 @@ namespace boost { namespace xpressive { namespace detail
     void make_repeat(quant_spec const &spec, sequence<BidiIter> &seq);
 
     template<typename BidiIter>
-    void make_optional(quant_spec const &spec, sequence<BidiIter> &seq);
+    void make_exprtional(quant_spec const &spec, sequence<BidiIter> &seq);
 
     template<typename BidiIter>
-    void make_optional(quant_spec const &spec, sequence<BidiIter> &seq, int mark_nbr);
+    void make_exprtional(quant_spec const &spec, sequence<BidiIter> &seq, int mark_nbr);
 
 }}} // namespace boost::xpressive::detail
 

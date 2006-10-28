@@ -391,7 +391,7 @@ template<typename Literal>
 inline typename detail::as_xpr_type<Literal>::type
 as_xpr(Literal const &literal)
 {
-    return detail::as_xpr_type<Literal>::call(xpr);
+    return detail::as_xpr_type<Literal>::call(expr);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -400,16 +400,16 @@ as_xpr(Literal const &literal)
 /// Use icase() to make a sub-expression case-insensitive. For instance,
 /// "foo" >> icase(set['b'] >> "ar") will match "foo" exactly followed by
 /// "bar" irrespective of case.
-template<typename Xpr>
-inline typename proto2::binary_op<
+template<typename Expr>
+inline typename proto2::binary_expr<
     modifier_tag
   , detail::icase_modifier
-  , typename detail::as_xpr_type<Xpr>::type
+  , typename detail::as_xpr_type<Expr>::type
 >::type const
-icase(Xpr const &xpr)
+icase(Expr const &expr)
 {
     detail::icase_modifier mod;
-    return proto2::make_op<modifier_tag>(mod, as_xpr(xpr));
+    return proto2::make_expr<modifier_tag>(mod, as_xpr(expr));
 }
 #endif
 
@@ -442,20 +442,20 @@ range(Char ch_min, Char ch_max)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-/// \brief Make a sub-expression optional. Equivalent to !as_xpr(xpr).
+/// \brief Make a sub-expression optional. Equivalent to !as_xpr(expr).
 ///
-/// \param xpr The sub-expression to make optional.
-template<typename Xpr>
-inline typename proto2::unary_op<
+/// \param expr The sub-expression to make optional.
+template<typename Expr>
+inline typename proto2::unary_expr<
     proto2::logical_not_tag
-  , typename detail::as_xpr_type<Xpr>::type
+  , typename detail::as_xpr_type<Expr>::type
 >::type const
-optional(Xpr const &xpr)
+optional(Expr const &expr)
 {
-    typename proto2::unary_op<
+    typename proto2::unary_expr<
         proto2::logical_not_tag
-      , typename detail::as_xpr_type<Xpr>::type
-    >::type that = {as_xpr(xpr)};
+      , typename detail::as_xpr_type<Expr>::type
+    >::type that = {as_xpr(expr)};
     return that;
 }
 
@@ -463,44 +463,44 @@ optional(Xpr const &xpr)
 /// \brief Repeat a sub-expression multiple times.
 ///
 /// There are two forms of the repeat\<\>() function template. To match a
-/// sub-expression N times, use repeat\<N\>(xpr). To match a sub-expression
-/// from M to N times, use repeat\<M,N\>(xpr).
+/// sub-expression N times, use repeat\<N\>(expr). To match a sub-expression
+/// from M to N times, use repeat\<M,N\>(expr).
 ///
 /// The repeat\<\>() function creates a greedy quantifier. To make the quantifier
-/// non-greedy, apply the unary minus operator, as in -repeat\<M,N\>(xpr).
+/// non-greedy, apply the unary minus operator, as in -repeat\<M,N\>(expr).
 ///
-/// \param xpr The sub-expression to repeat.
-template<unsigned int Min, unsigned int Max, typename Xpr>
-inline typename proto2::unary_op
+/// \param expr The sub-expression to repeat.
+template<unsigned int Min, unsigned int Max, typename Expr>
+inline typename proto2::unary_expr
 <
     detail::generic_quant_tag<Min, Max>
-  , typename detail::as_xpr_type<Xpr>::type
+  , typename detail::as_xpr_type<Expr>::type
 >::type const
-repeat(Xpr const &xpr)
+repeat(Expr const &expr)
 {
-    typename proto2::unary_op
+    typename proto2::unary_expr
     <
         detail::generic_quant_tag<Min, Max>
-      , typename detail::as_xpr_type<Xpr>::type
-    >::type that = {as_xpr(xpr)};
+      , typename detail::as_xpr_type<Expr>::type
+    >::type that = {as_xpr(expr)};
     return that;
 }
 
 /// \overload
 ///
 template<unsigned int Count, typename Xpr2>
-inline typename proto2::unary_op
+inline typename proto2::unary_expr
 <
     detail::generic_quant_tag<Count, Count>
   , typename detail::as_xpr_type<Xpr2>::type
 >::type const
-repeat(Xpr2 const &xpr)
+repeat(Xpr2 const &expr)
 {
-    typename proto2::unary_op
+    typename proto2::unary_expr
     <
         detail::generic_quant_tag<Count, Count>
       , typename detail::as_xpr_type<Xpr2>::type
-    >::type that = {as_xpr(xpr)};
+    >::type that = {as_xpr(expr)};
     return that;
 }
 
@@ -511,82 +511,82 @@ repeat(Xpr2 const &xpr)
 /// the sub-expression will match only one way, and no other alternatives are
 /// tried.
 ///
-/// \attention keep(xpr) is equivalent to the perl (?>...) extension.
+/// \attention keep(expr) is equivalent to the perl (?>...) extension.
 ///
-/// \param xpr The sub-expression to modify.
-template<typename Xpr>
-inline typename proto2::unary_op
+/// \param expr The sub-expression to modify.
+template<typename Expr>
+inline typename proto2::unary_expr
 <
     detail::keeper_tag
-  , typename detail::as_xpr_type<Xpr>::type
+  , typename detail::as_xpr_type<Expr>::type
 >::type const
-keep(Xpr const &xpr)
+keep(Expr const &expr)
 {
-    typename proto2::unary_op
+    typename proto2::unary_expr
     <
         detail::keeper_tag
-      , typename detail::as_xpr_type<Xpr>::type
-    >::type that = {as_xpr(xpr)};
+      , typename detail::as_xpr_type<Expr>::type
+    >::type that = {as_xpr(expr)};
     return that;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Look-ahead assertion.
 ///
-/// before(xpr) succeeds if the xpr sub-expression would match at the current
-/// position in the sequence, but xpr is not included in the match. For instance,
+/// before(expr) succeeds if the expr sub-expression would match at the current
+/// position in the sequence, but expr is not included in the match. For instance,
 /// before("foo") succeeds if we are before a "foo". Look-ahead assertions can be
 /// negated with the bit-compliment operator.
 ///
-/// \attention before(xpr) is equivalent to the perl (?=...) extension.
-/// ~before(xpr) is a negative look-ahead assertion, equivalent to the
+/// \attention before(expr) is equivalent to the perl (?=...) extension.
+/// ~before(expr) is a negative look-ahead assertion, equivalent to the
 /// perl (?!...) extension.
 ///
-/// \param xpr The sub-expression to put in the look-ahead assertion.
-template<typename Xpr>
-inline typename proto2::unary_op
+/// \param expr The sub-expression to put in the look-ahead assertion.
+template<typename Expr>
+inline typename proto2::unary_expr
 <
     detail::lookahead_tag<true>
-  , typename detail::as_xpr_type<Xpr>::type
+  , typename detail::as_xpr_type<Expr>::type
 >::type const
-before(Xpr const &xpr)
+before(Expr const &expr)
 {
-    typename proto2::unary_op
+    typename proto2::unary_expr
     <
         detail::lookahead_tag<true>
-      , typename detail::as_xpr_type<Xpr>::type
-    >::type that = {as_xpr(xpr)};
+      , typename detail::as_xpr_type<Expr>::type
+    >::type that = {as_xpr(expr)};
     return that;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Look-behind assertion.
 ///
-/// after(xpr) succeeds if the xpr sub-expression would match at the current
-/// position minus N in the sequence, where N is the width of xpr. xpr is not included in
+/// after(expr) succeeds if the expr sub-expression would match at the current
+/// position minus N in the sequence, where N is the width of expr. expr is not included in
 /// the match. For instance,  after("foo") succeeds if we are after a "foo". Look-behind
 /// assertions can be negated with the bit-complement operator.
 ///
-/// \attention after(xpr) is equivalent to the perl (?<=...) extension.
-/// ~after(xpr) is a negative look-behind assertion, equivalent to the
+/// \attention after(expr) is equivalent to the perl (?<=...) extension.
+/// ~after(expr) is a negative look-behind assertion, equivalent to the
 /// perl (?<!...) extension.
 ///
-/// \param xpr The sub-expression to put in the look-ahead assertion.
+/// \param expr The sub-expression to put in the look-ahead assertion.
 ///
-/// \pre xpr cannot match a variable number of characters.
-template<typename Xpr>
-inline typename proto2::unary_op
+/// \pre expr cannot match a variable number of characters.
+template<typename Expr>
+inline typename proto2::unary_expr
 <
     detail::lookbehind_tag<true>
-  , typename detail::as_xpr_type<Xpr>::type
+  , typename detail::as_xpr_type<Expr>::type
 >::type const
-after(Xpr const &xpr)
+after(Expr const &expr)
 {
-    typename proto2::unary_op
+    typename proto2::unary_expr
     <
         detail::lookbehind_tag<true>
-      , typename detail::as_xpr_type<Xpr>::type
-    >::type that = {as_xpr(xpr)};
+      , typename detail::as_xpr_type<Expr>::type
+    >::type that = {as_xpr(expr)};
     return that;
 }
 

@@ -98,24 +98,24 @@
 ////    struct expand_left_tag
 ////    {};
 ////
-////    template<typename OpTag, typename Node, typename State = fusion::nil>
+////    template<typename OpTag, typename Expr, typename State = fusion::nil>
 ////    struct expand_left_view
-////      : compile_result<Node, State, mpl::void_, expand_left_tag<OpTag> >
+////      : meta::compile<Expr, State, mpl::void_, expand_left_tag<OpTag> >
 ////    {};
 ////
-////    template<typename OpTag, typename Node, typename State>
-////    typename expand_left_view<OpTag, Node, State>::type
-////    expand_left(Node const &node, State const &state)
+////    template<typename OpTag, typename Expr, typename State>
+////    typename expand_left_view<OpTag, Expr, State>::type
+////    expand_left(Expr const &expr, State const &state)
 ////    {
 ////        mpl::void_ null;
-////        return compile(node, state, null, expand_left_tag<OpTag>());
+////        return compile(expr, state, null, expand_left_tag<OpTag>());
 ////    }
 ////
-////    template<typename OpTag, typename Node>
-////    typename expand_left_view<OpTag, Node>::type
-////    expand_left(Node const &node)
+////    template<typename OpTag, typename Expr>
+////    typename expand_left_view<OpTag, Expr>::type
+////    expand_left(Expr const &expr)
 ////    {
-////        return expand_left<OpTag>(node, fusion::nil());
+////        return expand_left<OpTag>(expr, fusion::nil());
 ////    }
 ////
 ////    struct binary_tree_iterator_tag;
@@ -151,23 +151,23 @@
 ////        template<typename DomainTag>
 ////        struct expand_left_compiler
 ////        {
-////            template<typename Node, typename State, typename Visitor>
+////            template<typename Expr, typename State, typename Visitor>
 ////            struct apply
-////              : compile_result<
-////                    typename left_type<Node>::type
-////                  , fusion::cons<Node const &, State>
+////              : meta::compile<
+////                    typename left_type<Expr>::type
+////                  , fusion::cons<Expr const &, State>
 ////                  , Visitor
 ////                  , DomainTag
 ////                >
 ////            {};
 ////
-////            template<typename Node, typename State, typename Visitor>
-////            static typename apply<Node, State, Visitor>::type
-////            call(Node const &node, State const &state, Visitor &visitor)
+////            template<typename Expr, typename State, typename Visitor>
+////            static typename apply<Expr, State, Visitor>::type
+////            call(Expr const &expr, State const &state, Visitor &visitor)
 ////            {
 ////                return proto2::compile(
-////                    proto2::left(node)
-////                  , fusion::cons<Node const &, State>(node, state)
+////                    proto2::left(expr)
+////                  , fusion::cons<Expr const &, State>(expr, state)
 ////                  , visitor
 ////                  , DomainTag()
 ////                );
@@ -176,17 +176,17 @@
 ////
 ////        struct cons_ref_compiler
 ////        {
-////            template<typename Node, typename State, typename Visitor>
+////            template<typename Expr, typename State, typename Visitor>
 ////            struct apply
 ////            {
-////                typedef fusion::cons<Node const &, State> type;
+////                typedef fusion::cons<Expr const &, State> type;
 ////            };
 ////
-////            template<typename Node, typename State, typename Visitor>
-////            static fusion::cons<Node const &, State>
-////            call(Node const &node, State const &state, Visitor &)
+////            template<typename Expr, typename State, typename Visitor>
+////            static fusion::cons<Expr const &, State>
+////            call(Expr const &expr, State const &state, Visitor &)
 ////            {
-////                return fusion::cons<Node const &, State>(node, state);
+////                return fusion::cons<Expr const &, State>(expr, state);
 ////            }
 ////        };
 ////
@@ -196,9 +196,9 @@
 ////            typedef typename tag_type<Sequence>::type tag_type;
 ////            typedef binary_tree_iterator<typename expand_left_view<tag_type, Sequence>::type> type;
 ////
-////            static type call(Sequence const &node)
+////            static type call(Sequence const &expr)
 ////            {
-////                return type(expand_left<tag_type>(node));
+////                return type(expand_left<tag_type>(expr));
 ////            }
 ////        };
 ////

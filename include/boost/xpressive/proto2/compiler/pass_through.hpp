@@ -21,112 +21,112 @@
 //    struct pass_through_compiler
 //    {
 //        // compile_helper
-//        template<typename Node, typename State, typename Visitor, typename EnableIf = void>
+//        template<typename Expr, typename State, typename Visitor, typename EnableIf = void>
 //        struct compile_helper
 //        {
-//            typedef typename compile_result<Node, State, Visitor, DomainTag>::type type;
+//            typedef typename meta::compile<Expr, State, Visitor, DomainTag>::type type;
 //
-//            static type const &call(type const &node, State const &state, Visitor &visitor, int)
+//            static type const &call(type const &expr, State const &state, Visitor &visitor, int)
 //            {
-//                return node;
+//                return expr;
 //            }
 //
-//            static type const call(Node const &node, State const &state, Visitor &visitor, ...)
+//            static type const call(Expr const &expr, State const &state, Visitor &visitor, ...)
 //            {
-//                return proto2::compile(node, state, visitor, DomainTag());
+//                return proto2::compile(expr, state, visitor, DomainTag());
 //            }
 //        };
 //
-//        template<typename Node, typename State, typename Visitor>
-//        struct compile_helper<Node, State, Visitor, typename disable_if<is_op<Node> >::type>
+//        template<typename Expr, typename State, typename Visitor>
+//        struct compile_helper<Expr, State, Visitor, typename disable_if<is_op<Expr> >::type>
 //        {
-//            typedef Node type;
+//            typedef Expr type;
 //
-//            static Node const &call(Node const &node, State const &state, Visitor &visitor, int)
+//            static Expr const &call(Expr const &expr, State const &state, Visitor &visitor, int)
 //            {
-//                return node;
+//                return expr;
 //            }
 //        };
 //
 //        // apply_helper
-//        template<typename Node, typename State, typename Visitor, typename EnableIf>
+//        template<typename Expr, typename State, typename Visitor, typename EnableIf>
 //        struct apply_helper;
 //
 //        // is_unary apply
-//        template<typename Node, typename State, typename Visitor>
-//        struct apply_helper<Node, State, Visitor, typename enable_if<is_unary<Node> >::type>
+//        template<typename Expr, typename State, typename Visitor>
+//        struct apply_helper<Expr, State, Visitor, typename enable_if<is_unary<Expr> >::type>
 //        {
-//            typedef typename arg_type<Node>::type arg_type;
+//            typedef typename arg_type<Expr>::type arg_type;
 //            typedef compile_helper<arg_type, State, Visitor> compiler_type;
 //            typedef typename compiler_type::type new_arg_type;
-//            typedef unary_op<new_arg_type, typename tag_type<Node>::type> type;
-//            typedef typename mpl::if_<is_same<Node, type>, Node const &, type const>::type const_reference;
+//            typedef unary_expr<new_arg_type, typename tag_type<Expr>::type> type;
+//            typedef typename mpl::if_<is_same<Expr, type>, Expr const &, type const>::type const_reference;
 //
-//            static type const &call(type const &node, State const &state, Visitor &visitor, int)
+//            static type const &call(type const &expr, State const &state, Visitor &visitor, int)
 //            {
-//                return node; // pass-through, no recompilation necessary.
+//                return expr; // pass-through, no recompilation necessary.
 //            }
 //
-//            static type const call(Node const &node, State const &state, Visitor &visitor, ...)
+//            static type const call(Expr const &expr, State const &state, Visitor &visitor, ...)
 //            {
-//                return proto2::make_op<typename tag_type<Node>::type>(
-//                    compiler_type::call(proto2::arg(node), state, visitor, 0)
+//                return proto2::make_expr<typename tag_type<Expr>::type>(
+//                    compiler_type::call(proto2::arg(expr), state, visitor, 0)
 //                );
 //            }
 //        };
 //
 //        // is_binary apply
-//        template<typename Node, typename State, typename Visitor>
-//        struct apply_helper<Node, State, Visitor, typename enable_if<is_binary<Node> >::type>
+//        template<typename Expr, typename State, typename Visitor>
+//        struct apply_helper<Expr, State, Visitor, typename enable_if<is_binary<Expr> >::type>
 //        {
-//            typedef typename left_type<Node>::type left_type;
-//            typedef typename right_type<Node>::type right_type;
+//            typedef typename left_type<Expr>::type left_type;
+//            typedef typename right_type<Expr>::type right_type;
 //            typedef compile_helper<left_type, State, Visitor> left_compiler_type;
 //            typedef compile_helper<right_type, State, Visitor> right_compiler_type;
 //            typedef typename left_compiler_type::type new_left_type;
 //            typedef typename right_compiler_type::type new_right_type;
-//            typedef binary_op<new_left_type, new_right_type, typename tag_type<Node>::type> type;
-//            typedef typename mpl::if_<is_same<Node, type>, Node const &, type const>::type const_reference;
+//            typedef binary_expr<new_left_type, new_right_type, typename tag_type<Expr>::type> type;
+//            typedef typename mpl::if_<is_same<Expr, type>, Expr const &, type const>::type const_reference;
 //
-//            static type const &call(type const &node, State const &state, Visitor &visitor, int)
+//            static type const &call(type const &expr, State const &state, Visitor &visitor, int)
 //            {
-//                return node; // pass-through, no recompilation necessary.
+//                return expr; // pass-through, no recompilation necessary.
 //            }
 //
-//            static type const call(Node const &node, State const &state, Visitor &visitor, ...)
+//            static type const call(Expr const &expr, State const &state, Visitor &visitor, ...)
 //            {
-//                return proto2::make_op<typename tag_type<Node>::type>(
-//                    left_compiler_type::call(proto2::left(node), state, visitor, 0)
-//                  , right_compiler_type::call(proto2::right(node), state, visitor, 0)
+//                return proto2::make_expr<typename tag_type<Expr>::type>(
+//                    left_compiler_type::call(proto2::left(expr), state, visitor, 0)
+//                  , right_compiler_type::call(proto2::right(expr), state, visitor, 0)
 //                );
 //            }
 //        };
 //
 //        // is_nary apply
-//        template<typename Node, typename State, typename Visitor>
-//        struct apply_helper<Node, State, Visitor, typename enable_if<is_nary<Node> >::type>
+//        template<typename Expr, typename State, typename Visitor>
+//        struct apply_helper<Expr, State, Visitor, typename enable_if<is_nary<Expr> >::type>
 //        {
 //            // BUGBUG handle nary_op here
-//            typedef Node type;
-//            typedef Node const &const_reference;
+//            typedef Expr type;
+//            typedef Expr const &const_reference;
 //
-//            static Node const &call(Node const &node, State const &, Visitor &, int)
+//            static Expr const &call(Expr const &expr, State const &, Visitor &, int)
 //            {
-//                return node;
+//                return expr;
 //            }
 //        };
 //
-//        template<typename Node, typename State, typename Visitor>
+//        template<typename Expr, typename State, typename Visitor>
 //        struct apply
-//          : apply_helper<Node, State, Visitor, void>
+//          : apply_helper<Expr, State, Visitor, void>
 //        {
 //        };
 //
-//        template<typename Node, typename State, typename Visitor>
-//        static typename apply<Node, State, Visitor>::const_reference
-//        call(Node const &node, State const &state, Visitor &visitor)
+//        template<typename Expr, typename State, typename Visitor>
+//        static typename apply<Expr, State, Visitor>::const_reference
+//        call(Expr const &expr, State const &state, Visitor &visitor)
 //        {
-//            return apply<Node, State, Visitor>::call(node, state, visitor, 0);
+//            return apply<Expr, State, Visitor>::call(expr, state, visitor, 0);
 //        }
 //    };
 //

@@ -17,26 +17,46 @@
 
 namespace boost { namespace proto2
 {
-    ///////////////////////////////////////////////////////////////////////////////
-    // compile_result
-    template<typename Node, typename State, typename Visitor, typename DomainTag>
-    struct compile_result
+    namespace meta
     {
-        typedef typename as_op_type<Node>::type op_type;
-        typedef compiler<typename tag_type<op_type>::type, DomainTag> compiler;
-        typedef typename compiler::BOOST_NESTED_TEMPLATE apply<op_type, State, Visitor>::type type;
-    };
-
-    ///////////////////////////////////////////////////////////////////////////////
-    // compile
-    template<typename Node, typename State, typename Visitor, typename DomainTag>
-    typename compile_result<Node, State, Visitor, DomainTag>::type const
-    compile(Node const &node, State const &state, Visitor &visitor, DomainTag)
-    {
-        typedef typename as_op_type<Node>::type op_type;
-        typedef compiler<typename tag_type<op_type>::type, DomainTag> compiler;
-        return compiler::call(proto2::as_op(node), state, visitor);
+        template<typename Expr, typename State, typename Visitor, typename DomainTag>
+        struct compile
+        {
+            typedef typename meta::as_expr<Expr>::type expr_type;
+            typedef compiler<typename tag_type<expr_type>::type, DomainTag> compiler;
+            typedef typename compiler::BOOST_NESTED_TEMPLATE apply<expr_type, State, Visitor>::type type;
+        };
     }
+
+    namespace op
+    {
+        struct compile
+        {
+            template<typename Sig>
+            struct result;
+
+            template<typename This, typename Expr, typename State, typename Visitor, typename DomainTag>
+            struct result<This(Expr, State, Visitor, DomainTag)>
+              : meta::compile<
+                    typename meta::value_type<Expr>::type
+                  , typename meta::value_type<State>::type
+                  , typename meta::value_type<Visitor>::type
+                  , typename meta::value_type<DomainTag>::type
+                >
+            {};
+
+            template<typename Expr, typename State, typename Visitor, typename DomainTag>
+            typename meta::compile<Expr, State, Visitor, DomainTag>::type
+            operator()(Expr const &expr, State const &state, Visitor &visitor, DomainTag) const
+            {
+                typedef typename meta::as_expr<Expr>::type expr_type;
+                typedef compiler<typename tag_type<expr_type>::type, DomainTag> compiler;
+                return compiler::call(proto2::as_expr(expr), state, visitor);
+            }
+        };
+    }
+
+    op::compile const compile = {};
 
 }} // namespace boost::proto2
 

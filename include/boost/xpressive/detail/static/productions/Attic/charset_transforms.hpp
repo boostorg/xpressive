@@ -118,14 +118,14 @@ namespace boost { namespace xpressive { namespace detail
             typedef typename proto2::literal<matcher_type>::type type;
         };
 
-        template<typename Node, typename State, typename Visitor>
-        static typename apply<Node, State, Visitor>::type
-        call(Node const &node, State const &, Visitor &visitor, bool complement = false)
+        template<typename Expr, typename State, typename Visitor>
+        static typename apply<Expr, State, Visitor>::type
+        call(Expr const &expr, State const &, Visitor &visitor, bool complement = false)
         {
-            typedef typename apply<Node, State, Visitor>::matcher_type matcher_type;
+            typedef typename apply<Expr, State, Visitor>::matcher_type matcher_type;
             matcher_type matcher;
             // Walks the tree and fills in the charset
-            proto2::compile(proto2::right(node), make_charset_state(matcher, visitor.traits()), visitor, set_tag());
+            proto2::compile(proto2::right(expr), make_charset_state(matcher, visitor.traits()), visitor, set_tag());
             if(complement)
             {
                 matcher.charset_.inverse();

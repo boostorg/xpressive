@@ -5,8 +5,8 @@
 /// transformation is forwarded to the specified compiler, or to the
 /// default compiler for the resulting expression is no compiler is
 /// specified. Also included are some basic transforms, such as one that
-/// extracts the operand of a unary node, the left and right operands of
-/// a binary node, and a way to compose multiple transforms into one.
+/// extracts the operand of a unary expr, the left and right operands of
+/// a binary expr, and a way to compose multiple transforms into one.
 //
 //  Copyright 2004 Eric Niebler. Distributed under the Boost
 //  Software License, Version 1.0. (See accompanying file
@@ -29,22 +29,22 @@ namespace boost { namespace proto2
     template<typename Lambda, typename DomainTag, typename Compiler>
     struct transform_compiler
     {
-        template<typename Node, typename State, typename Visitor>
+        template<typename Expr, typename State, typename Visitor>
         struct apply
         {
             typedef typename Compiler::BOOST_NESTED_TEMPLATE apply
             <
-                typename Lambda::BOOST_NESTED_TEMPLATE apply<Node, State, Visitor>::type
+                typename Lambda::BOOST_NESTED_TEMPLATE apply<Expr, State, Visitor>::type
               , State
               , Visitor
             >::type type;
         };
 
-        template<typename Node, typename State, typename Visitor>
-        static typename apply<Node, State, Visitor>::type
-        call(Node const &node, State const &state, Visitor &visitor)
+        template<typename Expr, typename State, typename Visitor>
+        static typename apply<Expr, State, Visitor>::type
+        call(Expr const &expr, State const &state, Visitor &visitor)
         {
-            return Compiler::call(Lambda::call(node, state, visitor), state, visitor);
+            return Compiler::call(Lambda::call(expr, state, visitor), state, visitor);
         }
     };
 
@@ -54,12 +54,12 @@ namespace boost { namespace proto2
     template<typename Lambda, typename DomainTag>
     struct transform_compiler<Lambda, DomainTag, void>
     {
-        template<typename Node, typename State, typename Visitor>
+        template<typename Expr, typename State, typename Visitor>
         struct apply
         {
             typedef typename Lambda::BOOST_NESTED_TEMPLATE apply
             <
-                Node
+                Expr
               , State
               , Visitor
             >::type trans_type;
@@ -74,13 +74,13 @@ namespace boost { namespace proto2
             >::type type;
         };
 
-        template<typename Node, typename State, typename Visitor>
-        static typename apply<Node, State, Visitor>::type
-        call(Node const &node, State const &state, Visitor &visitor)
+        template<typename Expr, typename State, typename Visitor>
+        static typename apply<Expr, State, Visitor>::type
+        call(Expr const &expr, State const &state, Visitor &visitor)
         {
-            //typename apply<Node, State, Visitor>::trans_type trans = Lambda::call(node, state, visitor);
+            //typename apply<Expr, State, Visitor>::trans_type trans = Lambda::call(expr, state, visitor);
             //return proto2::compile(trans, state, visitor, DomainTag());
-            return proto2::compile(Lambda::call(node, state, visitor), state, visitor, DomainTag());
+            return proto2::compile(Lambda::call(expr, state, visitor), state, visitor, DomainTag());
         }
     };
 
@@ -89,16 +89,16 @@ namespace boost { namespace proto2
     //   pass through without doing a transform
     struct identity_transform
     {
-        template<typename Node, typename, typename>
+        template<typename Expr, typename, typename>
         struct apply
         {
-            typedef Node type;
+            typedef Expr type;
         };
 
-        template<typename Node, typename State, typename Visitor>
-        static Node const &call(Node const &node, State const &, Visitor &)
+        template<typename Expr, typename State, typename Visitor>
+        static Expr const &call(Expr const &expr, State const &, Visitor &)
         {
-            return node;
+            return expr;
         }
     };
 
@@ -106,17 +106,17 @@ namespace boost { namespace proto2
     // arg_transform
     struct arg_transform
     {
-        template<typename Node, typename, typename>
+        template<typename Expr, typename, typename>
         struct apply
         {
-            typedef typename Node::arg0_type type;
+            typedef typename Expr::arg0_type type;
         };
 
-        template<typename Node, typename State, typename Visitor>
-        static typename apply<Node, State, Visitor>::type
-        call(Node const &node, State const &, Visitor &)
+        template<typename Expr, typename State, typename Visitor>
+        static typename apply<Expr, State, Visitor>::type
+        call(Expr const &expr, State const &, Visitor &)
         {
-            return proto2::arg(node);
+            return proto2::arg(expr);
         }
     };
 
@@ -124,17 +124,17 @@ namespace boost { namespace proto2
     // left_transform
     struct left_transform
     {
-        template<typename Node, typename, typename>
+        template<typename Expr, typename, typename>
         struct apply
         {
-            typedef typename Node::arg0_type type;
+            typedef typename Expr::arg0_type type;
         };
 
-        template<typename Node, typename State, typename Visitor>
-        static typename apply<Node, State, Visitor>::type
-        call(Node const &node, State const &, Visitor &)
+        template<typename Expr, typename State, typename Visitor>
+        static typename apply<Expr, State, Visitor>::type
+        call(Expr const &expr, State const &, Visitor &)
         {
-            return proto2::left(node);
+            return proto2::left(expr);
         }
     };
 
@@ -142,17 +142,17 @@ namespace boost { namespace proto2
     // right_transform
     struct right_transform
     {
-        template<typename Node, typename, typename>
+        template<typename Expr, typename, typename>
         struct apply
         {
-            typedef typename Node::arg1_type type;
+            typedef typename Expr::arg1_type type;
         };
 
-        template<typename Node, typename State, typename Visitor>
-        static typename apply<Node, State, Visitor>::type
-        call(Node const &node, State const &, Visitor &)
+        template<typename Expr, typename State, typename Visitor>
+        static typename apply<Expr, State, Visitor>::type
+        call(Expr const &expr, State const &, Visitor &)
         {
-            return proto2::right(node);
+            return proto2::right(expr);
         }
     };
 
@@ -162,17 +162,17 @@ namespace boost { namespace proto2
     template<typename Tag>
     struct unary_op_transform
     {
-        template<typename Node, typename, typename>
+        template<typename Expr, typename, typename>
         struct apply
         {
-            typedef typename unary_op<Tag, Node>::type type;
+            typedef typename unary_expr<Tag, Expr>::type type;
         };
 
-        template<typename Node, typename State, typename Visitor>
-        static typename unary_op<Tag, Node>::type
-        call(Node const &node, State const &, Visitor &)
+        template<typename Expr, typename State, typename Visitor>
+        static typename unary_expr<Tag, Expr>::type
+        call(Expr const &expr, State const &, Visitor &)
         {
-            typename unary_op<Tag, Node>::type that = {node};
+            typename unary_expr<Tag, Expr>::type that = {expr};
             return that;
         }
     };
@@ -183,22 +183,22 @@ namespace boost { namespace proto2
     template<typename First, typename Second>
     struct compose_transforms
     {
-        template<typename Node, typename State, typename Visitor>
+        template<typename Expr, typename State, typename Visitor>
         struct apply
         {
             typedef typename Second::BOOST_NESTED_TEMPLATE apply
             <
-                typename First::BOOST_NESTED_TEMPLATE apply<Node, State, Visitor>::type
+                typename First::BOOST_NESTED_TEMPLATE apply<Expr, State, Visitor>::type
               , State
               , Visitor
             >::type type;
         };
 
-        template<typename Node, typename State, typename Visitor>
-        static typename apply<Node, State, Visitor>::type
-        call(Node const &node, State const &state, Visitor &visitor)
+        template<typename Expr, typename State, typename Visitor>
+        static typename apply<Expr, State, Visitor>::type
+        call(Expr const &expr, State const &state, Visitor &visitor)
         {
-            return Second::call(First::call(node, state, visitor), state, visitor);
+            return Second::call(First::call(expr, state, visitor), state, visitor);
         }
     };
 
@@ -208,29 +208,29 @@ namespace boost { namespace proto2
     template<typename Predicate, typename IfTransform, typename ElseTransform>
     struct conditional_transform
     {
-        template<typename Node, typename State, typename Visitor>
+        template<typename Expr, typename State, typename Visitor>
         struct apply
         {
             typedef typename boost::mpl::if_
             <
-                typename Predicate::BOOST_NESTED_TEMPLATE apply<Node, State, Visitor>::type
+                typename Predicate::BOOST_NESTED_TEMPLATE apply<Expr, State, Visitor>::type
               , IfTransform
               , ElseTransform
             >::type transform_type;
 
             typedef typename transform_type::BOOST_NESTED_TEMPLATE apply
             <
-                Node
+                Expr
               , State
               , Visitor
             >::type type;
         };
 
-        template<typename Node, typename State, typename Visitor>
-        static typename apply<Node, State, Visitor>::type
-        call(Node const &node, State const &state, Visitor &visitor)
+        template<typename Expr, typename State, typename Visitor>
+        static typename apply<Expr, State, Visitor>::type
+        call(Expr const &expr, State const &state, Visitor &visitor)
         {
-            return apply<Node, State, Visitor>::transform_type::call(node, state, visitor);
+            return apply<Expr, State, Visitor>::transform_type::call(expr, state, visitor);
         }
     };
 
@@ -243,9 +243,9 @@ namespace boost { namespace proto2
             typedef Always type;
         };
 
-        template<typename Node, typename State, typename Visitor>
+        template<typename Expr, typename State, typename Visitor>
         static Always
-        call(Node const &, State const &, Visitor &)
+        call(Expr const &, State const &, Visitor &)
         {
             return Always();
         }

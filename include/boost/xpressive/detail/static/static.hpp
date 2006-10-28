@@ -208,7 +208,7 @@ private:
     template<typename Char>
     void peek_next_(mpl::false_, xpression_peeker<Char> &) const
     {
-        // no-node
+        // no-op
     }
 
     template<std::size_t Width>

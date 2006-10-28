@@ -23,7 +23,7 @@ namespace boost { namespace proto2
     struct binary_tag {};
     struct nary_tag {}; // for operator()
 
-    struct noop_tag : unary_tag {};
+    struct terminal_tag : unary_tag {};
     struct unary_plus_tag : unary_tag {};
     struct unary_minus_tag : unary_tag {};
     struct unary_star_tag : unary_tag {};

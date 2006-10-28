@@ -23,15 +23,15 @@ namespace boost { namespace proto2
     template<typename Lambda, typename DomainTag>
     struct branch_compiler
     {
-        template<typename Node, typename State, typename Visitor>
+        template<typename Expr, typename State, typename Visitor>
         struct apply
         {
-            typedef proto2::compiler<typename Node::tag_type, DomainTag> compiler_type;
+            typedef proto2::compiler<typename Expr::tag_type, DomainTag> compiler_type;
 
             // Compile the branch
             typedef typename compiler_type::BOOST_NESTED_TEMPLATE apply
             <
-                Node
+                Expr
               , typename Lambda::state_type
               , Visitor
             >::type branch_type;
@@ -45,13 +45,13 @@ namespace boost { namespace proto2
             >::type type;
         };
 
-        template<typename Node, typename State, typename Visitor>
-        static typename apply<Node, State, Visitor>::type
-        call(Node const &node, State const &state, Visitor &visitor)
+        template<typename Expr, typename State, typename Visitor>
+        static typename apply<Expr, State, Visitor>::type
+        call(Expr const &expr, State const &state, Visitor &visitor)
         {
             return Lambda::call
             (
-                proto2::compile(node, typename Lambda::state_type(), visitor, DomainTag())
+                proto2::compile(expr, typename Lambda::state_type(), visitor, DomainTag())
               , state
               , visitor
             );

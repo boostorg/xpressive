@@ -35,11 +35,11 @@ namespace boost { namespace xpressive { namespace detail
     //
     struct is_set_initializer_predicate
     {
-        template<typename Node, typename, typename>
+        template<typename Expr, typename, typename>
         struct apply
         {
             typedef typename is_same<
-                typename proto2::unref<typename Node::arg0_type>::type
+                typename proto2::unref<typename Expr::arg0_type>::type
               , set_initializer_type
             >::type type;
         };
@@ -49,23 +49,23 @@ namespace boost { namespace xpressive { namespace detail
     //
     struct action_transform
     {
-        template<typename Node, typename, typename>
+        template<typename Expr, typename, typename>
         struct apply
         {
-            typedef typename proto2::binary_op
+            typedef typename proto2::binary_expr
             <
                 proto2::right_shift_tag
-              , typename Node::arg0_type
-              , typename Node::arg1_type
+              , typename Expr::arg0_type
+              , typename Expr::arg1_type
             >::type type;
         };
 
-        template<typename Node, typename State, typename Visitor>
-        static typename apply<Node, State, Visitor>::type
-        call(Node const &node, State const &, Visitor &)
+        template<typename Expr, typename State, typename Visitor>
+        static typename apply<Expr, State, Visitor>::type
+        call(Expr const &expr, State const &, Visitor &)
         {
-            typename apply<Node, State, Visitor>::type that =
-                {proto2::left(node), proto2::right(node)};
+            typename apply<Expr, State, Visitor>::type that =
+                {proto2::left(expr), proto2::right(expr)};
             return that;
         }
     };

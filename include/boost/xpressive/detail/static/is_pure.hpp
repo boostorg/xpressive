@@ -30,20 +30,20 @@ namespace boost { namespace xpressive { namespace detail
     ///////////////////////////////////////////////////////////////////////////////
     // use_simple_repeat
     //
-    template<typename Node, typename Tag = typename Node::tag_type>
+    template<typename Expr, typename Tag = typename Expr::tag_type>
     struct use_simple_repeat;
 
     ///////////////////////////////////////////////////////////////////////////////
     // is_pure
     //
-    template<typename Node>
+    template<typename Expr>
     struct is_pure;
 
     template<typename Tag, typename Arg0, typename Arg1>
     struct is_pure_impl;
 
     template<typename Matcher>
-    struct is_pure_impl<proto2::noop_tag, Matcher, void>
+    struct is_pure_impl<proto2::terminal_tag, Matcher, void>
       : mpl::bool_<as_matcher_type<Matcher>::type::pure>
     {};
 
@@ -67,30 +67,30 @@ namespace boost { namespace xpressive { namespace detail
       : mpl::true_
     {};
 
-    template<typename Modifier, typename Node>
-    struct is_pure_impl<modifier_tag, Modifier, Node>
-      : is_pure<Node>
+    template<typename Modifier, typename Expr>
+    struct is_pure_impl<modifier_tag, Modifier, Expr>
+      : is_pure<Expr>
     {};
 
-    template<typename Node, bool Positive>
-    struct is_pure_impl<lookahead_tag<Positive>, Node, void>
-      : is_pure<Node>
+    template<typename Expr, bool Positive>
+    struct is_pure_impl<lookahead_tag<Positive>, Expr, void>
+      : is_pure<Expr>
     {};
 
-    template<typename Node, bool Positive>
-    struct is_pure_impl<lookbehind_tag<Positive>, Node, void>
-      : is_pure<Node>
+    template<typename Expr, bool Positive>
+    struct is_pure_impl<lookbehind_tag<Positive>, Expr, void>
+      : is_pure<Expr>
     {};
 
-    template<typename Node>
-    struct is_pure_impl<keeper_tag, Node, void>
-      : is_pure<Node>
+    template<typename Expr>
+    struct is_pure_impl<keeper_tag, Expr, void>
+      : is_pure<Expr>
     {};
 
     // when complementing a set or an assertion, the purity is that of the set (true) or the assertion
-    template<typename Node>
-    struct is_pure_impl<proto2::complement_tag, Node, void>
-      : is_pure<Node>
+    template<typename Expr>
+    struct is_pure_impl<proto2::complement_tag, Expr, void>
+      : is_pure<Expr>
     {};
 
     // The comma is used in list-initialized sets, which are pure
@@ -115,29 +115,29 @@ namespace boost { namespace xpressive { namespace detail
     };
 
     // Quantified expressions are pure IFF they use the simple_repeat_matcher
-    template<typename Node>
-    struct is_pure_impl<proto2::unary_plus_tag, Node, void>
-      : use_simple_repeat<Node>
+    template<typename Expr>
+    struct is_pure_impl<proto2::unary_plus_tag, Expr, void>
+      : use_simple_repeat<Expr>
     {};
 
-    template<typename Node>
-    struct is_pure_impl<proto2::unary_star_tag, Node, void>
-      : use_simple_repeat<Node>
+    template<typename Expr>
+    struct is_pure_impl<proto2::unary_star_tag, Expr, void>
+      : use_simple_repeat<Expr>
     {};
 
-    template<typename Node>
-    struct is_pure_impl<proto2::logical_not_tag, Node, void>
-      : use_simple_repeat<Node>
+    template<typename Expr>
+    struct is_pure_impl<proto2::logical_not_tag, Expr, void>
+      : use_simple_repeat<Expr>
     {};
 
-    template<typename Node, uint_t Min, uint_t Max>
-    struct is_pure_impl<generic_quant_tag<Min, Max>, Node, void>
-      : use_simple_repeat<Node>
+    template<typename Expr, uint_t Min, uint_t Max>
+    struct is_pure_impl<generic_quant_tag<Min, Max>, Expr, void>
+      : use_simple_repeat<Expr>
     {};
 
-    template<typename Node>
-    struct is_pure_impl<proto2::unary_minus_tag, Node, void>
-      : is_pure<Node>
+    template<typename Expr>
+    struct is_pure_impl<proto2::unary_minus_tag, Expr, void>
+      : is_pure<Expr>
     {};
 
     // simple_repeat_helper
@@ -154,33 +154,33 @@ namespace boost { namespace xpressive { namespace detail
     ///////////////////////////////////////////////////////////////////////////////
     // use_simple_repeat
     //  TODO this doesn't optimize +(_ >> "hello")
-    template<typename Node, typename Tag>
+    template<typename Expr, typename Tag>
     struct use_simple_repeat
-      : mpl::bool_<width_of<Node>::value != unknown_width::value && is_pure<Node>::value>
+      : mpl::bool_<width_of<Expr>::value != unknown_width::value && is_pure<Expr>::value>
     {
         // should never try to repeat something of 0-width
-        //BOOST_MPL_ASSERT_RELATION(0, !=, width_of<Node>::value);
-        BOOST_STATIC_ASSERT(0 != width_of<Node>::value);
+        //BOOST_MPL_ASSERT_RELATION(0, !=, width_of<Expr>::value);
+        BOOST_STATIC_ASSERT(0 != width_of<Expr>::value);
     };
 
-    template<typename Node>
-    struct use_simple_repeat<Node, proto2::noop_tag>
+    template<typename Expr>
+    struct use_simple_repeat<Expr, proto2::terminal_tag>
       : use_simple_repeat_helper<
-            as_matcher_type<typename Node::arg0_type>::type::pure
-          , as_matcher_type<typename Node::arg0_type>::type::quant
+            as_matcher_type<typename Expr::arg0_type>::type::pure
+          , as_matcher_type<typename Expr::arg0_type>::type::quant
         >
     {
-        //BOOST_MPL_ASSERT_RELATION(0, !=, as_matcher_type<typename Node::arg0_type>::type::width);
-        BOOST_STATIC_ASSERT(0 != as_matcher_type<typename Node::arg0_type>::type::width);
+        //BOOST_MPL_ASSERT_RELATION(0, !=, as_matcher_type<typename Expr::arg0_type>::type::width);
+        BOOST_STATIC_ASSERT(0 != as_matcher_type<typename Expr::arg0_type>::type::width);
     };
 
     // is_pure
-    template<typename Node>
+    template<typename Expr>
     struct is_pure
       : is_pure_impl<
-            typename Node::tag_type
-          , typename proto2::unref<typename Node::arg0_type>::type
-          , typename proto2::unref<typename Node::arg1_type>::type
+            typename Expr::tag_type
+          , typename proto2::unref<typename Expr::arg0_type>::type
+          , typename proto2::unref<typename Expr::arg1_type>::type
         >
     {};
 

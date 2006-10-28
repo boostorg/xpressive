@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 /// /file op_base.hpp
-/// Contains definitions of unary_op/</>, binary_op/</> and nary_op/</>,
-/// as well as the is_op/</> and the make_op() helper function.
+/// Contains definitions of unary_expr/</>, binary_expr/</> and nary_op/</>,
+/// as well as the is_op/</> and the make_expr() helper function.
 //
 //  Copyright 2004 Eric Niebler. Distributed under the Boost
 //  Software License, Version 1.0. (See accompanying file
@@ -45,7 +45,7 @@
         /**/
 
     #define BOOST_PROTO2_AS_OP(z, n, data)\
-        proto2::as_op(BOOST_PP_CAT(a,n))\
+        proto2::as_expr(BOOST_PP_CAT(a,n))\
         /**/
 
     #define BOOST_PP_ITERATION_PARAMS_1 (3, (1, BOOST_PROTO2_MAX_ARITY, <boost/xpressive/proto2/op_base.hpp>))
@@ -60,9 +60,9 @@
 #elif BOOST_PP_ITERATION_DEPTH() == 1
 
         template<typename Tag, typename Args>
-        struct basic_op<Tag, Args, BOOST_PP_ITERATION()>
+        struct basic_expr<Tag, Args, BOOST_PP_ITERATION()>
         {
-            typedef basic_op op_type;
+            typedef basic_expr expr_type;
             typedef Tag tag_type;
             typedef Args args_type;
             typedef mpl::long_<BOOST_PP_ITERATION()> arity;
@@ -70,31 +70,31 @@
             BOOST_PP_REPEAT(BOOST_PP_ITERATION(), BOOST_PROTO2_ARG, _)
             BOOST_PP_REPEAT_FROM_TO(BOOST_PP_ITERATION(), BOOST_PROTO2_MAX_ARITY, BOOST_PROTO2_VOID, _)
 
-            basic_op const &cast() const
+            basic_expr const &cast() const
             {
                 return *this;
             }
 
             template<typename A>
-            basic_op<assign_tag, mpl::vector2<ref<basic_op>, typename as_op_type<A>::type> > const
+            basic_expr<assign_tag, mpl::vector2<ref<basic_expr>, typename meta::as_expr<A>::type> > const
             operator =(A const &a) const
             {
-                basic_op<assign_tag, mpl::vector2<ref<basic_op>, typename as_op_type<A>::type> > that = {{*this}, proto2::as_op(a)};
+                basic_expr<assign_tag, mpl::vector2<ref<basic_expr>, typename meta::as_expr<A>::type> > that = {{*this}, proto2::as_expr(a)};
                 return that;
             }
 
             template<typename A>
-            basic_op<subscript_tag, mpl::vector2<ref<basic_op>, typename as_op_type<A>::type> > const
+            basic_expr<subscript_tag, mpl::vector2<ref<basic_expr>, typename meta::as_expr<A>::type> > const
             operator [](A const &a) const
             {
-                basic_op<subscript_tag, mpl::vector2<ref<basic_op>, typename as_op_type<A>::type> > that = {{*this}, proto2::as_op(a)};
+                basic_expr<subscript_tag, mpl::vector2<ref<basic_expr>, typename meta::as_expr<A>::type> > that = {{*this}, proto2::as_expr(a)};
                 return that;
             }
 
-            basic_op<function_tag, mpl::vector1<ref<basic_op> > > const
+            basic_expr<function_tag, mpl::vector1<ref<basic_expr> > > const
             operator ()() const
             {
-                basic_op<function_tag, mpl::vector1<ref<basic_op> > > that = {{*this}};
+                basic_expr<function_tag, mpl::vector1<ref<basic_expr> > > that = {{*this}};
                 return that;
             }
 
@@ -106,10 +106,10 @@
 
     #define N BOOST_PP_ITERATION()
         template<BOOST_PP_ENUM_PARAMS(N, typename A)>
-        basic_op<function_tag, BOOST_PP_CAT(mpl::vector, BOOST_PP_INC(N))<ref<basic_op> BOOST_PP_ENUM_TRAILING_BINARY_PARAMS(N, typename as_op_type<A, >::type BOOST_PP_INTERCEPT)> > const
+        basic_expr<function_tag, BOOST_PP_CAT(mpl::vector, BOOST_PP_INC(N))<ref<basic_expr> BOOST_PP_ENUM_TRAILING_BINARY_PARAMS(N, typename meta::as_expr<A, >::type BOOST_PP_INTERCEPT)> > const
         operator ()(BOOST_PP_ENUM_BINARY_PARAMS(N, A, const &a)) const
         {
-            basic_op<function_tag, BOOST_PP_CAT(mpl::vector, BOOST_PP_INC(N))<ref<basic_op> BOOST_PP_ENUM_TRAILING_BINARY_PARAMS(N, typename as_op_type<A, >::type BOOST_PP_INTERCEPT)> > that = {{*this} BOOST_PP_ENUM_TRAILING(N, BOOST_PROTO2_AS_OP, _)};
+            basic_expr<function_tag, BOOST_PP_CAT(mpl::vector, BOOST_PP_INC(N))<ref<basic_expr> BOOST_PP_ENUM_TRAILING_BINARY_PARAMS(N, typename meta::as_expr<A, >::type BOOST_PP_INTERCEPT)> > that = {{*this} BOOST_PP_ENUM_TRAILING(N, BOOST_PROTO2_AS_OP, _)};
             return that;
         }
     #undef N

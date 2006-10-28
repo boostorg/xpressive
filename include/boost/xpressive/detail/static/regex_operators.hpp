@@ -26,14 +26,14 @@ namespace boost { namespace xpressive
 ///////////////////////////////////////////////////////////////////////////////
 // operator +
 template<typename BidiIter>
-inline typename proto2::unary_op
+inline typename proto2::unary_expr
 <
     proto2::unary_plus_tag
   , typename proto2::literal<basic_regex<BidiIter> >::type
 >::type
 operator +(basic_regex<BidiIter> const &regex)
 {
-    typename proto2::unary_op
+    typename proto2::unary_expr
     <
         proto2::unary_plus_tag
       , typename proto2::literal<basic_regex<BidiIter> >::type
@@ -44,14 +44,14 @@ operator +(basic_regex<BidiIter> const &regex)
 ///////////////////////////////////////////////////////////////////////////////
 // operator *
 template<typename BidiIter>
-inline typename proto2::unary_op
+inline typename proto2::unary_expr
 <
     proto2::unary_star_tag
   , typename proto2::literal<basic_regex<BidiIter> >::type
 >::type
 operator *(basic_regex<BidiIter> const &regex)
 {
-    typename proto2::unary_op
+    typename proto2::unary_expr
     <
         proto2::unary_star_tag
       , typename proto2::literal<basic_regex<BidiIter> >::type
@@ -62,14 +62,14 @@ operator *(basic_regex<BidiIter> const &regex)
 ///////////////////////////////////////////////////////////////////////////////
 // operator !
 template<typename BidiIter>
-inline typename proto2::unary_op
+inline typename proto2::unary_expr
 <
     proto2::logical_not_tag
   , typename proto2::literal<basic_regex<BidiIter> >::type
 >::type
 operator !(basic_regex<BidiIter> const &regex)
 {
-    typename proto2::unary_op
+    typename proto2::unary_expr
     <
         proto2::logical_not_tag
       , typename proto2::literal<basic_regex<BidiIter> >::type
@@ -83,7 +83,7 @@ template<typename Right, typename BidiIter>
 inline typename lazy_disable_if
 <
     proto2::is_op<Right>
-  , proto2::binary_op
+  , proto2::binary_expr
     <
         proto2::right_shift_tag
       , typename proto2::literal<basic_regex<BidiIter> >::type
@@ -92,7 +92,7 @@ inline typename lazy_disable_if
 >::type
 operator >>(basic_regex<BidiIter> const &regex, Right const &right)
 {
-    typename proto2::binary_op
+    typename proto2::binary_expr
     <
         proto2::right_shift_tag
       , typename proto2::literal<basic_regex<BidiIter> >::type
@@ -107,7 +107,7 @@ template<typename BidiIter, typename Left>
 inline typename lazy_disable_if
 <
     proto2::is_op<Left>
-  , proto2::binary_op
+  , proto2::binary_expr
     <
         proto2::right_shift_tag
       , typename proto2::literal<Left>::type
@@ -116,7 +116,7 @@ inline typename lazy_disable_if
 >::type
 operator >>(Left const &left, basic_regex<BidiIter> const &regex)
 {
-    typename proto2::binary_op
+    typename proto2::binary_expr
     <
         proto2::right_shift_tag
       , typename proto2::literal<Left>::type
@@ -128,7 +128,7 @@ operator >>(Left const &left, basic_regex<BidiIter> const &regex)
 ///////////////////////////////////////////////////////////////////////////////
 // operator >>
 template<typename BidiIter>
-inline typename proto2::binary_op
+inline typename proto2::binary_expr
 <
     proto2::right_shift_tag
   , typename proto2::literal<basic_regex<BidiIter> >::type
@@ -136,7 +136,7 @@ inline typename proto2::binary_op
 >::type
 operator >>(basic_regex<BidiIter> const &left, basic_regex<BidiIter> const &right)
 {
-    typename proto2::binary_op
+    typename proto2::binary_expr
     <
         proto2::right_shift_tag
       , typename proto2::literal<basic_regex<BidiIter> >::type
@@ -151,7 +151,7 @@ template<typename Right, typename BidiIter>
 inline typename lazy_disable_if
 <
     proto2::is_op<Right>
-  , proto2::binary_op
+  , proto2::binary_expr
     <
         proto2::bitor_tag
       , typename proto2::literal<basic_regex<BidiIter> >::type
@@ -160,7 +160,7 @@ inline typename lazy_disable_if
 >::type
 operator |(basic_regex<BidiIter> const &regex, Right const &right)
 {
-    typename proto2::binary_op
+    typename proto2::binary_expr
     <
         proto2::bitor_tag
       , typename proto2::literal<basic_regex<BidiIter> >::type
@@ -175,7 +175,7 @@ template<typename BidiIter, typename Left>
 inline typename lazy_disable_if
 <
     proto2::is_op<Left>
-  , proto2::binary_op
+  , proto2::binary_expr
     <
         proto2::bitor_tag
       , typename proto2::literal<Left>::type
@@ -184,7 +184,7 @@ inline typename lazy_disable_if
 >::type
 operator |(Left const &left, basic_regex<BidiIter> const &regex)
 {
-    typename proto2::binary_op
+    typename proto2::binary_expr
     <
         proto2::bitor_tag
       , typename proto2::literal<Left>::type
@@ -196,7 +196,7 @@ operator |(Left const &left, basic_regex<BidiIter> const &regex)
 ///////////////////////////////////////////////////////////////////////////////
 // operator |
 template<typename BidiIter>
-inline typename proto2::binary_op
+inline typename proto2::binary_expr
 <
     proto2::bitor_tag
   , typename proto2::literal<basic_regex<BidiIter> >::type
@@ -204,7 +204,7 @@ inline typename proto2::binary_op
 >::type
 operator |(basic_regex<BidiIter> const &left, basic_regex<BidiIter> const &right)
 {
-    typename proto2::binary_op
+    typename proto2::binary_expr
     <
         proto2::bitor_tag
       , typename proto2::literal<basic_regex<BidiIter> >::type

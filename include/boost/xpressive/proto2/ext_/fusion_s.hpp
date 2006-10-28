@@ -36,61 +36,61 @@
 //        > const type;
 //    };
 //
-//    template<typename Node, typename EnableIf = void>
+//    template<typename Expr, typename EnableIf = void>
 //    struct elements_of;
 //
-//    template<typename Node>
-//    struct elements_of<Node, typename enable_if<is_unary<Node> >::type>
+//    template<typename Expr>
+//    struct elements_of<Expr, typename enable_if<is_unary<Expr> >::type>
 //    {
-//        typedef typename single_view_of<typename arg_type<Node>::type>::type type;
+//        typedef typename single_view_of<typename arg_type<Expr>::type>::type type;
 //
-//        static type make(Node &node)
+//        static type make(Expr &expr)
 //        {
-//            return type(proto2::arg(node));
+//            return type(proto2::arg(expr));
 //        }
 //    };
 //
-//    template<typename Node>
-//    struct elements_of<Node, typename enable_if<is_binary<Node> >::type>
+//    template<typename Expr>
+//    struct elements_of<Expr, typename enable_if<is_binary<Expr> >::type>
 //    {
-//        typedef typename single_view_of<typename left_type<Node>::type>::type left_view;
-//        typedef typename single_view_of<typename right_type<Node>::type>::type right_view;
+//        typedef typename single_view_of<typename left_type<Expr>::type>::type left_view;
+//        typedef typename single_view_of<typename right_type<Expr>::type>::type right_view;
 //        typedef fusion::joint_view<left_view, right_view> const type;
 //
-//        static type make(Node &node)
+//        static type make(Expr &expr)
 //        {
-//            return type(left_view(proto2::left(node)), right_view(proto2::right(node)));
+//            return type(left_view(proto2::left(expr)), right_view(proto2::right(expr)));
 //        }
 //    };
 //
-//    template<typename Node>
-//    struct elements_of<Node, typename enable_if<is_nary<Node> >::type>
+//    template<typename Expr>
+//    struct elements_of<Expr, typename enable_if<is_nary<Expr> >::type>
 //    {
-//        typedef typename single_view_of<typename Node::functor_type>::type functor_view;
-//        typedef fusion::joint_view<functor_view, typename Node::args_type const> const type;
+//        typedef typename single_view_of<typename Expr::functor_type>::type functor_view;
+//        typedef fusion::joint_view<functor_view, typename Expr::args_type const> const type;
 //
-//        static type make(Node &node)
+//        static type make(Expr &expr)
 //        {
-//            return type(functor_view(node.functor), node.args);
+//            return type(functor_view(expr.functor), expr.args);
 //        }
 //    };
 //
 //    template<typename Tag>
 //    struct as_element
 //    {
-//        template<typename Node>
+//        template<typename Expr>
 //        struct result
 //          : mpl::if_<
-//                is_same<Tag, typename tag_type<Node>::type>
-//              , typename add_reference<Node>::type
-//              , fusion::single_view<typename add_reference<Node>::type>
+//                is_same<Tag, typename tag_type<Expr>::type>
+//              , typename add_reference<Expr>::type
+//              , fusion::single_view<typename add_reference<Expr>::type>
 //            >
 //        {};
 //
-//        template<typename Node>
-//        typename result<Node>::type operator()(Node &node) const
+//        template<typename Expr>
+//        typename result<Expr>::type operator()(Expr &expr) const
 //        {
-//            return typename result<Node>::type(node);
+//            return typename result<Expr>::type(expr);
 //        }
 //    };
 //

@@ -66,7 +66,7 @@ namespace boost { namespace xpressive
         struct mark_placeholder;
 
         //typedef proto2::literal<mark_placeholder>::type mark_tag;
-        typedef proto2::basic_op<proto2::noop_tag, mpl::vector1<mark_placeholder> > mark_tag;
+        typedef proto2::basic_expr<proto2::terminal_tag, mpl::vector1<mark_placeholder> > mark_tag;
 
     } // namespace detail
 

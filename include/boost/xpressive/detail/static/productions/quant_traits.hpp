@@ -61,15 +61,15 @@ namespace boost { namespace xpressive { namespace detail
 
     struct use_simple_repeat_predicate
     {
-        template<typename Node, typename, typename>
+        template<typename Expr, typename, typename>
         struct apply
-          : use_simple_repeat<typename Node::arg0_type>
+          : use_simple_repeat<typename Expr::arg0_type>
         {};
     };
 
     ///////////////////////////////////////////////////////////////////////////////
     // is_greedy_quant
-    template<typename Node, typename Tag = typename Node::tag_type>
+    template<typename Expr, typename Tag = typename Expr::tag_type>
     struct is_greedy_quant
       : mpl::or_
         <
@@ -79,8 +79,8 @@ namespace boost { namespace xpressive { namespace detail
         >
     {};
 
-    template<typename Node, uint_t Min, uint_t Max>
-    struct is_greedy_quant<Node, generic_quant_tag<Min, Max> >
+    template<typename Expr, uint_t Min, uint_t Max>
+    struct is_greedy_quant<Expr, generic_quant_tag<Min, Max> >
       : mpl::true_
     {};
 

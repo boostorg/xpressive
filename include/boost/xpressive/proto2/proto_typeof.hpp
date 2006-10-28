@@ -24,7 +24,7 @@
 //BOOST_TYPEOF_REGISTER_TYPE(boost::proto2::unary_tag)
 //BOOST_TYPEOF_REGISTER_TYPE(boost::proto2::binary_tag)
 //BOOST_TYPEOF_REGISTER_TYPE(boost::proto2::nary_tag)
-//BOOST_TYPEOF_REGISTER_TYPE(boost::proto2::noop_tag)
+//BOOST_TYPEOF_REGISTER_TYPE(boost::proto2::terminal_tag)
 //BOOST_TYPEOF_REGISTER_TYPE(boost::proto2::unary_plus_tag)
 //BOOST_TYPEOF_REGISTER_TYPE(boost::proto2::unary_minus_tag)
 //BOOST_TYPEOF_REGISTER_TYPE(boost::proto2::unary_star_tag)
@@ -69,7 +69,7 @@
 //BOOST_TYPEOF_REGISTER_TYPE(boost::proto2::subscript_tag)
 //BOOST_TYPEOF_REGISTER_TYPE(boost::proto2::function_tag)
 //
-//BOOST_TYPEOF_REGISTER_TEMPLATE(boost::proto2::unary_op, (typename)(typename))
-//BOOST_TYPEOF_REGISTER_TEMPLATE(boost::proto2::binary_op, (typename)(typename)(typename))
+//BOOST_TYPEOF_REGISTER_TEMPLATE(boost::proto2::unary_expr, (typename)(typename))
+//BOOST_TYPEOF_REGISTER_TEMPLATE(boost::proto2::binary_expr, (typename)(typename)(typename))
 //
 //#endif

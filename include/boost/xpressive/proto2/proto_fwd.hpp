@@ -11,6 +11,8 @@
 
 #include <boost/version.hpp>
 #include <boost/mpl/size.hpp>
+#include <boost/type_traits/remove_cv.hpp>
+#include <boost/type_traits/remove_reference.hpp>
 #include <boost/mpl/vector/vector10.hpp>
 
 #ifndef BOOST_PROTO2_MAX_ARITY
@@ -25,7 +27,7 @@ namespace boost { namespace proto2
     struct binary_tag;
     struct nary_tag;
 
-    struct noop_tag;
+    struct terminal_tag;
     struct unary_plus_tag;
     struct unary_minus_tag;
     struct unary_star_tag;
@@ -74,36 +76,33 @@ namespace boost { namespace proto2
     struct function_tag;
 
     template<typename Tag, typename Args, long Arity = mpl::size<Args>::value>
-    struct basic_op;
+    struct basic_expr;
 
-    template<typename Op>
+    template<typename Expr>
     struct ref;
 
     template<typename Tag, typename Arg>
-    struct unary_op;
+    struct unary_expr;
 
     template<typename Tag, typename Left, typename Right>
-    struct binary_op;
+    struct binary_expr;
 
     template<typename T>
     struct is_op;
 
-    template<typename T, bool IsOp = is_op<T>::value>
-    struct as_op_type;
-
-    template<typename Node>
+    template<typename Expr>
     struct literal;
 
-    template<typename Node>
+    template<typename Expr>
     struct arg_type;
 
-    template<typename Node>
+    template<typename Expr>
     struct left_type;
 
-    template<typename Node>
+    template<typename Expr>
     struct right_type;
 
-    template<typename Node>
+    template<typename Expr>
     struct tag_type;
 
     template<typename OpTag, typename DomainTag, typename EnableIf = void>
@@ -149,12 +148,30 @@ namespace boost { namespace proto2
     template<typename Predicate, typename IfTransform, typename ElseTransform = identity_transform>
     struct conditional_transform;
 
-    template<typename Node, typename State, typename Visitor, typename DomainTag>
-    struct compile_result;
+    namespace meta
+    {
+        template<typename T>
+        struct value_type
+        {
+            typedef typename remove_cv<typename remove_reference<T>::type>::type type;
+        };
 
-    template<typename Node, typename State, typename Visitor, typename DomainTag>
-    typename compile_result<Node, State, Visitor, DomainTag>::type const
-    compile(Node const &node, State const &state, Visitor &visitor, DomainTag tag_type);
+        template<typename T, bool IsOp = is_op<T>::value>
+        struct as_expr;
+
+        template<typename Expr, typename State, typename Visitor, typename DomainTag>
+        struct compile;
+    }
+
+    namespace op
+    {
+        struct compile;
+
+        struct as_expr;
+    }
+
+    extern op::compile const compile;
+    extern op::as_expr const as_expr;
 
 }} // namespace boost::proto2
 
