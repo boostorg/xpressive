@@ -9,9 +9,9 @@
 #define BOOST_XPRESSIVE_DETAIL_STATIC_PRODUCTIONS_SET_COMPILERS_HPP_EAN_10_04_2005
 
 #include <boost/xpressive/detail/detail_fwd.hpp>
-#include <boost/xpressive/proto/proto.hpp>
-#include <boost/xpressive/proto/compiler/fold.hpp>
-#include <boost/xpressive/proto/compiler/branch.hpp>
+#include <boost/xpressive/proto2/proto.hpp>
+#include <boost/xpressive/proto2/compiler/fold.hpp>
+#include <boost/xpressive/proto2/compiler/branch.hpp>
 #include <boost/xpressive/detail/utility/dont_care.hpp>
 #include <boost/xpressive/detail/utility/traits_utils.hpp>
 #include <boost/xpressive/detail/static/productions/domain_tags.hpp>
@@ -82,7 +82,7 @@ namespace boost { namespace xpressive { namespace detail
         call(Node const &node, State const &state, Visitor &visitor)
         {
             typedef typename Visitor::char_type char_type;
-            char_type ch = char_cast<char_type>(proto::arg(node), visitor.traits());
+            char_type ch = char_cast<char_type>(proto2::arg(node), visitor.traits());
             return state.push_back(ch, visitor.traits());
         }
     };
@@ -103,14 +103,14 @@ namespace boost { namespace xpressive { namespace detail
         call(Node const &node, State const &, Visitor &visitor)
         {
             typedef typename Visitor::char_type char_type;
-            char_type ch = char_cast<char_type>(proto::arg(proto::right(node)), visitor.traits());
+            char_type ch = char_cast<char_type>(proto2::arg(proto2::right(node)), visitor.traits());
             return typename apply<Node, State, Visitor>::type(ch, visitor.traits());
         }
     };
 
 }}}
 
-namespace boost { namespace proto
+namespace boost { namespace proto2
 {
 
     ///////////////////////////////////////////////////////////////////////////////

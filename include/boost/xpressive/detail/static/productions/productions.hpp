@@ -11,10 +11,10 @@
 #include <boost/ref.hpp>
 #include <boost/xpressive/detail/detail_fwd.hpp>
 
-#include <boost/xpressive/proto/proto.hpp>
-#include <boost/xpressive/proto/compiler/fold.hpp>
-#include <boost/xpressive/proto/compiler/transform.hpp>
-#include <boost/xpressive/proto/compiler/conditional.hpp>
+#include <boost/xpressive/proto2/proto.hpp>
+#include <boost/xpressive/proto2/compiler/fold.hpp>
+#include <boost/xpressive/proto2/compiler/transform.hpp>
+#include <boost/xpressive/proto2/compiler/conditional.hpp>
 
 #include <boost/xpressive/detail/static/productions/domain_tags.hpp>
 #include <boost/xpressive/detail/static/productions/visitor.hpp>
@@ -38,7 +38,10 @@ namespace boost { namespace xpressive { namespace detail
         template<typename Node, typename, typename>
         struct apply
         {
-            typedef typename is_same<typename proto::left_type<Node>::type, set_initializer_type const>::type type;
+            typedef typename is_same<
+                typename proto2::unref<typename Node::arg0_type>::type
+              , set_initializer_type
+            >::type type;
         };
     };
 
@@ -49,30 +52,32 @@ namespace boost { namespace xpressive { namespace detail
         template<typename Node, typename, typename>
         struct apply
         {
-            typedef proto::binary_op
+            typedef typename proto2::binary_op
             <
-                typename proto::left_type<Node>::type
-              , typename proto::right_type<Node>::type
-              , proto::right_shift_tag
-            > type;
+                proto2::right_shift_tag
+              , typename Node::arg0_type
+              , typename Node::arg1_type
+            >::type type;
         };
 
         template<typename Node, typename State, typename Visitor>
         static typename apply<Node, State, Visitor>::type
         call(Node const &node, State const &, Visitor &)
         {
-            return proto::left(node) >> proto::right(node);
+            typename apply<Node, State, Visitor>::type that =
+                {proto2::left(node), proto2::right(node)};
+            return that;
         }
     };
 
     ///////////////////////////////////////////////////////////////////////////////
     // subscript_compiler
     struct subscript_compiler
-      : proto::conditional_compiler
+      : proto2::conditional_compiler
         <
             is_set_initializer_predicate
-          , proto::transform_compiler<charset_transform, seq_tag>
-          , proto::transform_compiler<action_transform, seq_tag>
+          , proto2::transform_compiler<charset_transform, seq_tag>
+          , proto2::transform_compiler<action_transform, seq_tag>
         >
     {
     };
@@ -82,7 +87,7 @@ namespace boost { namespace xpressive { namespace detail
 
 ///////////////////////////////////////////////////////////////////////////////
 // misc regex compiler productions
-namespace boost { namespace proto
+namespace boost { namespace proto2
 {
     // production for sequences in sequence
     template<>

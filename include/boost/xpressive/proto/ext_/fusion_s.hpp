@@ -98,7 +98,10 @@ namespace boost { namespace proto
     struct segments_impl
     {
         typedef typename tag_type<Sequence>::type tag_type;
-        typedef fusion::transform_view<typename elements_of<Sequence>::type, as_element<tag_type> > type;
+        typedef fusion::transform_view<
+            typename elements_of<Sequence>::type
+          , as_element<tag_type>
+        > type;
 
         static type call(Sequence &sequence)
         {

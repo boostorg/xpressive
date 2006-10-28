@@ -12,7 +12,7 @@
 #include <boost/mpl/bool.hpp>
 #include <boost/mpl/integral_c.hpp>
 #include <boost/type_traits/is_same.hpp>
-#include <boost/xpressive/proto/proto.hpp>
+#include <boost/xpressive/proto2/proto.hpp>
 #include <boost/xpressive/detail/detail_fwd.hpp>
 
 #ifdef BOOST_MSVC
@@ -27,7 +27,7 @@ namespace boost { namespace xpressive { namespace detail
     // generic_quant_tag
     template<uint_t Min, uint_t Max>
     struct generic_quant_tag
-      : proto::unary_tag
+      : proto2::unary_tag
     {
         typedef mpl::integral_c<uint_t, Min> min_type;
         typedef mpl::integral_c<uint_t, Max> max_type;
@@ -39,64 +39,49 @@ namespace boost { namespace xpressive { namespace detail
     struct min_type : Tag::min_type {};
 
     template<>
-    struct min_type<proto::unary_plus_tag> : mpl::integral_c<uint_t, 1> {};
+    struct min_type<proto2::unary_plus_tag> : mpl::integral_c<uint_t, 1> {};
 
     template<>
-    struct min_type<proto::unary_star_tag> : mpl::integral_c<uint_t, 0> {};
+    struct min_type<proto2::unary_star_tag> : mpl::integral_c<uint_t, 0> {};
 
     template<>
-    struct min_type<proto::logical_not_tag> : mpl::integral_c<uint_t, 0> {};
+    struct min_type<proto2::logical_not_tag> : mpl::integral_c<uint_t, 0> {};
 
     template<typename Tag>
     struct max_type : Tag::max_type {};
 
     template<>
-    struct max_type<proto::unary_plus_tag> : mpl::integral_c<uint_t, UINT_MAX-1> {};
+    struct max_type<proto2::unary_plus_tag> : mpl::integral_c<uint_t, UINT_MAX-1> {};
 
     template<>
-    struct max_type<proto::unary_star_tag> : mpl::integral_c<uint_t, UINT_MAX-1> {};
+    struct max_type<proto2::unary_star_tag> : mpl::integral_c<uint_t, UINT_MAX-1> {};
 
     template<>
-    struct max_type<proto::logical_not_tag> : mpl::integral_c<uint_t, 1> {};
+    struct max_type<proto2::logical_not_tag> : mpl::integral_c<uint_t, 1> {};
 
     struct use_simple_repeat_predicate
     {
         template<typename Node, typename, typename>
         struct apply
-          : use_simple_repeat<typename proto::arg_type<Node>::type>
+          : use_simple_repeat<typename Node::arg0_type>
         {};
     };
 
     ///////////////////////////////////////////////////////////////////////////////
     // is_greedy_quant
-    template<typename Xpr>
+    template<typename Node, typename Tag = typename Node::tag_type>
     struct is_greedy_quant
-      : mpl::false_
-    {};
-
-    template<typename Node, typename Tag>
-    struct is_greedy_quant<proto::unary_op<Node, Tag> >
       : mpl::or_
         <
-            is_same<Tag, proto::unary_plus_tag>
-          , is_same<Tag, proto::unary_star_tag>
-          , is_same<Tag, proto::logical_not_tag>
+            is_same<Tag, proto2::unary_plus_tag>
+          , is_same<Tag, proto2::unary_star_tag>
+          , is_same<Tag, proto2::logical_not_tag>
         >
     {};
 
     template<typename Node, uint_t Min, uint_t Max>
-    struct is_greedy_quant<proto::unary_op<Node, generic_quant_tag<Min, Max> > >
+    struct is_greedy_quant<Node, generic_quant_tag<Min, Max> >
       : mpl::true_
-    {};
-
-    template<typename Xpr>
-    struct is_greedy_quant<Xpr &>
-      : is_greedy_quant<Xpr>
-    {};
-
-    template<typename Xpr>
-    struct is_greedy_quant<Xpr const>
-      : is_greedy_quant<Xpr>
     {};
 
 }}}

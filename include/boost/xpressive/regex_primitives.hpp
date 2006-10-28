@@ -12,7 +12,7 @@
 #include <climits>
 #include <boost/mpl/assert.hpp>
 #include <boost/preprocessor/cat.hpp>
-#include <boost/xpressive/proto/proto.hpp>
+#include <boost/xpressive/proto2/proto.hpp>
 #include <boost/xpressive/detail/detail_fwd.hpp>
 #include <boost/xpressive/detail/core/icase.hpp>
 #include <boost/xpressive/detail/core/action.hpp>
@@ -72,18 +72,14 @@ unsigned int const repeat_max = UINT_MAX-1;
 unsigned int const inf = UINT_MAX-1;
 
 /// INTERNAL ONLY (for backwards compatibility)
-proto::op_proxy<
-    proto::unary_op<detail::epsilon_matcher, proto::noop_tag>
-> const epsilon = {};
+proto2::literal<detail::epsilon_matcher>::type const epsilon = {};
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Successfully matches nothing.
 ///
 /// Successfully matches a zero-width sequence. nil always succeeds and
 /// never consumes any characters.
-proto::op_proxy<
-    proto::unary_op<detail::epsilon_matcher, proto::noop_tag>
-> const nil = {};
+proto2::literal<detail::epsilon_matcher>::type const nil = {};
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Matches an alpha-numeric character.
@@ -93,10 +89,7 @@ proto::op_proxy<
 ///
 /// \attention alnum is equivalent to /[[:alnum:]]/ in perl. ~alnum is equivalent
 /// to /[[:^alnum:]]/ in perl.
-proto::op_proxy<
-    proto::unary_op<detail::posix_charset_placeholder, proto::noop_tag>
-  , char const *
-> const alnum = {"alnum"};
+proto2::literal<detail::posix_charset_placeholder>::type const alnum = {{"alnum", false}};
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Matches an alphabetic character.
@@ -106,10 +99,7 @@ proto::op_proxy<
 ///
 /// \attention alpha is equivalent to /[[:alpha:]]/ in perl. ~alpha is equivalent
 /// to /[[:^alpha:]]/ in perl.
-proto::op_proxy<
-    proto::unary_op<detail::posix_charset_placeholder, proto::noop_tag>
-  , char const *
-> const alpha = {"alpha"};
+proto2::literal<detail::posix_charset_placeholder>::type const alpha = {{"alpha", false}};
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Matches a blank (horizonal white-space) character.
@@ -119,10 +109,7 @@ proto::op_proxy<
 ///
 /// \attention blank is equivalent to /[[:blank:]]/ in perl. ~blank is equivalent
 /// to /[[:^blank:]]/ in perl.
-proto::op_proxy<
-    proto::unary_op<detail::posix_charset_placeholder, proto::noop_tag>
-  , char const *
-> const blank = {"blank"};
+proto2::literal<detail::posix_charset_placeholder>::type const blank = {{"blank", false}};
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Matches a control character.
@@ -132,10 +119,7 @@ proto::op_proxy<
 ///
 /// \attention cntrl is equivalent to /[[:cntrl:]]/ in perl. ~cntrl is equivalent
 /// to /[[:^cntrl:]]/ in perl.
-proto::op_proxy<
-    proto::unary_op<detail::posix_charset_placeholder, proto::noop_tag>
-  , char const *
-> const cntrl = {"cntrl"};
+proto2::literal<detail::posix_charset_placeholder>::type const cntrl = {{"cntrl", false}};
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Matches a digit character.
@@ -145,10 +129,7 @@ proto::op_proxy<
 ///
 /// \attention digit is equivalent to /[[:digit:]]/ in perl. ~digit is equivalent
 /// to /[[:^digit:]]/ in perl.
-proto::op_proxy<
-    proto::unary_op<detail::posix_charset_placeholder, proto::noop_tag>
-  , char const *
-> const digit = {"digit"};
+proto2::literal<detail::posix_charset_placeholder>::type const digit = {{"digit", false}};
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Matches a graph character.
@@ -158,10 +139,7 @@ proto::op_proxy<
 ///
 /// \attention graph is equivalent to /[[:graph:]]/ in perl. ~graph is equivalent
 /// to /[[:^graph:]]/ in perl.
-proto::op_proxy<
-    proto::unary_op<detail::posix_charset_placeholder, proto::noop_tag>
-  , char const *
-> const graph = {"graph"};
+proto2::literal<detail::posix_charset_placeholder>::type const graph = {{"graph", false}};
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Matches a lower-case character.
@@ -171,10 +149,7 @@ proto::op_proxy<
 ///
 /// \attention lower is equivalent to /[[:lower:]]/ in perl. ~lower is equivalent
 /// to /[[:^lower:]]/ in perl.
-proto::op_proxy<
-    proto::unary_op<detail::posix_charset_placeholder, proto::noop_tag>
-  , char const *
-> const lower = {"lower"};
+proto2::literal<detail::posix_charset_placeholder>::type const lower = {{"lower", false}};
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Matches a printable character.
@@ -184,10 +159,7 @@ proto::op_proxy<
 ///
 /// \attention print is equivalent to /[[:print:]]/ in perl. ~print is equivalent
 /// to /[[:^print:]]/ in perl.
-proto::op_proxy<
-    proto::unary_op<detail::posix_charset_placeholder, proto::noop_tag>
-  , char const *
-> const print = {"print"};
+proto2::literal<detail::posix_charset_placeholder>::type const print = {{"print", false}};
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Matches a punctuation character.
@@ -197,10 +169,7 @@ proto::op_proxy<
 ///
 /// \attention punct is equivalent to /[[:punct:]]/ in perl. ~punct is equivalent
 /// to /[[:^punct:]]/ in perl.
-proto::op_proxy<
-    proto::unary_op<detail::posix_charset_placeholder, proto::noop_tag>
-  , char const *
-> const punct = {"punct"};
+proto2::literal<detail::posix_charset_placeholder>::type const punct = {{"punct", false}};
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Matches a space character.
@@ -210,10 +179,7 @@ proto::op_proxy<
 ///
 /// \attention space is equivalent to /[[:space:]]/ in perl. ~space is equivalent
 /// to /[[:^space:]]/ in perl.
-proto::op_proxy<
-    proto::unary_op<detail::posix_charset_placeholder, proto::noop_tag>
-  , char const *
-> const space = {"space"};
+proto2::literal<detail::posix_charset_placeholder>::type const space = {{"space", false}};
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Matches an upper-case character.
@@ -223,10 +189,7 @@ proto::op_proxy<
 ///
 /// \attention upper is equivalent to /[[:upper:]]/ in perl. ~upper is equivalent
 /// to /[[:^upper:]]/ in perl.
-proto::op_proxy<
-    proto::unary_op<detail::posix_charset_placeholder, proto::noop_tag>
-  , char const *
-> const upper = {"upper"};
+proto2::literal<detail::posix_charset_placeholder>::type const upper = {{"upper", false}};
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Matches a hexadecimal digit character.
@@ -236,19 +199,14 @@ proto::op_proxy<
 ///
 /// \attention xdigit is equivalent to /[[:xdigit:]]/ in perl. ~xdigit is equivalent
 /// to /[[:^xdigit:]]/ in perl.
-proto::op_proxy<
-    proto::unary_op<detail::posix_charset_placeholder, proto::noop_tag>
-  , char const *
-> const xdigit = {"xdigit"};
+proto2::literal<detail::posix_charset_placeholder>::type const xdigit = {{"xdigit", false}};
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Beginning of sequence assertion.
 ///
 /// For the character sequence [begin, end), 'bos' matches the
 /// zero-width sub-sequence [begin, begin).
-proto::op_proxy<
-    proto::unary_op<detail::assert_bos_matcher, proto::noop_tag>
-> const bos = {};
+proto2::literal<detail::assert_bos_matcher>::type const bos = {};
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief End of sequence assertion. 
@@ -259,9 +217,7 @@ proto::op_proxy<
 /// \attention Unlike the perl end of sequence assertion \$, 'eos' will
 /// not match at the position [end-1, end-1) if *(end-1) is '\\n'. To
 /// get that behavior, use (!_n >> eos).
-proto::op_proxy<
-    proto::unary_op<detail::assert_eos_matcher, proto::noop_tag>
-> const eos = {};
+proto2::literal<detail::assert_eos_matcher>::type const eos = {};
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Beginning of line assertion. 
@@ -269,9 +225,7 @@ proto::op_proxy<
 /// 'bol' matches the zero-width sub-sequence
 /// immediately following a logical newline sequence. The regex traits
 /// is used to determine what constitutes a logical newline sequence.
-proto::op_proxy<
-    proto::unary_op<detail::assert_bol_placeholder, proto::noop_tag>
-> const bol = {};
+proto2::literal<detail::assert_bol_placeholder>::type const bol = {};
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief End of line assertion.
@@ -279,9 +233,7 @@ proto::op_proxy<
 /// 'eol' matches the zero-width sub-sequence
 /// immediately preceeding a logical newline sequence. The regex traits
 /// is used to determine what constitutes a logical newline sequence.
-proto::op_proxy<
-    proto::unary_op<detail::assert_eol_placeholder, proto::noop_tag>
-> const eol = {};
+proto2::literal<detail::assert_eol_placeholder>::type const eol = {};
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Beginning of word assertion. 
@@ -289,9 +241,7 @@ proto::op_proxy<
 /// 'bow' matches the zero-width sub-sequence
 /// immediately following a non-word character and preceeding a word character.
 /// The regex traits are used to determine what constitutes a word character.
-proto::op_proxy<
-    proto::unary_op<detail::assert_word_begin, proto::noop_tag>
-> const bow = {};
+proto2::literal<detail::assert_word_begin>::type const bow = {};
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief End of word assertion. 
@@ -299,9 +249,7 @@ proto::op_proxy<
 /// 'eow' matches the zero-width sub-sequence
 /// immediately following a word character and preceeding a non-word character.
 /// The regex traits are used to determine what constitutes a word character.
-proto::op_proxy<
-    proto::unary_op<detail::assert_word_end, proto::noop_tag>
-> const eow = {};
+proto2::literal<detail::assert_word_end>::type const eow = {};
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Word boundary assertion.
@@ -311,9 +259,7 @@ proto::op_proxy<
 /// constitutes a word character. To match a non-word boundary, use ~_b.
 ///
 /// \attention _b is like \\b in perl. ~_b is like \\B in perl.
-proto::op_proxy<
-    proto::unary_op<detail::assert_word_boundary, proto::noop_tag>
-> const _b = {};
+proto2::literal<detail::assert_word_boundary>::type const _b = {};
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Matches a word character.
@@ -323,10 +269,7 @@ proto::op_proxy<
 /// character.
 ///
 /// \attention _w is like \\w in perl. ~_w is like \\W in perl.
-proto::op_proxy<
-    proto::unary_op<detail::posix_charset_placeholder, proto::noop_tag>
-  , char const *
-> const _w = {"w"};
+proto2::literal<detail::posix_charset_placeholder>::type const _w = {{"w", false}};
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Matches a digit character.
@@ -336,10 +279,7 @@ proto::op_proxy<
 /// character.
 ///
 /// \attention _d is like \\d in perl. ~_d is like \\D in perl.
-proto::op_proxy<
-    proto::unary_op<detail::posix_charset_placeholder, proto::noop_tag>
-  , char const *
-> const _d = {"d"};
+proto2::literal<detail::posix_charset_placeholder>::type const _d = {{"d", false}};
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Matches a space character.
@@ -349,10 +289,7 @@ proto::op_proxy<
 /// character.
 ///
 /// \attention _s is like \\s in perl. ~_s is like \\S in perl.
-proto::op_proxy<
-    proto::unary_op<detail::posix_charset_placeholder, proto::noop_tag>
-  , char const *
-> const _s = {"s"};
+proto2::literal<detail::posix_charset_placeholder>::type const _s = {{"s", false}};
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Matches a literal newline character, '\\n'.
@@ -361,10 +298,7 @@ proto::op_proxy<
 /// that is not a newline.
 ///
 /// \attention ~_n is like '.' in perl without the /s modifier.
-proto::op_proxy<
-    proto::unary_op<detail::literal_placeholder<char>, proto::noop_tag>
-  , char
-> const _n = {'\n'};
+proto2::literal<detail::literal_placeholder<char> >::type const _n = {{'\n'}};
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Matches a logical newline sequence.
@@ -373,9 +307,7 @@ proto::op_proxy<
 /// line separator class, as determined by the regex traits, or the '\\r\\n' sequence.
 /// For the purpose of back-tracking, '\\r\\n' is treated as a unit.
 /// To match any one character that is not a logical newline, use ~_ln.
-proto::op_proxy<
-    detail::logical_newline_xpression
-> const _ln = {};
+detail::logical_newline_xpression const _ln = {};
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Matches any one character.
@@ -384,9 +316,7 @@ proto::op_proxy<
 /// '_' matches any one character, including the newline.
 ///
 /// \attention To match any character except the newline, use ~_n
-proto::op_proxy<
-    proto::unary_op<detail::any_matcher, proto::noop_tag>
-> const _ = {};
+proto2::literal<detail::any_matcher>::type const _ = {};
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Reference to the current regex object
@@ -395,9 +325,7 @@ proto::op_proxy<
 /// identifier is a short-hand for the current regex object. For instance,
 /// sregex rx = '(' >> (self | nil) >> ')'; will create a regex object that
 /// matches balanced parens such as "((()))".
-proto::op_proxy<
-    proto::unary_op<detail::self_placeholder, proto::noop_tag>
-> const self = {};
+proto2::literal<detail::self_placeholder>::type const self = {};
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Used to create character sets.
@@ -414,13 +342,11 @@ proto::op_proxy<
 ///
 /// Sets can be composed of other, possibly complemented, sets. For instance,
 /// set[ ~digit | ~(set= 'a','b','c') ].
-proto::op_proxy<
-    detail::set_initializer_type
-> const set = {};
+detail::set_initializer_type const set = {};
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Sub-match placeholder, like $& in Perl
-proto::op_proxy<detail::mark_tag, int> const s0 = {0};
+detail::mark_tag const s0 = {{0}};
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Sub-match placeholder, like $1 in perl.
@@ -434,15 +360,15 @@ proto::op_proxy<detail::mark_tag, int> const s0 = {0};
 /// After a successful regex_match() or regex_search(), the sub-match placeholders
 /// can be used to index into the match_results\<\> object to retrieve the Nth
 /// sub-match.
-proto::op_proxy<detail::mark_tag, int> const s1 = {1};
-proto::op_proxy<detail::mark_tag, int> const s2 = {2};
-proto::op_proxy<detail::mark_tag, int> const s3 = {3};
-proto::op_proxy<detail::mark_tag, int> const s4 = {4};
-proto::op_proxy<detail::mark_tag, int> const s5 = {5};
-proto::op_proxy<detail::mark_tag, int> const s6 = {6};
-proto::op_proxy<detail::mark_tag, int> const s7 = {7};
-proto::op_proxy<detail::mark_tag, int> const s8 = {8};
-proto::op_proxy<detail::mark_tag, int> const s9 = {9};
+detail::mark_tag const s1 = {{1}};
+detail::mark_tag const s2 = {{2}};
+detail::mark_tag const s3 = {{3}};
+detail::mark_tag const s4 = {{4}};
+detail::mark_tag const s5 = {{5}};
+detail::mark_tag const s6 = {{6}};
+detail::mark_tag const s7 = {{7}};
+detail::mark_tag const s8 = {{8}};
+detail::mark_tag const s9 = {{9}};
 
 // NOTE: For the purpose of xpressive's documentation, make icase() look like an
 // ordinary function. In reality, it is a function object defined in detail/icase.hpp
@@ -462,7 +388,7 @@ proto::op_proxy<detail::mark_tag, int> const s9 = {9};
 /// character literal, as with ~as_xpr('a'). This will match any one character
 /// that is not an 'a'.
 template<typename Literal>
-inline typename detail::as_xpr_type<Literal>::const_reference
+inline typename detail::as_xpr_type<Literal>::type
 as_xpr(Literal const &literal)
 {
     return detail::as_xpr_type<Literal>::call(xpr);
@@ -475,11 +401,15 @@ as_xpr(Literal const &literal)
 /// "foo" >> icase(set['b'] >> "ar") will match "foo" exactly followed by
 /// "bar" irrespective of case.
 template<typename Xpr>
-inline proto::binary_op<detail::icase_modifier, typename detail::as_xpr_type<Xpr>::type, modifier_tag> const
+inline typename proto2::binary_op<
+    modifier_tag
+  , detail::icase_modifier
+  , typename detail::as_xpr_type<Xpr>::type
+>::type const
 icase(Xpr const &xpr)
 {
     detail::icase_modifier mod;
-    return proto::make_op<modifier_tag>(mod, as_xpr(xpr));
+    return proto2::make_op<modifier_tag>(mod, as_xpr(xpr));
 }
 #endif
 
@@ -488,12 +418,12 @@ icase(Xpr const &xpr)
 ///
 /// \param rex The basic_regex object to embed by reference.
 template<typename BidiIter>
-inline proto::unary_op<detail::regex_placeholder<BidiIter, true>, proto::noop_tag> const
+inline typename proto2::literal<detail::regex_placeholder<BidiIter, true> >::type const
 by_ref(basic_regex<BidiIter> const &rex)
 {
     typedef detail::core_access<BidiIter> access;
     shared_ptr<detail::regex_impl<BidiIter> > impl = access::get_regex_impl(rex);
-    return proto::noop(detail::regex_placeholder<BidiIter, true>(impl));
+    return proto2::lit(detail::regex_placeholder<BidiIter, true>(impl));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -504,10 +434,11 @@ by_ref(basic_regex<BidiIter> const &rex)
 /// \param ch_min The lower end of the range to match.
 /// \param ch_max The upper end of the range to match.
 template<typename Char>
-inline proto::unary_op<detail::range_placeholder<Char>, proto::noop_tag> const
+inline typename proto2::literal<detail::range_placeholder<Char> >::type const
 range(Char ch_min, Char ch_max)
 {
-    return proto::noop(detail::range_placeholder<Char>(ch_min, ch_max));
+    typename proto2::literal<detail::range_placeholder<Char> >::type that = {{ch_min, ch_max, false}};
+    return that;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -515,14 +446,17 @@ range(Char ch_min, Char ch_max)
 ///
 /// \param xpr The sub-expression to make optional.
 template<typename Xpr>
-inline proto::unary_op
-<
-    typename detail::as_xpr_type<Xpr>::type
-  , proto::logical_not_tag
-> const
+inline typename proto2::unary_op<
+    proto2::logical_not_tag
+  , typename detail::as_xpr_type<Xpr>::type
+>::type const
 optional(Xpr const &xpr)
 {
-    return !as_xpr(xpr);
+    typename proto2::unary_op<
+        proto2::logical_not_tag
+      , typename detail::as_xpr_type<Xpr>::type
+    >::type that = {as_xpr(xpr)};
+    return that;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -537,27 +471,37 @@ optional(Xpr const &xpr)
 ///
 /// \param xpr The sub-expression to repeat.
 template<unsigned int Min, unsigned int Max, typename Xpr>
-inline proto::unary_op
+inline typename proto2::unary_op
 <
-    typename detail::as_xpr_type<Xpr>::type
-  , detail::generic_quant_tag<Min, Max>
-> const
+    detail::generic_quant_tag<Min, Max>
+  , typename detail::as_xpr_type<Xpr>::type
+>::type const
 repeat(Xpr const &xpr)
 {
-    return proto::make_op<detail::generic_quant_tag<Min, Max> >(as_xpr(xpr));
+    typename proto2::unary_op
+    <
+        detail::generic_quant_tag<Min, Max>
+      , typename detail::as_xpr_type<Xpr>::type
+    >::type that = {as_xpr(xpr)};
+    return that;
 }
 
 /// \overload
 ///
 template<unsigned int Count, typename Xpr2>
-inline proto::unary_op
+inline typename proto2::unary_op
 <
-    typename detail::as_xpr_type<Xpr2>::type
-  , detail::generic_quant_tag<Count, Count>
-> const
+    detail::generic_quant_tag<Count, Count>
+  , typename detail::as_xpr_type<Xpr2>::type
+>::type const
 repeat(Xpr2 const &xpr)
 {
-    return proto::make_op<detail::generic_quant_tag<Count, Count> >(as_xpr(xpr));
+    typename proto2::unary_op
+    <
+        detail::generic_quant_tag<Count, Count>
+      , typename detail::as_xpr_type<Xpr2>::type
+    >::type that = {as_xpr(xpr)};
+    return that;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -571,14 +515,19 @@ repeat(Xpr2 const &xpr)
 ///
 /// \param xpr The sub-expression to modify.
 template<typename Xpr>
-inline proto::unary_op
+inline typename proto2::unary_op
 <
-    typename detail::as_xpr_type<Xpr>::type
-  , detail::keeper_tag
-> const
+    detail::keeper_tag
+  , typename detail::as_xpr_type<Xpr>::type
+>::type const
 keep(Xpr const &xpr)
 {
-    return proto::make_op<detail::keeper_tag>(as_xpr(xpr));
+    typename proto2::unary_op
+    <
+        detail::keeper_tag
+      , typename detail::as_xpr_type<Xpr>::type
+    >::type that = {as_xpr(xpr)};
+    return that;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -595,14 +544,19 @@ keep(Xpr const &xpr)
 ///
 /// \param xpr The sub-expression to put in the look-ahead assertion.
 template<typename Xpr>
-inline proto::unary_op
+inline typename proto2::unary_op
 <
-    typename detail::as_xpr_type<Xpr>::type
-  , detail::lookahead_tag<true>
-> const
+    detail::lookahead_tag<true>
+  , typename detail::as_xpr_type<Xpr>::type
+>::type const
 before(Xpr const &xpr)
 {
-    return proto::make_op<detail::lookahead_tag<true> >(as_xpr(xpr));
+    typename proto2::unary_op
+    <
+        detail::lookahead_tag<true>
+      , typename detail::as_xpr_type<Xpr>::type
+    >::type that = {as_xpr(xpr)};
+    return that;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -621,14 +575,19 @@ before(Xpr const &xpr)
 ///
 /// \pre xpr cannot match a variable number of characters.
 template<typename Xpr>
-inline proto::unary_op
+inline typename proto2::unary_op
 <
-    typename detail::as_xpr_type<Xpr>::type
-  , detail::lookbehind_tag<true>
-> const
+    detail::lookbehind_tag<true>
+  , typename detail::as_xpr_type<Xpr>::type
+>::type const
 after(Xpr const &xpr)
 {
-    return proto::make_op<detail::lookbehind_tag<true> >(as_xpr(xpr));
+    typename proto2::unary_op
+    <
+        detail::lookbehind_tag<true>
+      , typename detail::as_xpr_type<Xpr>::type
+    >::type that = {as_xpr(xpr)};
+    return that;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

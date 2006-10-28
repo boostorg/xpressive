@@ -246,7 +246,6 @@ make_static(Matcher const &matcher, Next const &next)
 // no_next
 //
 struct no_next
-  : xpression_base
 {
     BOOST_STATIC_CONSTANT(std::size_t, width = 0);
     BOOST_STATIC_CONSTANT(bool, pure = true);
@@ -273,7 +272,7 @@ struct no_next
 //
 inline int get_mark_number(mark_tag const &mark)
 {
-    return proto::arg(mark).mark_number_;
+    return proto2::arg(mark).mark_number_;
 }
 
 }}} // namespace boost::xpressive::detail

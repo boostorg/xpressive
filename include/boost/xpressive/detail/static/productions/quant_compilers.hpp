@@ -9,10 +9,10 @@
 #define BOOST_XPRESSIVE_DETAIL_STATIC_PRODUCTIONS_QUANT_COMPILERS_HPP_EAN_10_04_2005
 
 #include <limits.h>
-#include <boost/xpressive/proto/proto.hpp>
-#include <boost/xpressive/proto/compiler/branch.hpp>
-#include <boost/xpressive/proto/compiler/transform.hpp>
-#include <boost/xpressive/proto/compiler/conditional.hpp>
+#include <boost/xpressive/proto2/proto.hpp>
+#include <boost/xpressive/proto2/compiler/branch.hpp>
+#include <boost/xpressive/proto2/compiler/transform.hpp>
+#include <boost/xpressive/proto2/compiler/conditional.hpp>
 #include <boost/xpressive/detail/static/productions/quant_traits.hpp>
 #include <boost/xpressive/detail/static/productions/quant_transforms.hpp>
 #include <boost/xpressive/detail/static/productions/marker_transform.hpp>
@@ -21,21 +21,21 @@
 namespace boost { namespace xpressive { namespace detail
 {
 
-    typedef proto::unary_op<epsilon_matcher, proto::noop_tag> nil_op;
+    typedef proto2::literal<epsilon_matcher>::type nil_op;
 
     ///////////////////////////////////////////////////////////////////////////////
     // repeater_compiler
     template<bool Greedy, uint_t Min, uint_t Max>
     struct repeater_compiler
-      : proto::conditional_compiler
+      : proto2::conditional_compiler
         <
             use_simple_repeat_predicate
-          , proto::branch_compiler<simple_repeat_branch<Greedy, Min, Max>, ind_tag>
-          , proto::transform_compiler
+          , proto2::branch_compiler<simple_repeat_branch<Greedy, Min, Max>, ind_tag>
+          , proto2::transform_compiler
             <
-                proto::compose_transforms
+                proto2::compose_transforms
                 <
-                    proto::arg_transform
+                    proto2::arg_transform
                   , repeater_transform<Greedy, Min, Max>
                 >
               , seq_tag
@@ -47,25 +47,25 @@ namespace boost { namespace xpressive { namespace detail
     // degenerate case, foo{0,0} becomes nil
     template<bool Greedy>
     struct repeater_compiler<Greedy, 0, 0>
-      : proto::transform_compiler<proto::always_transform<nil_op>, seq_tag>
+      : proto2::transform_compiler<proto2::always_transform<nil_op>, seq_tag>
     {
     };
 
     // degenerate case, foo{1,1} becomes foo
     template<bool Greedy>
     struct repeater_compiler<Greedy, 1, 1>
-      : proto::transform_compiler<proto::identity_transform, seq_tag>
+      : proto2::transform_compiler<proto2::identity_transform, seq_tag>
     {
     };
 
     // foo{0,1} or !foo uses the optional transforms
     template<bool Greedy>
     struct repeater_compiler<Greedy, 0, 1>
-      : proto::conditional_compiler
+      : proto2::conditional_compiler
         <
             is_marker_or_repeater_predicate
-          , proto::branch_compiler<optional_mark_branch<Greedy>, ind_tag>
-          , proto::branch_compiler<optional_branch<Greedy>, ind_tag>
+          , proto2::branch_compiler<optional_mark_branch<Greedy>, ind_tag>
+          , proto2::branch_compiler<optional_branch<Greedy>, ind_tag>
         >
     {
     };
@@ -77,12 +77,12 @@ namespace boost { namespace xpressive { namespace detail
         template<typename Node, typename State, typename Visitor>
         struct apply
         {
-            typedef typename proto::arg_type<Node>::type arg_type;
+            typedef typename Node::arg0_type arg_type;
 
             // Did you apply operator- to something that wasn't a quantifier?
             BOOST_MPL_ASSERT((is_greedy_quant<arg_type>));
 
-            typedef typename proto::tag_type<arg_type>::type tag_type;
+            typedef typename arg_type::tag_type tag_type;
             typedef repeater_compiler
             <
                 false
@@ -103,14 +103,14 @@ namespace boost { namespace xpressive { namespace detail
         call(Node const &node, State const &state, Visitor &visitor)
         {
             typedef typename apply<Node, State, Visitor>::compiler_type compiler_type;
-            return compiler_type::call(proto::arg(node), state, visitor);
+            return compiler_type::call(proto2::arg(node), state, visitor);
         }
     };
 
 }}}
 
 
-namespace boost { namespace proto
+namespace boost { namespace proto2
 {
 
     // production for one or more quant

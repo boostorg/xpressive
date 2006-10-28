@@ -10,10 +10,10 @@
 
 #include <boost/type_traits/is_same.hpp>
 #include <boost/xpressive/detail/detail_fwd.hpp>
-#include <boost/xpressive/proto/proto.hpp>
-#include <boost/xpressive/proto/compiler/branch.hpp>
-#include <boost/xpressive/proto/compiler/conditional.hpp>
-#include <boost/xpressive/proto/compiler/transform.hpp>
+#include <boost/xpressive/proto2/proto.hpp>
+#include <boost/xpressive/proto2/compiler/branch.hpp>
+#include <boost/xpressive/proto2/compiler/conditional.hpp>
+#include <boost/xpressive/proto2/compiler/transform.hpp>
 #include <boost/xpressive/detail/static/productions/domain_tags.hpp>
 #include <boost/xpressive/detail/static/productions/marker_transform.hpp>
 #include <boost/xpressive/detail/static/productions/set_compilers.hpp>
@@ -25,18 +25,18 @@ namespace boost { namespace xpressive { namespace detail
     // assign_compiler
     //  could be (s1= 'a') or (set= 'a')
     struct assign_compiler
-      : proto::conditional_compiler
+      : proto2::conditional_compiler
         <
             is_marker_predicate
-          , proto::transform_compiler<marker_replace_transform, seq_tag>
-          , proto::branch_compiler<list_branch, lst_tag>
+          , proto2::transform_compiler<marker_replace_transform, seq_tag>
+          , proto2::branch_compiler<list_branch, lst_tag>
         >
     {
     };
 
 }}}
 
-namespace boost { namespace proto
+namespace boost { namespace proto2
 {
 
     template<>

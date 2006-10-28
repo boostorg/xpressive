@@ -101,6 +101,8 @@ struct regex_traits_type
 template<typename Locale>
 struct locale_modifier
 {
+    typedef Locale locale_type;
+
     locale_modifier(Locale const &loc)
       : loc_(loc)
     {

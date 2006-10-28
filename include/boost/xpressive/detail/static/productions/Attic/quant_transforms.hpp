@@ -14,24 +14,22 @@
 #include <boost/mpl/not_equal_to.hpp>
 #include <boost/xpressive/detail/detail_fwd.hpp>
 #include <boost/xpressive/detail/static/width_of.hpp>
-#include <boost/xpressive/proto/proto.hpp>
+#include <boost/xpressive/proto2/proto.hpp>
 #include <boost/xpressive/detail/static/productions/quant_traits.hpp>
 #include <boost/xpressive/detail/static/productions/marker_transform.hpp>
 
 namespace boost { namespace xpressive { namespace detail
 {
-    typedef proto::unary_op<repeat_begin_matcher, proto::noop_tag> repeat_tag;
+    typedef proto2::literal<repeat_begin_matcher>::type repeat_tag;
 
     ///////////////////////////////////////////////////////////////////////////////
     // is_repeater
     template<typename Node>
     struct is_repeater
-      : mpl::false_
-    {};
-
-    template<typename Node>
-    struct is_repeater<proto::binary_op<repeat_tag, Node, proto::right_shift_tag> >
-      : mpl::true_
+      : is_same<
+            repeat_tag
+          , typename proto2::unref<typename Node::arg0_type>::type
+        >
     {};
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -41,7 +39,7 @@ namespace boost { namespace xpressive { namespace detail
         template<typename Node, typename, typename>
         struct apply
         {
-            typedef typename proto::arg_type<Node>::type op_type;
+            typedef typename Node::arg0_type op_type;
             typedef typename mpl::or_<is_marker<op_type>, is_repeater<op_type> >::type type;
         };
     };
@@ -118,17 +116,17 @@ namespace boost { namespace xpressive { namespace detail
         template<typename Node, typename, typename>
         struct apply
         {
-            typedef proto::binary_op
+            typedef typename proto2::binary_op
             <
-                proto::unary_op<repeat_begin_matcher, proto::noop_tag>
-              , proto::binary_op
+                proto2::right_shift_tag
+              , proto2::literal<repeat_begin_matcher>::type
+              , typename proto2::binary_op
                 <
-                    Node
-                  , proto::unary_op<repeat_end_matcher<Greedy>, proto::noop_tag>
-                  , proto::right_shift_tag
-                >
-              , proto::right_shift_tag
-            > type;
+                    proto2::right_shift_tag
+                  , Node
+                  , typename proto2::literal<repeat_end_matcher<Greedy> >::type
+                >::type
+            >::type type;
         };
 
         template<typename Node, typename State, typename Visitor>
@@ -136,11 +134,18 @@ namespace boost { namespace xpressive { namespace detail
         call(Node const &node, State const &, Visitor &)
         {
             // Get the mark_number from the begin_mark_matcher
-            int mark_number = proto::arg(proto::left(node)).mark_number_;
+            int mark_number = proto2::arg(proto2::left(node)).mark_number_;
             BOOST_ASSERT(0 != mark_number);
 
-            return proto::noop(repeat_begin_matcher(mark_number))
-                >> (node >> proto::noop(repeat_end_matcher<Greedy>(mark_number, Min, Max)));
+            typename apply<Node, State, Visitor>::type that =
+                {
+                    {repeat_begin_matcher(mark_number)}
+                  , {
+                        node
+                      , {repeat_end_matcher<Greedy>(mark_number, Min, Max)}
+                    }
+                };
+            return that;
         }
     };
 
@@ -150,14 +155,15 @@ namespace boost { namespace xpressive { namespace detail
         template<typename Node, typename, typename>
         struct apply
         {
-            typedef proto::unary_op<Node, proto::logical_not_tag> type;
+            typedef typename proto2::unary_op<proto2::logical_not_tag, Node>::type type;
         };
 
         template<typename Node, typename State, typename Visitor>
         static typename apply<Node, State, Visitor>::type
         call(Node const &node, State const &, Visitor &)
         {
-            return !node;
+            typename apply<Node, State, Visitor>::type that = {node};
+            return that;
         }
     };
 
@@ -166,9 +172,9 @@ namespace boost { namespace xpressive { namespace detail
     //   Insert repeat and marker matcher before and after the expression
     template<bool Greedy, uint_t Min, uint_t Max>
     struct repeater_transform
-      : proto::compose_transforms
+      : proto2::compose_transforms
         <
-            proto::conditional_transform
+            proto2::conditional_transform
             <
                 is_marker_predicate
               , marker_replace_transform
@@ -182,7 +188,7 @@ namespace boost { namespace xpressive { namespace detail
     // transform *foo to !+foo
     template<bool Greedy, uint_t Max>
     struct repeater_transform<Greedy, 0, Max>
-      : proto::compose_transforms
+      : proto2::compose_transforms
         <
             repeater_transform<Greedy, 1, Max>
           , optional_transform<Greedy>

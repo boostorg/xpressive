@@ -8,39 +8,29 @@
 #ifndef BOOST_XPRESSIVE_DETAIL_STATIC_PRODUCTIONS_MARKER_TRANSFORM_HPP_EAN_10_04_2005
 #define BOOST_XPRESSIVE_DETAIL_STATIC_PRODUCTIONS_MARKER_TRANSFORM_HPP_EAN_10_04_2005
 
+#include <boost/mpl/and.hpp>
 #include <boost/mpl/bool.hpp>
+#include <boost/type_traits/is_same.hpp>
 #include <boost/xpressive/detail/detail_fwd.hpp>
-#include <boost/xpressive/proto/proto.hpp>
-#include <boost/xpressive/proto/compiler/transform.hpp>
+#include <boost/xpressive/proto2/proto.hpp>
+#include <boost/xpressive/proto2/compiler/transform.hpp>
 
 namespace boost { namespace xpressive { namespace detail
 {
     ///////////////////////////////////////////////////////////////////////////////
     // is_marker
-    template<typename Node>
+    // (s1= ...) is a marker
+    template<typename Node, long Arity = Node::arity::value>
     struct is_marker
       : mpl::false_
     {};
 
-    // (s1= ...) is a marker
     template<typename Node>
-    struct is_marker<proto::binary_op<mark_tag const, Node, proto::assign_tag> >
-      : mpl::true_
-    {};
-
-    template<typename Node>
-    struct is_marker<proto::binary_op<mark_tag const &, Node, proto::assign_tag> >
-      : mpl::true_
-    {};
-
-    template<typename Node>
-    struct is_marker<Node &>
-      : is_marker<Node>
-    {};
-
-    template<typename Node>
-    struct is_marker<Node const>
-      : is_marker<Node>
+    struct is_marker<Node, 2>
+      : mpl::and_<
+            is_same<proto2::assign_tag, typename Node::tag_type>
+          , is_same<mark_tag, typename proto2::unref<typename Node::arg0_type>::type>
+        >
     {};
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -50,8 +40,7 @@ namespace boost { namespace xpressive { namespace detail
         template<typename Node, typename, typename>
         struct apply
           : is_marker<Node>
-        {
-        };
+        {};
     };
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -62,17 +51,17 @@ namespace boost { namespace xpressive { namespace detail
         template<typename Node, typename, typename>
         struct apply
         {
-            typedef proto::binary_op
+            typedef typename proto2::binary_op
             <
-                proto::unary_op<mark_begin_matcher, proto::noop_tag>
-              , proto::binary_op
+                proto2::right_shift_tag
+              , proto2::literal<mark_begin_matcher>::type
+              , typename proto2::binary_op
                 <
-                    Node
-                  , proto::unary_op<mark_end_matcher, proto::noop_tag>
-                  , proto::right_shift_tag
-                >
-              , proto::right_shift_tag
-            > type;
+                    proto2::right_shift_tag
+                  , Node
+                  , proto2::literal<mark_end_matcher>::type
+                >::type
+            >::type type;
         };
 
         template<typename Node, typename State, typename Visitor>
@@ -86,15 +75,22 @@ namespace boost { namespace xpressive { namespace detail
                 mark_nbr = visitor.get_hidden_mark();
             }
 
-            return proto::noop(mark_begin_matcher(mark_nbr))
-                >> (node >> proto::noop(mark_end_matcher(mark_nbr)));
+            typename apply<Node, State, Visitor>::type that =
+                {
+                    {mark_begin_matcher(mark_nbr)}
+                  , {
+                        node
+                      , {mark_end_matcher(mark_nbr)}
+                    }
+                };
+            return that;
         }
     };
 
     ///////////////////////////////////////////////////////////////////////////////
     // marker_replace_transform
     struct marker_replace_transform
-      : proto::compose_transforms<proto::right_transform, marker_insert_transform>
+      : proto2::compose_transforms<proto2::right_transform, marker_insert_transform>
     {
         template<typename Node, typename State, typename Visitor>
         static typename apply<Node, State, Visitor>::type
@@ -102,10 +98,10 @@ namespace boost { namespace xpressive { namespace detail
         {
             return marker_insert_transform::call
             (
-                proto::right(node)
+                proto2::right(node)
               , state
               , visitor
-              , proto::arg(proto::left(node)).mark_number_
+              , proto2::arg(proto2::left(node)).mark_number_
             );
         }
     };

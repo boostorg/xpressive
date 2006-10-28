@@ -19,7 +19,7 @@
 # include <iostream>
 #endif
 #include <boost/mpl/bool.hpp>
-#include <boost/xpressive/proto/proto_fwd.hpp>
+#include <boost/xpressive/proto2/proto_fwd.hpp>
 #include <boost/xpressive/regex_constants.hpp>
 #include <boost/xpressive/detail/detail_fwd.hpp>
 #include <boost/xpressive/detail/core/regex_impl.hpp>
@@ -132,15 +132,21 @@ struct basic_regex
     // for binding actions to this regex when it is nested statically in another regex
     /// INTERNAL ONLY
     template<typename Action>
-    proto::binary_op
+    typename proto2::binary_op
     <
-        proto::unary_op<basic_regex<BidiIter>, proto::noop_tag>
-      , proto::unary_op<Action, proto::noop_tag>
-      , proto::right_shift_tag
-    > const
+        proto2::right_shift_tag
+      , typename proto2::literal<basic_regex<BidiIter> >::type
+      , typename proto2::literal<Action>::type
+    >::type const
     operator [](detail::action_matcher<Action> const &action) const
     {
-        return proto::noop(*this) >> proto::noop(*static_cast<Action const *>(&action));
+        typename proto2::binary_op
+        <
+            proto2::right_shift_tag
+          , typename proto2::literal<basic_regex<BidiIter> >::type
+          , typename proto2::literal<Action>::type
+        >::type that = {{*this}, {*static_cast<Action const *>(&action)}};
+        return that;
     }
 
     //{{AFX_DEBUG

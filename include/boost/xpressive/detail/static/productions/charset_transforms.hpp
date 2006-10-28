@@ -13,7 +13,7 @@
 #include <boost/mpl/sizeof.hpp>
 #include <boost/mpl/size_t.hpp>
 #include <boost/xpressive/detail/detail_fwd.hpp>
-#include <boost/xpressive/proto/proto.hpp>
+#include <boost/xpressive/proto2/proto.hpp>
 #include <boost/xpressive/detail/utility/never_true.hpp>
 #include <boost/xpressive/detail/utility/chset/chset.hpp>
 
@@ -115,7 +115,7 @@ namespace boost { namespace xpressive { namespace detail
               , charset_type
             > matcher_type;
 
-            typedef proto::unary_op<matcher_type, proto::noop_tag> type;
+            typedef typename proto2::literal<matcher_type>::type type;
         };
 
         template<typename Node, typename State, typename Visitor>
@@ -125,12 +125,12 @@ namespace boost { namespace xpressive { namespace detail
             typedef typename apply<Node, State, Visitor>::matcher_type matcher_type;
             matcher_type matcher;
             // Walks the tree and fills in the charset
-            proto::compile(proto::right(node), make_charset_state(matcher, visitor.traits()), visitor, set_tag());
+            proto2::compile(proto2::right(node), make_charset_state(matcher, visitor.traits()), visitor, set_tag());
             if(complement)
             {
                 matcher.charset_.inverse();
             }
-            return proto::noop(matcher);
+            return proto2::lit(matcher);
         }
     };
 

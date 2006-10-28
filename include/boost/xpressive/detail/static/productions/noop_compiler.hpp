@@ -14,7 +14,6 @@
 
 namespace boost { namespace xpressive { namespace detail
 {
-
     ///////////////////////////////////////////////////////////////////////////////
     // regex compiler productions
     struct noop_compiler
@@ -24,7 +23,8 @@ namespace boost { namespace xpressive { namespace detail
         template<typename Node, typename State, typename Visitor>
         struct apply
         {
-            typedef typename as_matcher<typename proto::arg_type<Node>::type>::type matcher1;
+            typedef typename Node::arg0_type arg_type;
+            typedef typename as_matcher_type<arg_type>::type matcher1;
             typedef typename Visitor::BOOST_NESTED_TEMPLATE apply<matcher1>::type matcher2;
             typedef static_xpression<matcher2, State> type;
         };
@@ -33,14 +33,17 @@ namespace boost { namespace xpressive { namespace detail
         static typename apply<Node, State, Visitor>::type
         call(Node const &node, State const &state, Visitor &visitor)
         {
-            typedef typename proto::arg_type<Node>::type arg_type;
-            return make_static(visitor.call(as_matcher<arg_type>::call(proto::arg(node))), state);
+            typedef typename Node::arg0_type arg_type;
+            return make_static(
+                visitor.call(detail::as_matcher(proto2::arg(node)))
+              , state
+            );
         }
     };
 
 }}}
 
-namespace boost { namespace proto
+namespace boost { namespace proto2
 {
 
     // production for terminals in sequence

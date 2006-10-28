@@ -8,7 +8,7 @@
 #ifndef BOOST_XPRESSIVE_DETAIL_STATIC_PRODUCTIONS_MODIFY_COMPILER_HPP_EAN_10_04_2005
 #define BOOST_XPRESSIVE_DETAIL_STATIC_PRODUCTIONS_MODIFY_COMPILER_HPP_EAN_10_04_2005
 
-#include <boost/xpressive/proto/proto.hpp>
+#include <boost/xpressive/proto2/proto.hpp>
 #include <boost/xpressive/detail/utility/ignore_unused.hpp>
 
 namespace boost { namespace xpressive { namespace detail
@@ -17,13 +17,13 @@ namespace boost { namespace xpressive { namespace detail
     ///////////////////////////////////////////////////////////////////////////////
     // regex operator tags
     struct modifier_tag
-      : proto::binary_tag
+      : proto2::binary_tag
     {
     };
 
     ///////////////////////////////////////////////////////////////////////////////
     // scoped_swap
-    //  for swapping state back after proto::compile returns
+    //  for swapping state back after proto2::compile returns
     template<typename Old, typename New>
     struct scoped_swap
     {
@@ -39,11 +39,11 @@ namespace boost { namespace xpressive { namespace detail
         template<typename Node, typename State, typename Visitor>
         struct apply
         {
-            typedef typename proto::left_type<Node>::type modifier_type;
+            typedef typename Node::arg0_type modifier_type;
+            typedef typename Node::arg1_type op_type;
             typedef typename modifier_type::BOOST_NESTED_TEMPLATE apply<Visitor>::type visitor_type;
-            typedef typename proto::right_type<Node>::type op_type;
 
-            typedef typename proto::compiler<typename proto::tag_type<op_type>::type, seq_tag>::
+            typedef typename proto2::compiler<typename op_type::tag_type, seq_tag>::
                 BOOST_NESTED_TEMPLATE apply
             <
                 op_type
@@ -57,17 +57,17 @@ namespace boost { namespace xpressive { namespace detail
         call(Node const &node, State const &state, Visitor &visitor)
         {
             typedef typename apply<Node, State, Visitor>::visitor_type new_visitor_type;
-            new_visitor_type new_visitor(proto::left(node).call(visitor));
+            new_visitor_type new_visitor(proto2::left(node).call(visitor));
             new_visitor.swap(visitor);
             scoped_swap<Visitor, new_visitor_type> const undo = {&visitor, &new_visitor};
             detail::ignore_unused(undo);
-            return proto::compile(proto::right(node), state, new_visitor, seq_tag());
+            return proto2::compile(proto2::right(node), state, new_visitor, seq_tag());
         }
     };
 
 }}}
 
-namespace boost { namespace proto
+namespace boost { namespace proto2
 {
 
     // production for modifiers
