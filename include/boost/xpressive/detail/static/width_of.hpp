@@ -61,27 +61,27 @@ namespace boost { namespace xpressive { namespace detail
     struct width_of_impl;
 
     template<typename Matcher>
-    struct width_of_impl<proto2::terminal_tag, Matcher, void>
+    struct width_of_impl<proto::terminal_tag, Matcher, void>
       : mpl::size_t<as_matcher_type<Matcher>::type::width>
     {};
 
     template<typename Left, typename Right>
-    struct width_of_impl<proto2::right_shift_tag, Left, Right>
+    struct width_of_impl<proto::right_shift_tag, Left, Right>
       : BOOST_XPR_ADD_WIDTH_(width_of<Left>, width_of<Right>)
     {};
 
     template<typename Left, typename Right>
-    struct width_of_impl<proto2::bitor_tag, Left, Right>
+    struct width_of_impl<proto::bitor_tag, Left, Right>
       : BOOST_XPR_EQUAL_WIDTH_(width_of<Left>, width_of<Right>)
     {};
 
     template<typename Right>
-    struct width_of_impl<proto2::assign_tag, mark_tag, Right>
+    struct width_of_impl<proto::assign_tag, mark_tag, Right>
       : width_of<Right>
     {};
 
     template<typename Right>
-    struct width_of_impl<proto2::assign_tag, set_initializer_type, Right>
+    struct width_of_impl<proto::assign_tag, set_initializer_type, Right>
       : mpl::size_t<1>
     {};
 
@@ -113,17 +113,17 @@ namespace boost { namespace xpressive { namespace detail
     };
 
     template<typename Expr>
-    struct width_of_impl<proto2::unary_plus_tag, Expr, void>
+    struct width_of_impl<proto::unary_plus_tag, Expr, void>
       : unknown_width
     {};
 
     template<typename Expr>
-    struct width_of_impl<proto2::unary_star_tag, Expr, void>
+    struct width_of_impl<proto::unary_star_tag, Expr, void>
       : unknown_width
     {};
 
     template<typename Expr>
-    struct width_of_impl<proto2::logical_not_tag, Expr, void>
+    struct width_of_impl<proto::logical_not_tag, Expr, void>
       : unknown_width
     {};
 
@@ -138,31 +138,31 @@ namespace boost { namespace xpressive { namespace detail
     {};
 
     template<typename Expr>
-    struct width_of_impl<proto2::unary_minus_tag, Expr, void>
+    struct width_of_impl<proto::unary_minus_tag, Expr, void>
       : width_of<Expr>
     {};
 
     // when complementing a set or an assertion, the width is that of the set (1) or the assertion (0)
     template<typename Expr>
-    struct width_of_impl<proto2::complement_tag, Expr, void>
+    struct width_of_impl<proto::complement_tag, Expr, void>
       : width_of<Expr>
     {};
 
     // The comma is used in list-initialized sets, and the width of sets are 1
     template<typename Left, typename Right>
-    struct width_of_impl<proto2::comma_tag, Left, Right>
+    struct width_of_impl<proto::comma_tag, Left, Right>
       : mpl::size_t<1>
     {};
 
     // The subscript operator[] is used for sets, as in set['a' | range('b','h')], 
     // or for actions as in (any >> expr)[ action ]
     template<typename Left, typename Right>
-    struct width_of_impl<proto2::subscript_tag, Left, Right>
+    struct width_of_impl<proto::subscript_tag, Left, Right>
       : width_of<Left>
     {};
 
     template<typename Right>
-    struct width_of_impl<proto2::subscript_tag, set_initializer_type, Right>
+    struct width_of_impl<proto::subscript_tag, set_initializer_type, Right>
       : mpl::size_t<1>
     {
         // If Left is "set" then make sure that Right has a width_of 1
@@ -174,8 +174,8 @@ namespace boost { namespace xpressive { namespace detail
     struct width_of
       : width_of_impl<
             typename Expr::tag_type
-          , typename proto2::unref<typename Expr::arg0_type>::type
-          , typename proto2::unref<typename Expr::arg1_type>::type
+          , typename proto::unref<typename Expr::arg0_type>::type
+          , typename proto::unref<typename Expr::arg1_type>::type
         >
     {};
 

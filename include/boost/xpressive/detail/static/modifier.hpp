@@ -33,7 +33,7 @@ namespace boost { namespace xpressive { namespace detail
         template<typename Xpr>
         struct apply
         {
-            typedef typename proto2::binary_expr<
+            typedef typename proto::meta::binary_expr<
                 modifier_tag
               , Modifier
               , typename as_xpr_type<Xpr>::type

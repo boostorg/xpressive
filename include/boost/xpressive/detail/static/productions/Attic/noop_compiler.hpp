@@ -35,7 +35,7 @@ namespace boost { namespace xpressive { namespace detail
         {
             typedef typename Expr::arg0_type arg_type;
             return make_static(
-                visitor.call(detail::as_matcher(proto2::arg(expr)))
+                visitor.call(detail::as_matcher(proto::arg(expr)))
               , state
             );
         }
@@ -43,7 +43,7 @@ namespace boost { namespace xpressive { namespace detail
 
 }}}
 
-namespace boost { namespace proto2
+namespace boost { namespace proto
 {
 
     // production for terminals in sequence

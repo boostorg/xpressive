@@ -1,22 +1,22 @@
 /////////////////////////////////////////////////////////////////////////////////
 ///// \file fusion_s.hpp
-///// Make a binary proto2 parse tree a valid Fusion sequence
+///// Make a binary proto parse tree a valid Fusion sequence
 ////
 ////  Copyright 2004 Eric Niebler. Distributed under the Boost
 ////  Software License, Version 1.0. (See accompanying file
 ////  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
-//#ifndef BOOST_PROTO2_EXT_FUSION_S_HPP_EAN_10_23_2006
-//#define BOOST_PROTO2_EXT_FUSION_S_HPP_EAN_10_23_2006
+//#ifndef BOOST_PROTO_EXT_FUSION_S_HPP_EAN_10_23_2006
+//#define BOOST_PROTO_EXT_FUSION_S_HPP_EAN_10_23_2006
 //
 //#include <boost/mpl/if.hpp>
 //#include <boost/utility/enable_if.hpp>
 //#include <boost/type_traits/is_same.hpp>
 //#include <boost/type_traits/add_const.hpp>
 //#include <boost/type_traits/add_reference.hpp>
-//#include <boost/xpressive/proto2/proto.hpp>
+//#include <boost/xpressive/proto/proto.hpp>
 //
-//#ifndef BOOST_PROTO2_FUSION_V2
+//#ifndef BOOST_PROTO_FUSION_V2
 //# error Segmented Fusion support for Proto requires Fusion v2.
 //#endif
 //
@@ -26,7 +26,7 @@
 //#include <boost/fusion/support/ext_/is_segmented.hpp>
 //#include <boost/fusion/sequence/intrinsic/ext_/segments.hpp>
 //
-//namespace boost { namespace proto2
+//namespace boost { namespace proto
 //{
 //    template<typename T>
 //    struct single_view_of
@@ -46,7 +46,7 @@
 //
 //        static type make(Expr &expr)
 //        {
-//            return type(proto2::arg(expr));
+//            return type(proto::arg(expr));
 //        }
 //    };
 //
@@ -59,7 +59,7 @@
 //
 //        static type make(Expr &expr)
 //        {
-//            return type(left_view(proto2::left(expr)), right_view(proto2::right(expr)));
+//            return type(left_view(proto::left(expr)), right_view(proto::right(expr)));
 //        }
 //    };
 //
@@ -113,7 +113,7 @@
 //namespace boost { namespace fusion { namespace extension
 //{
 //    template<>
-//    struct is_segmented_impl<proto2::proto2_sequence_tag>
+//    struct is_segmented_impl<proto::proto_sequence_tag>
 //    {
 //        template<typename Sequence>
 //        struct apply
@@ -122,11 +122,11 @@
 //    };
 //
 //    template<>
-//    struct segments_impl<proto2::proto2_sequence_tag>
+//    struct segments_impl<proto::proto_sequence_tag>
 //    {
 //        template<typename Sequence>
 //        struct apply
-//          : proto2::segments_impl<Sequence>
+//          : proto::segments_impl<Sequence>
 //        {};
 //    };
 //}}}

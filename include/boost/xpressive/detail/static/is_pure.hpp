@@ -43,27 +43,27 @@ namespace boost { namespace xpressive { namespace detail
     struct is_pure_impl;
 
     template<typename Matcher>
-    struct is_pure_impl<proto2::terminal_tag, Matcher, void>
+    struct is_pure_impl<proto::terminal_tag, Matcher, void>
       : mpl::bool_<as_matcher_type<Matcher>::type::pure>
     {};
 
     template<typename Left, typename Right>
-    struct is_pure_impl<proto2::right_shift_tag, Left, Right>
+    struct is_pure_impl<proto::right_shift_tag, Left, Right>
       : BOOST_XPR_AND_PURE_(is_pure<Left>, is_pure<Right>)
     {};
 
     template<typename Left, typename Right>
-    struct is_pure_impl<proto2::bitor_tag, Left, Right>
+    struct is_pure_impl<proto::bitor_tag, Left, Right>
       : BOOST_XPR_AND_PURE_(is_pure<Left>, is_pure<Right>)
     {};
 
     template<typename Right>
-    struct is_pure_impl<proto2::assign_tag, mark_tag, Right>
+    struct is_pure_impl<proto::assign_tag, mark_tag, Right>
       : mpl::false_
     {};
 
     template<typename Right>
-    struct is_pure_impl<proto2::assign_tag, set_initializer_type, Right>
+    struct is_pure_impl<proto::assign_tag, set_initializer_type, Right>
       : mpl::true_
     {};
 
@@ -89,25 +89,25 @@ namespace boost { namespace xpressive { namespace detail
 
     // when complementing a set or an assertion, the purity is that of the set (true) or the assertion
     template<typename Expr>
-    struct is_pure_impl<proto2::complement_tag, Expr, void>
+    struct is_pure_impl<proto::complement_tag, Expr, void>
       : is_pure<Expr>
     {};
 
     // The comma is used in list-initialized sets, which are pure
     template<typename Left, typename Right>
-    struct is_pure_impl<proto2::comma_tag, Left, Right>
+    struct is_pure_impl<proto::comma_tag, Left, Right>
       : mpl::true_
     {};
 
     // The subscript operator[] is used for sets, as in set['a' | range('b','h')]
     // It is also used for actions, which by definition have side-effects and thus are impure
     template<typename Left, typename Right>
-    struct is_pure_impl<proto2::subscript_tag, Left, Right>
+    struct is_pure_impl<proto::subscript_tag, Left, Right>
       : mpl::false_
     {};
 
     template<typename Right>
-    struct is_pure_impl<proto2::subscript_tag, set_initializer_type, Right>
+    struct is_pure_impl<proto::subscript_tag, set_initializer_type, Right>
       : mpl::true_
     {
         // If Left is "set" then make sure that Right is pure
@@ -116,17 +116,17 @@ namespace boost { namespace xpressive { namespace detail
 
     // Quantified expressions are pure IFF they use the simple_repeat_matcher
     template<typename Expr>
-    struct is_pure_impl<proto2::unary_plus_tag, Expr, void>
+    struct is_pure_impl<proto::unary_plus_tag, Expr, void>
       : use_simple_repeat<Expr>
     {};
 
     template<typename Expr>
-    struct is_pure_impl<proto2::unary_star_tag, Expr, void>
+    struct is_pure_impl<proto::unary_star_tag, Expr, void>
       : use_simple_repeat<Expr>
     {};
 
     template<typename Expr>
-    struct is_pure_impl<proto2::logical_not_tag, Expr, void>
+    struct is_pure_impl<proto::logical_not_tag, Expr, void>
       : use_simple_repeat<Expr>
     {};
 
@@ -136,7 +136,7 @@ namespace boost { namespace xpressive { namespace detail
     {};
 
     template<typename Expr>
-    struct is_pure_impl<proto2::unary_minus_tag, Expr, void>
+    struct is_pure_impl<proto::unary_minus_tag, Expr, void>
       : is_pure<Expr>
     {};
 
@@ -164,7 +164,7 @@ namespace boost { namespace xpressive { namespace detail
     };
 
     template<typename Expr>
-    struct use_simple_repeat<Expr, proto2::terminal_tag>
+    struct use_simple_repeat<Expr, proto::terminal_tag>
       : use_simple_repeat_helper<
             as_matcher_type<typename Expr::arg0_type>::type::pure
           , as_matcher_type<typename Expr::arg0_type>::type::quant
@@ -179,8 +179,8 @@ namespace boost { namespace xpressive { namespace detail
     struct is_pure
       : is_pure_impl<
             typename Expr::tag_type
-          , typename proto2::unref<typename Expr::arg0_type>::type
-          , typename proto2::unref<typename Expr::arg1_type>::type
+          , typename proto::unref<typename Expr::arg0_type>::type
+          , typename proto::unref<typename Expr::arg1_type>::type
         >
     {};
 

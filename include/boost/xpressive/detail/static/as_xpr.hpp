@@ -26,7 +26,7 @@
 #include <boost/type_traits/remove_pointer.hpp>
 #include <boost/type_traits/is_convertible.hpp>
 #include <boost/xpressive/detail/detail_fwd.hpp>
-#include <boost/xpressive/proto2/proto.hpp>
+#include <boost/xpressive/proto/proto.hpp>
 #include <boost/xpressive/detail/static/placeholders.hpp>
 
 namespace boost { namespace xpressive { namespace detail
@@ -123,7 +123,7 @@ namespace boost { namespace xpressive { namespace detail
     // as_xpr_type
     //
     template<typename Xpr>
-    struct as_xpr_type<Xpr, true> // is_op == true
+    struct as_xpr_type<Xpr, true> // is_expr == true
     {
         typedef Xpr type;
 
@@ -137,12 +137,12 @@ namespace boost { namespace xpressive { namespace detail
     template<typename Xpr>
     struct as_xpr_type<Xpr, false>
     {
-        typedef typename proto2::literal<typename as_matcher_type<Xpr>::type>::type type;
+        typedef typename proto::meta::terminal<typename as_matcher_type<Xpr>::type>::type type;
 
         template<typename Xpr2>
         static type call(Xpr2 const &xpr)
         {
-            return proto2::lit(detail::as_matcher(xpr));
+            return proto::make_terminal(detail::as_matcher(xpr));
         }
     };
 

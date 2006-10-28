@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 /// \file fold.hpp
-/// A special-purpose proto2 compiler for merging sequences of binary operations.
+/// A special-purpose proto compiler for merging sequences of binary operations.
 /// It compiles the right operand and passes the result as state while compiling
 /// the left. Or, it might do the left first, if you choose.
 //
@@ -8,12 +8,12 @@
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_PROTO2_COMPILER_FOLD_HPP_EAN_04_01_2005
-#define BOOST_PROTO2_COMPILER_FOLD_HPP_EAN_04_01_2005
+#ifndef BOOST_PROTO_COMPILER_FOLD_HPP_EAN_04_01_2005
+#define BOOST_PROTO_COMPILER_FOLD_HPP_EAN_04_01_2005
 
-#include <boost/xpressive/proto2/proto_fwd.hpp>
+#include <boost/xpressive/proto/proto_fwd.hpp>
 
-namespace boost { namespace proto2
+namespace boost { namespace proto
 {
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -53,9 +53,9 @@ namespace boost { namespace proto2
         static typename apply<Expr, State, Visitor>::type
         call(Expr const &expr, State const &state, Visitor &visitor)
         {
-            return proto2::compile(
-                proto2::right(expr)
-              , proto2::compile(proto2::left(expr), state, visitor, DomainTag())
+            return proto::compile(
+                proto::right(expr)
+              , proto::compile(proto::left(expr), state, visitor, DomainTag())
               , visitor
               , DomainTag()
             );
@@ -99,9 +99,9 @@ namespace boost { namespace proto2
         static typename apply<Expr, State, Visitor>::type
         call(Expr const &expr, State const &state, Visitor &visitor)
         {
-            return proto2::compile(
-                proto2::left(expr)
-              , proto2::compile(proto2::right(expr), state, visitor, DomainTag())
+            return proto::compile(
+                proto::left(expr)
+              , proto::compile(proto::right(expr), state, visitor, DomainTag())
               , visitor
               , DomainTag()
             );

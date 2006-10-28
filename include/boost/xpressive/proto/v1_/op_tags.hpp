@@ -8,13 +8,13 @@
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_PROTO2_OP_TAGS_HPP_EAN_04_01_2005
-#define BOOST_PROTO2_OP_TAGS_HPP_EAN_04_01_2005
+#ifndef BOOST_PROTO_V1_OP_TAGS_HPP_EAN_04_01_2005
+#define BOOST_PROTO_V1_OP_TAGS_HPP_EAN_04_01_2005
 
 #include <boost/type_traits/is_base_and_derived.hpp>
-#include <boost/xpressive/proto2/proto_fwd.hpp>
+#include <boost/xpressive/proto/v1_/proto_fwd.hpp>
 
-namespace boost { namespace proto2
+namespace boost { namespace proto1
 {
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -23,7 +23,7 @@ namespace boost { namespace proto2
     struct binary_tag {};
     struct nary_tag {}; // for operator()
 
-    struct terminal_tag : unary_tag {};
+    struct noop_tag : unary_tag {};
     struct unary_plus_tag : unary_tag {};
     struct unary_minus_tag : unary_tag {};
     struct unary_star_tag : unary_tag {};
@@ -70,6 +70,30 @@ namespace boost { namespace proto2
     struct subscript_tag : binary_tag {};
 
     struct function_tag : nary_tag {};
+
+    ///////////////////////////////////////////////////////////////////////////////
+    // is_unary
+    template<typename Tag>
+    struct is_unary
+      : boost::is_base_and_derived<unary_tag, Tag>
+    {
+    };
+
+    ///////////////////////////////////////////////////////////////////////////////
+    // is_binary
+    template<typename Tag>
+    struct is_binary
+      : boost::is_base_and_derived<binary_tag, Tag>
+    {
+    };
+
+    ///////////////////////////////////////////////////////////////////////////////
+    // is_nary
+    template<typename Tag>
+    struct is_nary
+      : boost::is_base_and_derived<nary_tag, Tag>
+    {
+    };
 
 }}
 

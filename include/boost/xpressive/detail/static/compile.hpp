@@ -15,7 +15,7 @@
 
 #include <boost/mpl/bool.hpp>
 #include <boost/iterator/iterator_traits.hpp>
-#include <boost/xpressive/proto2/proto.hpp>
+#include <boost/xpressive/proto/proto.hpp>
 #include <boost/xpressive/regex_traits.hpp>
 #include <boost/xpressive/detail/core/regex_impl.hpp>
 #include <boost/xpressive/detail/core/linker.hpp>
@@ -40,7 +40,7 @@ namespace boost { namespace xpressive { namespace detail
         // "compile" the regex and wrap it in an xpression_adaptor.
         xpression_visitor<BidiIter, mpl::false_, Traits> visitor(traits, impl);
         intrusive_ptr<matchable_ex<BidiIter> const> adxpr = make_adaptor<matchable_ex<BidiIter> >(
-            proto2::compile(xpr, end_xpression(), visitor, seq_tag()));
+            proto::compile(xpr, end_xpression(), visitor, seq_tag()));
 
         // Link and optimize the regex
         common_compile(adxpr, *impl, visitor.traits());
@@ -69,7 +69,7 @@ namespace boost { namespace xpressive { namespace detail
         // use specified traits
         typedef typename Xpr::arg0_type::locale_type locale_type;
         typedef typename regex_traits_type<locale_type, BidiIter>::type traits_type;
-        static_compile_impl2(proto2::right(xpr), impl, traits_type(proto2::left(xpr).getloc()));
+        static_compile_impl2(proto::right(xpr), impl, traits_type(proto::left(xpr).getloc()));
     }
 
     template<typename T>
@@ -89,7 +89,7 @@ namespace boost { namespace xpressive { namespace detail
     {
         typedef mpl::and_<
             is_same<modifier_tag, typename Xpr::tag_type>
-          , is_locale_modifier<typename proto2::unref<typename Xpr::arg0_type>::type>
+          , is_locale_modifier<typename proto::unref<typename Xpr::arg0_type>::type>
         > is_imbued;
 
         static_compile_impl1(xpr, impl, is_imbued());

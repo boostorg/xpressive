@@ -6,14 +6,14 @@
 ////  Software License, Version 1.0. (See accompanying file
 ////  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
-//#ifndef BOOST_PROTO2_COMPILER_PASS_THROUGH_HPP_EAN_04_23_2006
-//#define BOOST_PROTO2_COMPILER_PASS_THROUGH_HPP_EAN_04_23_2006
+//#ifndef BOOST_PROTO_COMPILER_PASS_THROUGH_HPP_EAN_04_23_2006
+//#define BOOST_PROTO_COMPILER_PASS_THROUGH_HPP_EAN_04_23_2006
 //
 //#include <boost/utility/enable_if.hpp>
 //#include <boost/type_traits/is_same.hpp>
-//#include <boost/xpressive/proto2/proto_fwd.hpp>
+//#include <boost/xpressive/proto/proto_fwd.hpp>
 //
-//namespace boost { namespace proto2
+//namespace boost { namespace proto
 //{
 //    ///////////////////////////////////////////////////////////////////////////////
 //    // pass_through_compiler
@@ -33,12 +33,12 @@
 //
 //            static type const call(Expr const &expr, State const &state, Visitor &visitor, ...)
 //            {
-//                return proto2::compile(expr, state, visitor, DomainTag());
+//                return proto::compile(expr, state, visitor, DomainTag());
 //            }
 //        };
 //
 //        template<typename Expr, typename State, typename Visitor>
-//        struct compile_helper<Expr, State, Visitor, typename disable_if<is_op<Expr> >::type>
+//        struct compile_helper<Expr, State, Visitor, typename disable_if<is_expr<Expr> >::type>
 //        {
 //            typedef Expr type;
 //
@@ -69,8 +69,8 @@
 //
 //            static type const call(Expr const &expr, State const &state, Visitor &visitor, ...)
 //            {
-//                return proto2::make_expr<typename tag_type<Expr>::type>(
-//                    compiler_type::call(proto2::arg(expr), state, visitor, 0)
+//                return proto::make_expr<typename tag_type<Expr>::type>(
+//                    compiler_type::call(proto::arg(expr), state, visitor, 0)
 //                );
 //            }
 //        };
@@ -95,9 +95,9 @@
 //
 //            static type const call(Expr const &expr, State const &state, Visitor &visitor, ...)
 //            {
-//                return proto2::make_expr<typename tag_type<Expr>::type>(
-//                    left_compiler_type::call(proto2::left(expr), state, visitor, 0)
-//                  , right_compiler_type::call(proto2::right(expr), state, visitor, 0)
+//                return proto::make_expr<typename tag_type<Expr>::type>(
+//                    left_compiler_type::call(proto::left(expr), state, visitor, 0)
+//                  , right_compiler_type::call(proto::right(expr), state, visitor, 0)
 //                );
 //            }
 //        };

@@ -10,9 +10,9 @@
 
 #include <boost/version.hpp>
 #include <boost/xpressive/detail/detail_fwd.hpp>
-#include <boost/xpressive/proto2/proto.hpp>
-#include <boost/xpressive/proto2/compiler/fold.hpp>
-#include <boost/xpressive/proto2/compiler/branch.hpp>
+#include <boost/xpressive/proto/proto.hpp>
+#include <boost/xpressive/proto/compiler/fold.hpp>
+#include <boost/xpressive/proto/compiler/branch.hpp>
 #include <boost/xpressive/detail/utility/cons.hpp>
 #include <boost/xpressive/detail/utility/dont_care.hpp>
 #include <boost/xpressive/detail/static/productions/domain_tags.hpp>
@@ -98,7 +98,7 @@ namespace boost { namespace xpressive { namespace detail
 
 }}}
 
-namespace boost { namespace proto2
+namespace boost { namespace proto
 {
     // production for alternates in sequence
     template<>

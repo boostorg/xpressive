@@ -1,13 +1,13 @@
 ///////////////////////////////////////////////////////////////////////////////
 /// \file proto_fwd.hpp
-/// Forward declarations of all of proto2's public types and functions.
+/// Forward declarations of all of proto's public types and functions.
 //
 //  Copyright 2004 Eric Niebler. Distributed under the Boost
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_PROTO2_FWD_HPP_EAN_04_01_2005
-#define BOOST_PROTO2_FWD_HPP_EAN_04_01_2005
+#ifndef BOOST_PROTO_FWD_HPP_EAN_04_01_2005
+#define BOOST_PROTO_FWD_HPP_EAN_04_01_2005
 
 #include <boost/version.hpp>
 #include <boost/mpl/size.hpp>
@@ -15,11 +15,11 @@
 #include <boost/type_traits/remove_reference.hpp>
 #include <boost/mpl/vector/vector10.hpp>
 
-#ifndef BOOST_PROTO2_MAX_ARITY
-# define BOOST_PROTO2_MAX_ARITY 10
+#ifndef BOOST_PROTO_MAX_ARITY
+# define BOOST_PROTO_MAX_ARITY 10
 #endif
 
-namespace boost { namespace proto2
+namespace boost { namespace proto
 {
     ///////////////////////////////////////////////////////////////////////////////
     // Operator tags
@@ -81,30 +81,6 @@ namespace boost { namespace proto2
     template<typename Expr>
     struct ref;
 
-    template<typename Tag, typename Arg>
-    struct unary_expr;
-
-    template<typename Tag, typename Left, typename Right>
-    struct binary_expr;
-
-    template<typename T>
-    struct is_op;
-
-    template<typename Expr>
-    struct literal;
-
-    template<typename Expr>
-    struct arg_type;
-
-    template<typename Expr>
-    struct left_type;
-
-    template<typename Expr>
-    struct right_type;
-
-    template<typename Expr>
-    struct tag_type;
-
     template<typename OpTag, typename DomainTag, typename EnableIf = void>
     struct compiler;
 
@@ -156,23 +132,53 @@ namespace boost { namespace proto2
             typedef typename remove_cv<typename remove_reference<T>::type>::type type;
         };
 
-        template<typename T, bool IsOp = is_op<T>::value>
+        template<typename T>
+        struct is_expr;
+
+        template<typename T, bool IsExpr = is_expr<T>::value>
         struct as_expr;
 
         template<typename Expr, typename State, typename Visitor, typename DomainTag>
         struct compile;
+
+        template<typename Tag, typename Arg>
+        struct unary_expr;
+
+        template<typename Tag, typename Left, typename Right>
+        struct binary_expr;
+
+        template<typename Expr>
+        struct terminal;
+
+        template<typename Expr>
+        struct arg;
+
+        template<typename Expr>
+        struct left;
+
+        template<typename Expr>
+        struct right;
+
+        template<typename Expr>
+        struct tag;
+
+        template<typename T>
+        struct unref;
     }
+
+    using meta::unref;
 
     namespace op
     {
         struct compile;
-
+        struct as_expr;
+        struct make_terminal;
+        struct arg;
+        struct left;
+        struct right;
         struct as_expr;
     }
 
-    extern op::compile const compile;
-    extern op::as_expr const as_expr;
-
-}} // namespace boost::proto2
+}} // namespace boost::proto
 
 #endif

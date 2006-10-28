@@ -37,7 +37,7 @@
 # endif
 #endif
 
-#include <boost/xpressive/proto2/proto_fwd.hpp>
+#include <boost/xpressive/proto/proto_fwd.hpp>
 
 namespace boost { namespace xpressive
 {
@@ -65,8 +65,8 @@ namespace boost { namespace xpressive
 
         struct mark_placeholder;
 
-        //typedef proto2::literal<mark_placeholder>::type mark_tag;
-        typedef proto2::basic_expr<proto2::terminal_tag, mpl::vector1<mark_placeholder> > mark_tag;
+        //typedef proto::meta::terminal<mark_placeholder>::type mark_tag;
+        typedef proto::basic_expr<proto::terminal_tag, mpl::vector1<mark_placeholder> > mark_tag;
 
     } // namespace detail
 

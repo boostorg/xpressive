@@ -12,8 +12,8 @@
 #include <boost/mpl/bool.hpp>
 #include <boost/type_traits/is_same.hpp>
 #include <boost/xpressive/detail/detail_fwd.hpp>
-#include <boost/xpressive/proto2/proto.hpp>
-#include <boost/xpressive/proto2/compiler/transform.hpp>
+#include <boost/xpressive/proto/proto.hpp>
+#include <boost/xpressive/proto/compiler/transform.hpp>
 
 namespace boost { namespace xpressive { namespace detail
 {
@@ -28,8 +28,8 @@ namespace boost { namespace xpressive { namespace detail
     template<typename Expr>
     struct is_marker<Expr, 2>
       : mpl::and_<
-            is_same<proto2::assign_tag, typename Expr::tag_type>
-          , is_same<mark_tag, typename proto2::unref<typename Expr::arg0_type>::type>
+            is_same<proto::assign_tag, typename Expr::tag_type>
+          , is_same<mark_tag, typename proto::unref<typename Expr::arg0_type>::type>
         >
     {};
 
@@ -51,15 +51,15 @@ namespace boost { namespace xpressive { namespace detail
         template<typename Expr, typename, typename>
         struct apply
         {
-            typedef typename proto2::binary_expr
+            typedef typename proto::meta::binary_expr
             <
-                proto2::right_shift_tag
-              , proto2::literal<mark_begin_matcher>::type
-              , typename proto2::binary_expr
+                proto::right_shift_tag
+              , proto::meta::terminal<mark_begin_matcher>::type
+              , typename proto::meta::binary_expr
                 <
-                    proto2::right_shift_tag
+                    proto::right_shift_tag
                   , Expr
-                  , proto2::literal<mark_end_matcher>::type
+                  , proto::meta::terminal<mark_end_matcher>::type
                 >::type
             >::type type;
         };
@@ -90,7 +90,7 @@ namespace boost { namespace xpressive { namespace detail
     ///////////////////////////////////////////////////////////////////////////////
     // marker_replace_transform
     struct marker_replace_transform
-      : proto2::compose_transforms<proto2::right_transform, marker_insert_transform>
+      : proto::compose_transforms<proto::right_transform, marker_insert_transform>
     {
         template<typename Expr, typename State, typename Visitor>
         static typename apply<Expr, State, Visitor>::type
@@ -98,10 +98,10 @@ namespace boost { namespace xpressive { namespace detail
         {
             return marker_insert_transform::call
             (
-                proto2::right(expr)
+                proto::right(expr)
               , state
               , visitor
-              , proto2::arg(proto2::left(expr)).mark_number_
+              , proto::arg(proto::left(expr)).mark_number_
             );
         }
     };

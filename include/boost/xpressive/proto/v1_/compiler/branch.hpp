@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 /// \file branch.hpp
-/// A special-purpose proto2 compiler for compiling one branch of the expression
-/// tree separately from the rest. Given an expression and a proto2 lambda, it
+/// A special-purpose proto1 compiler for compiling one branch of the expression
+/// tree separately from the rest. Given an expression and a proto1 lambda, it
 /// compiles the expression using an initial state determined by the lambda.
 /// It then passes the result along with the current state and the visitor
 /// to the lambda for further processing.
@@ -10,12 +10,12 @@
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_PROTO2_COMPILER_BRANCH_HPP_EAN_04_01_2005
-#define BOOST_PROTO2_COMPILER_BRANCH_HPP_EAN_04_01_2005
+#ifndef BOOST_PROTO_V1_COMPILER_BRANCH_HPP_EAN_04_01_2005
+#define BOOST_PROTO_V1_COMPILER_BRANCH_HPP_EAN_04_01_2005
 
-#include <boost/xpressive/proto2/proto_fwd.hpp>
+#include <boost/xpressive/proto/v1_/proto_fwd.hpp>
 
-namespace boost { namespace proto2
+namespace boost { namespace proto1
 {
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -23,15 +23,15 @@ namespace boost { namespace proto2
     template<typename Lambda, typename DomainTag>
     struct branch_compiler
     {
-        template<typename Expr, typename State, typename Visitor>
+        template<typename Op, typename State, typename Visitor>
         struct apply
         {
-            typedef proto2::compiler<typename Expr::tag_type, DomainTag> compiler_type;
+            typedef proto1::compiler<typename tag_type<Op>::type, DomainTag> compiler_type;
 
             // Compile the branch
             typedef typename compiler_type::BOOST_NESTED_TEMPLATE apply
-            <
-                Expr
+             <
+                Op
               , typename Lambda::state_type
               , Visitor
             >::type branch_type;
@@ -45,13 +45,13 @@ namespace boost { namespace proto2
             >::type type;
         };
 
-        template<typename Expr, typename State, typename Visitor>
-        static typename apply<Expr, State, Visitor>::type
-        call(Expr const &expr, State const &state, Visitor &visitor)
+        template<typename Op, typename State, typename Visitor>
+        static typename apply<Op, State, Visitor>::type
+        call(Op const &op, State const &state, Visitor &visitor)
         {
             return Lambda::call
             (
-                proto2::compile(expr, typename Lambda::state_type(), visitor, DomainTag())
+                proto1::compile(op, typename Lambda::state_type(), visitor, DomainTag())
               , state
               , visitor
             );

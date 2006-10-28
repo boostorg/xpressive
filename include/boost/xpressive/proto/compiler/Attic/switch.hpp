@@ -1,37 +1,38 @@
 ///////////////////////////////////////////////////////////////////////////////
-/// \file conditional.hpp
-/// A special-purpose proto2 compiler for compiling an expression either one
-/// way or another depending on the properties of the expression.
+/// \file switch.hpp
+/// A generalization of the conditional_compiler. Given N different compilers
+/// in a MPL-style map and a lambda that generates a key from an expression,
+/// find the compiler in the map corresponding to the key and use that compiler
+/// to compile the expression.
 //
 //  Copyright 2004 Eric Niebler. Distributed under the Boost
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_PROTO2_COMPILER_CONDITIONAL_HPP_EAN_04_01_2005
-#define BOOST_PROTO2_COMPILER_CONDITIONAL_HPP_EAN_04_01_2005
+#ifndef BOOST_PROTO_COMPILER_SWITCH_HPP_EAN_04_01_2005
+#define BOOST_PROTO_COMPILER_SWITCH_HPP_EAN_04_01_2005
 
-#include <boost/mpl/if.hpp>
-#include <boost/mpl/bool.hpp>
-#include <boost/xpressive/proto2/proto_fwd.hpp>
+#include <boost/mpl/at.hpp>
+#include <boost/xpressive/proto/proto_fwd.hpp>
 
-namespace boost { namespace proto2
+namespace boost { namespace proto
 {
 
     ///////////////////////////////////////////////////////////////////////////////
-    // conditional_compiler
-    template<typename Predicate, typename IfCompiler, typename ElseCompiler>
-    struct conditional_compiler
+    // switch_compiler
+    //  applies a transform, then looks up the appropriate compiler in a map
+    template<typename Lambda, typename Map>
+    struct switch_compiler
     {
         template<typename Expr, typename State, typename Visitor>
         struct apply
         {
-            typedef typename boost::mpl::if_
+            typedef typename boost::mpl::at
             <
-                typename Predicate::BOOST_NESTED_TEMPLATE apply<Expr, State, Visitor>::type
-              , IfCompiler
-              , ElseCompiler
+                Map
+              , typename Lambda::BOOST_NESTED_TEMPLATE apply<Expr, State, Visitor>::type
             >::type compiler_type;
-
+            
             typedef typename compiler_type::BOOST_NESTED_TEMPLATE apply
             <
                 Expr

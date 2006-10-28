@@ -9,13 +9,13 @@
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_PROTO2_COMPILER_SWITCH_HPP_EAN_04_01_2005
-#define BOOST_PROTO2_COMPILER_SWITCH_HPP_EAN_04_01_2005
+#ifndef BOOST_PROTO_COMPILER_SWITCH_HPP_EAN_04_01_2005
+#define BOOST_PROTO_COMPILER_SWITCH_HPP_EAN_04_01_2005
 
 #include <boost/mpl/at.hpp>
-#include <boost/xpressive/proto2/proto_fwd.hpp>
+#include <boost/xpressive/proto/proto_fwd.hpp>
 
-namespace boost { namespace proto2
+namespace boost { namespace proto
 {
 
     ///////////////////////////////////////////////////////////////////////////////

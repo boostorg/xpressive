@@ -11,18 +11,18 @@
 #include <boost/mpl/bool.hpp>
 #include <boost/type_traits/is_base_and_derived.hpp>
 #include <boost/xpressive/detail/detail_fwd.hpp>
-#include <boost/xpressive/proto2/proto.hpp>
+#include <boost/xpressive/proto/proto.hpp>
 #include <boost/xpressive/detail/static/productions/domain_tags.hpp>
 
 namespace boost { namespace xpressive { namespace detail
 {
     template<bool Positive>
-    struct lookahead_tag : proto2::unary_tag {};
+    struct lookahead_tag : proto::unary_tag {};
 
     template<bool Positive>
-    struct lookbehind_tag : proto2::unary_tag {};
+    struct lookbehind_tag : proto::unary_tag {};
 
-    struct keeper_tag : proto2::unary_tag {};
+    struct keeper_tag : proto::unary_tag {};
 
     ///////////////////////////////////////////////////////////////////////////////
     // lookahead_branch
@@ -88,7 +88,7 @@ namespace boost { namespace xpressive { namespace detail
 }}}
 
 
-namespace boost { namespace proto2
+namespace boost { namespace proto
 {
 
     template<bool Positive>

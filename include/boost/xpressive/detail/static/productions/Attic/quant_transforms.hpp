@@ -14,13 +14,13 @@
 #include <boost/mpl/not_equal_to.hpp>
 #include <boost/xpressive/detail/detail_fwd.hpp>
 #include <boost/xpressive/detail/static/width_of.hpp>
-#include <boost/xpressive/proto2/proto.hpp>
+#include <boost/xpressive/proto/proto.hpp>
 #include <boost/xpressive/detail/static/productions/quant_traits.hpp>
 #include <boost/xpressive/detail/static/productions/marker_transform.hpp>
 
 namespace boost { namespace xpressive { namespace detail
 {
-    typedef proto2::literal<repeat_begin_matcher>::type repeat_tag;
+    typedef proto::meta::terminal<repeat_begin_matcher>::type repeat_tag;
 
     ///////////////////////////////////////////////////////////////////////////////
     // is_repeater
@@ -28,7 +28,7 @@ namespace boost { namespace xpressive { namespace detail
     struct is_repeater
       : is_same<
             repeat_tag
-          , typename proto2::unref<typename Expr::arg0_type>::type
+          , typename proto::unref<typename Expr::arg0_type>::type
         >
     {};
 
@@ -116,15 +116,15 @@ namespace boost { namespace xpressive { namespace detail
         template<typename Expr, typename, typename>
         struct apply
         {
-            typedef typename proto2::binary_expr
+            typedef typename proto::meta::binary_expr
             <
-                proto2::right_shift_tag
-              , proto2::literal<repeat_begin_matcher>::type
-              , typename proto2::binary_expr
+                proto::right_shift_tag
+              , proto::meta::terminal<repeat_begin_matcher>::type
+              , typename proto::meta::binary_expr
                 <
-                    proto2::right_shift_tag
+                    proto::right_shift_tag
                   , Expr
-                  , typename proto2::literal<repeat_end_matcher<Greedy> >::type
+                  , typename proto::meta::terminal<repeat_end_matcher<Greedy> >::type
                 >::type
             >::type type;
         };
@@ -134,7 +134,7 @@ namespace boost { namespace xpressive { namespace detail
         call(Expr const &expr, State const &, Visitor &)
         {
             // Get the mark_number from the begin_mark_matcher
-            int mark_number = proto2::arg(proto2::left(expr)).mark_number_;
+            int mark_number = proto::arg(proto::left(expr)).mark_number_;
             BOOST_ASSERT(0 != mark_number);
 
             typename apply<Expr, State, Visitor>::type that =
@@ -155,7 +155,7 @@ namespace boost { namespace xpressive { namespace detail
         template<typename Expr, typename, typename>
         struct apply
         {
-            typedef typename proto2::unary_expr<proto2::logical_not_tag, Expr>::type type;
+            typedef typename proto::meta::unary_expr<proto::logical_not_tag, Expr>::type type;
         };
 
         template<typename Expr, typename State, typename Visitor>
@@ -172,9 +172,9 @@ namespace boost { namespace xpressive { namespace detail
     //   Insert repeat and marker matcher before and after the expression
     template<bool Greedy, uint_t Min, uint_t Max>
     struct repeater_transform
-      : proto2::compose_transforms
+      : proto::compose_transforms
         <
-            proto2::conditional_transform
+            proto::conditional_transform
             <
                 is_marker_predicate
               , marker_replace_transform
@@ -188,7 +188,7 @@ namespace boost { namespace xpressive { namespace detail
     // transform *foo to !+foo
     template<bool Greedy, uint_t Max>
     struct repeater_transform<Greedy, 0, Max>
-      : proto2::compose_transforms
+      : proto::compose_transforms
         <
             repeater_transform<Greedy, 1, Max>
           , optional_transform<Greedy>
