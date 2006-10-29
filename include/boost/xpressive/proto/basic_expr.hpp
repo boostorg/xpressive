@@ -60,6 +60,7 @@
             typedef Tag tag_type;
             typedef Args args_type;
             typedef mpl::long_<BOOST_PP_ITERATION()> arity;
+            typedef proto_expr_tag fusion_tag;
 
             BOOST_PP_REPEAT(BOOST_PP_ITERATION(), BOOST_PROTO_ARG, _)
             BOOST_PP_REPEAT_FROM_TO(BOOST_PP_ITERATION(), BOOST_PROTO_MAX_ARITY, BOOST_PROTO_VOID, _)

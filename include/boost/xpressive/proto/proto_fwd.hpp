@@ -124,6 +124,10 @@ namespace boost { namespace proto
     template<typename Predicate, typename IfTransform, typename ElseTransform = identity_transform>
     struct conditional_transform;
 
+    struct proto_expr_tag;
+    struct proto_ref_tag;
+    struct proto_ref_iterator_tag;
+
     namespace meta
     {
         template<typename T>

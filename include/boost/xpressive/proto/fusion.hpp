@@ -1,444 +1,420 @@
-/////////////////////////////////////////////////////////////////////////////////
-///// \file fusion.hpp
-///// Make any Proto parse tree a valid Fusion sequence
-////
-////  Copyright 2004 Eric Niebler. Distributed under the Boost
-////  Software License, Version 1.0. (See accompanying file
-////  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+///////////////////////////////////////////////////////////////////////////////
+/// \file fusion.hpp
+/// Make any Proto parse tree a valid Fusion sequence
 //
-//#ifndef BOOST_PROTO_FUSION_HPP_EAN_04_29_2006
-//#define BOOST_PROTO_FUSION_HPP_EAN_04_29_2006
-//
-//#include <boost/xpressive/proto/proto.hpp>
-//
-//#ifndef BOOST_PROTO_FUSION_V2
-//# error TODO Implement me
-//#endif
-//
-//#include <boost/xpressive/proto/ext_/fusion_s.hpp>
-//#include <boost/fusion/sequence/view/ext_/segmented_iterator.hpp>
-//
-//namespace boost { namespace fusion { namespace extension
+//  Copyright 2004 Eric Niebler. Distributed under the Boost
+//  Software License, Version 1.0. (See accompanying file
+//  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+
+#ifndef BOOST_PROTO_FUSION_HPP_EAN_04_29_2006
+#define BOOST_PROTO_FUSION_HPP_EAN_04_29_2006
+
+#include <boost/xpressive/proto/proto.hpp>
+#include <boost/preprocessor/repetition/repeat.hpp>
+
+#include <boost/mpl/if.hpp>
+//#include <boost/mpl/at.hpp>
+//#include <boost/mpl/size.hpp>
+//#include <boost/mpl/deref.hpp>
+//#include <boost/mpl/advance.hpp>
+//#include <boost/mpl/distance.hpp>
+//#include <boost/mpl/begin_end.hpp>
+//#include <boost/mpl/next_prior.hpp>
+//#include <boost/mpl/sequence_tag_fwd.hpp>
+
+#include <boost/fusion/support/is_view.hpp>
+#include <boost/fusion/support/tag_of_fwd.hpp>
+#include <boost/fusion/support/category_of.hpp>
+#include <boost/fusion/support/iterator_base.hpp>
+#include <boost/fusion/sequence/intrinsic/mpl.hpp>
+#include <boost/fusion/sequence/intrinsic.hpp>
+#include <boost/fusion/sequence/view/single_view.hpp>
+#include <boost/fusion/sequence/view/transform_view.hpp>
+
+#include <boost/fusion/support/ext_/is_segmented.hpp>
+#include <boost/fusion/sequence/intrinsic/ext_/segments.hpp>
+#include <boost/fusion/sequence/view/ext_/segmented_iterator.hpp>
+
+namespace boost { namespace proto
+{
+    namespace detail
+    {
+        template<typename Expr, long N>
+        struct arg_impl;
+
+    #define BOOST_PROTO_DEFINE_GET_IMPL(z, N, data)\
+        template<typename Expr>\
+        struct arg_impl<Expr, N>\
+        {\
+            typedef typename Expr::BOOST_PP_CAT(BOOST_PP_CAT(arg, N), _type) type;\
+            \
+            static type const &call(Expr const &expr)\
+            {\
+                return expr.cast().BOOST_PP_CAT(arg, N);\
+            }\
+        };\
+        /**/
+
+        BOOST_PP_REPEAT(BOOST_PROTO_MAX_ARITY, BOOST_PROTO_DEFINE_GET_IMPL, _)
+
+        template<typename Expr, int Pos>
+        struct ref_iterator
+          : fusion::iterator_base<ref_iterator<Expr, Pos> >
+        {
+            typedef Expr expr_type;
+            typedef mpl::long_<Pos> index;
+            typedef fusion::forward_traversal_tag category;
+            typedef proto_ref_iterator_tag fusion_tag;
+
+            ref_iterator(Expr expr)
+              : expr_(expr)
+            {}
+
+            Expr expr_;
+        };
+    }
+
+    template<long N, typename Expr>
+    typename detail::arg_impl<Expr, N>::type const &
+    arg_c(Expr const &expr)
+    {
+        return detail::arg_impl<Expr, N>::call(expr);
+    }
+
+}}
+
+namespace boost { namespace fusion
+{
+    namespace extension
+    {
+        template<typename Tag>
+        struct is_view_impl;
+
+        template<>
+        struct is_view_impl<proto::proto_ref_tag>
+        {
+            template<typename Iterator>
+            struct apply
+              : mpl::true_
+            {};
+        };
+
+        template<>
+        struct is_view_impl<proto::proto_expr_tag>
+        {
+            template<typename Iterator>
+            struct apply
+              : mpl::false_
+            {};
+        };
+
+        template<typename Tag>
+        struct value_of_impl;
+
+        template<>
+        struct value_of_impl<proto::proto_ref_iterator_tag>
+        {
+            template<typename Iterator>
+            struct apply
+              : mpl::at<typename Iterator::expr_type::args_type, typename Iterator::index>
+            {};
+        };
+
+        template<typename Tag>
+        struct deref_impl;
+
+        template<>
+        struct deref_impl<proto::proto_ref_iterator_tag>
+        {
+            template<typename Iterator>
+            struct apply
+            {
+                typedef typename mpl::at<typename Iterator::expr_type::args_type, typename Iterator::index>::type const &type;
+
+                static type call(Iterator const &iter)
+                {
+                    return proto::arg_c<Iterator::index::value>(iter.expr_);
+                }
+            };
+        };
+
+        template<typename Tag>
+        struct next_impl;
+
+        template<>
+        struct next_impl<proto::proto_ref_iterator_tag>
+        {
+            template<typename Iterator>
+            struct apply
+            {
+                typedef typename Iterator::expr_type expr_type;
+                typedef typename Iterator::index index;
+                typedef proto::detail::ref_iterator<expr_type, index::value + 1> type;
+
+                static type call(Iterator const &iter)
+                {
+                    return type(iter.expr_);
+                }
+            };
+        };
+
+        template<typename Tag>
+        struct category_of_impl;
+
+        template<>
+        struct category_of_impl<proto::proto_ref_tag>
+        {
+            template<typename Sequence>
+            struct apply
+            {
+                typedef forward_traversal_tag type;
+            };
+        };
+
+        template<typename Tag>
+        struct size_impl;
+
+        template<>
+        struct size_impl<proto::proto_ref_tag>
+        {
+            template<typename Sequence>
+            struct apply
+            {
+                typedef typename Sequence::arity type;
+            };
+        };
+
+        template<typename Tag>
+        struct begin_impl;
+
+        template<>
+        struct begin_impl<proto::proto_ref_tag>
+        {
+            template<typename Sequence>
+            struct apply
+            {
+                typedef proto::detail::ref_iterator<Sequence const, 0> type;
+
+                static type call(Sequence& seq)
+                {
+                    return type(seq);
+                }
+            };
+        };
+
+        template<typename Tag>
+        struct end_impl;
+
+        template<>
+        struct end_impl<proto::proto_ref_tag>
+        {
+            template<typename Sequence>
+            struct apply
+            {
+                typedef proto::detail::ref_iterator<Sequence const, Sequence::arity::value> type;
+
+                static type call(Sequence& seq)
+                {
+                    return type(seq);
+                }
+            };
+        };
+
+        template<typename Tag>
+        struct is_segmented_impl;
+
+        template<>
+        struct is_segmented_impl<proto::proto_expr_tag>
+        {
+            template<typename Iterator>
+            struct apply
+              : mpl::true_
+            {};
+        };
+
+        template<typename Tag>
+        struct as_element
+        {
+            template<typename Expr>
+            struct result
+              : mpl::if_<
+                    is_same<Tag, typename Expr::tag_type>
+                  , typename Expr::expr_type const &
+                  , fusion::single_view<typename Expr::expr_type const &>
+                >
+            {};
+
+            template<typename Expr>
+            typename result<Expr>::type operator()(Expr &expr) const
+            {
+                return typename result<Expr>::type(expr.cast());
+            }
+        };
+
+        template<typename Tag>
+        struct segments_impl;
+
+        template<>
+        struct segments_impl<proto::proto_expr_tag>
+        {
+            template<typename Sequence>
+            struct apply
+            {
+                typedef typename Sequence::tag_type tag_type;
+
+                typedef fusion::transform_view<
+                    proto::ref<Sequence>
+                  , as_element<tag_type>
+                > type;
+
+                static type call(Sequence &sequence)
+                {
+                    proto::ref<Sequence> r = {sequence};
+                    return type(r, as_element<tag_type>());
+                }
+            };
+        };
+
+        template<>
+        struct category_of_impl<proto::proto_expr_tag>
+        {
+            template<typename Sequence>
+            struct apply
+            {
+                typedef forward_traversal_tag type;
+            };
+        };
+
+        template<>
+        struct begin_impl<proto::proto_expr_tag>
+        {
+            template<typename Sequence>
+            struct apply
+              : fusion::segmented_begin<Sequence>
+            {};
+        };
+
+        template<>
+        struct end_impl<proto::proto_expr_tag>
+        {
+            template<typename Sequence>
+            struct apply
+              : fusion::segmented_end<Sequence>
+            {};
+        };
+    }
+}}
+
+//namespace boost { namespace mpl
 //{
-//    template<>
-//    struct is_sequence_impl<proto::proto_sequence_tag>
+//    template<typename Tag, typename Args, long Arity>
+//    struct sequence_tag<proto::basic_expr<Tag, Args, Arity> >
 //    {
-//        template<typename T>
-//        struct apply : mpl::true_ {};
+//        typedef proto::proto_expr_tag type;
+//    };
+//
+//    template<typename Expr>
+//    struct sequence_tag<proto::ref<Expr> >
+//    {
+//        typedef proto::proto_expr_tag type;
 //    };
 //
 //    template<>
-//    struct is_view_impl<proto::proto_sequence_tag>
+//    struct begin_impl<proto::proto_expr_tag>
 //    {
-//        template<typename T>
-//        struct apply : mpl::false_ {};
+//        template<typename Sequence>
+//        struct apply
+//          : begin_impl<typename sequence_tag<typename Sequence::args_type>::type>
+//                ::template apply<typename Sequence::args_type>
+//        {};
 //    };
 //
 //    template<>
-//    struct category_of_impl<proto::proto_sequence_tag>
+//    struct end_impl<proto::proto_expr_tag>
 //    {
-//        template<typename T>
+//        template<typename Sequence>
+//        struct apply
+//          : end_impl<typename sequence_tag<typename Sequence::args_type>::type>
+//                ::template apply<typename Sequence::args_type>
+//        {};
+//    };
+//
+//    template<>
+//    struct size_impl<proto::proto_expr_tag>
+//    {
+//        template<typename Sequence>
 //        struct apply
 //        {
-//            typedef forward_traversal_tag type;
+//            typedef typename Sequence::arity type;
 //        };
 //    };
 //
 //    template<>
-//    struct begin_impl<proto::proto_sequence_tag>
+//    struct at_impl<proto::proto_expr_tag>
 //    {
-//        template<typename Sequence>
+//        template<typename Sequence, typename N>
 //        struct apply
-//          : fusion::segmented_begin<Sequence>
+//          : at_impl<typename sequence_tag<typename Sequence::args_type>::type>
+//                ::template apply<typename Sequence::args_type, N>
 //        {};
 //    };
-//
-//    template<>
-//    struct end_impl<proto::proto_sequence_tag>
-//    {
-//        template<typename Sequence>
-//        struct apply
-//          : fusion::segmented_end<Sequence>
-//        {};
-//    };
-//}}}
-//
-//namespace boost { namespace mpl
-//{
-//    template<>
-//    struct begin_impl<proto::proto_sequence_tag>
-//      : fusion::extension::begin_impl<proto::proto_sequence_tag>
-//    {};
-//
-//    template<>
-//    struct end_impl<proto::proto_sequence_tag>
-//      : fusion::extension::end_impl<proto::proto_sequence_tag>
-//    {};
 //
 //}} // namespace boost::mpl
+
+//namespace boost { namespace mpl
+//{
+//    template<typename Tag, typename Args, long Arity>
+//    struct sequence_tag<proto::basic_expr<Tag, Args, Arity> >
+//    {
+//        typedef proto::proto_expr_tag type;
+//    };
 //
+//    template<typename Expr>
+//    struct sequence_tag<proto::ref<Expr> >
+//    {
+//        typedef proto::proto_expr_tag type;
+//    };
 //
+//    template<>
+//    struct begin_impl<proto::proto_expr_tag>
+//    {
+//        template<typename Sequence>
+//        struct apply
+//          : begin_impl<typename sequence_tag<typename Sequence::args_type>::type>
+//                ::template apply<typename Sequence::args_type>
+//        {};
+//    };
 //
+//    template<>
+//    struct end_impl<proto::proto_expr_tag>
+//    {
+//        template<typename Sequence>
+//        struct apply
+//          : end_impl<typename sequence_tag<typename Sequence::args_type>::type>
+//                ::template apply<typename Sequence::args_type>
+//        {};
+//    };
 //
-////#include <boost/xpressive/proto/proto.hpp>
-////#include <boost/type_traits/remove_cv.hpp>
-////#include <boost/type_traits/remove_reference.hpp>
-////
-////#ifdef BOOST_PROTO_FUSION_V2
-////# include <boost/fusion/support/is_view.hpp>
-////# include <boost/fusion/support/category_of.hpp>
-////# include <boost/fusion/sequence/container/list/cons.hpp>
-////#else
-////# include <boost/spirit/fusion/sequence/cons.hpp>
-////#endif
-////
-////namespace boost { namespace proto
-////{
-////    template<typename OpTag>
-////    struct expand_left_tag
-////    {};
-////
-////    template<typename OpTag, typename Expr, typename State = fusion::nil>
-////    struct expand_left_view
-////      : meta::compile<Expr, State, mpl::void_, expand_left_tag<OpTag> >
-////    {};
-////
-////    template<typename OpTag, typename Expr, typename State>
-////    typename expand_left_view<OpTag, Expr, State>::type
-////    expand_left(Expr const &expr, State const &state)
-////    {
-////        mpl::void_ null;
-////        return compile(expr, state, null, expand_left_tag<OpTag>());
-////    }
-////
-////    template<typename OpTag, typename Expr>
-////    typename expand_left_view<OpTag, Expr>::type
-////    expand_left(Expr const &expr)
-////    {
-////        return expand_left<OpTag>(expr, fusion::nil());
-////    }
-////
-////    struct binary_tree_iterator_tag;
-////
-////    template<typename Cons>
-////    struct binary_tree_iterator
-////      : fusion::iterator_base<binary_tree_iterator<Cons> >
-////    {
-////        typedef binary_tree_iterator_tag tag;   // for Fusion 1
-////        typedef binary_tree_iterator_tag fusion_tag;  // for Fusion 2
-////        #ifdef BOOST_PROTO_FUSION_V2
-////        typedef fusion::forward_traversal_tag category;
-////        #else
-////        typedef mpl::forward_iterator_tag category;
-////        #endif
-////
-////        typedef typename Cons::car_type car_type;
-////        typedef typename Cons::cdr_type cdr_type;
-////
-////        explicit binary_tree_iterator(Cons const &cons_)
-////          : cons(cons_)
-////        {}
-////
-////        car_type car() const { return this->cons.car; };
-////        cdr_type const &cdr() const { return this->cons.cdr; };
-////
-////    private:
-////        Cons cons;
-////    };
-////
-////    namespace binary_tree_detail
-////    {
-////        template<typename DomainTag>
-////        struct expand_left_compiler
-////        {
-////            template<typename Expr, typename State, typename Visitor>
-////            struct apply
-////              : meta::compile<
-////                    typename left_type<Expr>::type
-////                  , fusion::cons<Expr const &, State>
-////                  , Visitor
-////                  , DomainTag
-////                >
-////            {};
-////
-////            template<typename Expr, typename State, typename Visitor>
-////            static typename apply<Expr, State, Visitor>::type
-////            call(Expr const &expr, State const &state, Visitor &visitor)
-////            {
-////                return proto::compile(
-////                    proto::left(expr)
-////                  , fusion::cons<Expr const &, State>(expr, state)
-////                  , visitor
-////                  , DomainTag()
-////                );
-////            }
-////        };
-////
-////        struct cons_ref_compiler
-////        {
-////            template<typename Expr, typename State, typename Visitor>
-////            struct apply
-////            {
-////                typedef fusion::cons<Expr const &, State> type;
-////            };
-////
-////            template<typename Expr, typename State, typename Visitor>
-////            static fusion::cons<Expr const &, State>
-////            call(Expr const &expr, State const &state, Visitor &)
-////            {
-////                return fusion::cons<Expr const &, State>(expr, state);
-////            }
-////        };
-////
-////        template<typename Sequence>
-////        struct begin_impl
-////        {
-////            typedef typename tag_type<Sequence>::type tag_type;
-////            typedef binary_tree_iterator<typename expand_left_view<tag_type, Sequence>::type> type;
-////
-////            static type call(Sequence const &expr)
-////            {
-////                return type(expand_left<tag_type>(expr));
-////            }
-////        };
-////
-////        struct end_impl
-////        {
-////            typedef binary_tree_iterator<fusion::nil> type;
-////
-////            template<typename Sequence>
-////            static type call(Sequence const &)
-////            {
-////                return type(fusion::nil());
-////            }
-////        };
-////
-////        template<typename Iterator>
-////        struct value_impl
-////          : remove_cv<typename remove_reference<typename Iterator::car_type>::type>
-////        {};
-////
-////        // discards the old head, expands the right child of the new head
-////        // and pushes the result to the head of the list.
-////        template<typename Iterator, typename Parents = typename Iterator::cdr_type>
-////        struct next_impl
-////        {
-////            typedef typename value_impl<Parents>::type node_type;
-////            typedef typename tag_type<node_type>::type tag_type;
-////            typedef typename right_type<node_type>::type right_type;
-////            typedef binary_tree_iterator<
-////                typename expand_left_view<tag_type, right_type, typename Parents::cdr_type>::type
-////            > type;
-////
-////            static type call(Iterator const &it)
-////            {
-////                return type(expand_left<tag_type>(proto::right(it.cdr().car), it.cdr().cdr));
-////            }
-////        };
-////
-////        template<typename Iterator>
-////        struct next_impl<Iterator, fusion::nil> // no more parents, end of tree traversal
-////          : end_impl
-////        {};
-////
-////        template<typename Iterator>
-////        struct deref_impl
-////        {
-////            typedef typename Iterator::car_type type;
-////
-////            static type call(Iterator const &it)
-////            {
-////                return it.car();
-////            }
-////        };
-////    } // namespace binary_tree_detail
-////
-////    template<typename OpTag>
-////    struct compiler<OpTag, expand_left_tag<OpTag> >
-////      : binary_tree_detail::expand_left_compiler<expand_left_tag<OpTag> >
-////    {};
-////
-////    template<typename OpTag, typename OtherOpTag>
-////    struct compiler<OtherOpTag, expand_left_tag<OpTag> >
-////      : binary_tree_detail::cons_ref_compiler
-////    {};
-////
-////}}
-////
-////#ifdef BOOST_PROTO_FUSION_V2
-////
-////namespace boost { namespace fusion { namespace extension
-////{
-////    template<typename OpTag>
-////    struct is_sequence_impl<proto::tag<OpTag> >
-////    {
-////        template<typename T>
-////        struct apply : mpl::true_ {};
-////    };
-////
-////    template<typename OpTag>
-////    struct is_view_impl<proto::tag<OpTag> >
-////    {
-////        template<typename T>
-////        struct apply : mpl::false_ {};
-////    };
-////
-////    template<typename OpTag>
-////    struct category_of_impl<proto::tag<OpTag> >
-////    {
-////        template<typename T>
-////        struct apply
-////        {
-////            typedef forward_traversal_tag type;
-////        };
-////    };
-////
-////    template<typename OpTag>
-////    struct begin_impl<proto::tag<OpTag> >
-////    {
-////        template<typename Sequence>
-////        struct apply
-////          : proto::binary_tree_detail::begin_impl<Sequence>
-////        {};
-////    };
-////
-////    template<typename OpTag>
-////    struct end_impl<proto::tag<OpTag> >
-////    {
-////        template<typename Sequence>
-////        struct apply
-////          : proto::binary_tree_detail::end_impl
-////        {};
-////    };
-////
-////    template<>
-////    struct value_of_impl<proto::binary_tree_iterator_tag>
-////    {
-////        template<typename Iterator>
-////        struct apply
-////          : proto::binary_tree_detail::value_impl<Iterator>
-////        {};
-////    };
-////
-////    template<>
-////    struct deref_impl<proto::binary_tree_iterator_tag>
-////    {
-////        template<typename Iterator>
-////        struct apply
-////          : proto::binary_tree_detail::deref_impl<Iterator>
-////        {};
-////    };
-////
-////    template<>
-////    struct next_impl<proto::binary_tree_iterator_tag>
-////    {
-////        template<typename Iterator>
-////        struct apply
-////          : proto::binary_tree_detail::next_impl<Iterator>
-////        {};
-////    };
-////
-////}}}
-////
-////namespace boost { namespace mpl
-////{
-////    template<typename OpTag>
-////    struct begin_impl<proto::tag<OpTag> >
-////      : fusion::extension::begin_impl<proto::tag<OpTag> >
-////    {};
-////
-////    template<typename OpTag>
-////    struct end_impl<proto::tag<OpTag> >
-////      : fusion::extension::end_impl<proto::tag<OpTag> >
-////    {};
-////
-////    template<typename Cons>
-////    struct next<proto::binary_tree_iterator<Cons> >
-////      : proto::binary_tree_detail::next_impl<proto::binary_tree_iterator<Cons> >
-////    {};
-////
-////    template<typename Cons>
-////    struct deref<proto::binary_tree_iterator<Cons> >
-////      : proto::binary_tree_detail::value_impl<proto::binary_tree_iterator<Cons> >
-////    {};
-////
-////}} // namespace boost::mpl
-////
-////#else
-////
-////namespace boost { namespace fusion { namespace meta
-////{
-////    template<typename OpTag>
-////    struct begin_impl<proto::tag<OpTag> >
-////    {
-////        template<typename Sequence>
-////        struct apply
-////          : proto::binary_tree_detail::begin_impl<Sequence>
-////        {};
-////    };
-////
-////    template<typename OpTag>
-////    struct end_impl<proto::tag<OpTag> >
-////    {
-////        template<typename Sequence>
-////        struct apply
-////          : proto::binary_tree_detail::end_impl
-////        {};
-////    };
-////
-////    template<>
-////    struct value_impl<proto::binary_tree_iterator_tag>
-////    {
-////        template<typename Iterator>
-////        struct apply
-////          : proto::binary_tree_detail::value_impl<Iterator>
-////        {};
-////    };
-////
-////    template<>
-////    struct next_impl<proto::binary_tree_iterator_tag>
-////    {
-////        template<typename Iterator>
-////        struct apply
-////          : proto::binary_tree_detail::next_impl<Iterator>
-////        {};
-////    };
-////
-////    template<>
-////    struct deref_impl<proto::binary_tree_iterator_tag>
-////    {
-////        template<typename Iterator>
-////        struct apply
-////          : proto::binary_tree_detail::deref_impl<Iterator>
-////        {};
-////    };
-////
-////}}}
-////
-////namespace boost { namespace mpl
-////{
-////    template<typename OpTag>
-////    struct begin_impl<proto::tag<OpTag> >
-////      : fusion::meta::begin_impl<proto::tag<OpTag> >
-////    {};
-////
-////    template<typename OpTag>
-////    struct end_impl<proto::tag<OpTag> >
-////      : fusion::meta::end_impl<proto::tag<OpTag> >
-////    {};
-////
-////    template<typename Cons>
-////    struct next<proto::binary_tree_iterator<Cons> >
-////      : proto::binary_tree_detail::next_impl<proto::binary_tree_iterator<Cons> >
-////    {};
-////
-////    template<typename Cons>
-////    struct deref<proto::binary_tree_iterator<Cons> >
-////      : proto::binary_tree_detail::value_impl<proto::binary_tree_iterator<Cons> >
-////    {};
-////
-////}} // namespace boost::mpl
-////
-////#endif
+//    template<>
+//    struct size_impl<proto::proto_expr_tag>
+//    {
+//        template<typename Sequence>
+//        struct apply
+//        {
+//            typedef typename Sequence::arity type;
+//        };
+//    };
 //
-//#endif
+//    template<>
+//    struct at_impl<proto::proto_expr_tag>
+//    {
+//        template<typename Sequence, typename N>
+//        struct apply
+//          : at_impl<typename sequence_tag<typename Sequence::args_type>::type>
+//                ::template apply<typename Sequence::args_type, N>
+//        {};
+//    };
+//
+//}} // namespace boost::mpl
+
+#endif

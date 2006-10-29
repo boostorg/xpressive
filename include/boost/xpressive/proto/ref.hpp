@@ -25,6 +25,7 @@ namespace boost { namespace proto
         typedef typename Expr::tag_type tag_type;
         typedef typename Expr::args_type args_type;
         typedef typename Expr::arity arity;
+        typedef proto_ref_tag fusion_tag;
 
         BOOST_PP_REPEAT(BOOST_PROTO_MAX_ARITY, BOOST_PROTO_ARG, _)
 
@@ -48,6 +49,12 @@ namespace boost { namespace proto
 
         template<typename T>
         struct unref<ref<T> >
+        {
+            typedef T type;
+        };
+
+        template<typename T>
+        struct unref<ref<T> const>
         {
             typedef T type;
         };
