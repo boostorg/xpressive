@@ -199,37 +199,6 @@ void test4()
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// test for a sub-match scoping
-//
-void test5()
-{
-    sregex inner = sregex::compile( "(.)\\1" );
-    sregex outer = (s1= _) >> inner >> s1;
-    std::string abba("ABBA");
-
-    BOOST_CHECK(regex_match(abba, outer));
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// Ye olde calculator. Test recursive grammar.
-//
-void test6()
-{
-    sregex group, factor, term, expression;
-
-    group       = '(' >> by_ref(expression) >> ')';
-    factor      = +_d | group;
-    term        = factor >> *(('*' >> factor) | ('/' >> factor));
-    expression  = term >> *(('+' >> term) | ('-' >> term));
-
-    smatch what;
-    std::string str("foo 9*(10+3) bar");
-
-    BOOST_REQUIRE(regex_search(str, what, expression));
-    BOOST_CHECK("9*(10+3)" == what[0]);
-}
-
-///////////////////////////////////////////////////////////////////////////////
 // test_main
 //
 int test_main( int, char*[] )
@@ -238,8 +207,6 @@ int test_main( int, char*[] )
     test2();
     test3();
     test4();
-    test5();
-    test6();
 
     return 0;
 }

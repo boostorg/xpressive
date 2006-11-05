@@ -33,6 +33,7 @@ test-suite "xpressive"
 	 [ run test10u.cpp ]
 	 [ run test11u.cpp ]
          [ run misc1.cpp ]
+         [ run misc2.cpp ]
          [ run test_cycles.cpp ]
          [ run test_non_char.cpp ]
          [ run test_static.cpp ]
