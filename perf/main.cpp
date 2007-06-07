@@ -1,20 +1,20 @@
 /*
-*
-* Copyright (c) 2002
-* Dr John Maddock
-*
-* All rights reserved.
-* May not be transfered or disclosed to a third party without
-* prior consent of the author.
-*
-*/
+ *
+ * Copyright (c) 2002
+ * John Maddock
+ *
+ * Use, modification and distribution are subject to the
+ * Boost Software License, Version 1.0. (See accompanying file
+ * LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+ *
+ */
 
 #include <iostream>
 #include <fstream>
 #include <iterator>
 #include <cassert>
 #include <boost/test/execution_monitor.hpp>
-#include "regex_comparison.hpp"
+#include "./regex_comparison.hpp"
 
 void test_match(const std::string& re, const std::string& text, const std::string& description)
 {
@@ -175,7 +175,7 @@ int main(int argc, char**const argv)
 
     if(test_long_twain)
     {
-        load_file(twain, "mtent12.txt");
+        load_file(twain, "3200.txt");
 
         test_find_all("Twain", twain);
         test_find_all("Huck[[:alpha:]]+", twain);

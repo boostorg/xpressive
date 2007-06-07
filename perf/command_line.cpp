@@ -1,3 +1,7 @@
+//  (C) Copyright Eric Niebler 2006.
+//  Distributed under the Boost
+//  Software License, Version 1.0. (See accompanying file
+//  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
 #include <iostream>
 #include <iomanip>
@@ -6,7 +10,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <iterator>
-#include "regex_comparison.hpp"
+#include "./regex_comparison.hpp"
 
 //
 // globals:
@@ -88,14 +92,14 @@ int show_usage()
 {
     std::cout <<
         "Usage\n"
-        "regex_comparison [-h] [library options] [test options] [xml_output_file]\n"
+        "xprperf [-h] [library options] [test options] [xml_output_file]\n"
         "   -h        Show help\n\n"
         "   library options:\n"
         "      -b     Apply tests to boost library\n"
         //"      -ba    Apply tests to boost library with a custom allocator\n"
         //"      -be    Apply tests to experimental boost library\n"
-        "      -g     Apply tests to GRETA library\n"
-        "      -gs    Apply tests to GRETA library (in non-recursive mode)\n"
+        //"      -g     Apply tests to GRETA library\n"
+        //"      -gs    Apply tests to GRETA library (in non-recursive mode)\n"
         "      -dx    Apply tests to dynamic xpressive library\n"
         "      -sx    Apply tests to static xpressive library\n"
         //"      -posix Apply tests to POSIX library\n"
@@ -181,6 +185,14 @@ void print_result(std::ostream& os, double time, double best)
 void output_xml_results(bool show_description, const std::string& title, const std::string& filename)
 {
     std::stringstream os;
+    // Generate the copyright and license on the output file
+    os << "<!--\n"
+          " Copyright 2004 Eric Niebler.\n"
+          "\n"
+          " Distributed under the Boost Software License, Version 1.0.\n"
+          " (See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)\n"
+          "-->\n";
+
     if(result_list.size())
     {
         // calculate the number of columns in this table
