@@ -52,7 +52,7 @@
     namespace boost { namespace proto
     {
 
-        namespace detail
+        namespace detail_
         {
             struct _;
 
@@ -348,7 +348,7 @@
         {
             template<typename Expr, typename Grammar>
             struct matches
-              : detail::matches_impl<typename Expr::proto_base_expr, typename Grammar::proto_base_expr>
+              : detail_::matches_impl<typename Expr::proto_base_expr, typename Grammar::proto_base_expr>
             {};
         }
 
@@ -362,7 +362,7 @@
             };
 
             template<typename T>
-            transform::detail::yes_type is_wildcard_expression_fun(T const *);
+            transform::detail_::yes_type is_wildcard_expression_fun(T const *);
         }
 
         namespace control
@@ -371,6 +371,7 @@
             template<typename Grammar>
             struct not_
               : has_identity_transform
+              , transform_base
             {
                 typedef not_ proto_base_expr;
             };
@@ -392,6 +393,7 @@
             template<typename Condition>
             struct if_<Condition, void, void>
               : has_identity_transform
+              , transform_base
             {
                 typedef if_ proto_base_expr;
             };
@@ -399,13 +401,14 @@
             // or_
             template<BOOST_PP_ENUM_PARAMS(BOOST_PROTO_MAX_LOGICAL_ARITY, typename G)>
             struct or_
+              : transform_base
             {
                 typedef or_ proto_base_expr;
 
                 template<typename Expr, typename State, typename Visitor>
                 struct apply
                 {
-                    typedef typename detail::matches_impl<Expr, or_>::which which;
+                    typedef typename detail_::matches_impl<Expr, or_>::which which;
                     typedef typename which::template apply<Expr, State, Visitor>::type type;
                 };
 
@@ -413,7 +416,7 @@
                 static typename apply<Expr, State, Visitor>::type
                 call(Expr const &expr, State const &state, Visitor &visitor)
                 {
-                    typedef typename detail::matches_impl<Expr, or_>::which which;
+                    typedef typename detail_::matches_impl<Expr, or_>::which which;
                     return which::call(expr, state, visitor);
                 }
             };
@@ -421,13 +424,14 @@
             // and_
             template<BOOST_PP_ENUM_PARAMS(BOOST_PROTO_MAX_LOGICAL_ARITY, typename G)>
             struct and_
+              : transform_base
             {
                 typedef and_ proto_base_expr;
 
                 template<typename Expr, typename State, typename Visitor>
                 struct apply
                 {
-                    typedef typename detail::last<and_>::type which;
+                    typedef typename detail_::last<and_>::type which;
                     typedef typename which::template apply<Expr, State, Visitor>::type type;
                 };
 
@@ -435,7 +439,7 @@
                 static typename apply<Expr, State, Visitor>::type
                 call(Expr const &expr, State const &state, Visitor &visitor)
                 {
-                    typedef typename detail::last<and_>::type which;
+                    typedef typename detail_::last<and_>::type which;
                     return which::call(expr, state, visitor);
                 }
             };
@@ -443,6 +447,7 @@
             // switch_
             template<typename Cases>
             struct switch_
+              : transform_base
             {
                 typedef switch_ proto_base_expr;
 
@@ -529,7 +534,7 @@
             // handle proto::and_
             template<typename Expr, BOOST_PP_ENUM_PARAMS(N, typename G)>
             struct matches_impl<Expr, proto::and_<BOOST_PP_ENUM_PARAMS(N, G)> >
-              : detail::BOOST_PP_CAT(and, N)<
+              : detail_::BOOST_PP_CAT(and, N)<
                     BOOST_PROTO_DEFINE_MATCHES(~, 0, ~)::value,
                     BOOST_PP_ENUM_SHIFTED(N, BOOST_PROTO_DEFINE_MATCHES, ~)
                 >

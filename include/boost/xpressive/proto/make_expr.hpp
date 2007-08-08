@@ -55,7 +55,7 @@
     # include <boost/fusion/sequence/intrinsic/at.hpp>
     # include <boost/fusion/sequence/intrinsic/value_at.hpp>
     # include <boost/fusion/sequence/intrinsic/size.hpp>
-    namespace boost { namespace proto { namespace detail
+    namespace boost { namespace proto { namespace detail_
     {
         namespace fusion_ = fusion;
     }}}
@@ -63,7 +63,7 @@
     # include <boost/spirit/fusion/sequence/at.hpp>
     # include <boost/spirit/fusion/sequence/value_at.hpp>
     # include <boost/spirit/fusion/sequence/size.hpp>
-    namespace boost { namespace proto { namespace detail { namespace fusion_
+    namespace boost { namespace proto { namespace detail_ { namespace fusion_
     {
         namespace result_of = fusion::meta;
         template<int N, typename Seq>
@@ -95,14 +95,14 @@
     ///
     # define BOOST_PROTO_AT_TYPE(Z, N, DATA)                                                        \
         typename remove_reference<                                                                  \
-            typename detail::fusion_::result_of::value_at_c<BOOST_PP_TUPLE_ELEM(2, 0, DATA), N >::type       \
+            typename detail_::fusion_::result_of::value_at_c<BOOST_PP_TUPLE_ELEM(2, 0, DATA), N >::type       \
         >::type                                                                                     \
         /**/
 
     /// INTERNAL ONLY
     ///
     # define BOOST_PROTO_AT(Z, N, DATA)                                                             \
-        detail::fusion_::at_c<N >(BOOST_PP_TUPLE_ELEM(2, 0, DATA))                                           \
+        detail_::fusion_::at_c<N >(BOOST_PP_TUPLE_ELEM(2, 0, DATA))                                           \
         /**/
 
     /// INTERNAL ONLY
@@ -337,7 +337,7 @@
 
     namespace boost { namespace proto
     {
-        namespace detail
+        namespace detail_
         {
             template<
                 typename Domain
@@ -434,21 +434,21 @@
         {
             template<typename Tag, typename Sequence, typename, typename>
             struct unpack_expr
-              : detail::unpack_expr_<
+              : detail_::unpack_expr_<
                     Tag
                   , deduce_domain
                   , Sequence
-                  , detail::fusion_::result_of::size<Sequence>::type::value
+                  , detail_::fusion_::result_of::size<Sequence>::type::value
                 >
             {};
 
             template<typename Tag, typename Domain, typename Sequence>
             struct unpack_expr<Tag, Domain, Sequence, typename Domain::proto_is_domain_>
-              : detail::unpack_expr_<
+              : detail_::unpack_expr_<
                     Tag
                   , Domain
                   , Sequence
-                  , detail::fusion_::result_of::size<Sequence>::type::value
+                  , detail_::fusion_::result_of::size<Sequence>::type::value
                 >
             {};
 
@@ -477,7 +477,7 @@
                 BOOST_PP_ENUM_TRAILING_PARAMS(BOOST_PROTO_MAX_ARITY, A)
               , typename Domain::proto_is_domain_
             >
-              : detail::make_expr_<
+              : detail_::make_expr_<
                     Tag
                   , Domain
                     BOOST_PP_ENUM_TRAILING_PARAMS(BOOST_PROTO_MAX_ARITY, A)
@@ -494,9 +494,9 @@
                 BOOST_PP_ENUM_TRAILING_PARAMS(BOOST_PROTO_MAX_ARITY, A)
               , void
             >
-              : detail::make_expr_<
+              : detail_::make_expr_<
                     Tag
-                  , typename detail::deduce_domain_<
+                  , typename detail_::deduce_domain_<
                         typename domain_of<A0>::type
                       , BOOST_PP_ENUM_SHIFTED_PARAMS(BOOST_PROTO_MAX_ARITY, A)
                     >::type
@@ -567,7 +567,7 @@
                   : result_of::unpack_expr<
                         Tag
                       , Domain
-                      , typename detail::remove_cv_ref<Sequence>::type
+                      , typename detail_::remove_cv_ref<Sequence>::type
                     >
                 {};
 
@@ -707,7 +707,7 @@
         struct unpack_expr_<Tag, deduce_domain, Sequence, N>
           : unpack_expr_<
                 Tag
-              , typename detail::deduce_domain_<
+              , typename detail_::deduce_domain_<
                     typename domain_of<
                         BOOST_PROTO_AT_TYPE(~, 0, (Sequence const, ~))
                     >::type

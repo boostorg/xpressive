@@ -15,7 +15,7 @@
 
 namespace boost { namespace proto { namespace transform
 {
-    namespace detail
+    namespace detail_
     {
         struct any
         {

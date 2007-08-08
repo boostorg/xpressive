@@ -26,7 +26,7 @@
     namespace boost { namespace proto { namespace transform
     {
 
-        namespace detail
+        namespace detail_
         {
             template<typename Grammar, typename Expr, typename State, typename Visitor, long Arity = Expr::proto_arity::value>
             struct fold_impl
@@ -82,7 +82,7 @@
 
             template<typename Expr, typename State, typename Visitor>
             struct apply
-              : detail::fold_impl<Grammar, Expr, State, Visitor>
+              : detail_::fold_impl<Grammar, Expr, State, Visitor>
             {};
 
             template<typename Expr, typename State, typename Visitor>
@@ -103,7 +103,7 @@
 
             template<typename Expr, typename State, typename Visitor>
             struct apply
-              : detail::reverse_fold_impl<Grammar, Expr, State, Visitor>
+              : detail_::reverse_fold_impl<Grammar, Expr, State, Visitor>
             {};
 
             template<typename Expr, typename State, typename Visitor>

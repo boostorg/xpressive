@@ -33,7 +33,7 @@
 
     namespace boost { namespace proto
     {
-        namespace detail
+        namespace detail_
         {
             struct private_type_
             {
@@ -70,7 +70,7 @@
                 template<typename Expr, typename ThisContext = Context>
                 struct eval
                   : mpl::if_<
-                        detail::is_expr_handled<Expr, Context>
+                        detail_::is_expr_handled<Expr, Context>
                       , callable_eval<Expr, ThisContext>
                       , typename DefaultCtx::template eval<Expr, Context>
                     >::type
@@ -104,7 +104,7 @@
     #define N BOOST_PP_ITERATION()
     #define ARG_COUNT BOOST_PP_MAX(1, N)
 
-        namespace detail
+        namespace detail_
         {
             #if N > 0
             template<typename Context>
@@ -112,7 +112,7 @@
               : remove_cv<Context>::type
             {
                 callable_context_wrapper();
-                typedef private_type_ const &(*pointer_to_function)(BOOST_PP_ENUM_PARAMS(BOOST_PP_INC(ARG_COUNT), detail::dont_care BOOST_PP_INTERCEPT));
+                typedef private_type_ const &(*pointer_to_function)(BOOST_PP_ENUM_PARAMS(BOOST_PP_INC(ARG_COUNT), detail_::dont_care BOOST_PP_INTERCEPT));
                 operator pointer_to_function() const;
             };
             #endif
@@ -127,7 +127,7 @@
                 (
                     sizeof(yes_type) ==
                     sizeof(
-                        detail::check_is_expr_handled(
+                        detail_::check_is_expr_handled(
                             (sctx_(
                                 typename Expr::proto_tag()
                                 BOOST_PP_ENUM_TRAILING(ARG_COUNT, BOOST_PROTO_ARG_N, sexpr_)

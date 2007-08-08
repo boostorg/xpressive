@@ -7,8 +7,8 @@
     //  Software License, Version 1.0. (See accompanying file
     //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-    #ifndef BOOST_PROTO_TRANSFORM_CONSTRUCT_HPP_EAN_12_26_2006
-    #define BOOST_PROTO_TRANSFORM_CONSTRUCT_HPP_EAN_12_26_2006
+    #ifndef BOOST_PROTO_TRANSFORM2_CONSTRUCT_HPP_EAN_12_26_2006
+    #define BOOST_PROTO_TRANSFORM2_CONSTRUCT_HPP_EAN_12_26_2006
 
     #include <boost/xpressive/proto/detail/prefix.hpp>
     #include <boost/preprocessor/iterate.hpp>
@@ -20,12 +20,10 @@
     #include <boost/preprocessor/repetition/enum_trailing_params.hpp>
     #include <boost/mpl/bool.hpp>
     #include <boost/type_traits/is_pod.hpp>
-    #include <boost/type_traits/is_function.hpp>
-    #include <boost/type_traits/remove_pointer.hpp>
     #include <boost/xpressive/proto/proto_fwd.hpp>
     #include <boost/xpressive/proto/detail/suffix.hpp>
 
-    namespace boost { namespace proto { namespace transform
+    namespace boost { namespace proto { namespace transform2
     {
         namespace detail_
         {
@@ -51,42 +49,52 @@
                 typedef T type;
             };
 
-            template<typename T BOOST_PP_ENUM_TRAILING_BINARY_PARAMS(BOOST_PROTO_MAX_ARITY, typename A, = no_type BOOST_PP_INTERCEPT)>
+            template<
+                typename OriginalT, typename Expr, typename State, typename Visitor, typename AppliedT
+                BOOST_PP_ENUM_TRAILING_BINARY_PARAMS(BOOST_PROTO_MAX_ARITY, typename A, = no_type BOOST_PP_INTERCEPT)
+              , typename EnableIf = void
+            >
             struct nested_type_if
-              : nested_type<T>
+              : nested_type<AppliedT>
             {
                 typedef yes_type proto_transform_applied;
             };
 
-            template<typename T>
-            struct nested_type_if<T BOOST_PP_ENUM_TRAILING_PARAMS(BOOST_PROTO_MAX_ARITY, no_type BOOST_PP_INTERCEPT)>
+            template<
+                typename OriginalT, typename Expr, typename State, typename Visitor, typename AppliedT
+                BOOST_PP_ENUM_TRAILING_PARAMS(BOOST_PROTO_MAX_ARITY, typename A)
+            >
+            struct nested_type_if<
+                OriginalT, Expr, State, Visitor, AppliedT
+                BOOST_PP_ENUM_TRAILING_PARAMS(BOOST_PROTO_MAX_ARITY, A)
+              , typename AppliedT::proto_is_transform
+            >
+              : OriginalT::template apply<Expr, State, Visitor>
             {
-                typedef T type;
+                typedef yes_type proto_transform_applied;
+            };
+
+            template<typename OriginalT, typename Expr, typename State, typename Visitor, typename AppliedT>
+            struct nested_type_if<
+                OriginalT, Expr, State, Visitor, AppliedT
+                BOOST_PP_ENUM_TRAILING_PARAMS(BOOST_PROTO_MAX_ARITY, no_type BOOST_PP_INTERCEPT)
+              , void
+            >
+            {
+                typedef AppliedT type;
                 typedef no_type proto_transform_applied;
             };
 
-            template<typename Arg, bool IsFunction = is_function<typename remove_pointer<Arg>::type>::value>
+            template<typename Transform, typename EnableIf>
             struct as_transform
             {
-                typedef Arg type;
+                typedef case_<_, typename remove_pointer<Transform>::type> type;
             };
 
-            template<typename Arg>
-            struct as_transform<Arg, true>
+            template<typename Transform>
+            struct as_transform<Transform, typename Transform::proto_is_transform>
             {
-                typedef construct<_, typename remove_pointer<Arg>::type> type;
-            };
-
-            template<typename Arg, bool IsFunction = is_function<typename remove_pointer<Arg>::type>::value>
-            struct as_pod_transform
-            {
-                typedef Arg type;
-            };
-
-            template<typename Arg>
-            struct as_pod_transform<Arg, true>
-            {
-                typedef pod_construct<_, typename remove_pointer<Arg>::type> type;
+                typedef Transform type;
             };
 
             template<typename R, typename Expr, typename State, typename Visitor
@@ -124,7 +132,7 @@
 
         template<typename Grammar, typename ConstructorFun>
         struct construct
-          : Grammar
+          : transform_base
         {
             template<typename Expr, typename State, typename Visitor>
             struct apply
@@ -139,6 +147,49 @@
             }
         };
 
+        template<typename Grammar, typename Transform>
+        struct case_
+          : transform_base
+        {
+            typedef typename Grammar::proto_base_expr proto_base_expr;
+
+            template<typename Expr, typename State, typename Visitor>
+            struct apply
+              : construct<_, Transform>::template apply<Expr, State, Visitor>
+            {};
+
+            template<typename Expr, typename State, typename Visitor>
+            static typename apply<Expr, State, Visitor>::type
+            call(Expr const &expr, State const &state, Visitor &visitor)
+            {
+                return construct<_, Transform>::call(expr, state, visitor);
+            }
+        };
+
+        template<typename Grammar, typename Transform>
+        struct case_<Grammar ***, Transform>
+          : transform_base
+        {
+            typedef typename Grammar::proto_base_expr proto_base_expr;
+
+            template<typename Expr, typename State, typename Visitor>
+            struct apply
+              : construct<Grammar, Transform>::template apply<Expr, State, Visitor>
+            {};
+
+            template<typename Expr, typename State, typename Visitor>
+            static typename apply<Expr, State, Visitor>::type
+            call(Expr const &expr, State const &state, Visitor &visitor)
+            {
+                return construct<Grammar, Transform>::call(expr, state, visitor);
+            }
+        };
+
+        template<typename Transform>
+        struct default_
+          : case_<_, Transform>
+        {};
+
         #define BOOST_PROTO_APPLY_(Z, N, DATA)                                                      \
             typename apply_<BOOST_PP_CAT(DATA, N), Expr, State, Visitor>::type                      \
             /**/
@@ -147,7 +198,7 @@
             typename apply_<BOOST_PP_CAT(DATA, N), Expr, State, Visitor>::proto_transform_applied   \
             /**/
 
-        #define BOOST_PP_ITERATION_PARAMS_1 (3, (0, BOOST_PROTO_MAX_ARITY, <boost/xpressive/proto/transform/construct.hpp>))
+        #define BOOST_PP_ITERATION_PARAMS_1 (3, (0, BOOST_PROTO_MAX_ARITY, <boost/xpressive/proto/transform2/construct.hpp>))
         #include BOOST_PP_ITERATE()
 
         #undef BOOST_PROTO_APPLY_
@@ -158,12 +209,17 @@
     namespace boost { namespace proto
     {
         template<typename Grammar, typename ConstructorFun>
-        struct is_transform<transform::construct<Grammar, ConstructorFun> >
+        struct is_transform<transform2::construct<Grammar, ConstructorFun> >
           : mpl::true_
         {};
 
-        template<typename Grammar, typename ConstructorFun>
-        struct is_transform<transform::pod_construct<Grammar, ConstructorFun> >
+        template<typename Grammar, typename Transform>
+        struct is_transform<transform2::case_<Grammar, Transform> >
+          : mpl::true_
+        {};
+
+        template<typename Transform>
+        struct is_transform<transform2::default_<Transform> >
           : mpl::true_
         {};
     }}
@@ -184,7 +240,8 @@
             >
             struct apply_aux_<T<BOOST_PP_ENUM_PARAMS(N, G)>, Expr, State, Visitor BOOST_MPL_AUX_LAMBDA_ARITY_PARAM(N)>
               : nested_type_if<
-                    T<BOOST_PP_ENUM(N, BOOST_PROTO_APPLY_, G)>
+                    T<BOOST_PP_ENUM_PARAMS(N, G)>, Expr, State, Visitor
+                  , T<BOOST_PP_ENUM(N, BOOST_PROTO_APPLY_, G)>
                     BOOST_PP_ENUM_TRAILING(N, BOOST_PROTO_IS_APPLIED_, G)
                 >
             {};
@@ -193,7 +250,7 @@
 
         template<typename Grammar, typename Result BOOST_PP_ENUM_TRAILING_PARAMS(N, typename Arg)>
         struct construct<Grammar, Result(BOOST_PP_ENUM_PARAMS(N, Arg))>
-          : Grammar
+          : transform_base
         {
             template<typename Expr, typename State, typename Visitor>
             struct apply
@@ -236,29 +293,6 @@
                 return typename apply<Expr, State, Visitor>::type(
                     BOOST_PP_ENUM_BINARY_PARAMS(N, detail_::as_transform<Arg, >::type::call(expr2, state, visitor) BOOST_PP_INTERCEPT)
                 );
-            }
-        };
-
-        template<typename Grammar, typename Result BOOST_PP_ENUM_TRAILING_PARAMS(N, typename Arg)>
-        struct pod_construct<Grammar, Result(BOOST_PP_ENUM_PARAMS(N, Arg))>
-          : Grammar
-        {
-            template<typename Expr, typename State, typename Visitor>
-            struct apply
-              : detail_::apply_<Result, typename Grammar::template apply<Expr, State, Visitor>::type, State, Visitor>
-            {};
-
-            template<typename Expr, typename State, typename Visitor>
-            static typename apply<Expr, State, Visitor>::type
-            call(Expr const &expr, State const &state, Visitor &visitor)
-            {
-                typename Grammar::template apply<Expr, State, Visitor>::type expr2
-                    = Grammar::call(expr, state, visitor);
-                detail_::ignore_unused(expr2);
-                typename apply<Expr, State, Visitor>::type that = {
-                    BOOST_PP_ENUM_BINARY_PARAMS(N, detail_::as_pod_transform<Arg, >::type::call(expr2, state, visitor) BOOST_PP_INTERCEPT)
-                };
-                return that;
             }
         };
 

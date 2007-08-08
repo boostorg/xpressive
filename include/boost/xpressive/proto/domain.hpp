@@ -19,7 +19,7 @@
 namespace boost { namespace proto
 {
 
-    namespace detail
+    namespace detail_
     {
         struct not_a_generator
         {};
@@ -46,7 +46,7 @@ namespace boost { namespace proto
         {};
 
         struct deduce_domain
-          : domain<detail::not_a_generator, detail::not_a_grammar>
+          : domain<detail_::not_a_generator, detail_::not_a_grammar>
         {};
     }
 

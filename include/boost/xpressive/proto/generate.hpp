@@ -24,7 +24,7 @@
     namespace boost { namespace proto
     {
 
-        namespace detail
+        namespace detail_
         {
             template<typename Domain, typename Expr>
             struct generate_if
@@ -67,7 +67,7 @@
                 typedef Args type;
             };
 
-            template<typename Expr, long Arity = detail::arity_<Expr>::value>
+            template<typename Expr, long Arity = detail_::arity_<Expr>::value>
             struct by_value_generator_;
 
         #define BOOST_PROTO_DEFINE_BY_VALUE_TYPE(Z, N, Expr)\
@@ -140,14 +140,14 @@
                 template<typename Expr>
                 struct apply
                   : Generator::template apply<
-                        typename detail::by_value_generator_<Expr>::type
+                        typename detail_::by_value_generator_<Expr>::type
                     >
                 {};
 
                 template<typename Expr>
                 static typename apply<Expr>::type make(Expr const &expr)
                 {
-                    return Generator::make(detail::by_value_generator_<Expr>::make(expr));
+                    return Generator::make(detail_::by_value_generator_<Expr>::make(expr));
                 }
             };
         }

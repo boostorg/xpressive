@@ -22,7 +22,7 @@
 
     namespace boost { namespace proto
     {
-        namespace detail
+        namespace detail_
         {
             template<typename Expr, long Arity = Expr::proto_arity::value>
             struct deep_copy_impl;
@@ -45,7 +45,7 @@
         {
             template<typename Expr>
             struct deep_copy
-              : detail::deep_copy_impl<Expr>
+              : detail_::deep_copy_impl<Expr>
             {};
         }
 
@@ -58,7 +58,7 @@
 
                 template<typename This, typename Expr>
                 struct result<This(Expr)>
-                  : result_of::deep_copy<typename detail::remove_cv_ref<Expr>::type>
+                  : result_of::deep_copy<typename detail_::remove_cv_ref<Expr>::type>
                 {};
 
                 template<typename Expr>
@@ -72,7 +72,7 @@
 
         functional::deep_copy const deep_copy = {};
 
-        namespace detail
+        namespace detail_
         {
         #define BOOST_PROTO_DEFINE_DEEP_COPY_TYPE(z, n, data)\
             typename deep_copy_impl<typename Expr::BOOST_PP_CAT(proto_arg, n)>::type

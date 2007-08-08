@@ -22,9 +22,12 @@ test-suite "proto"
         [ run proto_fusion_s.cpp ]
         [ run toy_spirit.cpp ]
         [ run toy_spirit2.cpp ]
+        [ run toy_spirit3.cpp ]
         [ run calculator.cpp ]
         [ run lambda.cpp ]
+        [ run lambda2.cpp ]
         [ run matches.cpp ]
         [ run examples.cpp ]
+        [ run examples2.cpp ]
     ;
 

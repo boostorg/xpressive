@@ -40,7 +40,7 @@
 
 namespace boost { namespace proto
 {
-    namespace detail
+    namespace detail_
     {
         template<typename Expr, int Pos>
         struct ref_iterator
@@ -48,7 +48,7 @@ namespace boost { namespace proto
         {
             typedef Expr expr_type;
             typedef mpl::long_<Pos> index;
-            typedef fusion::forward_traversal_tag category;
+            typedef fusion::random_access_traversal_tag category;
             typedef tag::proto_ref_iterator fusion_tag;
 
             ref_iterator(Expr const &expr)
@@ -171,7 +171,7 @@ namespace boost { namespace fusion
             template<typename Iterator, typename N>
             struct apply
             {
-                typedef typename proto::detail::ref_iterator<
+                typedef typename proto::detail_::ref_iterator<
                     typename Iterator::expr_type
                   , Iterator::index::value + N::value
                 > type;
@@ -253,7 +253,7 @@ namespace boost { namespace fusion
             template<typename Sequence>
             struct apply
             {
-                typedef proto::detail::ref_iterator<Sequence const, 0> type;
+                typedef proto::detail_::ref_iterator<Sequence const, 0> type;
 
                 static type call(Sequence& seq)
                 {
@@ -271,7 +271,7 @@ namespace boost { namespace fusion
             template<typename Sequence>
             struct apply
             {
-                typedef proto::detail::ref_iterator<Sequence const, Sequence::proto_arity::value> type;
+                typedef proto::detail_::ref_iterator<Sequence const, Sequence::proto_arity::value> type;
 
                 static type call(Sequence& seq)
                 {

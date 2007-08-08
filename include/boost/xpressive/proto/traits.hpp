@@ -29,6 +29,8 @@
     #include <boost/mpl/or.hpp>
     #include <boost/mpl/bool.hpp>
     #include <boost/mpl/eval_if.hpp>
+    #include <boost/mpl/aux_/template_arity.hpp>
+    #include <boost/mpl/aux_/lambda_arity_param.hpp>
     #include <boost/static_assert.hpp>
     #include <boost/utility/result_of.hpp>
     #include <boost/type_traits/is_array.hpp>
@@ -36,6 +38,7 @@
     #include <boost/type_traits/remove_cv.hpp>
     #include <boost/type_traits/remove_const.hpp>
     #include <boost/type_traits/add_reference.hpp>
+    #include <boost/type_traits/is_base_of.hpp>
     #include <boost/xpressive/proto/proto_fwd.hpp>
     #include <boost/xpressive/proto/ref.hpp>
     #include <boost/xpressive/proto/args.hpp>
@@ -56,14 +59,38 @@
 
     namespace boost { namespace proto
     {
+        namespace detail_
+        {
+            template<typename T, typename EnableIf = void>
+            struct if_vararg
+            {};
+
+            template<typename T>
+            struct if_vararg<T, typename T::proto_is_vararg_>
+              : T
+            {};
+
+            template<typename T
+                BOOST_MPL_AUX_LAMBDA_ARITY_PARAM(long Arity = mpl::aux::template_arity<T>::value)>
+            struct is_transform_
+              : is_base_of<transform_base, T>
+            {};
+        }
+
         template<typename T>
         struct is_transform
-          : mpl::false_
+          : detail_::is_transform_<T>
         {};
 
         template<>
         struct is_transform<proto::_>
           : mpl::true_
+        {};
+
+        // Work around GCC bug
+        template<typename Tag, typename Args, long N>
+        struct is_transform<proto::expr<Tag, Args, N> >
+          : mpl::false_
         {};
 
         namespace result_of
@@ -181,18 +208,6 @@
             template<typename Expr>
             struct right
               : unref<typename Expr::proto_arg1>
-            {};
-        }
-
-        namespace detail
-        {
-            template<typename T, typename EnableIf = void>
-            struct if_vararg
-            {};
-
-            template<typename T>
-            struct if_vararg<T, typename T::proto_is_vararg_>
-              : T
             {};
         }
 
@@ -419,7 +434,7 @@
 
                 template<typename This, typename Expr>
                 struct result<This(Expr)>
-                  : result_of::arg_c<typename detail::remove_cv_ref<Expr>::type, N>
+                  : result_of::arg_c<typename detail_::remove_cv_ref<Expr>::type, N>
                 {};
 
                 template<typename Expr>
@@ -443,7 +458,7 @@
 
                 template<typename This, typename Expr>
                 struct result<This(Expr)>
-                  : result_of::arg<typename detail::remove_cv_ref<Expr>::type, N>
+                  : result_of::arg<typename detail_::remove_cv_ref<Expr>::type, N>
                 {};
 
                 template<typename Expr>
@@ -466,7 +481,7 @@
 
                 template<typename This, typename Expr>
                 struct result<This(Expr)>
-                  : result_of::left<typename detail::remove_cv_ref<Expr>::type>
+                  : result_of::left<typename detail_::remove_cv_ref<Expr>::type>
                 {};
 
                 template<typename Expr>
@@ -489,7 +504,7 @@
 
                 template<typename This, typename Expr>
                 struct result<This(Expr)>
-                  : result_of::right<typename detail::remove_cv_ref<Expr>::type>
+                  : result_of::right<typename detail_::remove_cv_ref<Expr>::type>
                 {};
 
                 template<typename Expr>
@@ -665,7 +680,7 @@
                 typedef type proto_base_expr;
                 typedef proto::tag::function proto_tag;
                 BOOST_PP_REPEAT(N, BOOST_PROTO_ARG, A)
-                BOOST_PP_REPEAT_FROM_TO(N, BOOST_PROTO_MAX_ARITY, BOOST_PROTO_ARG, detail::if_vararg<BOOST_PP_CAT(A, BOOST_PP_DEC(N))> BOOST_PP_INTERCEPT)
+                BOOST_PP_REPEAT_FROM_TO(N, BOOST_PROTO_MAX_ARITY, BOOST_PROTO_ARG, detail_::if_vararg<BOOST_PP_CAT(A, BOOST_PP_DEC(N))> BOOST_PP_INTERCEPT)
             };
 
             template<typename Tag BOOST_PP_ENUM_TRAILING_PARAMS(N, typename A)>
@@ -686,11 +701,11 @@
                 typedef type proto_base_expr;
                 typedef Tag proto_tag;
                 BOOST_PP_REPEAT(N, BOOST_PROTO_ARG, A)
-                BOOST_PP_REPEAT_FROM_TO(N, BOOST_PROTO_MAX_ARITY, BOOST_PROTO_ARG, detail::if_vararg<BOOST_PP_CAT(A, BOOST_PP_DEC(N))> BOOST_PP_INTERCEPT)
+                BOOST_PP_REPEAT_FROM_TO(N, BOOST_PROTO_MAX_ARITY, BOOST_PROTO_ARG, detail_::if_vararg<BOOST_PP_CAT(A, BOOST_PP_DEC(N))> BOOST_PP_INTERCEPT)
             };
         } // namespace op
 
-        namespace detail
+        namespace detail_
         {
             template<BOOST_PP_ENUM_PARAMS(N, typename A)>
             struct BOOST_PP_CAT(implicit_expr_, N)
@@ -704,13 +719,21 @@
                     return that;
                 }
             };
+
+            template<
+                template<BOOST_PP_ENUM_PARAMS(N, typename BOOST_PP_INTERCEPT)> class T
+                BOOST_PP_ENUM_TRAILING_PARAMS(N, typename A)
+            >
+            struct is_transform_<T<BOOST_PP_ENUM_PARAMS(N, A)> BOOST_MPL_AUX_LAMBDA_ARITY_PARAM(N)>
+              : is_same<transform_tag, BOOST_PP_CAT(A, BOOST_PP_DEC(N))>
+            {};
         }
 
         template<BOOST_PP_ENUM_PARAMS(N, typename A)>
-        detail::BOOST_PP_CAT(implicit_expr_, N)<BOOST_PP_ENUM_PARAMS(N, A)>
+        detail_::BOOST_PP_CAT(implicit_expr_, N)<BOOST_PP_ENUM_PARAMS(N, A)>
         implicit_expr(BOOST_PP_ENUM_BINARY_PARAMS(N, A, &a))
         {
-            detail::BOOST_PP_CAT(implicit_expr_, N)<BOOST_PP_ENUM_PARAMS(N, A)> that
+            detail_::BOOST_PP_CAT(implicit_expr_, N)<BOOST_PP_ENUM_PARAMS(N, A)> that
                 = {BOOST_PP_ENUM_PARAMS(N, a)};
             return that;
         }

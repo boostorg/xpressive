@@ -7,8 +7,8 @@
     //  Software License, Version 1.0. (See accompanying file
     //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-    #ifndef BOOST_PROTO_TRANSFORM_PASS_THROUGH_HPP_EAN_12_26_2006
-    #define BOOST_PROTO_TRANSFORM_PASS_THROUGH_HPP_EAN_12_26_2006
+    #ifndef BOOST_PROTO_TRANSFORM2_PASS_THROUGH_HPP_EAN_12_26_2006
+    #define BOOST_PROTO_TRANSFORM2_PASS_THROUGH_HPP_EAN_12_26_2006
 
     #include <boost/xpressive/proto/detail/prefix.hpp>
     #include <boost/preprocessor/cat.hpp>
@@ -19,14 +19,14 @@
     #include <boost/xpressive/proto/args.hpp>
     #include <boost/xpressive/proto/detail/suffix.hpp>
 
-    namespace boost { namespace proto { namespace transform
+    namespace boost { namespace proto { namespace transform2
     {
         namespace detail_
         {
             template<typename Grammar, typename Expr, typename State, typename Visitor, long Arity = Expr::proto_arity::value>
             struct pass_through_impl {};
 
-            #define BOOST_PROTO_DEFINE_TRANSFORM_TYPE(z, n, data)\
+            #define BOOST_PROTO_DEFINE_TRANSFORM2_TYPE(z, n, data)\
                 typename Grammar::BOOST_PP_CAT(proto_arg, n)\
                     ::template apply<typename Expr::BOOST_PP_CAT(proto_arg, n)::proto_base_expr, State, Visitor>\
                 ::type
@@ -36,11 +36,11 @@
                     expr.BOOST_PP_CAT(arg, n).proto_base(), state, visitor\
                 )
 
-            #define BOOST_PP_ITERATION_PARAMS_1 (3, (1, BOOST_PROTO_MAX_ARITY, <boost/xpressive/proto/transform/pass_through.hpp>))
+            #define BOOST_PP_ITERATION_PARAMS_1 (3, (1, BOOST_PROTO_MAX_ARITY, <boost/xpressive/proto/transform2/pass_through.hpp>))
             #include BOOST_PP_ITERATE()
 
             #undef BOOST_PROTO_DEFINE_TRANSFORM
-            #undef BOOST_PROTO_DEFINE_TRANSFORM_TYPE
+            #undef BOOST_PROTO_DEFINE_TRANSFORM2_TYPE
 
             template<typename Grammar, typename Expr, typename State, typename Visitor>
             struct pass_through_impl<Grammar, Expr, State, Visitor, 0>
@@ -56,7 +56,7 @@
 
         template<typename Grammar>
         struct pass_through
-          : Grammar
+          : Grammar, virtual transform_base
         {
             pass_through() {}
 
@@ -78,40 +78,40 @@
                 return apply<Expr, State, Visitor>::call(expr.proto_base(), state, visitor);
             }
         };
-    } // namespace transform
+    } // namespace transform2
 
     template<typename Grammar>
-    struct is_transform<transform::pass_through<Grammar> >
+    struct is_transform<transform2::pass_through<Grammar> >
       : mpl::true_
     {};
 
-    namespace has_transformns_
-    {
-        template<typename Grammar>
-        struct has_pass_through_transform
-        {
-            has_pass_through_transform() {}
+    //namespace has_transformns_
+    //{
+    //    template<typename Grammar>
+    //    struct has_pass_through_transform
+    //    {
+    //        has_pass_through_transform() {}
 
-            template<typename Expr, typename State, typename Visitor>
-            struct apply
-              : transform::detail_::pass_through_impl<
-                    Grammar
-                  , typename Expr::proto_base_expr
-                  , State
-                  , Visitor
-                  , Expr::proto_arity::value
-                >
-            {};
+    //        template<typename Expr, typename State, typename Visitor>
+    //        struct apply
+    //          : transform2::detail_::pass_through_impl<
+    //                Grammar
+    //              , typename Expr::proto_base_expr
+    //              , State
+    //              , Visitor
+    //              , Expr::proto_arity::value
+    //            >
+    //        {};
 
-            template<typename Expr, typename State, typename Visitor>
-            static typename apply<Expr, State, Visitor>::type
-            call(Expr const &expr, State const &state, Visitor &visitor)
-            {
-                return apply<Expr, State, Visitor>::call(expr.proto_base(), state, visitor);
-            }
-        };
+    //        template<typename Expr, typename State, typename Visitor>
+    //        static typename apply<Expr, State, Visitor>::type
+    //        call(Expr const &expr, State const &state, Visitor &visitor)
+    //        {
+    //            return apply<Expr, State, Visitor>::call(expr.proto_base(), state, visitor);
+    //        }
+    //    };
 
-    } // namespace has_transformns_
+    //} // namespace has_transformns_
 
     }} // namespace boost::proto
 
@@ -127,7 +127,7 @@
                 typedef expr<
                     typename Expr::proto_tag
                   , BOOST_PP_CAT(args, N)<
-                        BOOST_PP_ENUM(N, BOOST_PROTO_DEFINE_TRANSFORM_TYPE, ~)
+                        BOOST_PP_ENUM(N, BOOST_PROTO_DEFINE_TRANSFORM2_TYPE, ~)
                     >
                 > type;
 

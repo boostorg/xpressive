@@ -65,7 +65,7 @@
         proto::unref(this->BOOST_PP_CAT(arg, n))\
         /**/
 
-        namespace detail
+        namespace detail_
         {
             template<typename Tag, typename Arg>
             struct address_of_hack
@@ -203,20 +203,20 @@
             /// \overload
             ///
             template<typename A0, std::size_t N>
-            static expr make(A0 (&a0)[N], typename detail::if_is_array<proto_arg0, N>::type = 0)
+            static expr make(A0 (&a0)[N], typename detail_::if_is_array<proto_arg0, N>::type = 0)
             {
                 expr that;
-                detail::checked_copy(a0, that.arg0);
+                detail_::checked_copy(a0, that.arg0);
                 return that;
             }
 
             /// \overload
             ///
             template<typename A0, std::size_t N>
-            static expr make(A0 const (&a0)[N], typename detail::if_is_array<proto_arg0, N>::type = 0)
+            static expr make(A0 const (&a0)[N], typename detail_::if_is_array<proto_arg0, N>::type = 0)
             {
                 expr that;
-                detail::checked_copy(a0, that.arg0);
+                detail_::checked_copy(a0, that.arg0);
                 return that;
             }
         #endif
@@ -225,7 +225,7 @@
             /// If \c Tag is \c boost::proto::tag::address_of and \c proto_arg0 is
             /// \c proto::ref_\<T\>, then \c address_of_hack_type_ is <tt>T*</tt>.
             /// Otherwise, it is some undefined type.
-            typedef typename detail::address_of_hack<Tag, proto_arg0>::type address_of_hack_type_;
+            typedef typename detail_::address_of_hack<Tag, proto_arg0>::type address_of_hack_type_;
 
             /// \return The address of <tt>this->arg0</tt> if \c Tag is
             /// \c boost::proto::tag::address_of. Otherwise, this function will

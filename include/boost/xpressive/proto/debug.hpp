@@ -32,7 +32,7 @@ namespace boost { namespace proto
         namespace hidden_detail_
         {
             typedef char (&not_ostream)[sizeof(std::ostream)+1];
-            not_ostream operator<<(std::ostream &, detail::dont_care);
+            not_ostream operator<<(std::ostream &, detail_::dont_care);
 
             template<typename Tag, std::size_t S>
             struct printable_tag_

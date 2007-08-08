@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-// matches.hpp
+// examples.hpp
 //
 //  Copyright 2006 Eric Niebler. Distributed under the Boost
 //  Software License, Version 1.0. (See accompanying file

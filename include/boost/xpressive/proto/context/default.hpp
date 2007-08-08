@@ -41,7 +41,7 @@
             BOOST_TYPEOF_NESTED_TYPEDEF_TPL(BOOST_PP_CAT(nested_and_hidden_, Nested), Expr)\
             struct Nested\
               : mpl::if_c<\
-                    1==sizeof(detail::check_reference(Expr))\
+                    1==sizeof(detail_::check_reference(Expr))\
                   , typename BOOST_PP_CAT(nested_and_hidden_, Nested)::type &\
                   , typename BOOST_PP_CAT(nested_and_hidden_, Nested)::type\
                 >\
@@ -57,12 +57,12 @@
         /// INTERNAL ONLY
         ///
         #define BOOST_PROTO_DECLTYPE_(Expr, Type)\
-            typedef detail::unspecified Type;
+            typedef detail_::unspecified Type;
     #endif
 
     namespace boost { namespace proto
     {
-        namespace detail
+        namespace detail_
         {
             template<typename T> T make();
 
@@ -75,7 +75,7 @@
             template<typename A0, typename A1>
             struct comma_result
             {
-                BOOST_PROTO_DECLTYPE_((detail::make<A0>(), detail::make<A1>()), type)
+                BOOST_PROTO_DECLTYPE_((detail_::make<A0>(), detail_::make<A1>()), type)
             };
 
             template<typename A0>
@@ -130,7 +130,7 @@
         #if BOOST_WORKAROUND(BOOST_MSVC, == 1400)
             template<typename T> T &make_ref_(T &t);
             template<typename T> T const &make_ref_(T const &t);
-            #define BOOST_PROTO_REF(x) detail::make_ref_(x)
+            #define BOOST_PROTO_REF(x) detail_::make_ref_(x)
         #else
             #define BOOST_PROTO_REF(x) x
         #endif
@@ -309,7 +309,7 @@
             {
                 typedef typename proto::result_of::eval<typename proto::result_of::arg_c<Expr, 0>::type, Context>::type proto_arg0;
                 typedef typename proto::result_of::eval<typename proto::result_of::arg_c<Expr, 1>::type, Context>::type proto_arg1;
-                typedef typename detail::comma_result<proto_arg0, proto_arg1>::type result_type;
+                typedef typename detail_::comma_result<proto_arg0, proto_arg1>::type result_type;
                 result_type operator()(Expr &expr, Context &ctx) const
                 {
                     return proto::eval(proto::arg_c<0>(expr), ctx), proto::eval(proto::arg_c<1>(expr), ctx);
@@ -361,7 +361,7 @@
         struct default_eval<Expr, Context, proto::tag::function, N>
         {
             typedef
-                typename detail::result_of_fixup<
+                typename detail_::result_of_fixup<
                     BOOST_PROTO_EVAL_N_TYPE(1, 0, (Expr, Context))
                 >::type
             function_type;

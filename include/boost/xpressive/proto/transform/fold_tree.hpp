@@ -17,7 +17,7 @@
 namespace boost { namespace proto { namespace transform
 {
 
-    namespace detail
+    namespace detail_
     {
         template<typename Tag, typename Grammar>
         struct fold_tree_
@@ -45,7 +45,7 @@ namespace boost { namespace proto { namespace transform
     template<typename Tag, typename Grammar, typename State>
     struct fold_tree
       : transform::fold<
-            nary_expr<Tag, vararg<detail::fold_tree_<Tag, Grammar> > >
+            nary_expr<Tag, vararg<detail_::fold_tree_<Tag, Grammar> > >
           , State
         >
     {};
@@ -55,7 +55,7 @@ namespace boost { namespace proto { namespace transform
     template<typename Tag, typename Grammar, typename State>
     struct reverse_fold_tree
       : transform::reverse_fold<
-            nary_expr<Tag, vararg<detail::reverse_fold_tree_<Tag, Grammar> > >
+            nary_expr<Tag, vararg<detail_::reverse_fold_tree_<Tag, Grammar> > >
           , State
         >
     {};

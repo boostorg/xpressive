@@ -19,6 +19,7 @@
 #include <boost/preprocessor/repetition/enum_trailing_binary_params.hpp>
 #include <boost/mpl/long.hpp>
 #include <boost/type_traits/remove_cv.hpp>
+#include <boost/type_traits/remove_pointer.hpp>
 #include <boost/type_traits/remove_reference.hpp>
 
 #ifndef BOOST_PROTO_MAX_ARITY
@@ -47,7 +48,7 @@
 
 namespace boost { namespace proto
 {
-    namespace detail
+    namespace detail_
     {
         typedef char yes_type;
         typedef char (&no_type)[2];
@@ -408,7 +409,54 @@ namespace boost { namespace proto
         struct function;
     }
 
-    using namespace op;
+    using op::unary_expr;
+    using op::binary_expr;
+    using op::nary_expr;
+    using op::terminal;
+    using op::posit;
+    using op::negate;
+    using op::dereference;
+    using op::complement;
+    using op::address_of;
+    using op::logical_not;
+    using op::pre_inc;
+    using op::pre_dec;
+    using op::post_inc;
+    using op::post_dec;
+    using op::shift_left;
+    using op::shift_right;
+    using op::multiplies;
+    using op::divides;
+    using op::modulus;
+    using op::plus;
+    using op::minus;
+    using op::less;
+    using op::greater;
+    using op::less_equal;
+    using op::greater_equal;
+    using op::equal_to;
+    using op::not_equal_to;
+    using op::logical_or;
+    using op::logical_and;
+    using op::bitwise_and;
+    using op::bitwise_or;
+    using op::bitwise_xor;
+    using op::comma;
+    using op::mem_ptr;
+    using op::assign;
+    using op::shift_left_assign;
+    using op::shift_right_assign;
+    using op::multiplies_assign;
+    using op::divides_assign;
+    using op::modulus_assign;
+    using op::plus_assign;
+    using op::minus_assign;
+    using op::bitwise_and_assign;
+    using op::bitwise_or_assign;
+    using op::bitwise_xor_assign;
+    using op::subscript;
+    using op::if_else_;
+    using op::function;
 
     namespace functional
     {
@@ -457,10 +505,10 @@ namespace boost { namespace proto
 
     namespace transform
     {
-        namespace detail
+        namespace detail_
         {
-            using proto::detail::yes_type;
-            using proto::detail::no_type;
+            using proto::detail_::yes_type;
+            using proto::detail_::no_type;
             
             struct default_factory;
 
@@ -491,16 +539,16 @@ namespace boost { namespace proto
         template<typename Grammar>
         struct identity;
 
-        template<typename Grammar, typename Always, typename Factory = detail::default_factory>
+        template<typename Grammar, typename Always, typename Factory = detail_::default_factory>
         struct always;
 
-        template<typename Grammar, typename Lambda, typename Factory = detail::default_factory>
+        template<typename Grammar, typename Lambda, typename Factory = detail_::default_factory>
         struct apply1;
 
-        template<typename Grammar, typename Lambda, typename Factory = detail::default_factory>
+        template<typename Grammar, typename Lambda, typename Factory = detail_::default_factory>
         struct apply2;
 
-        template<typename Grammar, typename Lambda, typename Factory = detail::default_factory>
+        template<typename Grammar, typename Lambda, typename Factory = detail_::default_factory>
         struct apply3;
 
         template<typename Grammar, typename State>
@@ -543,6 +591,83 @@ namespace boost { namespace proto
         struct pod_construct;
     }
 
+    namespace transform2
+    {
+        namespace detail_
+        {
+            using proto::transform::detail_::no_type;
+            using proto::transform::detail_::yes_type;
+
+            template<typename Transform, typename EnableIf = void>
+            struct as_transform;
+        }
+
+        template<typename Grammar, typename Transform = _>
+        struct case_;
+
+        template<typename Transform = _>
+        struct default_;
+
+        template<typename N = mpl::long_<0>, typename Transform = _>
+        struct arg;
+
+        template<long N, typename Transform = _>
+        struct arg_c;
+
+        template<long N, typename Transform = _>
+        struct _arg_c;
+
+        template<typename Transform = _>
+        struct left;
+
+        template<typename Transform = _>
+        struct right;
+
+        typedef _ _expr;
+        struct _state;
+        struct _visitor;
+        struct _children;
+
+        template<typename Transform, typename Expr = _expr, typename State = _state, typename Visitor = _visitor>
+        struct apply_;
+
+        template<typename Sequence, typename State, typename Fun>
+        struct fold;
+
+        template<typename Sequence, typename State, typename Fun>
+        struct reverse_fold;
+
+        template<typename Sequence>
+        struct pop_front;
+
+        template<typename Grammar, typename State, typename Fun>
+        struct fold_tree;
+
+        template<typename Grammar, typename State, typename Fun>
+        struct reverse_fold_tree;
+
+        //template<typename Grammar, typename Function1>
+        //struct function1;
+
+        //template<typename Grammar, typename Function2>
+        //struct function2;
+
+        //template<typename Grammar, typename Function3>
+        //struct function3;
+
+        //template<typename Grammar>
+        //struct list;
+
+        //template<typename Grammar>
+        //struct tail;
+
+        //template<typename Grammar>
+        //struct pass_through;
+
+        template<typename Grammar, typename ConstructorFun>
+        struct construct;
+    }
+
     namespace has_transformns_
     {
         template<typename Grammar>
@@ -556,6 +681,15 @@ namespace boost { namespace proto
 
     using has_transformns_::has_identity_transform;
     using has_transformns_::has_pass_through_transform;
+
+    namespace transform_basens_
+    {
+        struct transform_base { typedef void proto_is_transform; };
+        struct transform_tag {};
+    }
+
+    using transform_basens_::transform_base;
+    using transform_basens_::transform_tag;
 
     template<typename T>
     struct is_transform;

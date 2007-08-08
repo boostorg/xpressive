@@ -134,7 +134,7 @@ namespace boost { namespace proto
 
             template<typename This, typename T>
             struct result<This(T)>
-              : result_of::unref<typename detail::remove_cv_ref<T>::type>
+              : result_of::unref<typename detail_::remove_cv_ref<T>::type>
             {};
 
             template<typename T>
