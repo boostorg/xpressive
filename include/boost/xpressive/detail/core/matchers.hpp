@@ -23,6 +23,7 @@
 #include <boost/xpressive/detail/core/matcher/assert_eos_matcher.hpp>
 #include <boost/xpressive/detail/core/matcher/assert_word_matcher.hpp>
 #include <boost/xpressive/detail/core/matcher/attr_matcher.hpp>
+#include <boost/xpressive/detail/core/matcher/basic_regex_ptr_matcher.hpp>
 #include <boost/xpressive/detail/core/matcher/charset_matcher.hpp>
 #include <boost/xpressive/detail/core/matcher/end_matcher.hpp>
 #include <boost/xpressive/detail/core/matcher/epsilon_matcher.hpp>

@@ -164,6 +164,11 @@ struct regex_compiler
         BOOST_ASSERT(!name.empty());
         return this->rules_[name];
     }
+protected:
+    CompilerTraits & traits()
+    {
+        return traits_;
+    }
 
 private:
 
@@ -476,10 +481,20 @@ private:
         switch(this->traits_.get_token(begin, end))
         {
         case token_literal:
-            return detail::make_literal_xpression<BidiIter>
-            (
-                this->parse_literal(begin, end), this->traits_.flags(), this->rxtraits()
-            );
+          {
+            string_type lit = this->parse_literal(begin, end);
+            if( this->traits_.is_reference(lit) )
+            {
+              return detail::make_reference_expression<BidiIter>( 
+                  this->traits_.get_reference(lit)
+                  );
+            }
+            else
+              return detail::make_literal_xpression<BidiIter>
+                (
+                 lit, this->traits_.flags(), this->rxtraits()
+                );
+          }
 
         case token_any:
             return detail::make_any_xpression<BidiIter>(this->traits_.flags(), this->rxtraits());
@@ -618,6 +633,7 @@ private:
 
         return seq;
     }
+    
 
     ///////////////////////////////////////////////////////////////////////////
     // parse_literal

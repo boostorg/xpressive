@@ -447,6 +447,21 @@ private:
         return begin;
     }
 
+
+    ///////////////////////////////////////////////////////////////////////////////
+    // is_reference
+    bool is_reference( string_type const& t )
+    {
+        return false;
+    }
+
+    template<typename BidiIter>
+    basic_regex<BidiIter> const* get_reference( string_type const& name )
+    {
+         return NULL;
+    }
+    
+
     regex_traits traits_;
     regex_constants::syntax_option_type flags_;
     typename regex_traits::char_class_type space_;

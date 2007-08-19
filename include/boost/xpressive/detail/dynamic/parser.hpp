@@ -134,6 +134,21 @@ inline sequence<BidiIter> make_literal_xpression
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// make_reference_expression
+//
+template<typename BidiIter>
+inline sequence<BidiIter> make_reference_expression
+(
+  basic_regex<BidiIter> const *ptr
+)
+{
+    BOOST_ASSERT(ptr);
+    basic_regex_ptr_matcher<BidiIter> matcher(ptr);
+    return make_dynamic<BidiIter>(matcher);
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
 // make_backref_xpression
 //
 template<typename BidiIter, typename Traits>

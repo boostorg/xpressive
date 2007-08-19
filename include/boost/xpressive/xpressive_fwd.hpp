@@ -133,6 +133,13 @@ namespace boost { namespace xpressive
     >
     struct regex_compiler;
 
+    template
+    <
+        typename BidiIter
+      , typename RegexTraits = regex_traits<typename iterator_value<BidiIter>::type>
+    >
+    struct nested_dynamic_compiler;
+
     ///////////////////////////////////////////////////////////////////////////////
     // Common typedefs
     //
