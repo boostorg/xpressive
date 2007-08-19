@@ -30,8 +30,8 @@ namespace boost { namespace xpressive
 ///////////////////////////////////////////////////////////////////////////////
 // compiler_traits
 //  this works for char and wchar_t. it must be specialized for anything else.
-//
-template<typename RegexTraits>
+// 
+template<typename BidiIter, typename RegexTraits>
 struct compiler_traits
 {
     typedef RegexTraits regex_traits;
@@ -363,6 +363,20 @@ struct compiler_traits
         return token_escape;
     }
 
+    ///////////////////////////////////////////////////////////////////////////////
+    // is_reference
+    bool is_reference( string_type const& t )
+    {
+        return false;
+    }
+
+    basic_regex<BidiIter> const* get_reference( string_type const& name )
+    {
+         return NULL;
+    }
+    
+
+
 private:
 
     //////////////////////////////////////////////////////////////////////////
@@ -446,21 +460,6 @@ private:
 
         return begin;
     }
-
-
-    ///////////////////////////////////////////////////////////////////////////////
-    // is_reference
-    bool is_reference( string_type const& t )
-    {
-        return false;
-    }
-
-    template<typename BidiIter>
-    basic_regex<BidiIter> const* get_reference( string_type const& name )
-    {
-         return NULL;
-    }
-    
 
     regex_traits traits_;
     regex_constants::syntax_option_type flags_;

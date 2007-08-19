@@ -119,7 +119,7 @@ namespace boost { namespace xpressive
     template<typename BidiIter>
     struct sub_match;
 
-    template<typename RegexTraits>
+    template<typename BidiIter, typename RegexTraits>
     struct compiler_traits;
 
     template<typename Char, typename Impl = typename detail::default_regex_traits<Char>::type>
@@ -129,7 +129,7 @@ namespace boost { namespace xpressive
     <
         typename BidiIter
       , typename RegexTraits = regex_traits<typename iterator_value<BidiIter>::type>
-      , typename CompilerTraits = compiler_traits<RegexTraits>
+      , typename CompilerTraits = compiler_traits<BidiIter,RegexTraits>
     >
     struct regex_compiler;
 

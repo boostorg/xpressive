@@ -24,9 +24,9 @@ namespace boost{ namespace xpressive{
     namespace detail{
         template<typename BidiIter, typename RegexTraits>
         struct nested_parser
-          : compiler_traits<RegexTraits> 
+          : compiler_traits<BidiIter,RegexTraits> 
         {
-            typedef typename compiler_traits<RegexTraits>::string_type string_type;
+            typedef typename compiler_traits<BidiIter,RegexTraits>::string_type string_type;
 
             struct _values
             {
@@ -37,7 +37,7 @@ namespace boost{ namespace xpressive{
             typedef typename table_type::value_type value_type;
             
             nested_parser( RegexTraits const& t )
-                : compiler_traits<RegexTraits>(t),
+                : compiler_traits<BidiIter,RegexTraits>(t),
                   start(0)
             {}
 
