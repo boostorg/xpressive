@@ -16,6 +16,7 @@
 #endif
 
 
+#include <boost/noncopyable.hpp>
 #include <boost/xpressive/xpressive_fwd.hpp>
 #include <boost/xpressive/regex_compiler.hpp>
 #include <boost/xpressive/detail/dynamic/parser_traits.hpp>
@@ -74,7 +75,8 @@ namespace boost{ namespace xpressive{
 
     template<typename BidiIter, typename RegexTraits>
     struct nested_dynamic_compiler : 
-        regex_compiler<BidiIter, RegexTraits, detail::nested_parser<BidiIter, RegexTraits> >
+        regex_compiler<BidiIter, RegexTraits, detail::nested_parser<BidiIter, RegexTraits> >,
+        noncopyable 
     {
         typedef detail::nested_parser<BidiIter,RegexTraits> traits_type;
         typedef typename traits_type::table_type table_type;
