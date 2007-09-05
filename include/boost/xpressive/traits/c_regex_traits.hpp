@@ -143,7 +143,7 @@ struct c_regex_traits
     /// Checks two c_regex_traits objects for inequality
     ///
     /// \return false.
-    bool operator !=(c_regex_traits<char_type> const &that) const
+    bool operator !=(c_regex_traits<char_type> const &) const
     {
         return false;
     }
