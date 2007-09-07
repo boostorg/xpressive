@@ -113,6 +113,25 @@ namespace boost{ namespace xpressive{
             return this->traits().start->regex;
         }
 
+        regex_id_type const & regex_id(string_type const& name) const
+        {
+            basic_regex<BidiIter> * ptr = this->traits().get_reference(name);
+            return ptr?ptr->regex_id():0;
+        }
+
+        string_type const& regex_id( regex_id_type const& id) const
+        {
+            //TODO reimplement with some kind of bimap 
+           
+            for( typename table_type::const_iterator it = this->traits().table.begin(),
+                    e = this->traits().table.end();it != e; ++it)
+            {
+                if( it->second.regex.regex_id() == id )
+                    return it->first;
+            }
+            return string_type();
+        }
+
         void add_start(string_type const& name, string_type const& regex)
         {
             this->traits().add_start( name, regex );
