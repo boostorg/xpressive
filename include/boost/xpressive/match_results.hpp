@@ -7,6 +7,10 @@
 //  Copyright 2004 Eric Niebler. Distributed under the Boost
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+//
+// Acknowledgements: Thanks to Markus Sch\:opflin for helping to track down
+// a tricky formatting bug on HP Tru64, and to Steven Watanabe for suggesting
+// the fix.
 
 #ifndef BOOST_XPRESSIVE_MATCH_RESULTS_HPP_EAN_10_04_2005
 #define BOOST_XPRESSIVE_MATCH_RESULTS_HPP_EAN_10_04_2005
@@ -21,6 +25,7 @@
 #include <utility>
 #include <iterator>
 #include <typeinfo>
+#include <algorithm>
 #include <boost/config.hpp>
 #include <boost/assert.hpp>
 #include <boost/integer.hpp>
@@ -117,6 +122,7 @@ struct case_converting_iterator
     case_converting_iterator &operator ++()
     {
         ++this->out_;
+        this->next_ = None;
         return *this;
     }
 
@@ -158,7 +164,6 @@ struct case_converting_iterator
         }
 
         *this->out_ = ch;
-        this->next_ = None;
         return *this;
     }
 
