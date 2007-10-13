@@ -36,11 +36,17 @@
 
 // Doxygen can't handle proto :-(
 #ifndef BOOST_XPRESSIVE_DOXYGEN_INVOKED
+# include <boost/xpressive/proto/transform/fold.hpp>
 # include <boost/xpressive/detail/core/matcher/action_matcher.hpp>
 #endif
 
-#define UNREF(x) typename remove_reference<x>::type
-#define UNCVREF(x) typename remove_cv<typename remove_reference<x>::type>::type
+/// INTERNAL ONLY
+///
+#define UNREF(x)    typename remove_reference<x>::type
+
+/// INTERNAL ONLY
+///
+#define UNCVREF(x)  typename remove_cv<typename remove_reference<x>::type>::type
 
 namespace boost { namespace xpressive
 {
@@ -72,6 +78,56 @@ namespace boost { namespace xpressive
 
             T value;
         };
+
+        struct check_tag
+        {};
+
+        template<typename Grammar>
+        struct BindArg
+          : Grammar
+        {
+            template<typename Expr, typename State, typename Visitor>
+            struct apply
+            {
+                typedef State type;
+            };
+
+            template<typename Expr, typename State, typename Visitor>
+            static State call(Expr const &expr, State const &state, Visitor &visitor)
+            {
+                visitor.let(expr);
+                return state;
+            }
+        };
+
+        struct let_tag
+        {};
+
+        struct BindArgs
+          : boost::proto::transform::fold<
+                boost::proto::function<
+                    boost::proto::transform::state<boost::proto::terminal<let_tag> >
+                  , boost::proto::vararg< BindArg< boost::proto::assign<boost::proto::_, boost::proto::_> > > 
+                >
+            >
+        {};
+
+        struct let_domain
+          : boost::proto::domain<boost::proto::pod_generator<let_> >
+        {};
+
+        template<typename Expr>
+        struct let_
+        {
+            BOOST_PROTO_EXTENDS(Expr, let_<Expr>, let_domain)
+            BOOST_PROTO_EXTENDS_FUNCTION(Expr, let_<Expr>, let_domain)
+        };
+
+        template<typename Args, typename BidiIter>
+        void bind_args(let_<Args> const &args, match_results<BidiIter> &what)
+        {
+            BindArgs::call(args, 0, what);
+        }
     }
 
     namespace op
@@ -523,22 +579,28 @@ namespace boost { namespace xpressive
         };
     }
 
-    proto::terminal<op::push>::type const push = {{}};
-    proto::terminal<op::push_back>::type const push_back = {{}};
-    proto::terminal<op::push_front>::type const push_front = {{}};
-    proto::terminal<op::pop>::type const pop = {{}};
-    proto::terminal<op::pop_back>::type const pop_back = {{}};
-    proto::terminal<op::pop_front>::type const pop_front = {{}};
-    proto::terminal<op::top>::type const top = {{}};
-    proto::terminal<op::back>::type const back = {{}};
-    proto::terminal<op::front>::type const front = {{}};
-    proto::terminal<op::first>::type const first = {{}};
-    proto::terminal<op::second>::type const second = {{}};
-    proto::terminal<op::matched>::type const matched = {{}};
-    proto::terminal<op::length>::type const length = {{}};
-    proto::terminal<op::str>::type const str = {{}};
-    proto::terminal<op::insert>::type const insert = {{}};
-    proto::terminal<op::make_pair>::type const make_pair = {{}};
+    template<typename Fun>
+    struct function
+    {
+        typedef typename proto::terminal<Fun>::type type;
+    };
+
+    function<op::push>::type const push = {{}};
+    function<op::push_back>::type const push_back = {{}};
+    function<op::push_front>::type const push_front = {{}};
+    function<op::pop>::type const pop = {{}};
+    function<op::pop_back>::type const pop_back = {{}};
+    function<op::pop_front>::type const pop_front = {{}};
+    function<op::top>::type const top = {{}};
+    function<op::back>::type const back = {{}};
+    function<op::front>::type const front = {{}};
+    function<op::first>::type const first = {{}};
+    function<op::second>::type const second = {{}};
+    function<op::matched>::type const matched = {{}};
+    function<op::length>::type const length = {{}};
+    function<op::str>::type const str = {{}};
+    function<op::insert>::type const insert = {{}};
+    function<op::make_pair>::type const make_pair = {{}};
 
     template<typename T>
     struct value
@@ -676,13 +738,13 @@ namespace boost { namespace xpressive
         return reference<T const>(t);
     }
 
-    template<typename Predicate>
-    typename proto::terminal<detail::predicate_placeholder<Predicate> >::type const
-    check(Predicate const &pred)
-    {
-        detail::predicate_placeholder<Predicate> p = {pred};
-        return proto::as_expr(p);
-    }
+    /// check(), for testing custom assertions
+    ///
+    proto::terminal<detail::check_tag>::type const check = {{}};
+
+    /// let(), for binding references to non-local variables
+    ///
+    detail::let_<proto::terminal<detail::let_tag>::type> const let = {{{}}};
 
     template<typename T, int I = 0, typename Dummy = proto::is_proto_expr>
     struct placeholder
@@ -734,6 +796,8 @@ namespace boost { namespace xpressive
             ignore_unused(xpressive::str);
             ignore_unused(xpressive::insert);
             ignore_unused(xpressive::make_pair);
+            ignore_unused(xpressive::check);
+            ignore_unused(xpressive::let);
         }
     }
 

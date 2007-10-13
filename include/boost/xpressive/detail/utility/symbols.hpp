@@ -6,9 +6,12 @@
 /// G. Badr and B.J. Oommen. (2005) Self-Adjusting of Ternary Search Tries Using
 ///     Conditional Rotations and Randomized Heuristics
 //
-//  Copyright 2007 David Jenkins. Distributed under the Boost
-//  Software License, Version 1.0. (See accompanying file
-//  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+//  Copyright 2007 David Jenkins.
+//  Copyright 2007 Eric Niebler.
+//
+//  Distributed under the Boost Software License, Version 1.0. (See
+//  accompanying file LICENSE_1_0.txt or copy at
+//  http://www.boost.org/LICENSE_1_0.txt)
 
 #ifndef BOOST_XPRESSIVE_DETAIL_SYMBOLS_HPP_DRJ_06_11_2007
 #define BOOST_XPRESSIVE_DETAIL_SYMBOLS_HPP_DRJ_06_11_2007
@@ -18,7 +21,7 @@
 # pragma once
 #endif
 
-#include <boost/range/iterator.hpp>
+#include <boost/range/result_iterator.hpp>
 #include <boost/range/begin.hpp>
 #include <boost/range/end.hpp>
 #include <boost/shared_ptr.hpp>
@@ -35,8 +38,8 @@ namespace boost { namespace xpressive { namespace detail
         typedef typename range_value<Map>::type::first_type key_type;
         typedef typename range_value<Map>::type::second_type value_type;
         typedef typename range_value<key_type>::type char_type;
-        typedef typename range_iterator<Map const>::type iterator;
-        typedef typename range_iterator<key_type const>::type key_iterator;
+        typedef typename range_result_iterator<Map const>::type iterator;
+        typedef typename range_result_iterator<key_type const>::type key_iterator;
         typedef value_type const *result_type;
 
         // copies of this symbol table share the TST
@@ -81,7 +84,9 @@ namespace boost { namespace xpressive { namespace detail
               , lo(0)
               , eq(0)
               , hi(0)
+              #ifdef BOOST_DISABLE_THREADS
               , tau(0)
+              #endif
             {}
 
             ~node()
@@ -98,7 +103,9 @@ namespace boost { namespace xpressive { namespace detail
                 std::swap(lo, that.lo);
                 std::swap(eq, that.eq);
                 std::swap(hi, that.hi);
+                #ifdef BOOST_DISABLE_THREADS
                 std::swap(tau, that.tau);
+                #endif
             }
 
             char_type ch;
@@ -153,6 +160,7 @@ namespace boost { namespace xpressive { namespace detail
             return p;
         }
 
+        #ifdef BOOST_DISABLE_THREADS
         ///////////////////////////////////////////////////////////////////////////////
         // conditional rotation : the goal is to minimize the overall
         //     weighted path length of each binary search tree
@@ -185,6 +193,7 @@ namespace boost { namespace xpressive { namespace detail
             (*i).swap(*j);
             return true;
         }
+        #endif
 
         ///////////////////////////////////////////////////////////////////////////////
         // search : find a string in the TST
@@ -198,12 +207,16 @@ namespace boost { namespace xpressive { namespace detail
             char_type c1 = (begin != end ? trans(*begin) : 0);
             while(p)
             {
+                #ifdef BOOST_DISABLE_THREADS
                 ++p->tau;
+                #endif
                 if(c1 == p->ch)
                 {
                     // conditional rotation test
+                    #ifdef BOOST_DISABLE_THREADS
                     if (this->cond_rotation(left, p, p2))
                         p = p2;
+                    #endif
                     if (0 == p->ch)
                     {
                         // it's a match!
