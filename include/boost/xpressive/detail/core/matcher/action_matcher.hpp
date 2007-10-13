@@ -175,8 +175,10 @@ namespace boost { namespace xpressive { namespace detail
                             Expr
                         >::type
                     >::type
-                >::type::type
-            result_type;
+                >::type
+            temp_type;
+            
+            typedef typename temp_type::type result_type;
 
             result_type operator ()(Expr const &expr, action_context const &ctx) const
             {
@@ -236,7 +238,7 @@ namespace boost { namespace xpressive { namespace detail
 
         template<typename Expr, typename State, typename Visitor>
         static typename apply<Expr, State, Visitor>::type
-        call(Expr const &expr, State const &state, Visitor &visitor)
+        call(Expr const &, State const &state, Visitor &visitor)
         {
             sub_match<typename State::iterator> const &sub = state.sub_matches_[ visitor ];
             return proto::as_expr(sub);
@@ -306,7 +308,7 @@ namespace boost { namespace xpressive { namespace detail
 
         template<typename Expr, typename State, typename Visitor>
         static typename apply<Expr, State, Visitor>::type
-        call(Expr const &expr, State const &state, Visitor &)
+        call(Expr const &, State const &state, Visitor &)
         {
             typedef typename Expr::proto_arg0::matcher_type::value_type::second_type attr_type;
             int slot = typename Expr::proto_arg0::nbr_type();
@@ -359,7 +361,7 @@ namespace boost { namespace xpressive { namespace detail
 
         template<typename Expr, typename State, typename Visitor>
         static typename apply<Expr, State, Visitor>::type
-        call(Expr const &expr, State const &state, Visitor &)
+        call(Expr const &expr, State const &, Visitor &)
         {
             return apply<Expr, State, Visitor>::type::make(proto::arg(expr));
         }

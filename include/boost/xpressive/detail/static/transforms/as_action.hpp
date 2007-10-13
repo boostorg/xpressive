@@ -20,6 +20,7 @@
 #include <boost/mpl/min_max.hpp>
 #include <boost/mpl/apply_wrap.hpp>
 #include <boost/xpressive/detail/detail_fwd.hpp>
+#include <boost/xpressive/detail/core/matcher/attr_end_matcher.hpp>
 #include <boost/xpressive/detail/static/static.hpp>
 #include <boost/xpressive/detail/static/transforms/as_quantifier.hpp>
 #include <boost/xpressive/proto/proto.hpp>
@@ -63,7 +64,7 @@ namespace boost { namespace xpressive { namespace detail
 
         template<typename Expr, typename State, typename Visitor>
         static typename apply<Expr, State, Visitor>::type
-        call(Expr const &expr, State const &state, Visitor &visitor)
+        call(Expr const &expr, State const &, Visitor &)
         {
             return proto::as_expr(proto::arg(expr));
         }
@@ -102,7 +103,7 @@ namespace boost { namespace xpressive { namespace detail
 
         template<typename Expr, typename State, typename Visitor>
         static typename apply<Expr, State, Visitor>::type
-        call(Expr const &expr, State const &state, Visitor &visitor)
+        call(Expr const &, State const &, Visitor &)
         {
             typename apply<Expr, State, Visitor>::type that = {{}};
             return that;
@@ -183,10 +184,10 @@ namespace boost { namespace xpressive { namespace detail
 
         template<typename Expr, typename State, typename Visitor>
         static typename apply<Expr, State, Visitor>::type
-        call(Expr const &expr, State const &state, Visitor &visitor)
+        call(Expr const &expr, State const &, Visitor &visitor)
         {
             return typename apply<Expr, State, Visitor>::type(
-                Expr::proto_arg0::proto_arg0::nbr_type::value
+                Expr::proto_arg0::proto_base_expr::proto_arg0::nbr_type::value
               , proto::arg(proto::right(expr))
               , visitor.traits()
             );
@@ -236,6 +237,15 @@ namespace boost { namespace xpressive { namespace detail
     {};
 
     ///////////////////////////////////////////////////////////////////////////////
+    // CheckAssertion
+    struct CheckAssertion
+      : proto::function<
+            proto::terminal<check_tag>
+          , proto::_
+        >
+    {};
+
+    ///////////////////////////////////////////////////////////////////////////////
     // action_transform
     //  Turn A[B] into (mark_begin(n) >> A >> mark_end(n) >> action_matcher<B>(n))
     //  If A and B use attributes, wrap the above expression in
@@ -260,7 +270,7 @@ namespace boost { namespace xpressive { namespace detail
 
             typedef
                 typename mpl::if_<
-                    proto::matches<action_type, proto::terminal<predicate_placeholder<proto::_> > >
+                    proto::matches<action_type, CheckAssertion>
                   , predicate_matcher<action_copy_type>
                   , action_matcher<action_copy_type>
                 >::type

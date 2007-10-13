@@ -7,6 +7,10 @@
 //  Copyright 2004 Eric Niebler. Distributed under the Boost
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+//
+// Acknowledgements: Thanks to Markus Sch\:opflin for helping to track down
+// a tricky formatting bug on HP Tru64, and to Steven Watanabe for suggesting
+// the fix.
 
 #ifndef BOOST_XPRESSIVE_MATCH_RESULTS_HPP_EAN_10_04_2005
 #define BOOST_XPRESSIVE_MATCH_RESULTS_HPP_EAN_10_04_2005
@@ -21,6 +25,7 @@
 #include <utility>
 #include <iterator>
 #include <typeinfo>
+#include <algorithm>
 #include <boost/config.hpp>
 #include <boost/assert.hpp>
 #include <boost/integer.hpp>
@@ -92,8 +97,8 @@ struct char_overflow_handler_
 ///////////////////////////////////////////////////////////////////////////////
 // transform_op enum
 //
-enum transform_op { None, Upper, Lower };
-enum transform_scope { Next, Rest };
+enum transform_op { None = 0, Upper = 1, Lower = 2 };
+enum transform_scope { Next = 0, Rest = 1 };
 
 ///////////////////////////////////////////////////////////////////////////////
 // case_converting_iterator
@@ -117,6 +122,7 @@ struct case_converting_iterator
     case_converting_iterator &operator ++()
     {
         ++this->out_;
+        this->next_ = None;
         return *this;
     }
 
@@ -134,40 +140,30 @@ struct case_converting_iterator
 
     friend bool set_transform(case_converting_iterator &iter, transform_op trans, transform_scope scope)
     {
-        (scope == Next ? iter.next_ : iter.rest_) = trans;
+        BOOST_ASSERT(scope == Next || scope == Rest);
+        if(scope == Next)
+            iter.next_ = trans;
+        else
+            iter.rest_ = trans;
         return true;
     }
 
-    case_converting_iterator &operator =(Char const &ch)
+    case_converting_iterator &operator =(Char ch)
     {
-        switch(this->next_)
+        switch(this->next_ ? this->next_ : this->rest_)
         {
         case Lower:
-            *this->out_ = this->traits_->tolower(ch);
-            this->next_ = None;
+            ch = this->traits_->tolower(ch);
             break;
 
         case Upper:
-            *this->out_ = this->traits_->toupper(ch);
-            this->next_ = None;
+            ch = this->traits_->toupper(ch);
             break;
 
-        default:
-            switch(this->rest_)
-            {
-            case Lower:
-                *this->out_ = this->traits_->tolower(ch);
-                break;
-
-            case Upper:
-                *this->out_ = this->traits_->toupper(ch);
-                break;
-
-            default:
-                *this->out_ = ch;
-            }
+        default:;
         }
 
+        *this->out_ = ch;
         return *this;
     }
 

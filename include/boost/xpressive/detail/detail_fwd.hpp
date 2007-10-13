@@ -32,6 +32,8 @@ namespace boost { namespace xpressive { namespace detail
 
     struct modifier_tag;
 
+    struct check_tag;
+
     typedef mpl::size_t<INT_MAX / 2 - 1> unknown_width;
 
     struct type_info_less;
@@ -58,9 +60,6 @@ namespace boost { namespace xpressive { namespace detail
     struct logical_newline_placeholder;
 
     struct self_placeholder;
-
-    template<typename Predicate>
-    struct predicate_placeholder;
 
     template<typename Nbr>
     struct attribute_placeholder;
@@ -235,6 +234,12 @@ namespace boost { namespace xpressive { namespace detail
 
     template<typename Locale, typename BidiIter>
     struct regex_traits_type;
+
+    template<typename Expr>
+    struct let_;
+
+    template<typename Args, typename BidiIter>
+    void bind_args(let_<Args> const &, match_results<BidiIter> &);
 
     ///////////////////////////////////////////////////////////////////////////////
     // Misc.

@@ -32,6 +32,13 @@
     #include <boost/xpressive/proto/traits.hpp>
     #include <boost/xpressive/proto/detail/suffix.hpp>
 
+    #if defined(_MSC_VER) && (_MSC_VER >= 1020)
+    # pragma warning(push)
+    # pragma warning(disable : 4510) // default constructor could not be generated
+    # pragma warning(disable : 4512) // assignment operator could not be generated
+    # pragma warning(disable : 4610) // user defined constructor required
+    #endif
+
     namespace boost { namespace proto
     {
     /// INTERNAL ONLY
@@ -121,9 +128,16 @@
     #undef BOOST_PROTO_UNREF_ARG
     }}
 
+    #if defined(_MSC_VER) && (_MSC_VER >= 1020)
+    # pragma warning(pop)
+    #endif
+
     #endif // BOOST_PROTO_EXPR_HPP_EAN_04_01_2005
 
 #elif BOOST_PP_ITERATION_DEPTH() == 1
+
+    #define ARG_COUNT BOOST_PP_MAX(1, BOOST_PP_ITERATION())
+    #define IS_TERMINAL 0 == BOOST_PP_ITERATION()
 
         /// \brief Representation of a node in an expression tree.
         /// 
@@ -146,10 +160,6 @@
         ///             type is \c boost::proto::tag::terminal, in which case
         ///             \c Args must be \c proto::args1\<T\>, where \c T can be any
         ///             type.
-
-    #define ARG_COUNT BOOST_PP_MAX(1, BOOST_PP_ITERATION())
-    #define IS_TERMINAL 0 == BOOST_PP_ITERATION()
-
         template<typename Tag, typename Args>
         struct expr<Tag, Args, BOOST_PP_ITERATION() >
         {
