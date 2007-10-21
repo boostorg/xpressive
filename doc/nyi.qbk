@@ -1,0 +1,19 @@
+[/
+ / Copyright (c) 2006 Eric Niebler
+ /
+ / Distributed under the Boost Software License, Version 1.0. (See accompanying
+ / file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+ /]
+
+[section Appendix 2: Not Yet Implemented]
+
+The following features are planned for xpressive 2.X:\n
+\n
+
+* `syntax_option_type::collate`
+* Collation sequences such as [^'''[.a.]'''] 
+* Equivalence classes like [^'''[=a=]''']
+* Fine-grained control over the dynamic regex syntax
+* Improved localization support, possibly as a custom facet for `std::locale`
+
+[endsect]
