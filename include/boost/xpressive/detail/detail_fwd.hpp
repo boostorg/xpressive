@@ -296,7 +296,6 @@ namespace boost { namespace xpressive { namespace detail
     template<typename T, typename U>
     struct action_arg;
 
-    template<typename BidiIter>
     struct actionable;
 
     template<typename Char>
@@ -386,6 +385,39 @@ namespace boost { namespace xpressive { namespace detail
     #endif
 
 }}} // namespace boost::xpressive::detail
+
+namespace boost { namespace xpressive { namespace op
+{
+    struct push;
+    struct push_back;
+    struct pop;
+    struct push_front;
+    struct pop_back;
+    struct pop_front;
+    struct back;
+    struct front;
+    struct top;
+    struct first;
+    struct second;
+    struct matched;
+    struct length;
+    struct str;
+    struct insert;
+    struct make_pair;
+
+    template<typename T>
+    struct as;
+    template<typename T>
+    struct static_cast_;
+    template<typename T>
+    struct dynamic_cast_;
+    template<typename T>
+    struct const_cast_;
+    template<typename T>
+    struct construct;
+    template<typename T>
+    struct throw_;
+}}} // namespace boost::xpressive::op
 
 /// INTERNAL ONLY
 namespace boost { namespace xpressive
