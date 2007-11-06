@@ -4,7 +4,7 @@
 /// wrapper for the C locale functions that can be used to customize the
 /// behavior of static and dynamic regexes.
 //
-//  Copyright 2004 Eric Niebler. Distributed under the Boost
+//  Copyright 2007 Eric Niebler. Distributed under the Boost
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -75,14 +75,14 @@ namespace detail
     inline char c_tolower(char ch)
     {
         using namespace std;
-        return tolower(static_cast<unsigned char>(ch));
+        return static_cast<char>(tolower(static_cast<unsigned char>(ch)));
     }
 
     template<>
     inline char c_toupper(char ch)
     {
         using namespace std;
-        return toupper(static_cast<unsigned char>(ch));
+        return static_cast<char>(toupper(static_cast<unsigned char>(ch)));
     }
 
     #ifndef BOOST_XPRESSIVE_NO_WREGEX
@@ -135,7 +135,7 @@ struct c_regex_traits
     /// Checks two c_regex_traits objects for equality
     ///
     /// \return true.
-    bool operator ==(c_regex_traits<char_type> const &that) const
+    bool operator ==(c_regex_traits<char_type> const &) const
     {
         return true;
     }
@@ -201,7 +201,7 @@ struct c_regex_traits
 
     /// Returns a string_type containing all the characters that compare equal
     /// disregrarding case to the one passed in. This function can only be called
-    /// if has_fold_case<cc_regex_traits<Char> >::value is true.
+    /// if has_fold_case<c_regex_traits<Char> >::value is true.
     ///
     /// \param ch The source character.
     /// \return string_type containing all chars which are equal to ch when disregarding

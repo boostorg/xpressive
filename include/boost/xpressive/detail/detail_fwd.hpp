@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // detail_fwd.hpp
 //
-//  Copyright 2004 Eric Niebler. Distributed under the Boost
+//  Copyright 2007 Eric Niebler. Distributed under the Boost
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -32,11 +32,13 @@ namespace boost { namespace xpressive { namespace detail
 
     struct modifier_tag;
 
+    struct check_tag;
+
     typedef mpl::size_t<INT_MAX / 2 - 1> unknown_width;
 
     struct type_info_less;
 
-    typedef std::map<std::type_info const *, void *, detail::type_info_less> action_args_type;
+    typedef std::map<std::type_info const *, void *, type_info_less> action_args_type;
 
     ///////////////////////////////////////////////////////////////////////////////
     // placeholders
@@ -58,9 +60,6 @@ namespace boost { namespace xpressive { namespace detail
     struct logical_newline_placeholder;
 
     struct self_placeholder;
-
-    template<typename Predicate>
-    struct predicate_placeholder;
 
     template<typename Nbr>
     struct attribute_placeholder;
@@ -164,9 +163,6 @@ namespace boost { namespace xpressive { namespace detail
     template<typename Modifier>
     struct modifier_op;
 
-    template<typename Left, typename Right>
-    struct modifier_sequencer;
-
     struct icase_modifier;
 
     template<typename BidiIter, typename ICase, typename Traits>
@@ -174,9 +170,6 @@ namespace boost { namespace xpressive { namespace detail
 
     template<typename BidiIter>
     struct regex_impl;
-
-    template<typename BidiIter>
-    struct regex_matcher;
 
     struct epsilon_matcher;
 
@@ -194,9 +187,6 @@ namespace boost { namespace xpressive { namespace detail
 
     template<typename Xpr>
     struct lookbehind_matcher;
-
-    template<typename Cond>
-    struct assert_word_placeholder;
 
     template<bool IsBoundary>
     struct word_boundary;
@@ -235,6 +225,12 @@ namespace boost { namespace xpressive { namespace detail
 
     template<typename Locale, typename BidiIter>
     struct regex_traits_type;
+
+    template<typename Expr>
+    struct let_;
+
+    template<typename Args, typename BidiIter>
+    void bind_args(let_<Args> const &, match_results<BidiIter> &);
 
     ///////////////////////////////////////////////////////////////////////////////
     // Misc.
@@ -300,7 +296,6 @@ namespace boost { namespace xpressive { namespace detail
     template<typename T, typename U>
     struct action_arg;
 
-    template<typename BidiIter>
     struct actionable;
 
     template<typename Char>
@@ -390,6 +385,39 @@ namespace boost { namespace xpressive { namespace detail
     #endif
 
 }}} // namespace boost::xpressive::detail
+
+namespace boost { namespace xpressive { namespace op
+{
+    struct push;
+    struct push_back;
+    struct pop;
+    struct push_front;
+    struct pop_back;
+    struct pop_front;
+    struct back;
+    struct front;
+    struct top;
+    struct first;
+    struct second;
+    struct matched;
+    struct length;
+    struct str;
+    struct insert;
+    struct make_pair;
+
+    template<typename T>
+    struct as;
+    template<typename T>
+    struct static_cast_;
+    template<typename T>
+    struct dynamic_cast_;
+    template<typename T>
+    struct const_cast_;
+    template<typename T>
+    struct construct;
+    template<typename T>
+    struct throw_;
+}}} // namespace boost::xpressive::op
 
 /// INTERNAL ONLY
 namespace boost { namespace xpressive

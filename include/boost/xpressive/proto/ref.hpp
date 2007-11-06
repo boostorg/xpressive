@@ -2,7 +2,7 @@
 /// \file ref.hpp
 /// Utility for storing a sub-expr by reference
 //
-//  Copyright 2004 Eric Niebler. Distributed under the Boost
+//  Copyright 2007 Eric Niebler. Distributed under the Boost
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -16,6 +16,13 @@
 #include <boost/type_traits/is_const.hpp>
 #include <boost/xpressive/proto/proto_fwd.hpp>
 #include <boost/xpressive/proto/detail/suffix.hpp>
+
+#if defined(_MSC_VER) && (_MSC_VER >= 1020)
+# pragma warning(push)
+# pragma warning(disable : 4510) // default constructor could not be generated
+# pragma warning(disable : 4512) // assignment operator could not be generated
+# pragma warning(disable : 4610) // user defined constructor required
+#endif
 
 namespace boost { namespace proto
 {
@@ -165,5 +172,9 @@ namespace boost { namespace proto
 
     functional::unref const unref = {};
 }}
+
+#if defined(_MSC_VER) && (_MSC_VER >= 1020)
+# pragma warning(pop)
+#endif
 
 #endif

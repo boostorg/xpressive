@@ -25,9 +25,9 @@
 
     // BUGBUG
     #include <boost/xpressive/proto/fusion.hpp>
-    #include <boost/fusion/algorithm/iteration/fold.hpp>
-    #include <boost/fusion/algorithm/transformation/pop_front.hpp>
-    #include <boost/fusion/sequence/view/reverse_view.hpp>
+    #include <boost/fusion/include/fold.hpp>
+    #include <boost/fusion/include/pop_front.hpp>
+    #include <boost/fusion/include/reverse_view.hpp>
 
     namespace boost { namespace proto { namespace transform2
     {

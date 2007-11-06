@@ -5,7 +5,7 @@
     /// proto::eval() that uses Boost.Typeof to deduce return types
     /// of the built-in operators.
     //
-    //  Copyright 2004 Eric Niebler. Distributed under the Boost
+    //  Copyright 2007 Eric Niebler. Distributed under the Boost
     //  Software License, Version 1.0. (See accompanying file
     //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -32,6 +32,7 @@
     #include <boost/xpressive/proto/proto_fwd.hpp>
     #include <boost/xpressive/proto/tags.hpp>
     #include <boost/xpressive/proto/eval.hpp>
+    #include <boost/xpressive/proto/traits.hpp> // for proto::arg_c()
     #include <boost/xpressive/proto/detail/suffix.hpp> // must be last include
 
     // If we're generating doxygen documentation, hide all the nasty
@@ -127,7 +128,7 @@
             //BOOST_MPL_ASSERT((is_same<void(*)(),  result_of_fixup<void(* const &)()>::type>));
             //BOOST_MPL_ASSERT((is_same<void(*)(),  result_of_fixup<void(&)()>::type>));
 
-        #if BOOST_WORKAROUND(BOOST_MSVC, == 1400)
+        #if BOOST_WORKAROUND(BOOST_MSVC, >= 1400)
             template<typename T> T &make_ref_(T &t);
             template<typename T> T const &make_ref_(T const &t);
             #define BOOST_PROTO_REF(x) detail_::make_ref_(x)

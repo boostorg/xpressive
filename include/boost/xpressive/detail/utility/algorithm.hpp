@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // algorithm.hpp
 //
-//  Copyright 2004 Eric Niebler. Distributed under the Boost
+//  Copyright 2007 Eric Niebler. Distributed under the Boost
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -16,12 +16,14 @@
 #include <string>
 #include <climits>
 #include <algorithm>
+#include <boost/version.hpp>
 #include <boost/range/end.hpp>
 #include <boost/range/begin.hpp>
 #include <boost/range/size.hpp>
 #include <boost/range/value_type.hpp>
 #include <boost/type_traits/remove_const.hpp>
 #include <boost/iterator/iterator_traits.hpp>
+#include <boost/xpressive/detail/utility/ignore_unused.hpp>
 
 namespace boost { namespace xpressive { namespace detail
 {
@@ -58,6 +60,7 @@ FwdIter find_nth_if(FwdIter begin, FwdIter end, Diff count, Pred pred)
 template<typename InIter, typename Traits>
 int toi(InIter &begin, InIter end, Traits const &traits, int radix = 10, int max = INT_MAX)
 {
+    detail::ignore_unused(traits);
     int i = 0, c = 0;
     for(; begin != end && -1 != (c = traits.value(*begin, radix)); ++begin)
     {
@@ -117,9 +120,11 @@ struct range_data<T *>
 {};
 
 template<typename T> std::ptrdiff_t is_null_terminated(T const &) { return 0; }
+#if BOOST_VERSION >= 103500
 inline std::ptrdiff_t is_null_terminated(char const *) { return 1; }
 #ifndef BOOST_XPRESSIVE_NO_WREGEX
 inline std::ptrdiff_t is_null_terminated(wchar_t const *) { return 1; }
+#endif
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////

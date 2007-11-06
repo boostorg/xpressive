@@ -192,7 +192,7 @@ struct Terminals
 // would be cons(1, cons('a', cons("b", nil()))).
 struct FoldTreeToList
   /*<< Fold all terminals that are separated by commas into a Fusion cons list. >>*/
-  : reverse_fold_tree<tag::comma, fusion::cons<Terminals,_state>(Terminals,_state), fusion::nil()>
+  : reverse_fold_tree<comma<_,_>, fusion::nil(), fusion::cons<Terminals,_state>(Terminals,_state)>
 {};
 //]
 

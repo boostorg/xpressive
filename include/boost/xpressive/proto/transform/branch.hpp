@@ -4,7 +4,7 @@
 /// tree separately from the rest. Given an expression and a new state, it
 /// transforms the expression using the new state.
 //
-//  Copyright 2004 Eric Niebler. Distributed under the Boost
+//  Copyright 2007 Eric Niebler. Distributed under the Boost
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -12,6 +12,7 @@
 #define BOOST_PROTO_TRANSFORM_BRANCH_HPP_EAN_12_16_2006
 
 #include <boost/xpressive/proto/detail/prefix.hpp>
+#include <boost/mpl/bool.hpp>
 #include <boost/xpressive/proto/proto_fwd.hpp>
 #include <boost/xpressive/proto/detail/suffix.hpp>
 

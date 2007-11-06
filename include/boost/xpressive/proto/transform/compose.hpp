@@ -5,7 +5,7 @@
 /// according to that grammar, and the result is forwarded to the second
 /// for further transformation.
 //
-//  Copyright 2004 Eric Niebler. Distributed under the Boost
+//  Copyright 2007 Eric Niebler. Distributed under the Boost
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -13,6 +13,7 @@
 #define BOOST_PROTO_TRANSFORM_COMPOSE_HPP_EAN_04_01_2007
 
 #include <boost/xpressive/proto/detail/prefix.hpp>
+#include <boost/mpl/bool.hpp> // mpl::true_
 #include <boost/xpressive/proto/proto_fwd.hpp>
 #include <boost/xpressive/proto/detail/suffix.hpp>
 

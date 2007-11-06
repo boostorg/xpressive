@@ -4,7 +4,7 @@
     /// Given a Fusion sequence of arguments and the type of a proto Expression,
     /// unpacks the sequence into the Expression.
     //
-    //  Copyright 2004 Eric Niebler. Distributed under the Boost
+    //  Copyright 2007 Eric Niebler. Distributed under the Boost
     //  Software License, Version 1.0. (See accompanying file
     //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -52,9 +52,9 @@
     #include <boost/xpressive/proto/domain.hpp>
     #include <boost/xpressive/proto/generate.hpp>
     #if BOOST_VERSION >= 103500
-    # include <boost/fusion/sequence/intrinsic/at.hpp>
-    # include <boost/fusion/sequence/intrinsic/value_at.hpp>
-    # include <boost/fusion/sequence/intrinsic/size.hpp>
+    # include <boost/fusion/include/at.hpp>
+    # include <boost/fusion/include/value_at.hpp>
+    # include <boost/fusion/include/size.hpp>
     namespace boost { namespace proto { namespace detail_
     {
         namespace fusion_ = fusion;
@@ -241,8 +241,8 @@
                     BOOST_PROTO_VARARG_TEMPLATE_, ~                                                 \
                   , BOOST_PP_SEQ_PUSH_FRONT(                                                        \
                         BOOST_PROTO_SEQ_PUSH_FRONT(                                                 \
-                            BOOST_PP_TUPLE_ELEM(4, 2, DATA)\
-                          , (BOOST_PP_TUPLE_ELEM(4, 3, DATA))\
+                            BOOST_PP_TUPLE_ELEM(4, 2, DATA)                                         \
+                          , (BOOST_PP_TUPLE_ELEM(4, 3, DATA))                                       \
                         )                                                                           \
                       , BOOST_PP_TUPLE_ELEM(4, 1, DATA)                                             \
                     )                                                                               \

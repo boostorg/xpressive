@@ -5,7 +5,7 @@
     /// right\<\>, tag\<\>, and the helper functions arg(), arg_c(),
     /// left() and right().
     //
-    //  Copyright 2004 Eric Niebler. Distributed under the Boost
+    //  Copyright 2007 Eric Niebler. Distributed under the Boost
     //  Software License, Version 1.0. (See accompanying file
     //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -52,7 +52,7 @@
         #define BOOST_PROTO_IS_ARRAY_(T) boost::is_array<T>
     #endif
 
-    #if BOOST_WORKAROUND( BOOST_MSVC, == 1400 )
+    #if BOOST_WORKAROUND( BOOST_MSVC, >= 1400 )
         #pragma warning(push)
         #pragma warning(disable: 4180) // warning C4180: qualifier applied to function type has no meaning; ignored
     #endif
@@ -604,7 +604,7 @@
         arg(Expr &expr BOOST_PROTO_DISABLE_IF_IS_CONST(Expr))
         {
             return proto::unref(expr.proto_base().arg0);
-        };
+        }
 
         /// \overload
         ///
@@ -613,7 +613,7 @@
         arg(Expr const &expr)
         {
             return proto::unref(expr.proto_base().arg0);
-        };
+        }
 
         /// \overload
         ///
@@ -622,7 +622,7 @@
         arg(Expr &expr BOOST_PROTO_DISABLE_IF_IS_CONST(Expr))
         {
             return result_of::arg<Expr, N>::call(expr);
-        };
+        }
 
         /// \overload
         ///
@@ -631,7 +631,7 @@
         arg(Expr const &expr)
         {
             return result_of::arg<Expr, N>::call(expr);
-        };
+        }
 
         /// arg_c
         ///
@@ -640,7 +640,7 @@
         arg_c(Expr &expr BOOST_PROTO_DISABLE_IF_IS_CONST(Expr))
         {
             return result_of::arg_c<Expr, N>::call(expr);
-        };
+        }
 
         /// \overload
         ///
@@ -648,7 +648,7 @@
         typename result_of::arg_c<Expr, N>::const_reference arg_c(Expr const &expr)
         {
             return result_of::arg_c<Expr, N>::call(expr);
-        };
+        }
 
     }}
 

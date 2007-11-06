@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // linker.hpp
 //
-//  Copyright 2004 Eric Niebler. Distributed under the Boost
+//  Copyright 2007 Eric Niebler. Distributed under the Boost
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -25,7 +25,7 @@
 #include <boost/version.hpp>
 
 #if BOOST_VERSION >= 103500
-# include <boost/fusion/algorithm/iteration/for_each.hpp>
+# include <boost/fusion/include/for_each.hpp>
 #else
 # include <boost/spirit/fusion/algorithm/for_each.hpp>
 #endif
@@ -278,7 +278,7 @@ private:
 #if BOOST_VERSION >= 103500
         fusion::for_each(alternates.derived(), alt_link_pred(this, peeker, next));
 #else
-        fusion::for_each(alternates.base(), alt_link_pred(this, peeker, next));
+        fusion::for_each(alternates.cast(), alt_link_pred(this, peeker, next));
 #endif
     }
 

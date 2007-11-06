@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // detail/dynamic/parser_traits.hpp
 //
-//  Copyright 2004 Eric Niebler. Distributed under the Boost
+//  Copyright 2007 Eric Niebler. Distributed under the Boost
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -16,6 +16,7 @@
 #include <string>
 #include <climits>
 #include <boost/assert.hpp>
+#include <boost/throw_exception.hpp>
 #include <boost/xpressive/regex_error.hpp>
 #include <boost/xpressive/regex_traits.hpp>
 #include <boost/xpressive/detail/detail_fwd.hpp>
@@ -247,7 +248,7 @@ struct compiler_traits
                 case BOOST_XPR_CHAR_(char_type, '='): ++begin; return token_positive_lookbehind;
                 case BOOST_XPR_CHAR_(char_type, '!'): ++begin; return token_negative_lookbehind;
                 default:
-                    throw regex_error(error_badbrace, "unrecognized extension");
+                    boost::throw_exception(regex_error(error_badbrace, "unrecognized extension"));
                 }
 
             case BOOST_XPR_CHAR_(char_type, 'P'):
@@ -264,7 +265,7 @@ struct compiler_traits
                     detail::ensure(begin != end, error_paren, "incomplete extension");
                     return token_named_mark_ref;
                 default:
-                    throw regex_error(error_badbrace, "unrecognized extension");
+                    boost::throw_exception(regex_error(error_badbrace, "unrecognized extension"));
                 }
 
             case BOOST_XPR_CHAR_(char_type, 'i'):
@@ -275,7 +276,7 @@ struct compiler_traits
                 return this->parse_mods_(begin, end);
 
             default:
-                throw regex_error(error_badbrace, "unrecognized extension");
+                boost::throw_exception(regex_error(error_badbrace, "unrecognized extension"));
             }
         }
 
@@ -381,7 +382,7 @@ private:
         case BOOST_XPR_CHAR_(char_type, ':'): ++begin; // fall-through
         case BOOST_XPR_CHAR_(char_type, ')'): return token_no_mark;
         case BOOST_XPR_CHAR_(char_type, '-'): if(false == (set = !set)) break; // else fall-through
-        default: throw regex_error(error_paren, "unknown pattern modifier");
+        default: boost::throw_exception(regex_error(error_paren, "unknown pattern modifier"));
         }
         while(detail::ensure(++begin != end, error_paren, "incomplete extension"));
         // this return is technically unreachable, but this must

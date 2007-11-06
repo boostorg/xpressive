@@ -122,7 +122,7 @@ void test4()
 void test4_aux()
 {
     using namespace boost::xpressive;
-    placeholder< std::map<std::string, int> > const _map = {};
+    placeholder< std::map<std::string, int> > const _map = {{}};
 
     sregex pair = ( (s1= +_w) >> "=>" >> (s2= +_d) )[ _map[s1] = as<int>(s2) ];
     sregex rx = pair >> *(+_s >> pair);
@@ -132,17 +132,29 @@ void test4_aux()
     std::map<std::string, int> result;
     what.let(_map = result); // bind the argument!
 
-    if(!regex_match(str, what, rx))
-    {
-        BOOST_ERROR("oops");
-    }
-    else
-    {
-        BOOST_REQUIRE_EQUAL(result.size(), 3u);
-        BOOST_CHECK_EQUAL(result["aaa"], 1);
-        BOOST_CHECK_EQUAL(result["bbb"], 23);
-        BOOST_CHECK_EQUAL(result["ccc"], 456);
-    }
+    BOOST_REQUIRE(regex_match(str, what, rx));
+    BOOST_REQUIRE_EQUAL(result.size(), 3u);
+    BOOST_CHECK_EQUAL(result["aaa"], 1);
+    BOOST_CHECK_EQUAL(result["bbb"], 23);
+    BOOST_CHECK_EQUAL(result["ccc"], 456);
+
+    // Try the same test with regex_iterator
+    result.clear();
+    sregex_iterator it(str.begin(), str.end(), pair, let(_map=result)), end;
+    BOOST_REQUIRE_EQUAL(3, std::distance(it, end));
+    BOOST_REQUIRE_EQUAL(result.size(), 3u);
+    BOOST_CHECK_EQUAL(result["aaa"], 1);
+    BOOST_CHECK_EQUAL(result["bbb"], 23);
+    BOOST_CHECK_EQUAL(result["ccc"], 456);
+
+    // Try the same test with regex_token_iterator
+    result.clear();
+    sregex_token_iterator it2(str.begin(), str.end(), pair, (s1,s2), let(_map=result)), end2;
+    BOOST_REQUIRE_EQUAL(6, std::distance(it2, end2));
+    BOOST_REQUIRE_EQUAL(result.size(), 3u);
+    BOOST_CHECK_EQUAL(result["aaa"], 1);
+    BOOST_CHECK_EQUAL(result["bbb"], 23);
+    BOOST_CHECK_EQUAL(result["ccc"], 456);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

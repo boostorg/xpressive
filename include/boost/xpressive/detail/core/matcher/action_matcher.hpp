@@ -20,6 +20,7 @@
 #include <boost/ref.hpp>
 #include <boost/assert.hpp>
 #include <boost/mpl/if.hpp>
+#include <boost/throw_exception.hpp>
 #include <boost/type_traits/is_const.hpp>
 #include <boost/type_traits/remove_reference.hpp>
 #include <boost/xpressive/detail/detail_fwd.hpp>
@@ -28,36 +29,42 @@
 #include <boost/xpressive/detail/core/state.hpp>
 #include <boost/xpressive/proto/proto.hpp>
 #include <boost/xpressive/proto/context.hpp>
+#include <boost/xpressive/match_results.hpp> // for type_info_less
+#include <boost/xpressive/detail/static/transforms/as_action.hpp> // for 'read_attr'
 #if BOOST_VERSION >= 103500
 # include <boost/xpressive/proto/fusion.hpp>
-# include <boost/fusion/sequence/view/transform_view.hpp>
-# include <boost/fusion/functional/invocation/invoke.hpp>
-# include <boost/fusion/algorithm/transformation/push_front.hpp>
-# include <boost/fusion/algorithm/transformation/pop_front.hpp>
+# include <boost/fusion/include/transform_view.hpp>
+# include <boost/fusion/include/invoke.hpp>
+# include <boost/fusion/include/push_front.hpp>
+# include <boost/fusion/include/pop_front.hpp>
 #endif
 
 namespace boost { namespace xpressive { namespace detail
 {
 
     #if BOOST_VERSION >= 103500
+    struct DataMember
+      : proto::mem_ptr<proto::_, proto::terminal<proto::_> >
+    {};
+
+    template<typename Expr, long N>
+    struct child_
+      : remove_reference<typename mpl::if_<
+            is_const<Expr>
+          , typename proto::result_of::arg_c<Expr, N>::const_reference
+          , typename proto::result_of::arg_c<Expr, N>::reference
+        >::type>
+    {};
+
     ///////////////////////////////////////////////////////////////////////////////
     // mem_ptr_eval
     //  Rewrites expressions of the form x->*foo(a) into foo(x, a) and then
     //  evaluates them.
-    template<typename Expr, typename Context>
+    template<typename Expr, typename Context, bool IsDataMember = proto::matches<Expr, DataMember>::value>
     struct mem_ptr_eval
     {
-        typedef typename remove_reference<typename mpl::if_<
-            is_const<Expr>
-          , typename proto::result_of::right<Expr>::const_reference
-          , typename proto::result_of::right<Expr>::reference
-        >::type>::type right_type;
-
-        typedef typename remove_reference<typename mpl::if_<
-            is_const<Expr>
-          , typename proto::result_of::left<Expr>::const_reference
-          , typename proto::result_of::left<Expr>::reference
-        >::type>::type left_type;
+        typedef typename child_<Expr, 0>::type left_type;
+        typedef typename child_<Expr, 1>::type right_type;
 
         typedef
             typename proto::result_of::arg<
@@ -87,6 +94,32 @@ namespace boost { namespace xpressive { namespace detail
                     fusion::push_front(fusion::pop_front(proto::children_of(proto::right(expr))), boost::ref(proto::left(expr)))
                   , proto::eval_fun<Context>(ctx)
                 )
+            );
+        }
+    };
+
+    ///////////////////////////////////////////////////////////////////////////////
+    // mem_ptr_eval
+    //  Rewrites expressions of the form x->*foo into foo(x) and then
+    //  evaluates them.
+    template<typename Expr, typename Context>
+    struct mem_ptr_eval<Expr, Context, true>
+    {
+        typedef typename child_<Expr, 0>::type left_type;
+        typedef typename child_<Expr, 1>::type right_type;
+
+        typedef
+            typename proto::result_of::arg<right_type>::type
+        function_type;
+
+        typedef typename boost::result_of<
+            function_type(typename proto::result_of::eval<left_type, Context>::type)
+        >::type result_type;
+
+        result_type operator()(Expr &expr, Context &ctx) const
+        {
+            return proto::arg(proto::right(expr))(
+                proto::eval(proto::left(expr), ctx)
             );
         }
     };
@@ -147,7 +180,12 @@ namespace boost { namespace xpressive { namespace detail
                 action_args_type::const_iterator where_ = ctx.args().find(&typeid(proto::arg(expr)));
                 if(where_ == ctx.args().end())
                 {
-                    throw regex_error(regex_constants::error_badarg, "An argument to an action was unspecified");
+                    boost::throw_exception(
+                        regex_error(
+                            regex_constants::error_badarg
+                          , "An argument to an action was unspecified"
+                        )
+                    );
                 }
                 return proto::arg(expr).cast(where_->second);
             }
@@ -175,8 +213,10 @@ namespace boost { namespace xpressive { namespace detail
                             Expr
                         >::type
                     >::type
-                >::type::type
-            result_type;
+                >::type
+            temp_type;
+            
+            typedef typename temp_type::type result_type;
 
             result_type operator ()(Expr const &expr, action_context const &ctx) const
             {
@@ -200,12 +240,12 @@ namespace boost { namespace xpressive { namespace detail
     ///////////////////////////////////////////////////////////////////////////////
     // action
     //
-    template<typename BidiIter, typename Actor>
+    template<typename Actor>
     struct action
-      : actionable<BidiIter>
+      : actionable
     {
         action(Actor const &actor)
-          : actionable<BidiIter>()
+          : actionable()
           , actor_(actor)
         {
         }
@@ -405,10 +445,10 @@ namespace boost { namespace xpressive { namespace detail
         {
             // Bind the arguments
             typedef typename BindActionArgs::apply<Actor, match_state<BidiIter>, int>::type action_type;
-            action<BidiIter, action_type> actor(BindActionArgs::call(this->actor_, state, this->sub_));
+            action<action_type> actor(BindActionArgs::call(this->actor_, state, this->sub_));
 
             // Put the action in the action list
-            actionable<BidiIter> const **action_list_tail = state.action_list_tail_;
+            actionable const **action_list_tail = state.action_list_tail_;
             *state.action_list_tail_ = &actor;
             state.action_list_tail_ = &actor.next;
 

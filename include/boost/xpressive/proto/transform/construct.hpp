@@ -3,7 +3,7 @@
     /// \file construct.hpp
     /// For constructing an arbitrary type from a bunch of transforms.
     //
-    //  Copyright 2004 Eric Niebler. Distributed under the Boost
+    //  Copyright 2007 Eric Niebler. Distributed under the Boost
     //  Software License, Version 1.0. (See accompanying file
     //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -19,6 +19,8 @@
     #include <boost/preprocessor/repetition/enum_binary_params.hpp>
     #include <boost/preprocessor/repetition/enum_trailing_params.hpp>
     #include <boost/mpl/bool.hpp>
+    #include <boost/mpl/aux_/has_type.hpp>
+    #include <boost/mpl/aux_/lambda_arity_param.hpp>
     #include <boost/type_traits/is_pod.hpp>
     #include <boost/type_traits/is_function.hpp>
     #include <boost/type_traits/remove_pointer.hpp>
@@ -90,7 +92,8 @@
             };
 
             template<typename R, typename Expr, typename State, typename Visitor
-                     BOOST_MPL_AUX_LAMBDA_ARITY_PARAM(long Arity = mpl::aux::template_arity<R>::value)>
+                BOOST_MPL_AUX_LAMBDA_ARITY_PARAM(long Arity = mpl::aux::template_arity<R>::value)
+            >
             struct apply_aux_
             {
                 typedef R type;

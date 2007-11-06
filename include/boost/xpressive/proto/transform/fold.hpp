@@ -5,7 +5,7 @@
     /// It transforms the right operand and passes the result as state while transforming
     /// the left. Or, it might do the left first, if you choose.
     //
-    //  Copyright 2004 Eric Niebler. Distributed under the Boost
+    //  Copyright 2007 Eric Niebler. Distributed under the Boost
     //  Software License, Version 1.0. (See accompanying file
     //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -82,14 +82,14 @@
 
             template<typename Expr, typename State, typename Visitor>
             struct apply
-              : detail_::fold_impl<Grammar, Expr, State, Visitor>
+              : detail_::fold_impl<Grammar, typename Expr::proto_base_expr, State, Visitor>
             {};
 
             template<typename Expr, typename State, typename Visitor>
             static typename apply<Expr, State, Visitor>::type
             call(Expr const &expr, State const &state, Visitor &visitor)
             {
-                return apply<Expr, State, Visitor>::call(expr, state, visitor);
+                return apply<Expr, State, Visitor>::call(expr.proto_base(), state, visitor);
             }
         };
 
@@ -103,14 +103,14 @@
 
             template<typename Expr, typename State, typename Visitor>
             struct apply
-              : detail_::reverse_fold_impl<Grammar, Expr, State, Visitor>
+              : detail_::reverse_fold_impl<Grammar, typename Expr::proto_base_expr, State, Visitor>
             {};
 
             template<typename Expr, typename State, typename Visitor>
             static typename apply<Expr, State, Visitor>::type
             call(Expr const &expr, State const &state, Visitor &visitor)
             {
-                return apply<Expr, State, Visitor>::call(expr, state, visitor);
+                return apply<Expr, State, Visitor>::call(expr.proto_base(), state, visitor);
             }
         };
 

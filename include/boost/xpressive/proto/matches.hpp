@@ -4,7 +4,7 @@
     /// Contains definition of matches\<\> metafunction for determining if
     /// a given expression matches a given pattern.
     //
-    //  Copyright 2004 Eric Niebler. Distributed under the Boost
+    //  Copyright 2007 Eric Niebler. Distributed under the Boost
     //  Software License, Version 1.0. (See accompanying file
     //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -47,6 +47,11 @@
     # if BOOST_PROTO_MAX_ARITY > BOOST_MPL_LIMIT_METAFUNCTION_ARITY
     #  error BOOST_MPL_LIMIT_METAFUNCTION_ARITY must be at least as large as BOOST_PROTO_MAX_ARITY
     # endif
+    #endif
+
+    #if defined(_MSC_VER) && (_MSC_VER >= 1020)
+    # pragma warning(push)
+    # pragma warning(disable:4305) // 'specialization' : truncation from 'const int' to 'bool'
     #endif
 
     namespace boost { namespace proto
@@ -480,6 +485,10 @@
             };
         }
     }}
+
+    #if defined(_MSC_VER) && (_MSC_VER >= 1020)
+    # pragma warning(pop)
+    #endif
 
     #endif
 
