@@ -1,0 +1,552 @@
+///////////////////////////////////////////////////////////////////////////////
+/// \file matches.hpp
+/// Contains definition of the matches\<\> meta-function.
+//
+//  Copyright 2007 Eric Niebler. Distributed under the Boost
+//  Software License, Version 1.0. (See accompanying file
+//  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+
+#ifndef BOOST_PROTO3_MATCHES_HPP_EAN_10_28_2007
+#define BOOST_PROTO3_MATCHES_HPP_EAN_10_28_2007
+
+#include <boost/mpl/if.hpp>
+#include <boost/mpl/bool.hpp>
+#include <boost/mpl/apply.hpp>
+#include <boost/mpl/assert.hpp>
+#include <boost/mpl/identity.hpp>
+#include <boost/type_traits.hpp>
+#include <boost/xpressive/proto3/proto_fwd.hpp>
+#include <boost/xpressive/proto3/transform/arg.hpp>
+
+// BUGBUG
+#include <boost/mpl/aux_/template_arity.hpp>
+#include <boost/mpl/aux_/lambda_arity_param.hpp>
+
+#define UNREF(X)                                                                \
+    typename remove_reference<X>::type
+
+#define UNCVREF(X)                                                              \
+    typename remove_cv<UNREF(X)>::type
+
+namespace boost { namespace proto
+{
+
+    namespace wildns_
+    {
+        struct _ : _expr
+        {
+            typedef _ proto_base_expr;
+        };
+    }
+
+    namespace result_of
+    {
+
+        namespace detail
+        {
+            template<typename Expr, typename Grammar>
+            struct matches_;
+
+            template<bool Head, typename... Preds>
+            struct and_
+              : mpl::bool_<Head>
+            {};
+
+            template<typename Head, typename... Preds>
+            struct and_<true, Head, Preds...>
+              : and_<Head::value, Preds...>
+            {};
+
+            template<typename Head>
+            struct and_<true, Head>
+              : Head
+            {};
+
+            template<bool Head, typename... Preds>
+            struct or_
+              : mpl::bool_<Head>
+            {};
+
+            template<typename Head, typename... Preds>
+            struct or_<false, Head, Preds...>
+              : or_<Head::value, Preds...>
+            {};
+
+            template<typename Head>
+            struct or_<false, Head>
+              : Head
+            {};
+
+            template<typename T, typename U
+                BOOST_MPL_AUX_LAMBDA_ARITY_PARAM(long Arity = mpl::aux::template_arity<U>::value)
+            >
+            struct lambda_matches;
+
+            template<typename T, typename U>
+            struct lambda_matches_aux_
+              : mpl::false_
+            {};
+
+            template<
+                template<typename, typename...> class T
+              , typename E0, typename... ET
+              , typename G0, typename... GT
+            >
+            struct lambda_matches_aux_<T<E0, ET...>, T<G0, GT...> >
+              : and_<
+                    lambda_matches<E0, G0>::value
+                  , lambda_matches<ET, GT>...
+                >
+            {};
+
+            template<typename T, typename U BOOST_MPL_AUX_LAMBDA_ARITY_PARAM(long Arity)>
+            struct lambda_matches
+              : lambda_matches_aux_<T, U>
+            {};
+
+            template<typename T, typename U>
+            struct lambda_matches<T, U BOOST_MPL_AUX_LAMBDA_ARITY_PARAM(-1)>
+              : mpl::false_
+            {};
+
+            template<typename T>
+            struct lambda_matches<T, _ BOOST_MPL_AUX_LAMBDA_ARITY_PARAM(-1)>
+              : mpl::true_
+            {};
+
+            template<typename T>
+            struct lambda_matches<T, T BOOST_MPL_AUX_LAMBDA_ARITY_PARAM(-1)>
+              : mpl::true_
+            {};
+
+            // How terminal_matches<> handles references and cv-qualifiers.
+            // The cv and ref matter *only* if the grammar has a top-level ref.
+            //
+            // Expr     |   Grammar  |  Match
+            // ------------------------------
+            // T            T           yes
+            // T &          T           yes
+            // T const &    T           yes
+            // T            T &         no
+            // T &          T &         yes
+            // T const &    T &         no
+            // T            T const &   no
+            // T &          T const &   no
+            // T const &    T const &   yes
+
+            template<typename T, typename U>
+            struct is_cv_ref_compatible
+              : mpl::true_
+            {};
+
+            template<typename T, typename U>
+            struct is_cv_ref_compatible<T, U &>
+              : mpl::false_
+            {};
+
+            template<typename T, typename U>
+            struct is_cv_ref_compatible<T &, U &>
+              : mpl::bool_<is_const<T>::value == is_const<U>::value>
+            {};
+
+            // terminal_matches
+            template<typename T, typename U>
+            struct terminal_matches
+              : and_<
+                    is_cv_ref_compatible<T, U>::value
+                  , lambda_matches<UNCVREF(T), UNCVREF(U)>
+                >
+            {};
+
+            template<typename T, std::size_t M>
+            struct terminal_matches<T(&)[M], T(&)[proto::N]>
+              : mpl::true_
+            {};
+
+            template<typename T, std::size_t M>
+            struct terminal_matches<T(&)[M], T *>
+              : mpl::true_
+            {};
+
+            template<typename T>
+            struct terminal_matches<T, T>
+              : mpl::true_
+            {};
+
+            template<typename T>
+            struct terminal_matches<T &, T>
+              : mpl::true_
+            {};
+
+            template<typename T>
+            struct terminal_matches<T const &, T>
+              : mpl::true_
+            {};
+
+            template<typename T>
+            struct terminal_matches<T, _>
+              : mpl::true_
+            {};
+
+            template<typename T>
+            struct terminal_matches<T, exact<T> >
+              : mpl::true_
+            {};
+
+            template<typename T, typename U>
+            struct terminal_matches<T, convertible_to<U> >
+              : is_convertible<T, U>
+            {};
+
+            template<bool True, typename Cons1, typename Cons2>
+            struct nonterminal_matches;
+
+            template<typename Head1, typename... Tail1, typename Head2, typename... Tail2>
+            struct nonterminal_matches<true, args<Head1, Tail1...>, args<Head2, Tail2...> >
+              : nonterminal_matches<
+                    matches_<
+                        UNREF(Head1)::proto_base_expr
+                      , UNREF(Head2)::proto_base_expr
+                    >::value
+                  , args<Tail1...>
+                  , args<Tail2...>
+                >
+            {};
+
+            template<typename Cons1, typename Cons2>
+            struct nonterminal_matches<false, Cons1, Cons2>
+              : mpl::false_
+            {};
+
+            template<>
+            struct nonterminal_matches<true, args<>, args<> >
+              : mpl::true_
+            {};
+
+            template<
+                typename Args1
+              , typename Args2
+              , bool IsVararg = control::detail::is_vararg<typename back<Args2>::type>::value
+            >
+            struct vararg_matches
+              : mpl::false_
+            {};
+
+            template<typename Head1, typename... Tail1, typename Head2, typename... Tail2>
+            struct vararg_matches<args<Head1, Tail1...>, args<Head2, Tail2...>, true>
+              : and_<
+                    matches_<
+                        UNREF(Head1)::proto_base_expr
+                      , UNREF(Head2)::proto_base_expr
+                    >::value
+                  , vararg_matches<
+                        args<Tail1...>
+                      , args<Tail2...>
+                      , true
+                    >
+                >
+            {};
+
+            template<typename Head1, typename... Tail1, typename Head2>
+            struct vararg_matches<args<Head1, Tail1...>, args<Head2>, true>
+              : and_<
+                    matches_<
+                        UNREF(Head1)::proto_base_expr
+                      , UNREF(Head2)::proto_base_expr
+                    >::value
+                  , vararg_matches<
+                        args<Tail1...>
+                      , args<Head2>
+                      , true
+                    >
+                >
+            {};
+
+            template<typename Head2>
+            struct vararg_matches<args<>, args<Head2>, true>
+              : mpl::true_
+            {};
+
+            template<typename Expr, typename Grammar>
+            struct matches_
+              : mpl::false_
+            {};
+
+            template<typename Expr>
+            struct matches_<Expr, _>
+              : mpl::true_
+            {};
+
+            template<
+                typename Tag1
+              , typename Head1
+              , typename... Tail1
+              , long N
+              , typename Head2
+              , typename... Tail2
+            >
+            struct matches_<expr<Tag1, args<Head1, Tail1...>, N>, expr<Tag1, args<Head2, Tail2...>, N> >
+              : nonterminal_matches<
+                    matches_<
+                        UNREF(Head1)::proto_base_expr
+                      , UNREF(Head2)::proto_base_expr
+                    >::value
+                  , args<Tail1...>
+                  , args<Tail2...>
+                >
+            {};
+
+            template<
+                typename Tag1
+              , typename Head1
+              , typename... Tail1
+              , long N
+              , typename Head2
+              , typename... Tail2
+            >
+            struct matches_<expr<Tag1, args<Head1, Tail1...>, N>, expr<_, args<Head2, Tail2...>, N> >
+              : nonterminal_matches<
+                    matches_<
+                        UNREF(Head1)::proto_base_expr
+                      , UNREF(Head2)::proto_base_expr
+                    >::value
+                  , args<Tail1...>
+                  , args<Tail2...>
+                >
+            {};
+
+            template<typename Arg1, typename Arg2>
+            struct matches_<expr<tag::terminal, term<Arg1>, 0>, expr<tag::terminal, term<Arg2>, 0> >
+              : terminal_matches<Arg1, Arg2>
+            {};
+
+            template<typename Tag1, typename Args1, long N1, typename Args2, long N2>
+            struct matches_<expr<Tag1, Args1, N1>, expr<Tag1, Args2, N2> >
+              : vararg_matches<Args1, Args2>
+            {};
+
+            template<typename Tag1, typename Args1, long N1, typename Args2, long N2>
+            struct matches_<expr<Tag1, Args1, N1>, expr<_, Args2, N2> >
+              : vararg_matches<Args1, Args2>
+            {};
+
+            // handle proto::or_
+            template<typename Expr, typename Head, typename... Tail>
+            struct matches_<Expr, proto::or_<Head, Tail...> >
+              : or_<
+                    matches_<
+                        typename Expr::proto_base_expr
+                      , typename Head::proto_base_expr
+                    >::value
+                  , matches_<
+                        typename Expr::proto_base_expr
+                      , typename Tail::proto_base_expr
+                    >...
+                >
+            {};
+
+            // handle proto::and_
+            template<typename Expr, typename Head, typename... Tail>
+            struct matches_<Expr, proto::and_<Head, Tail...> >
+              : and_<
+                    matches_<
+                        typename Expr::proto_base_expr
+                      , typename Head::proto_base_expr
+                    >::value
+                  , matches_<
+                        typename Expr::proto_base_expr
+                      , typename Tail::proto_base_expr
+                    >...
+                >
+            {};
+
+            // handle proto::if_
+            template<typename Expr, typename Condition>
+            struct matches_<Expr, proto::if_<Condition> >
+              : mpl::apply1<Condition, Expr>::type
+            {};
+
+            // handle proto::not_
+            template<typename Expr, typename Grammar>
+            struct matches_<Expr, proto::not_<Grammar> >
+              : mpl::not_<matches_<Expr, typename Grammar::proto_base_expr> >
+            {};
+
+            // handle proto::switch_
+            template<typename Expr, typename Cases>
+            struct matches_<Expr, switch_<Cases> >
+              : matches_<
+                    Expr
+                  , typename Cases::template case_<typename Expr::proto_tag>::proto_base_expr
+                >
+            {};
+
+        }
+
+        template<typename Expr, typename Grammar>
+        struct matches
+          : detail::matches_<
+                typename Expr::proto_base_expr
+              , typename Grammar::proto_base_expr
+            >
+        {};
+
+    }
+
+    namespace control
+    {
+        namespace detail
+        {
+            template<typename T, typename EnableIf>
+            struct is_vararg
+              : mpl::false_
+            {};
+
+            template<typename T>
+            struct is_vararg<T, typename T::proto_is_vararg_>
+              : mpl::true_
+            {};
+
+            template<typename Expr, typename... Alts>
+            struct which;
+
+            template<typename Expr, typename Head, typename... Tail>
+            struct which<Expr, Head, Tail...>
+              : mpl::if_<
+                    matches<Expr, Head>
+                  , mpl::identity<Head>
+                  , which<Expr, Tail...>
+                >::type
+            {};
+
+        } // namespace detail
+
+        template<typename... Alts>
+        struct or_ : raw_transform
+        {
+            typedef or_ proto_base_expr;
+
+            template<typename Expr, typename State, typename Visitor>
+            struct apply
+            {
+                typedef typename detail::which<Expr, Alts...>::type
+                    ::template apply<Expr, State, Visitor>::type type;
+            };
+
+            template<typename Expr, typename State, typename Visitor>
+            static typename apply<Expr, State, Visitor>::type
+            call(Expr const &expr, State const &state, Visitor &visitor)
+            {
+                return detail::which<Expr, Alts...>::type::call(expr, state, visitor);
+            }
+        };
+
+        template<typename... Alts>
+        struct and_ : back<args<Alts...> >::type
+        {
+            typedef and_ proto_base_expr;
+        };
+
+        // if_
+        template<typename Condition, typename Then, typename Else>
+        struct if_
+          : or_<
+                and_<if_<Condition>, Then>
+              , and_<not_<if_<Condition> >, Else>
+            >
+        {};
+
+        template<typename Condition, typename Then>
+        struct if_<Condition, Then, void>
+          : and_<if_<Condition>, Then>
+        {};
+
+        template<typename Condition>
+        struct if_<Condition, void, void> : _expr
+        {
+            typedef if_ proto_base_expr;
+        };
+
+        template<typename Grammar>
+        struct not_ : _expr
+        {
+            typedef not_ proto_base_expr;
+        };
+
+        template<typename Cases>
+        struct switch_
+        {
+            typedef switch_ proto_base_expr;
+
+            template<typename Expr, typename State, typename Visitor>
+            struct apply
+              : Cases::template case_<typename Expr::proto_tag>::template apply<Expr, State, Visitor>
+            {};
+
+            template<typename Expr, typename State, typename Visitor>
+            static typename apply<Expr, State, Visitor>::type
+            call(Expr const &expr, State const &state, Visitor &visitor)
+            {
+                return Cases::template case_<typename Expr::proto_tag>::call(expr, state, visitor);
+            }
+        };
+
+        template<typename T>
+        struct exact
+        {};
+
+        template<typename T>
+        struct convertible_to
+        {};
+
+        template<typename Grammar>
+        struct vararg
+          : Grammar
+        {
+            typedef void proto_is_vararg_;
+        };
+
+    }
+
+    template<typename... Args>
+    struct transform_category<or_<Args...> >
+    {
+        typedef raw_transform type;
+    };
+
+    template<typename... Args>
+    struct transform_category<and_<Args...> >
+    {
+        typedef raw_transform type;
+    };
+
+    template<typename Grammar>
+    struct transform_category<not_<Grammar> >
+    {
+        typedef raw_transform type;
+    };
+
+    template<typename If, typename Then, typename Else>
+    struct transform_category<if_<If, Then, Else> >
+    {
+        typedef raw_transform type;
+    };
+
+    template<typename Grammar>
+    struct transform_category<vararg<Grammar> >
+    {
+        typedef raw_transform type;
+    };
+
+    template<>
+    struct transform_category<_>
+    {
+        typedef raw_transform type;
+    };
+
+}}
+
+#undef UNREF
+#undef UNCVREF
+
+#endif
