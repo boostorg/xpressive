@@ -92,6 +92,16 @@ namespace boost { namespace proto
               : R::template apply<Expr, State, Visitor>
             {};
 
+            template<typename R, typename... Args, typename Expr, typename State, typename Visitor>
+            struct apply_lambda_<R(Args...), Expr, State, Visitor, no_transform>
+              : case_<_, R(Args...)>::template apply<Expr, State, Visitor>
+            {};
+
+            template<typename R, typename... Args, typename Expr, typename State, typename Visitor>
+            struct apply_lambda_<R(*)(Args...), Expr, State, Visitor, no_transform>
+              : case_<_, R(*)(Args...)>::template apply<Expr, State, Visitor>
+            {};
+
             // work around GCC bug
             template<typename Tag, typename Args, long N, typename Expr, typename State, typename Visitor>
             struct apply_lambda_<expr<Tag, Args, N>, Expr, State, Visitor, no_transform>
