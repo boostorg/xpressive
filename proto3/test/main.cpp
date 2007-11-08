@@ -1,4 +1,3 @@
-#undef __STRICT_ANSI__
 //#define BOOST_STRICT_CONFIG
 
 #include <cstdio>
