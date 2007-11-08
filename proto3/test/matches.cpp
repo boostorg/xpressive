@@ -5,7 +5,7 @@
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-extern "C" int isblank(int) throw();
+#undef __STRICT_ANSI__
 
 #include <string>
 #include <iostream>
@@ -13,7 +13,7 @@ extern "C" int isblank(int) throw();
 #include <boost/mpl/placeholders.hpp>
 #include <boost/type_traits/is_same.hpp>
 #include <boost/xpressive/proto3/proto.hpp>
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 using namespace boost;
 using namespace proto;

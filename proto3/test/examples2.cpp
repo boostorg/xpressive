@@ -5,6 +5,9 @@
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
+// for cygwin
+#undef __STRICT_ANSI__
+
 #include <iostream>
 #include <boost/config.hpp>
 #include <boost/mpl/min_max.hpp>
@@ -16,7 +19,7 @@
 #include <boost/utility/result_of.hpp>
 #include <boost/fusion/include/cons.hpp>
 #include <boost/fusion/include/pop_front.hpp>
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 
 using namespace boost::proto;
 using namespace transform;
@@ -132,8 +135,8 @@ struct zero : mpl::int_<0> {};
 struct one  : mpl::int_<1> {};
 struct two  : mpl::int_<2> {};
 
-terminal< placeholder1 >::type const _1 = {{}};
-terminal< placeholder2 >::type const _2 = {{}};
+terminal< placeholder1 >::type const _1_ = {{}};
+terminal< placeholder2 >::type const _2_ = {{}};
 
 //[ CalculatorArityGrammar
 struct CalculatorArity
@@ -150,11 +153,11 @@ struct CalculatorArity
 //[ CalculatorArityGrammar2
 struct CalcArity2
   : or_<
-        case_< terminal< placeholder1 >,                    one()              >
-      , case_< terminal< placeholder2 >,                    two()              >
-      , case_< terminal<_>,                                 zero()              >
-      , case_< unary_expr<_, CalcArity2>,                   CalcArity2(_arg)            >
-      , case_< binary_expr<_, CalcArity2, CalcArity2>,      mpl::max<typeof_<CalcArity2(_left)>, typeof_<CalcArity2(_right)> >()   >
+        case_< terminal< placeholder1 >,                one()               >
+      , case_< terminal< placeholder2 >,                two()               >
+      , case_< terminal<_>,                             zero()              >
+      , case_< unary_expr<_, CalcArity2>,               CalcArity2(_arg)    >
+      , case_< binary_expr<_, CalcArity2, CalcArity2>,  mpl::max<CalcArity2(_left), CalcArity2(_right)>()   >
     >
 {};
 //]
@@ -203,14 +206,14 @@ struct ArgsAsList
 //]
 
 //[ FoldTreeToList
-// This transform matches expressions of the form (_1=1,'a',"b")
+// This transform matches expressions of the form (_1_=1,'a',"b")
 // (note the use of the comma operator) and transforms it into a
 // Fusion cons list of their arguments. In this case, the result
 // would be cons(1, cons('a', cons("b", nil()))).
 struct FoldTreeToList
   : or_<
         // This grammar describes what counts as the terminals in expressions
-        // of the form (_1=1,'a',"b"), which will be flattened using
+        // of the form (_1_=1,'a',"b"), which will be flattened using
         // reverse_fold_tree<> below.
         case_<assign<_, terminal<_> >
              , _arg(_right)
@@ -290,27 +293,27 @@ void test_examples()
     int i = 0; // not used, dummy state and visitor parameter
 
     std::cout << CalculatorArity::call( lit(100) * 200, i, i) << '\n';
-    std::cout << CalculatorArity::call( (_1 - _1) / _1 * 100, i, i) << '\n';
-    std::cout << CalculatorArity::call( (_2 - _1) / _2 * 100, i, i) << '\n';
+    std::cout << CalculatorArity::call( (_1_ - _1_) / _1_ * 100, i, i) << '\n';
+    std::cout << CalculatorArity::call( (_2_ - _1_) / _2_ * 100, i, i) << '\n';
     //]
 
     BOOST_CHECK_EQUAL(0, CalculatorArity::call( lit(100) * 200, i, i));
-    BOOST_CHECK_EQUAL(1, CalculatorArity::call( (_1 - _1) / _1 * 100, i, i));
-    BOOST_CHECK_EQUAL(2, CalculatorArity::call( (_2 - _1) / _2 * 100, i, i));
+    BOOST_CHECK_EQUAL(1, CalculatorArity::call( (_1_ - _1_) / _1_ * 100, i, i));
+    BOOST_CHECK_EQUAL(2, CalculatorArity::call( (_2_ - _1_) / _2_ * 100, i, i));
 
     BOOST_CHECK_EQUAL(0, CalcArity2::call( lit(100) * 200, i, i));
-    BOOST_CHECK_EQUAL(1, CalcArity2::call( (_1 - _1) / _1 * 100, i, i));
-    BOOST_CHECK_EQUAL(2, CalcArity2::call( (_2 - _1) / _2 * 100, i, i));
+    BOOST_CHECK_EQUAL(1, CalcArity2::call( (_1_ - _1_) / _1_ * 100, i, i));
+    BOOST_CHECK_EQUAL(2, CalcArity2::call( (_2_ - _1_) / _2_ * 100, i, i));
 
     using boost::fusion::cons;
     using boost::fusion::nil;
     // TODO
-    //cons<int, cons<char, cons<char const (&)[2]> > > args(ArgsAsList::call( _1(1, 'a', "b"), i, i ));
+    //cons<int, cons<char, cons<char const (&)[2]> > > args(ArgsAsList::call( _1_(1, 'a', "b"), i, i ));
     //BOOST_CHECK_EQUAL(args.car, 1);
     //BOOST_CHECK_EQUAL(args.cdr.car, 'a');
     //BOOST_CHECK_EQUAL(args.cdr.cdr.car, std::string("b"));
 
-    //cons<int, cons<char, cons<char const (&)[2]> > > lst(FoldTreeToList::call( (_1 = 1, 'a', "b"), i, i ));
+    //cons<int, cons<char, cons<char const (&)[2]> > > lst(FoldTreeToList::call( (_1_ = 1, 'a', "b"), i, i ));
     //BOOST_CHECK_EQUAL(lst.car, 1);
     //BOOST_CHECK_EQUAL(lst.cdr.car, 'a');
     //BOOST_CHECK_EQUAL(lst.cdr.cdr.car, std::string("b"));

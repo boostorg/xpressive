@@ -1,6 +1,5 @@
+#undef __STRICT_ANSI__
 //#define BOOST_STRICT_CONFIG
-
-extern "C" int isblank(int) throw();
 
 #include <cstdio>
 #include <iostream>
@@ -165,7 +164,7 @@ struct ArgsAsList
   : case_<
         function<terminal<_>, vararg<terminal<_> > >
       , reverse_fold<
-            pop_front(_)    // make (_) optional
+            pop_front(_)
           , fusion::nil()
           , fusion::cons<_arg, _state>(_arg, _state)
         >
@@ -318,11 +317,9 @@ int main()
         (FoldTreeToList::call( (_1 = 1, 'a', str), dummy, non_ ));
     std::cout << mylist2.car << ' ' << mylist2.cdr.car << ' ' << mylist2.cdr.cdr.car << std::endl;
 
-
-    //default_context ctx;
-    //int r1 = eval(as_expr(1) + as_expr(2), ctx);
-    //std::cout << r1 << std::endl;
-
+    default_context ctx;
+    int r1 = eval(as_expr(1) + as_expr(2), ctx);
+    std::cout << r1 << std::endl;
 
     return 0;
 }
