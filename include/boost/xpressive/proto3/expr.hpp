@@ -16,6 +16,11 @@ namespace boost { namespace proto
 
     namespace exprns_
     {
+        template<typename T, typename U>
+        void is_same_type(U const &)
+        {
+            BOOST_MPL_ASSERT((is_same<T,U>));
+        }
 
         template<typename Tag, typename Args, long Arity>
         struct expr
@@ -46,6 +51,7 @@ namespace boost { namespace proto
             template<typename... A>
             static expr make(A &&... a)
             {
+
                 expr that = {{a...}};
                 return that;
             }
@@ -65,7 +71,8 @@ namespace boost { namespace proto
             operator=(A &&a)
             {
                 expr<tag::assign, args<expr &, typename result_of::as_arg<A>::type> > that =
-                    {{*this, {proto::result_of::as_arg<A>::call(a)}}};
+                    //{{*this, {proto::as_arg(std::forward<A>(a))}}};
+                    {{*this, {a}}};
                 return that;
             }
 
@@ -74,7 +81,8 @@ namespace boost { namespace proto
             operator=(A &&a) const
             {
                 expr<tag::assign, args<expr const &, typename result_of::as_arg<A>::type> > that =
-                    {{*this, {proto::result_of::as_arg<A>::call(a)}}};
+                    //{{*this, {proto::as_arg(std::forward<A>(a))}}};
+                    {{*this, {a}}};
                 return that;
             }
 
@@ -83,7 +91,8 @@ namespace boost { namespace proto
             operator[](A &&a)
             {
                 expr<tag::subscript, args<expr &, typename result_of::as_arg<A>::type> > that =
-                    {{*this, {proto::result_of::as_arg<A>::call(a)}}};
+                    //{{*this, {proto::as_arg(std::forward<A>(a))}}};
+                    {{*this, {a}}};
                 return that;
             }
 
@@ -92,7 +101,8 @@ namespace boost { namespace proto
             operator[](A &&a) const
             {
                 expr<tag::subscript, args<expr const &, typename result_of::as_arg<A>::type> > that =
-                    {{*this, {proto::result_of::as_arg<A>::call(a)}}};
+                    //{{*this, {proto::as_arg(std::forward<A>(a))}}};
+                    {{*this, {a}}};
                 return that;
             }
 
@@ -101,7 +111,8 @@ namespace boost { namespace proto
             operator()(A &&... a)
             {
                 expr<tag::function, args<expr &, typename result_of::as_arg<A>::type...> > that =
-                    {argsns_::make_cons(*this, proto::result_of::as_arg<A>::call(a)...)};
+                    {{*this, a...}};
+                    //{argsns_::make_cons(*this, proto::as_arg(std::forward<A>(a))...)};
                 return that;
             }
 
@@ -110,7 +121,8 @@ namespace boost { namespace proto
             operator()(A &&... a) const
             {
                 expr<tag::function, args<expr const &, typename result_of::as_arg<A>::type...> > that =
-                    {argsns_::make_cons(*this, proto::result_of::as_arg<A>::call(a)...)};
+                    {{*this, a...}};
+                    //{argsns_::make_cons(*this, proto::as_arg(std::forward<A>(a))...)};
                 return that;
             }
         };

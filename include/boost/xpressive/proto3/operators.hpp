@@ -79,6 +79,8 @@ namespace boost { namespace proto
     #define BOOST_PROTO_UNARY_OP_IS_POSTFIX_0
     #define BOOST_PROTO_UNARY_OP_IS_POSTFIX_1 , int
 
+        // BUGBUG these are borken because of gcc bug wrt forwarding
+        // of built-in temporaries
     #define BOOST_PROTO_DEFINE_UNARY_OPERATOR(OP, TAG, POST)                        \
         template<typename A>                                                        \
         typename detail::generate_if<                                               \
@@ -93,8 +95,8 @@ namespace boost { namespace proto
             typedef UNREF(A)::proto_domain D;                                       \
             expr<TAG, args<                                                         \
                 typename result_of::as_arg<A, D>::type                              \
-            > > that = {{proto::as_arg<D>(std::forward<A>(a))}};                    \
-            return that;                                                            \
+            > > that = {{a /*proto::as_arg<D>(std::forward<A>(a))*/}};              \
+            return D::make(that);                                                   \
         }                                                                           \
         /**/
 
@@ -115,10 +117,10 @@ namespace boost { namespace proto
                 typename result_of::as_arg<A, D>::type                              \
               , typename result_of::as_arg<B, D>::type                              \
             > > that = {{                                                           \
-                proto::as_arg<D>(std::forward<A>(a))                                \
-              , {proto::as_arg<D>(std::forward<B>(b))}                              \
+                a /*proto::as_arg<D>(std::forward<A>(a))*/                                \
+              , {b /*proto::as_arg<D>(std::forward<B>(b))*/ }                              \
             }};                                                                     \
-            return that;                                                            \
+            return D::make(that);                                                   \
         }                                                                           \
         /**/
 
