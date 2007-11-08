@@ -1,6 +1,7 @@
 //#define BOOST_STRICT_CONFIG
 
-int isblank; // BUGBUG
+extern "C" int isblank(int) throw();
+
 #include <cstdio>
 #include <iostream>
 #include <typeinfo>

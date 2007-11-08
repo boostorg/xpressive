@@ -16,12 +16,6 @@ namespace boost { namespace proto
 
     namespace exprns_
     {
-        template<typename T, typename U>
-        void is_same_type(U const &)
-        {
-            BOOST_MPL_ASSERT((is_same<T,U>));
-        }
-
         template<typename Tag, typename Args, long Arity>
         struct expr
         {

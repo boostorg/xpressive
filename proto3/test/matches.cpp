@@ -5,14 +5,7 @@
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-int isblank;
-
-//// BUGBUG
-//#include <cstdlib>
-//#include <cstddef>
-//#include <cstdio>
-//#include <cstdarg>
-//#include <cstring>
+extern "C" int isblank(int) throw();
 
 #include <string>
 #include <iostream>
@@ -20,7 +13,7 @@ int isblank;
 #include <boost/mpl/placeholders.hpp>
 #include <boost/type_traits/is_same.hpp>
 #include <boost/xpressive/proto3/proto.hpp>
-//#include <boost/test/included/unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 
 using namespace boost;
 using namespace proto;
@@ -241,18 +234,16 @@ void test_matches()
     assert_matches<NumberGrammar>(proto::as_expr(num));
 }
 
-//using namespace unit_test;
-/////////////////////////////////////////////////////////////////////////////////
-//// init_unit_test_suite
-////
-//test_suite* init_unit_test_suite( int argc, char* argv[] )
-//{
-//    test_suite *test = BOOST_TEST_SUITE("test proto::matches<>");
+using namespace unit_test;
+///////////////////////////////////////////////////////////////////////////////
+// init_unit_test_suite
 //
-//    test->add(BOOST_TEST_CASE(&test_matches));
-//
-//    return test;
-//}
+test_suite* init_unit_test_suite( int argc, char* argv[] )
+{
+    test_suite *test = BOOST_TEST_SUITE("test proto::matches<>");
 
-int main()
-{}
+    test->add(BOOST_TEST_CASE(&test_matches));
+
+    return test;
+}
+

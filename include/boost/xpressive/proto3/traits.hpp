@@ -243,7 +243,7 @@ namespace boost { namespace proto
             call(Expr const &expr, State const &state, Visitor &visitor)
             {
                 typename apply<Expr, State, Visitor>::type that = 
-                    {apply<Expr, State, Visitor>::apply_::call(expr.proto_args_, state, visitor)};
+                    {apply<Expr, State, Visitor>::apply_::call(expr.proto_base().proto_args_, state, visitor)};
                 return that;
             }
         };
@@ -412,49 +412,49 @@ namespace boost { namespace proto
     template<typename Expr>
     typename result_of::arg<Expr>::reference arg(Expr &expr)
     {
-        return result_of::arg<Expr>::call(expr.proto_args_);
+        return result_of::arg<Expr>::call(expr.proto_base().proto_args_);
     }
 
     template<typename Expr>
     typename result_of::arg<Expr>::const_reference arg(Expr const &expr)
     {
-        return result_of::arg<Expr>::call(expr.proto_args_);
+        return result_of::arg<Expr>::call(expr.proto_base().proto_args_);
     }
 
     template<typename Expr>
     typename result_of::left<Expr>::reference left(Expr &expr)
     {
-        return result_of::left<Expr>::call(expr.proto_args_);
+        return result_of::left<Expr>::call(expr.proto_base().proto_args_);
     }
 
     template<typename Expr>
     typename result_of::left<Expr>::const_reference left(Expr const &expr)
     {
-        return result_of::left<Expr>::call(expr.proto_args_);
+        return result_of::left<Expr>::call(expr.proto_base().proto_args_);
     }
 
     template<typename Expr>
     typename result_of::right<Expr>::reference right(Expr &expr)
     {
-        return result_of::right<Expr>::call(expr.proto_args_);
+        return result_of::right<Expr>::call(expr.proto_base().proto_args_);
     }
 
     template<typename Expr>
     typename result_of::right<Expr>::const_reference right(Expr const &expr)
     {
-        return result_of::right<Expr>::call(expr.proto_args_);
+        return result_of::right<Expr>::call(expr.proto_base().proto_args_);
     }
 
     template<long N, typename Expr>
     typename result_of::arg_c<Expr, N>::reference arg_c(Expr &expr)
     {
-        return result_of::arg_c<Expr, N>::call(expr.proto_args_);
+        return result_of::arg_c<Expr, N>::call(expr.proto_base().proto_args_);
     }
 
     template<long N, typename Expr>
     typename result_of::arg_c<Expr, N>::const_reference arg_c(Expr const &expr)
     {
-        return result_of::arg_c<Expr, N>::call(expr.proto_args_);
+        return result_of::arg_c<Expr, N>::call(expr.proto_base().proto_args_);
     }
 
     template<typename T>
