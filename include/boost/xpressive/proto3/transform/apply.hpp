@@ -9,6 +9,7 @@
 #ifndef BOOST_PROTO3_TRANSFORM_APPLY_HPP_EAN_11_02_2007
 #define BOOST_PROTO3_TRANSFORM_APPLY_HPP_EAN_11_02_2007
 
+#include <boost/type_traits.hpp>
 #include <boost/utility/result_of.hpp>
 #include <boost/xpressive/proto3/proto_fwd.hpp>
 #include <boost/xpressive/proto3/traits.hpp>
@@ -18,6 +19,11 @@ namespace boost { namespace proto
 
     namespace transform
     {
+        template<typename T>
+        typename add_reference<T>::type as_lvalue(T &&t)
+        {
+            return t;
+        }
 
         template<typename Trans>
         struct apply_<Trans>
@@ -88,10 +94,11 @@ namespace boost { namespace proto
             static typename apply<Expr, State, Visitor>::type
             call(Expr const &expr, State const &state, Visitor &visitor)
             {
+                typedef typename case_<_, VisitorTfx>::template apply<Expr, State, Visitor>::type visitor_type;
                 return Trans::call(
                     case_<_, ExprTfx>::call(expr, state, visitor)
                   , case_<_, StateTfx>::call(expr, state, visitor)
-                  , case_<_, VisitorTfx>::call(expr, state, visitor)
+                  , const_cast<visitor_type &>(as_lvalue(case_<_, VisitorTfx>::call(expr, state, visitor)))
                 );
             }
         };

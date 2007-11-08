@@ -345,10 +345,21 @@ namespace boost { namespace proto
         struct as_expr<T, Domain, typename T::proto_is_expr_>
         {
             typedef typename T::proto_derived_expr type;
+            typedef T const &result_type;
+
+            static T const &call(T const &t)
+            {
+                return t;
+            }
+        };
+
+        template<typename T, typename Domain>
+        struct as_expr<T &, Domain, typename T::proto_is_expr_>
+        {
+            typedef typename T::proto_derived_expr type;
             typedef T &result_type;
 
-            template<typename T2>
-            static result_type call(T2 &&t)
+            static T &call(T &t)
             {
                 return t;
             }

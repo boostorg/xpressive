@@ -125,33 +125,59 @@ namespace boost { namespace proto
                 return Type(args...);
             }
 
-            template<typename TransformCategory, typename Return, typename... Args>
-            struct case_impl
-              : raw_transform
+            template<
+                typename Expr
+              , typename State
+              , typename Visitor
+              , typename TransformCategory
+              , typename Return
+              , typename... Args
+            >
+            struct apply_
             {
-                template<typename Expr, typename State, typename Visitor>
-                struct apply
-                  : apply_lambda_<Return, Expr, State, Visitor>
-                {};
+                typedef typename apply_lambda_<Return, Expr, State, Visitor>::type type;
 
-                template<typename Expr, typename State, typename Visitor>
-                static typename apply<Expr, State, Visitor>::type
-                call(Expr const &expr, State const &state, Visitor &visitor)
+                static type call(Expr const &expr, State const &state, Visitor &visitor)
                 {
-                    typedef typename apply<Expr, State, Visitor>::type type;
-                    return detail::construct_<type>(case_<_, Args>::call(expr, state, visitor)...);
+                    return detail::construct_<type>(
+                        case_<_, Args>::call(expr, state, visitor)...
+                    );
                 }
             };
 
-            template<typename Return, typename... Args>
-            struct case_impl<function_transform, Return, Args...>
-              : bind<Return, Args...>
-            {};
+            template<
+                typename Expr
+              , typename State
+              , typename Visitor
+              , typename Return
+              , typename... Args
+            >
+            struct apply_<Expr, State, Visitor, function_transform, Return, Args...>
+            {
+                typedef typename bind<Return, Args...>::template apply<Expr, State, Visitor>::type type;
 
-            template<typename Return, typename... Args>
-            struct case_impl<raw_transform, Return, Args...>
-              : apply_<Return, Args...>
-            {};
+                static type call(Expr const &expr, State const &state, Visitor &visitor)
+                {
+                    return bind<Return, Args...>::call(expr, state, visitor);
+                }
+            };
+
+            template<
+                typename Expr
+              , typename State
+              , typename Visitor
+              , typename Return
+              , typename... Args
+            >
+            struct apply_<Expr, State, Visitor, raw_transform, Return, Args...>
+            {
+                typedef typename transform::apply_<Return, Args...>::template apply<Expr, State, Visitor>::type type;
+
+                static type call(Expr const &expr, State const &state, Visitor &visitor)
+                {
+                    return transform::apply_<Return, Args...>::call(expr, state, visitor);
+                }
+            };
 
         }
 
@@ -169,22 +195,47 @@ namespace boost { namespace proto
         // (possibly lambda) type and constructor arguments.
         template<typename Grammar, typename Return, typename... Args>
         struct case_<Grammar, Return(Args...)>
-          : detail::case_impl<typename transform_category<Return>::type, Return, Args...>
+          : raw_transform
         {
             typedef typename Grammar::proto_base_expr proto_base_expr;
+
+            template<typename Expr, typename State, typename Visitor>
+            struct apply
+              : detail::apply_<Expr, State, Visitor, typename transform_category<Return>::type, Return, Args...>
+            {};
+
+            // BUGBUG makes a temporary
+            template<typename Expr, typename State, typename Visitor>
+            static typename apply<Expr, State, Visitor>::type
+            call(Expr const &expr, State const &state, Visitor &visitor)
+            {
+                return apply<Expr, State, Visitor>::call(expr, state, visitor);
+            }
         };
 
         template<typename Grammar, typename Return, typename... Args>
         struct case_<Grammar, Return(*)(Args...)>
-          : detail::case_impl<typename transform_category<Return>::type, Return, Args...>
+          : raw_transform
         {
             typedef typename Grammar::proto_base_expr proto_base_expr;
+
+            template<typename Expr, typename State, typename Visitor>
+            struct apply
+              : detail::apply_<Expr, State, Visitor, typename transform_category<Return>::type, Return, Args...>
+            {};
+
+            template<typename Expr, typename State, typename Visitor>
+            static typename apply<Expr, State, Visitor>::type
+            call(Expr const &expr, State const &state, Visitor &visitor)
+            {
+                return apply<Expr, State, Visitor>::call(expr, state, visitor);
+            }
         };
 
-        template<typename Trans>
-        struct typeof_
-          : case_<_, Trans>
-        {};
+        //template<typename Trans>
+        //struct typeof_
+        //  : case_<_, Trans>
+        //{};
 
     }
 

@@ -7,22 +7,25 @@
 
 #include <cctype>
 #include <string>
+#include <cstring>
 #include <iomanip>
 #include <iostream>
+#include <boost/version.hpp>
 #include <boost/assert.hpp>
 #include <boost/mpl/assert.hpp>
 #include <boost/utility/result_of.hpp>
 #include <boost/type_traits/is_same.hpp>
 #include <boost/xpressive/proto3/proto.hpp>
-#include <boost/xpressive/proto3/transform2.hpp>
+#include <boost/xpressive/proto3/transform.hpp>
 #if BOOST_VERSION < 103500
 # include <boost/spirit/fusion/algorithm/for_each.hpp>
 # include <boost/spirit/fusion/algorithm/fold.hpp>
 # include <boost/spirit/fusion/algorithm/any.hpp>
 #else
-#include <boost/fusion/include/for_each.hpp>
-#include <boost/fusion/include/fold.hpp>
-#include <boost/fusion/include/any.hpp>
+# include <boost/fusion/include/for_each.hpp>
+# include <boost/fusion/include/fold.hpp>
+# include <boost/fusion/include/cons.hpp>
+# include <boost/fusion/include/any.hpp>
 #endif
 #include <boost/test/unit_test.hpp>
 
@@ -154,30 +157,29 @@ namespace boost { namespace spirit2
     // The no-case directive
     struct no_case_tag {};
 
+    struct True : mpl::true_ {};
+
     // remove_case specializations for stripping case-sensitivity from parsers
     template<typename T, typename CaseSensitive>
-    struct remove_case;
-
-    template<typename T>
-    struct remove_case<T, mpl::false_>
+    struct remove_case
     {
         typedef T type;
     };
 
     template<>
-    struct remove_case<char, mpl::true_>
+    struct remove_case<char, True>
     {
         typedef ichar type;
     };
 
     template<>
-    struct remove_case<char const *, mpl::true_>
+    struct remove_case<char const *, True>
     {
         typedef istr type;
     };
 
     template<>
-    struct remove_case<char_range, mpl::true_>
+    struct remove_case<char_range, True>
     {
         typedef ichar_range type;
     };
@@ -189,6 +191,7 @@ namespace boost { namespace spirit2
     {
         using namespace proto;
         using namespace fusion;
+        using namespace transform;
 
         struct SpiritExpr;
 
@@ -221,35 +224,32 @@ namespace boost { namespace spirit2
           : or_<
                 case_< AnyChar,          _arg >
               , case_< CharLiteral,      remove_case<char, _visitor>(_arg) >
-              , case_< CharParser,       remove_case<char, _visitor>(_arg_c<0, _arg1>)> // char_('a')
+              , case_< CharParser,       remove_case<char, _visitor>(_arg(_arg1))> // char_('a')
               , case_< NTBSLiteral,      remove_case<char const *, _visitor>(_arg) >
-              , case_< CharRangeParser,  remove_case<char_range, _visitor>(_arg_c<0, _arg1>, _arg_c<0, _arg2>)> // char_('a','z')
+              , case_< CharRangeParser,  remove_case<char_range, _visitor>(_arg(_arg1), _arg(_arg2))> // char_('a','z')
             >
         {};
 
-        template<typename Grammar>
         struct FoldToList
-          : reverse_fold_tree<Grammar, nil(), cons<SpiritExpr, _state>(SpiritExpr, _state)>
+          : reverse_fold_tree<_, nil(), cons<SpiritExpr, _state>(SpiritExpr, _state)>
         {};
-
-        struct AltList : FoldToList< bitwise_or<_, _> > {};
-        struct SeqList : FoldToList< shift_right<_, _> > {};
 
         // sequence rule folds all >>'s together into a list
         // and wraps the result in a sequence<> wrapper
         struct SpiritSequence
-          : case_< shift_right<SpiritExpr, SpiritExpr>,  sequence<SeqList>(SeqList)  >
+          : case_< shift_right<SpiritExpr, SpiritExpr>,  sequence<FoldToList>(FoldToList)  >
         {};
 
         // alternate rule folds all |'s together into a list
         // and wraps the result in a alternate<> wrapper
         struct SpiritAlternate
-          : case_< bitwise_or<SpiritExpr, SpiritExpr>,   alternate<AltList>(AltList) >
+          : case_< bitwise_or<SpiritExpr, SpiritExpr>,   alternate<FoldToList>(FoldToList) >
         {};
+
 
         // Directives such as no_case are handled here
         struct SpiritDirective
-          : case_< subscript<NoCase, SpiritExpr>, apply_<SpiritExpr, _right, _state, mpl::true_()> >
+          : case_< subscript<NoCase, SpiritExpr>, SpiritExpr(_right, _state, True()) >
         {};
 
         // A SpiritExpr is an alternate, a sequence, a directive or a terminal
@@ -303,9 +303,9 @@ namespace boost { namespace spirit2
 
     template<typename Iterator>
     struct parser
-      : with_reset<Iterator, parser<Iterator> >
+      : spirit2::with_reset<Iterator, parser<Iterator> >
     {
-        typedef with_reset<Iterator, parser<Iterator> > with_reset;
+        typedef spirit2::with_reset<Iterator, parser<Iterator> > with_reset;
 
         parser(Iterator begin, Iterator end)
           : with_reset(begin, end)
