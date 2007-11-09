@@ -9,6 +9,7 @@
 #ifndef BOOST_PROTO3_ARGS_HPP_EAN_10_28_2007
 #define BOOST_PROTO3_ARGS_HPP_EAN_10_28_2007
 
+#include <utility>
 #include <boost/xpressive/proto3/proto_fwd.hpp>
 
 namespace boost { namespace proto
