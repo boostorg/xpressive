@@ -20,9 +20,9 @@ test-suite "proto"
     :
 #        [ run proto_fusion.cpp : : : <toolset>gcc:<cxxflags>-ftemplate-depth-1024 ]
 #        [ run proto_fusion_s.cpp ]
-        [ run toy_spirit3.cpp ]
+        [ run toy_spirit.cpp ]
         [ run calculator.cpp ]
-        [ run lambda2.cpp ]
+        [ run lambda.cpp ]
         [ run matches.cpp ]
-        [ run examples2.cpp ]
+        [ run examples.cpp ]
     ;
