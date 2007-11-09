@@ -15,8 +15,8 @@
 #include <vector>
 #include <iostream>
 #include <boost/mpl/int.hpp>
-#include <boost/xpressive/proto/proto.hpp>
-#include <boost/xpressive/proto/context.hpp>
+#include <boost/xpressive/proto3/proto.hpp>
+#include <boost/xpressive/proto3/context.hpp>
 using namespace boost;
 
 using proto::_;
@@ -27,8 +27,8 @@ using proto::_;
 struct LazyVectorGrammar
   : proto::or_<
         proto::terminal< std::vector<_> >
-      , proto::plus< LazyVectorGrammar, LazyVectorGrammar>
-      , proto::minus< LazyVectorGrammar, LazyVectorGrammar>
+      , proto::plus< LazyVectorGrammar, LazyVectorGrammar >
+      , proto::minus< LazyVectorGrammar, LazyVectorGrammar >
     >
 {};
 

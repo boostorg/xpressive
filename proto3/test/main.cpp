@@ -9,14 +9,8 @@
 #include <boost/fusion/include/pop_front.hpp>
 #include <boost/fusion/include/reverse.hpp>
 #include <boost/xpressive/proto3/proto.hpp>
-#include <boost/xpressive/proto3/transform/arg.hpp>
-#include <boost/xpressive/proto3/transform/bind.hpp>
-#include <boost/xpressive/proto3/transform/fold.hpp>
-#include <boost/xpressive/proto3/transform/fold_tree.hpp>
-
-#include <boost/xpressive/proto3/eval.hpp>
-#include <boost/xpressive/proto3/context/default.hpp>
-#include <boost/xpressive/proto3/context/callable.hpp>
+#include <boost/xpressive/proto3/transform.hpp>
+#include <boost/xpressive/proto3/context.hpp>
 
 namespace boost { namespace fusion
 {
@@ -207,6 +201,30 @@ struct disp
     }
 };
 
+
+template<typename E>
+struct byvalexpr;
+
+struct byvaldom
+  : domain<by_value_generator<generator<byvalexpr> > >
+{};
+
+template<typename E>
+struct byvalexpr
+    : extends<E, byvalexpr<E>, byvaldom>
+{
+    explicit byvalexpr(E const &e = E())
+      : extends<E, byvalexpr<E>, byvaldom>(e)
+    {}
+
+    using extends<E, byvalexpr<E>, byvaldom>::operator=;
+};
+
+byvalexpr<terminal<int>::type> A;
+byvalexpr<terminal<int>::type> B;
+byvalexpr<terminal<int>::type> C;
+
+
 int main()
 {
     int dummy=0;
@@ -319,6 +337,20 @@ int main()
     default_context ctx;
     int r1 = eval(as_expr(1) + as_expr(2), ctx);
     std::cout << r1 << std::endl;
+
+    display_expr((_1 = 1, 'a', str));
+
+    byvalexpr<
+        expr<tag::plus
+          , args<
+                byvalexpr<expr<tag::terminal, term<int> > >
+              , byvalexpr<expr<tag::divides, args<
+                    byvalexpr<expr<tag::terminal, term<int> > >
+                  , byvalexpr<expr<tag::terminal, term<int> > >
+                > > >
+            >
+        >
+    > bve = A+B/C;
 
     return 0;
 }

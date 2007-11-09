@@ -11,9 +11,9 @@
 #include <vector>
 #include <iostream>
 #include <stdexcept>
-#include <boost/xpressive/proto/proto.hpp>
-#include <boost/xpressive/proto/debug.hpp>
-#include <boost/xpressive/proto/context.hpp>
+#include <boost/xpressive/proto3/proto.hpp>
+#include <boost/xpressive/proto3/debug.hpp>
+#include <boost/xpressive/proto3/context.hpp>
 
 using namespace boost;
 using proto::_;

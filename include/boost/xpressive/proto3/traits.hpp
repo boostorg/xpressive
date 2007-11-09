@@ -334,8 +334,7 @@ namespace boost { namespace proto
             typedef typename Domain::template apply<expr_type>::type type;
             typedef type const result_type;
 
-            template<typename T2>
-            static result_type call(T2 &&t)
+            static result_type call(CVREF(T) t)
             {
                 return Domain::make(expr_type::make(t));
             }
@@ -370,7 +369,7 @@ namespace boost { namespace proto
         {
             typedef expr<tag::terminal, term<CVREF(T) > > expr_type;
             typedef typename Domain::template apply<expr_type>::type type;
-            static type call(T &&t)
+            static type call(CVREF(T) t)
             {
                 return Domain::make(expr_type::make(t));
             }
@@ -483,7 +482,7 @@ namespace boost { namespace proto
     template<typename T>
     typename result_of::as_arg<T>::type as_arg(T &&t)
     {
-        return result_of::as_arg<T>::call(std::forward<T>(t));
+        return result_of::as_arg<T>::call(t);
     }
 
     template<typename Domain, typename T>

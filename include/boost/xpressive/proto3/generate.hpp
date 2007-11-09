@@ -15,6 +15,12 @@
 #include <boost/xpressive/proto3/proto_fwd.hpp>
 #include <boost/xpressive/proto3/matches.hpp>
 
+#define UNREF(X)                                                                \
+    typename remove_reference<X>::type
+
+#define UNCVREF(X)                                                              \
+    typename remove_cv<UNREF(X)>::type
+
 namespace boost { namespace proto
 {
 
@@ -46,41 +52,52 @@ namespace boost { namespace proto
             typedef Args type;
         };
 
-        template<typename Expr, long Arity = arity_<Expr>::value>
+        struct by_value_cons
+        {
+            template<typename Sig>
+            struct result;
+
+            template<typename This, typename... Args>
+            struct result<This(Args...)>
+            {
+                typedef argsns_::cons<UNCVREF(Args)...> type;
+            };
+
+            template<typename... Args>
+            argsns_::cons<Args...> operator()(Args const &... args) const
+            {
+                return argsns_::make_cons(std::move(args)...);
+            }
+        };
+
+        template<typename Expr>
         struct by_value_generator_;
 
-    //#define BOOST_PROTO_DEFINE_BY_VALUE_TYPE(Z, N, Expr)\
-    //    typename result_of::unref<typename args_<Expr>::type::BOOST_PP_CAT(arg, N) >::type
+        template<typename Tag, typename... Args>
+        struct by_value_generator_<expr<Tag, args<Args...> > >
+        {
+            typedef expr<Tag, args<UNCVREF(Args)...> > type;
 
-    //#define BOOST_PROTO_DEFINE_BY_VALUE(Z, N, expr)\
-    //    proto::unref(expr.BOOST_PP_CAT(arg, N))
+            static type make(expr<Tag, args<Args...> > const &expr)
+            {
+                type that = {
+                    argsns_::fanout_args(by_value_cons(), expr.proto_base().proto_args_)
+                };
+                return that;
+            }
+        };
 
-    //#define BOOST_PP_ITERATION_PARAMS_1 (3, (0, BOOST_PROTO_MAX_ARITY, <boost/xpressive/proto/generate.hpp>))
-    //#include BOOST_PP_ITERATE()
+        template<typename T>
+        struct by_value_generator_<expr<tag::terminal, term<T>, 0> >
+        {
+            typedef expr<tag::terminal, term<UNCVREF(T)> > type;
 
-    //#undef BOOST_PROTO_DEFINE_BY_VALUE
-    //#undef BOOST_PROTO_DEFINE_BY_VALUE_TYPE
-
-    //        template<typename Expr>
-    //        struct by_value_generator_<Expr, N>
-    //        {
-    //            typedef expr<
-    //                typename tag_<Expr>::type
-    //              , BOOST_PP_CAT(args, N)<
-    //                    // typename result_of::unref<typename args_<Expr>::type::arg0>::type, ...
-    //                    BOOST_PP_ENUM(BOOST_PP_MAX(N, 1), BOOST_PROTO_DEFINE_BY_VALUE_TYPE, Expr)
-    //                >
-    //            > type;
-
-    //            static type const make(Expr const &expr)
-    //            {
-    //                type that = {
-    //                    // proto::unref(expr.arg0), ...
-    //                    BOOST_PP_ENUM(BOOST_PP_MAX(N, 1), BOOST_PROTO_DEFINE_BY_VALUE, expr)
-    //                };
-    //                return that;
-    //            }
-    //        };
+            static type make(expr<tag::terminal, term<T>, 0> const &expr)
+            {
+                type that = {{expr.proto_base().proto_args_.car}};
+                return that;
+            }
+        };
 
     }
 
@@ -154,5 +171,8 @@ namespace boost { namespace proto
     }
 
 }}
+
+#undef UNREF
+#undef UNCVREF
 
 #endif // BOOST_PROTO3_GENERATE_HPP_EAN_02_13_2007

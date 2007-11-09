@@ -70,7 +70,7 @@ namespace boost { namespace spirit2
             FwdIter tmp = begin;
             std::string::const_iterator istr = str.begin(), estr = str.end();
             for(; istr != estr; ++tmp, istr += 2)
-                if(tmp == end || *tmp != *istr && *tmp != *(istr+1))
+                if(tmp == end || (*tmp != *istr && *tmp != *(istr+1)))
                     return false;
             begin = tmp;
             return true;

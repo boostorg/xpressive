@@ -15,14 +15,15 @@
 #include <complex>
 #include <iostream>
 #include <stdexcept>
-#include <boost/xpressive/proto/proto.hpp>
-#include <boost/xpressive/proto/debug.hpp>
-#include <boost/xpressive/proto/context.hpp>
+#include <boost/xpressive/proto3/proto.hpp>
+//#include <boost/xpressive/proto3/debug.hpp>
+#include <boost/xpressive/proto3/context.hpp>
 #include <boost/typeof/std/list.hpp>
 #include <boost/typeof/std/vector.hpp>
 #include <boost/typeof/std/complex.hpp>
 
 using namespace boost;
+using namespace proto::transform;
 using proto::_;
 
 template<typename Expr>
@@ -38,30 +39,46 @@ struct iterator_wrapper
     Iter it;
 };
 
-template<typename Cont>
-iterator_wrapper<typename Cont::const_iterator> cbegin(Cont const &cont)
-{
-    return iterator_wrapper<typename Cont::const_iterator>(cont.begin());
-}
+//template<typename Cont>
+//iterator_wrapper<typename Cont::const_iterator> cbegin(Cont const &cont)
+//{
+//    return iterator_wrapper<typename Cont::const_iterator>(cont.begin());
+//}
+//
+//template<typename Grammar>
+//struct begin
+//  : Grammar
+//{
+//    template<typename Expr, typename State, typename Visitor>
+//    struct apply
+//      : proto::terminal<
+//            iterator_wrapper<
+//                typename proto::result_of::arg<Expr>::type::const_iterator
+//            >
+//        >
+//    {};
+//
+//    template<typename Expr, typename State, typename Visitor>
+//    static typename apply<Expr, State, Visitor>::type
+//    call(Expr const &expr, State const &state, Visitor &visitor)
+//    {
+//        return proto::as_expr(cbegin(proto::arg(expr)));
+//    }
+//};
 
-template<typename Grammar>
-struct begin
-  : Grammar
+struct begin : proto::function_transform
 {
-    template<typename Expr, typename State, typename Visitor>
-    struct apply
-      : proto::terminal<
-            iterator_wrapper<
-                typename proto::result_of::arg<Expr>::type::const_iterator
-            >
-        >
+    template<class Sig> struct result;
+    template<class This, class Cont>
+    struct result<This(Cont)>
+      : proto::result_of::as_expr<iterator_wrapper<typename Cont::const_iterator> >
     {};
-
-    template<typename Expr, typename State, typename Visitor>
-    static typename apply<Expr, State, Visitor>::type
-    call(Expr const &expr, State const &state, Visitor &visitor)
+    template<typename Cont>
+    typename proto::as_expr<iterator_wrapper<typename Cont::const_iterator> >::type
+    operator()(Cont const &cont) const
     {
-        return proto::as_expr(cbegin(proto::arg(expr)));
+        iterator_wrapper<typename Cont::const_iterator> it(cont.begin());
+        return proto::as_expr(it);
     }
 };
 
@@ -69,10 +86,10 @@ struct begin
 // begin iterators
 struct Begin
   : proto::or_<
-        begin< proto::terminal< std::vector<_, _> > >
-      , begin< proto::terminal< std::list<_, _> > >
-      , proto::terminal<_>
-      , proto::nary_expr<_, proto::vararg<Begin> >
+        case_< proto::terminal< std::vector<_, _> >, begin(_arg) >
+      , case_< proto::terminal< std::list<_, _> >, begin(_arg) >
+      , case_< proto::terminal<_> >
+      , case_< proto::nary_expr<_, proto::vararg<Begin> > >
     >
 {};
 
@@ -148,11 +165,14 @@ struct AssignOpsCases
 };
 
 // A vector grammar is a terminal or some op that is not an
-// assignment op. (Assignment will be handles specially.)
+// assignment op. (Assignment will be handled specially.)
 struct MixedGrammar
   : proto::or_<
         proto::terminal<_>
-      , proto::and_<proto::nary_expr<_, proto::vararg<MixedGrammar> >, proto::not_<AssignOps> >
+      , proto::and_<
+            proto::nary_expr<_, proto::vararg<MixedGrammar> >
+          , proto::not_<AssignOps>
+        >
     >
 {};
 

@@ -11,9 +11,6 @@
 
 #include <climits> // for INT_MAX
 
-// BUGBUG
-#define BOOST_PROTO_MAX_ARITY 5
-
 namespace boost { namespace proto
 {
     namespace wildns_
@@ -383,10 +380,10 @@ namespace boost { namespace proto
 
     namespace context
     {
-        //struct null_context;
+        struct null_context;
 
-        //template<typename Expr, typename Context, long Arity = Expr::proto_arity::value>
-        //struct null_eval;
+        template<typename Expr, typename Context, long Arity = Expr::proto_arity>
+        struct null_eval;
 
         struct default_context;
 

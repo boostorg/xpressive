@@ -72,11 +72,11 @@ namespace boost { namespace proto
         ///
     #define BOOST_PROTO_EXTENDS_ASSIGN_IMPL_(Expr, Derived, Domain, Const)\
         template<typename A>\
-        typename boost::mpl::apply_wrap1<Domain, boost::proto::expr<boost::proto::tag::assign, boost::proto::args<Derived BOOST_PROTO_CONST ## Const &, typename boost::proto::result_of::as_arg<A>::type> > >::type\
+        typename boost::mpl::apply_wrap1<Domain, boost::proto::expr<boost::proto::tag::assign, boost::proto::args<Derived BOOST_PROTO_CONST ## Const &, typename boost::proto::result_of::as_arg<A, Domain>::type> > >::type\
         operator =(A &&a) BOOST_PROTO_CONST ## Const\
         {\
-            typedef boost::proto::expr<boost::proto::tag::assign, boost::proto::args<Derived BOOST_PROTO_CONST ## Const &, typename boost::proto::result_of::as_arg<A>::type> > that_type;\
-            that_type that = {{*static_cast<Derived BOOST_PROTO_CONST ## Const *>(this), {boost::proto::result_of::as_arg<A>::call(a)}}};\
+            typedef boost::proto::expr<boost::proto::tag::assign, boost::proto::args<Derived BOOST_PROTO_CONST ## Const &, typename boost::proto::result_of::as_arg<A, Domain>::type> > that_type;\
+            that_type that = {{*static_cast<Derived BOOST_PROTO_CONST ## Const *>(this), {boost::proto::result_of::as_arg<A, Domain>::call(a)}}};\
             return Domain::make(that);\
         }\
         /**/
@@ -96,11 +96,11 @@ namespace boost { namespace proto
         ///
     #define BOOST_PROTO_EXTENDS_SUBSCRIPT_IMPL_(Expr, Derived, Domain, Const)\
         template<typename A>\
-        typename boost::mpl::apply_wrap1<Domain, boost::proto::expr<boost::proto::tag::subscript, boost::proto::args<Derived BOOST_PROTO_CONST ## Const &, typename boost::proto::result_of::as_arg<A>::type> > >::type\
+        typename boost::mpl::apply_wrap1<Domain, boost::proto::expr<boost::proto::tag::subscript, boost::proto::args<Derived BOOST_PROTO_CONST ## Const &, typename boost::proto::result_of::as_arg<A, Domain>::type> > >::type\
         operator [](A &&a) BOOST_PROTO_CONST ## Const\
         {\
-            typedef boost::proto::expr<boost::proto::tag::subscript, boost::proto::args<Derived BOOST_PROTO_CONST ## Const &, typename boost::proto::result_of::as_arg<A>::type> > that_type;\
-            that_type that = {{*static_cast<Derived BOOST_PROTO_CONST ## Const *>(this), {boost::proto::result_of::as_arg<A>::call(a)}}};\
+            typedef boost::proto::expr<boost::proto::tag::subscript, boost::proto::args<Derived BOOST_PROTO_CONST ## Const &, typename boost::proto::result_of::as_arg<A, Domain>::type> > that_type;\
+            that_type that = {{*static_cast<Derived BOOST_PROTO_CONST ## Const *>(this), {boost::proto::result_of::as_arg<A, Domain>::call(a)}}};\
             return Domain::make(that);\
         }\
         /**/
@@ -120,11 +120,11 @@ namespace boost { namespace proto
         ///
     #define BOOST_PROTO_EXTENDS_FUNCTION_IMPL_(Expr, Derived, Domain, Const)\
         template<typename... A>\
-        typename boost::mpl::apply_wrap1<Domain, boost::proto::expr<boost::proto::tag::function, boost::proto::args<Derived BOOST_PROTO_CONST ## Const &, typename boost::proto::result_of::as_arg<A>::type...> > >::type\
+        typename boost::mpl::apply_wrap1<Domain, boost::proto::expr<boost::proto::tag::function, boost::proto::args<Derived BOOST_PROTO_CONST ## Const &, typename boost::proto::result_of::as_arg<A, Domain>::type...> > >::type\
         operator ()(A &&... a) BOOST_PROTO_CONST ## Const\
         {\
-            typedef boost::proto::expr<boost::proto::tag::function, boost::proto::args<Derived BOOST_PROTO_CONST ## Const &, typename boost::proto::result_of::as_arg<A>::type...> > that_type;\
-            that_type that = {boost::proto::argsns_::make_cons(*static_cast<Derived BOOST_PROTO_CONST ## Const *>(this), boost::proto::result_of::as_arg<A>::call(a)...)};\
+            typedef boost::proto::expr<boost::proto::tag::function, boost::proto::args<Derived BOOST_PROTO_CONST ## Const &, typename boost::proto::result_of::as_arg<A, Domain>::type...> > that_type;\
+            that_type that = {boost::proto::argsns_::make_cons(*static_cast<Derived BOOST_PROTO_CONST ## Const *>(this), boost::proto::result_of::as_arg<A, Domain>::call(a)...)};\
             return Domain::make(that);\
         }\
         /**/

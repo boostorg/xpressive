@@ -159,14 +159,14 @@ lambda<proto::terminal<placeholder<mpl::int_<1> > >::type> const _2 = {{}};
 template<typename T>
 lambda<typename proto::terminal<T>::type> const val(T const &t)
 {
-    lambda<typename proto::terminal<T>::type> that = {{t}};
+    lambda<typename proto::terminal<T>::type> that = {{{t}}};
     return that;
 }
 
 template<typename T>
 lambda<typename proto::terminal<T &>::type> const var(T &t)
 {
-    lambda<typename proto::terminal<T &>::type> that = {{t}};
+    lambda<typename proto::terminal<T &>::type> that = {{{t}}};
     return that;
 }
 

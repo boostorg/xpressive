@@ -20,6 +20,7 @@
 #include <boost/type_traits.hpp>
 #include <boost/xpressive/proto3/proto_fwd.hpp>
 #include <boost/xpressive/proto3/traits.hpp> // for arg_c
+#include <boost/xpressive/proto3/detail/dont_care.hpp>
 
 namespace boost { namespace proto
 {
@@ -27,11 +28,6 @@ namespace boost { namespace proto
     {
         typedef char yes_type;
         typedef char (&no_type)[2];
-
-        struct dont_care
-        {
-            dont_care(...);
-        };
 
         struct private_type_
         {

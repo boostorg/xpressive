@@ -10,7 +10,18 @@
 #define BOOST_PROTO3_ARGS_HPP_EAN_10_28_2007
 
 #include <utility>
+#include <boost/type_traits.hpp>
+#include <boost/utility/result_of.hpp>
 #include <boost/xpressive/proto3/proto_fwd.hpp>
+
+#define UNCV(X)                                                                 \
+    typename remove_cv<X>::type
+
+#define UNREF(X)                                                                \
+    typename remove_reference<X>::type
+
+#define UNCVREF(X)                                                              \
+    UNCV(UNREF(X))
 
 namespace boost { namespace proto
 {
@@ -83,22 +94,75 @@ namespace boost { namespace proto
         template<typename Head>
         cons<> const cons<Head>::cdr = {};
 
-        template<typename Head, typename... Tail>
-        inline cons<Head, Tail...> make_cons(Head &&head, Tail &&... tail)
+        struct make_cons_fun
         {
-            cons<Head, Tail...> that = {head, make_cons(std::forward<Tail>(tail)...)};
-            return that;
-        }
+            template<typename Sig>
+            struct result;
 
-        template<typename Head>
-        inline cons<Head> make_cons(Head &&head)
+            template<typename This, typename... Args>
+            struct result<This(Args...)>
+            {
+                typedef cons<UNCV(Args)...> type;
+            };
+
+            template<typename Head, typename... Tail>
+            cons<UNCV(Head), UNCV(Tail)...> operator()(Head &&head, Tail &&... tail) const
+            {
+                cons<UNCV(Head), UNCV(Tail)...> that = {head, (*this)(std::forward<Tail>(tail)...)};
+                return that;
+            }
+
+            template<typename Head>
+            cons<UNCV(Head)> operator()(Head &&head) const
+            {
+                cons<UNCV(Head)> that = {head};
+                return that;
+            }
+        };
+
+        make_cons_fun const make_cons = {};
+
+        struct fanout_args_fun
         {
-            cons<Head> that = {head};
-            return that;
-        }
+            template<typename Sig>
+            struct result;
+
+            template<typename This, typename Fun, typename... Args>
+            struct result<This(Fun, cons<Args...>)>
+              : boost::result_of<UNCVREF(Fun)(UNCVREF(Args)...)>
+            {};
+
+            template<typename Fun, typename... Args>
+            typename boost::result_of<Fun(Args...)>::type
+            operator()(Fun const &fun, cons<Args...> const &cons) const
+            {
+                typedef typename boost::result_of<Fun(Args...)>::type type;
+                return this->call_<type>(fun, cons.cdr, cons.car);
+            }
+
+        private:
+
+            template<typename Ret, typename Fun, typename... Tail, typename... Head>
+            static Ret call_(Fun const &fun, cons<Tail...> const &cons, Head const &...head)
+            {
+                call_<Ret>(fun, cons.cdr, head..., cons.car);
+            }
+
+            template<typename Ret, typename Fun, typename... Head>
+            static Ret call_(Fun const &fun, cons<> const &, Head const &... head)
+            {
+                return fun(head...);
+            }
+        };
+
+        fanout_args_fun const fanout_args = {};
 
     }
 
 }}
+
+#undef UNCV
+#undef UNREF
+#undef UNCVREF
 
 #endif

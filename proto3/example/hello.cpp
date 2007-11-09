@@ -5,8 +5,8 @@
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
 #include <iostream>
-#include <boost/xpressive/proto/proto.hpp>
-#include <boost/xpressive/proto/context.hpp>
+#include <boost/xpressive/proto3/proto.hpp>
+#include <boost/xpressive/proto3/context.hpp>
 #include <boost/typeof/std/ostream.hpp>
 using namespace boost;
 

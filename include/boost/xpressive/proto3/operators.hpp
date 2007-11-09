@@ -95,7 +95,7 @@ namespace boost { namespace proto
             typedef UNREF(A)::proto_domain D;                                       \
             expr<TAG, args<                                                         \
                 typename result_of::as_arg<A, D>::type                              \
-            > > that = {{a /*proto::as_arg<D>(std::forward<A>(a))*/}};              \
+            > > that = {{result_of::as_arg<A, D>::call(a)}};                        \
             return D::make(that);                                                   \
         }                                                                           \
         /**/
@@ -117,8 +117,8 @@ namespace boost { namespace proto
                 typename result_of::as_arg<A, D>::type                              \
               , typename result_of::as_arg<B, D>::type                              \
             > > that = {{                                                           \
-                a /*proto::as_arg<D>(std::forward<A>(a))*/                                \
-              , {b /*proto::as_arg<D>(std::forward<B>(b))*/ }                              \
+                result_of::as_arg<A, D>::call(a)                                    \
+              , {result_of::as_arg<B, D>::call(b)}                                  \
             }};                                                                     \
             return D::make(that);                                                   \
         }                                                                           \

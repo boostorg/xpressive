@@ -8,8 +8,8 @@
 
 #include <iostream>
 #include <boost/mpl/int.hpp>
-#include <boost/xpressive/proto/proto.hpp>
-#include <boost/xpressive/proto/context.hpp>
+#include <boost/xpressive/proto3/proto.hpp>
+#include <boost/xpressive/proto3/context.hpp>
 using namespace boost;
 
 template<typename I> struct arg {};
