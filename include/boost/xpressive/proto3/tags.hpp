@@ -14,7 +14,7 @@
 namespace boost { namespace proto
 {
 
-    namespace tags
+    namespace tag
     {
 
         struct terminal {};

@@ -68,7 +68,7 @@ namespace boost { namespace proto
           : remove_cv<Context>::type
         {
             callable_context_wrapper();
-            typedef private_type_ const &(*pointer_to_function)(DontCare...);
+            typedef private_type_ const &(*pointer_to_function)(dont_care, DontCare...);
             operator pointer_to_function() const;
         };
 

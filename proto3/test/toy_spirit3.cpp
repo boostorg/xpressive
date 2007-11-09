@@ -246,7 +246,6 @@ namespace boost { namespace spirit2
           : case_< bitwise_or<SpiritExpr, SpiritExpr>,   alternate<FoldToList>(FoldToList) >
         {};
 
-
         // Directives such as no_case are handled here
         struct SpiritDirective
           : case_< subscript<NoCase, SpiritExpr>, SpiritExpr(_right, _state, True()) >

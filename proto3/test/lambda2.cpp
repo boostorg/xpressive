@@ -27,7 +27,7 @@ namespace boost { namespace fusion { namespace result_of { using namespace meta;
 #include <boost/type_traits/add_reference.hpp>
 #include <boost/xpressive/proto3/proto.hpp>
 #include <boost/xpressive/proto3/context.hpp>
-#include <boost/xpressive/proto3/transform2.hpp>
+#include <boost/xpressive/proto3/transform.hpp>
 #include <boost/test/unit_test.hpp>
 #include <boost/test/floating_point_comparison.hpp>
 
@@ -53,16 +53,19 @@ struct placeholder_arity
     typedef typename T::arity type;
 };
 
+struct zero : mpl::int_<0> {};
+
 namespace grammar
 {
     using namespace proto;
+    using namespace transform;
 
     // The lambda grammar, with the transforms for calculating the max arity
     struct Lambda
       : or_<
             case_< terminal< placeholder<_> >,  mpl::next<placeholder_arity<_arg> >() >
-          , case_< terminal<_>,                 mpl::int_<0>() >
-          , case_< nary_expr<_, vararg<_> >,    fold<_children, mpl::int_<0>(), mpl::max<Lambda,_state>()> >
+          , case_< terminal<_>,                 zero() >
+          , case_< nary_expr<_, vararg<_> >,    fold<_, zero(), mpl::max<Lambda,_state>()> >
         >
     {};
 }
