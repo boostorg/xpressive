@@ -26,32 +26,6 @@ namespace boost { namespace proto
 
     namespace detail
     {
-        template<typename Expr>
-        struct arity_;
-
-        template<typename Tag, typename Args, long N>
-        struct arity_<expr<Tag, Args, N> >
-          : mpl::long_<N>
-        {};
-
-        template<typename Expr>
-        struct tag_;
-
-        template<typename Tag, typename Args, long N>
-        struct tag_<expr<Tag, Args, N> >
-        {
-            typedef Tag type;
-        };
-
-        template<typename Expr>
-        struct args_;
-
-        template<typename Tag, typename Args, long N>
-        struct args_<expr<Tag, Args, N> >
-        {
-            typedef Args type;
-        };
-
         struct by_value_cons
         {
             template<typename Sig>
