@@ -24,5 +24,6 @@
 #include <boost/xpressive/proto3/matches.hpp>
 #include <boost/xpressive/proto3/transform.hpp>
 #include <boost/xpressive/proto3/fusion.hpp>
+#include <boost/xpressive/proto3/make_expr.hpp>
 
 #endif

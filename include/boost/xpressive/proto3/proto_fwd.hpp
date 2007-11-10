@@ -187,6 +187,12 @@ namespace boost { namespace proto
 
         template<typename T, typename EnableIf = void>
         struct domain_of;
+
+        template<typename Tag, typename... Args>
+        struct make_expr;
+
+        template<typename Tag, typename DomainOrSequence, typename SequenceOrVoid = void, typename _ = void>
+        struct unpack_expr;
     }
 
     using result_of::matches;
@@ -408,6 +414,42 @@ namespace boost { namespace proto
     using context::callable_context;
     using context::callable_eval;
 
+    namespace functional
+    {
+        struct left;
+        struct right;
+        struct deep_copy;
+
+        template<typename Domain = default_domain>
+        struct as_expr;
+
+        template<typename Domain = default_domain>
+        struct as_arg;
+
+        //template<typename N = mpl::long_<0> >
+        //struct arg;
+
+        template<long N>
+        struct arg_c;
+
+        template<typename Tag, typename Domain = deduce_domain>
+        struct make_expr;
+
+        template<typename Tag, typename Domain = deduce_domain>
+        struct unpack_expr;
+
+        template<typename Tag, typename Domain = deduce_domain>
+        struct unfused_expr_fun;
+
+        template<typename Tag, typename Domain = deduce_domain>
+        struct unfused_expr;
+    }
+
+    template<typename T>
+    struct is_extension;
+
+    namespace exops
+    {}
 }}
 
 #endif

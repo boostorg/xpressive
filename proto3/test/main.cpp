@@ -224,6 +224,13 @@ byvalexpr<terminal<int>::type> A;
 byvalexpr<terminal<int>::type> B;
 byvalexpr<terminal<int>::type> C;
 
+struct tmp
+{
+    int i;
+    tmp( tmp && that ){}
+};
+
+//tmp const tmp1 = {1};
 
 int main()
 {

@@ -474,7 +474,7 @@ namespace boost { namespace proto
         };
 
         template<typename Cases>
-        struct switch_
+        struct switch_ : raw_transform
         {
             typedef switch_ proto_base_expr;
 

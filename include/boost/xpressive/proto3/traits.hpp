@@ -415,7 +415,97 @@ namespace boost { namespace proto
     namespace functional
     {
 
-        // TODOD
+        template<typename Domain>
+        struct as_expr
+        {
+            template<typename Sig>
+            struct result {};
+
+            template<typename This, typename T>
+            struct result<This(T)>
+              : result_of::as_expr<T, Domain>
+            {};
+
+            template<typename T>
+            typename result_of::as_expr<T, Domain>::result_type
+            operator ()(T &&t) const
+            {
+                return result_of::as_expr<T, Domain>::call(t);
+            }
+        };
+
+        template<typename Domain>
+        struct as_arg
+        {
+            template<typename Sig>
+            struct result {};
+
+            template<typename This, typename T>
+            struct result<This(T)>
+              : result_of::as_arg<T, Domain>
+            {};
+
+            template<typename T>
+            typename result_of::as_arg<T, Domain>::type
+            operator ()(T &&t) const
+            {
+                return result_of::as_arg<T, Domain>::call(t);
+            }
+        };
+
+        template<long N>
+        struct arg_c
+        {
+            template<typename Sig>
+            struct result {};
+
+            template<typename This, typename Expr>
+            struct result<This(Expr)>
+              : result_of::arg_c<UNCVREF(Expr), N>
+            {};
+
+            template<typename Expr>
+            typename result_of::arg_c<Expr, N>::reference operator ()(Expr &expr) const
+            {
+                return result_of::arg_c<Expr, N>::call(expr);
+            }
+
+            template<typename Expr>
+            typename result_of::arg_c<Expr, N>::const_reference operator ()(Expr const &expr) const
+            {
+                return result_of::arg_c<Expr, N>::call(expr);
+            }
+        };
+
+        //template<typename N>
+        //struct arg
+        //{
+        //    template<typename Sig>
+        //    struct result {};
+
+        //    template<typename This, typename Expr>
+        //    struct result<This(Expr)>
+        //      : result_of::arg<typename detail::remove_cv_ref<Expr>::type, N>
+        //    {};
+
+        //    template<typename Expr>
+        //    typename result_of::arg<Expr, N>::reference operator ()(Expr &expr) const
+        //    {
+        //        return result_of::arg<Expr, N>::call(expr);
+        //    }
+
+        //    template<typename Expr>
+        //    typename result_of::arg<Expr, N>::const_reference operator ()(Expr const &expr) const
+        //    {
+        //        return result_of::arg<Expr, N>::call(expr);
+        //    }
+        //};
+
+        struct left : arg_c<0>
+        {};
+
+        struct right : arg_c<1>
+        {};
 
     }
 
