@@ -277,7 +277,10 @@ namespace boost { namespace proto
 
         struct fold_domain_
         {
-            template<typename Sig> struct result {};
+            template<typename Sig>
+            struct result
+            {};
+
             template<typename This, typename Domain, typename State>
             struct result<This(Domain, State)>
               : mpl::if_<
@@ -290,7 +293,10 @@ namespace boost { namespace proto
 
         struct domain_of_
         {
-            template<typename Sig> struct result {};
+            template<typename Sig>
+            struct result
+            {};
+            
             template<typename This, typename Domain>
             struct result<This(Domain)>
               : domain_of<UNCVREF(Domain)>
@@ -299,7 +305,10 @@ namespace boost { namespace proto
 
         struct make_args_fun
         {
-            template<typename Sig> struct result {};
+            template<typename Sig>
+            struct result
+            {};
+            
             template<typename This, typename... Args>
             struct result<This(Args...)>
             {
@@ -459,6 +468,11 @@ namespace boost { namespace proto
             struct result
             {};
 
+            template<typename This, typename... A>
+            struct result<This(A...)>
+              : result_of::make_expr<Tag, Domain, A...>
+            {};
+
             template<typename... A>
             typename result_of::make_expr<Tag, Domain, A...>::type const
             operator ()(A &&...a) const
@@ -476,11 +490,7 @@ namespace boost { namespace proto
 
             template<typename This, typename Sequence>
             struct result<This(Sequence)>
-              : result_of::unpack_expr<
-                    Tag
-                  , Domain
-                  , UNCVREF(Sequence)
-                >
+              : result_of::unpack_expr<Tag, Domain, UNCVREF(Sequence)>
             {};
 
             template<typename Sequence>

@@ -10,8 +10,10 @@
 #define BOOST_PROTO3_TRANSFORM_CASE_HPP_EAN_10_29_2007
 
 #include <boost/mpl/bool.hpp>
+#include <boost/mpl/logical.hpp>
 #include <boost/mpl/aux_/has_type.hpp>
 #include <boost/type_traits.hpp>
+#include <boost/utility/enable_if.hpp>
 #include <boost/xpressive/proto3/proto_fwd.hpp>
 #include <boost/xpressive/proto3/transform/bind.hpp>
 #include <boost/xpressive/proto3/transform/apply.hpp>
@@ -232,11 +234,6 @@ namespace boost { namespace proto
             }
         };
 
-        //template<typename Trans>
-        //struct typeof_
-        //  : case_<_, Trans>
-        //{};
-
     }
 
     namespace detail
@@ -281,12 +278,6 @@ namespace boost { namespace proto
     struct transform_category<expr<Tag, Args, N> >
     {
         typedef no_transform type;
-    };
-
-    template<typename Trans>
-    struct transform_category<typeof_<Trans> >
-    {
-        typedef raw_transform type;
     };
 
 }}

@@ -45,7 +45,6 @@ namespace boost { namespace proto
             template<typename... A>
             static expr make(A &&... a)
             {
-
                 expr that = {{a...}};
                 return that;
             }

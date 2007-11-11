@@ -199,6 +199,7 @@ namespace boost { namespace proto
     using result_of::tag_of;
     using result_of::is_domain;
     using result_of::domain_of;
+	using result_of::is_expr;
 
     template<long N, typename Expr>
     typename result_of::arg_c<Expr, N>::reference
@@ -362,16 +363,12 @@ namespace boost { namespace proto
         template<typename Grammar, typename Fun = Grammar>
         struct case_;
 
-        template<typename Trans>
-        struct typeof_;
-
         struct _expr;
         struct _state;
         struct _visitor;
     }
 
     using transform::case_;
-    using transform::typeof_;
     using transform::_expr;
     using transform::_state;
     using transform::_visitor;
@@ -407,8 +404,8 @@ namespace boost { namespace proto
         struct callable_eval;
     }
 
-    //using context::null_context;
-    //using context::null_eval;
+    using context::null_context;
+    using context::null_eval;
     using context::default_context;
     using context::default_eval;
     using context::callable_context;

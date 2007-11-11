@@ -13,6 +13,7 @@
 #include <boost/utility/enable_if.hpp>
 #include <boost/preprocessor/punctuation/comma.hpp>
 #include <boost/xpressive/proto3/proto_fwd.hpp>
+#include <boost/xpressive/proto3/make_expr.hpp>
 
 #define UNREF(X) typename remove_reference<X>::type
 
@@ -173,7 +174,15 @@ namespace boost { namespace proto
     #undef BOOST_PROTO_DEFINE_UNARY_OPERATOR
     #undef BOOST_PROTO_DEFINE_BINARY_OPERATOR
 
+        template<typename A, typename B, typename C>
+        typename result_of::make_expr<tag::if_else_, A, B, C>::type
+        if_else(A &&a, B &&b, C &&c)
+        {
+            return result_of::make_expr<tag::if_else_, A, B, C>::call(a, b, c);
+        }
     }
+    
+    using exprns_::if_else;
 
 }}
 
