@@ -35,8 +35,8 @@ namespace boost { namespace proto
             static void call_(argsns_::cons<> const &, Context &)
             {}
 
-            template<typename... Args>
-            static void call_(argsns_::cons<Args...> const &args, Context &ctx)
+            template<typename Cons>
+            static void call_(Cons &args, Context &ctx)
             {
                 proto::eval(args.car, ctx);
                 call_(args.cdr, ctx);

@@ -10,6 +10,7 @@
 #define BOOST_PROTO3_PROTO_FWD_EAN_10_28_2007
 
 #include <climits> // for INT_MAX
+#include <boost/type_traits.hpp>
 
 namespace boost { namespace proto
 {
@@ -448,5 +449,8 @@ namespace boost { namespace proto
     namespace exops
     {}
 }}
+
+#define BOOST_PROTO_UNCVREF(x)\
+    typename boost::remove_cv<typename boost::remove_reference<x>::type>::type
 
 #endif
