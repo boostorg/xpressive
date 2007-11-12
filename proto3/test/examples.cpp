@@ -22,6 +22,7 @@ using namespace boost::proto;
 using namespace transform;
 namespace mpl = boost::mpl;
 namespace fusion = boost::fusion;
+using boost::array;
 
 struct placeholder1 {};
 struct placeholder2 {};
@@ -176,6 +177,18 @@ struct pop_front : function_transform
     }
 };
 
+template<typename T>
+struct as_member
+{
+    typedef T type;
+};
+
+template<typename T, std::size_t N>
+struct as_member<T[N]>
+{
+    typedef array<T, N> type;
+};
+
 //[ AsArgList
 // This transform matches function invocations such as foo(1,'a',"b")
 // and transforms them into Fusion cons lists of their arguments. In this
@@ -189,7 +202,7 @@ struct ArgsAsList
       , reverse_fold<
             /*<< The first child expression of a `function<>` node is the
             function being invoked. We don't want that in our list, so use
-            the `pop_front<>` transform to remove it. >>*/
+            the `pop_front()` to remove it. >>*/
             pop_front(_)    // make (_) optional
           /*<< `nil` is the initial state used by the `reverse_fold<>`
           transform. >>*/
@@ -304,16 +317,15 @@ void test_examples()
 
     using boost::fusion::cons;
     using boost::fusion::nil;
-    // TODO
-    //cons<int, cons<char, cons<char const (&)[2]> > > args(ArgsAsList::call( _1(1, 'a', "b"), i, i ));
-    //BOOST_CHECK_EQUAL(args.car, 1);
-    //BOOST_CHECK_EQUAL(args.cdr.car, 'a');
-    //BOOST_CHECK_EQUAL(args.cdr.cdr.car, std::string("b"));
+    cons<int, cons<char, cons<std::string> > > args(ArgsAsList::call( _1(1, 'a', std::string("b")), i, i ));
+    BOOST_CHECK_EQUAL(args.car, 1);
+    BOOST_CHECK_EQUAL(args.cdr.car, 'a');
+    BOOST_CHECK_EQUAL(args.cdr.cdr.car, std::string("b"));
 
-    //cons<int, cons<char, cons<char const (&)[2]> > > lst(FoldTreeToList::call( (_1 = 1, 'a', "b"), i, i ));
-    //BOOST_CHECK_EQUAL(lst.car, 1);
-    //BOOST_CHECK_EQUAL(lst.cdr.car, 'a');
-    //BOOST_CHECK_EQUAL(lst.cdr.cdr.car, std::string("b"));
+    cons<int, cons<char, cons<std::string> > > lst(FoldTreeToList::call( (_1 = 1, 'a', std::string("b")), i, i ));
+    BOOST_CHECK_EQUAL(lst.car, 1);
+    BOOST_CHECK_EQUAL(lst.cdr.car, 'a');
+    BOOST_CHECK_EQUAL(lst.cdr.cdr.car, std::string("b"));
 
     plus<
         terminal<double>::type

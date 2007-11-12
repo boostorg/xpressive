@@ -232,126 +232,124 @@ int main()
     terminal<int>::type u = {42};
     terminal<int>::type const t = {42};
 
-    arg(u) = 43;
+    int j=0;
 
-    //int j=0;
+    expr<tag::function,
+        args<
+            expr<tag::terminal, term<int> > const &
+          , expr<tag::terminal, term<int const &> >
+          , expr<tag::terminal, term<int &> >
+          , expr<tag::terminal, term<int> > const &
+        >
+    > that = t(1,j,t);
 
-    //expr<tag::function,
-    //    args<
-    //        expr<tag::terminal, term<int> > const &
-    //      , expr<tag::terminal, term<int const &> >
-    //      , expr<tag::terminal, term<int &> >
-    //      , expr<tag::terminal, term<int> > const &
-    //    >
-    //> that = t(1,j,t);
+    function<
+        expr<tag::terminal, term<int> > const &
+      , expr<tag::terminal, term<int const &> >
+      , expr<tag::terminal, term<int &> >
+      , expr<tag::terminal, term<int> > const &
+    >::type other = t(1,j,t);
 
-    //function<
-    //    expr<tag::terminal, term<int> > const &
-    //  , expr<tag::terminal, term<int const &> >
-    //  , expr<tag::terminal, term<int &> >
-    //  , expr<tag::terminal, term<int> > const &
-    //>::type other = t(1,j,t);
+    expr<tag::assign,
+        args<
+            expr<tag::terminal, term<int> > const &
+          , expr<tag::terminal, term<int const &> >
+        >
+    > that2 = (t = 1);
 
-    //expr<tag::assign,
-    //    args<
-    //        expr<tag::terminal, term<int> > const &
-    //      , expr<tag::terminal, term<int const &> >
-    //    >
-    //> that2 = (t = 1);
+    expr<tag::posit,
+        args<expr<tag::terminal, term<int> > const &>
+    > that3 = +t;
 
-    //expr<tag::posit,
-    //    args<expr<tag::terminal, term<int> > const &>
-    //> that3 = +t;
+    expr<tag::posit,
+        args<expr<tag::terminal, term<int> > &>
+    > that4 = +u;
 
-    //expr<tag::posit,
-    //    args<expr<tag::terminal, term<int> > &>
-    //> that4 = +u;
+    expr<tag::plus,
+        args<
+            expr<tag::terminal, term<int> > &
+          , expr<tag::terminal, term<int &> >
+        >
+    > that5 = u + j;
 
-    //expr<tag::plus,
-    //    args<
-    //        expr<tag::terminal, term<int> > &
-    //      , expr<tag::terminal, term<int &> >
-    //    >
-    //> that5 = u + j;
+    std::printf("%d %d\n", arg_c<0>(arg_c<0>(that5)), arg_c<0>(arg_c<1>(that5)));
 
-    //std::printf("%d %d\n", arg_c<0>(arg_c<0>(that5)), arg_c<0>(arg_c<1>(that5)));
+    check<_>(u+j);
+    check<terminal<int> >(u);
+    check<plus<terminal<int>, terminal<int&> > >(u + j);
+    check<plus<terminal<int>, terminal<int> > >(u + j);
 
-    //check<_>(u+j);
-    //check<terminal<int> >(u);
-    //check<plus<terminal<int>, terminal<int&> > >(u + j);
-    //check<plus<terminal<int>, terminal<int> > >(u + j);
+    terminal<pair<int,double> >::type w = {};
+    check<terminal<pair<int,double> > >(w);
+    check<terminal<pair<_,double> > >(w);
 
-    //terminal<pair<int,double> >::type w = {};
-    //check<terminal<pair<int,double> > >(w);
-    //check<terminal<pair<_,double> > >(w);
+    check<
+        or_<
+            minus<terminal<int>, terminal<int> >
+          , plus<terminal<int>, terminal<int> >
+        >
+    >(u + j);
 
-    //check<
-    //    or_<
-    //        minus<terminal<int>, terminal<int> >
-    //      , plus<terminal<int>, terminal<int> >
-    //    >
-    //>(u + j);
+    check<function<Any> >(char_());
+    check<function<Any, Char, Char> >(char_('a', 'b'));
 
-    //check<function<Any> >(char_());
-    //check<function<Any, Char, Char> >(char_('a', 'b'));
+    check_not<function<Any, Char> >(char_());
+    check<function<Any, Char> >(char_('a'));
+    check_not<function<Any, Char> >(char_('a', 'b'));
 
-    //check_not<function<Any, Char> >(char_());
-    //check<function<Any, Char> >(char_('a'));
-    //check_not<function<Any, Char> >(char_('a', 'b'));
+    check<function<Any, vararg<Char> > >(char_());
+    check<function<Any, vararg<Char> > >(char_('a'));
+    check<function<Any, vararg<Char> > >(char_('a', 'b'));
 
-    //check<function<Any, vararg<Char> > >(char_());
-    //check<function<Any, vararg<Char> > >(char_('a'));
-    //check<function<Any, vararg<Char> > >(char_('a', 'b'));
+    terminal<float>::type ff = {1.F};
+    check<Promote>(ff+ff);
+    plus<terminal<double>::type, terminal<double>::type>::type dd = 
+        Promote::call(ff+ff, dummy, non_);
 
-    //terminal<float>::type ff = {1.F};
-    //check<Promote>(ff+ff);
-    //plus<terminal<double>::type, terminal<double>::type>::type dd = 
-    //    Promote::call(ff+ff, dummy, non_);
+    plus<terminal<double>::type, terminal<int>::type>::type du = 
+        Promote::call(ff+u, dummy, non_);
+    std::printf("%g %d\n", arg_c<0>(arg_c<0>(du)), arg_c<0>(arg_c<1>(du)));
 
-    //plus<terminal<double>::type, terminal<int>::type>::type du = 
-    //    Promote::call(ff+u, dummy, non_);
-    //std::printf("%g %d\n", arg_c<0>(arg_c<0>(du)), arg_c<0>(arg_c<1>(du)));
+    plus<negate<terminal<double>::type>::type, terminal<int>::type>::type ndu = 
+        Promote::call(+ff+u, dummy, non_);
+    std::printf("%g %d\n", arg_c<0>(arg_c<0>(arg_c<0>(ndu))), arg_c<0>(arg_c<1>(ndu)));
 
-    //plus<negate<terminal<double>::type>::type, terminal<int>::type>::type ndu = 
-    //    Promote::call(+ff+u, dummy, non_);
-    //std::printf("%g %d\n", arg_c<0>(arg_c<0>(arg_c<0>(ndu))), arg_c<0>(arg_c<1>(ndu)));
+    terminal<char const *>::type sz = {"hello"};
+    std::string str = Promote::call(sz, dummy, non_);
 
-    //terminal<char const *>::type sz = {"hello"};
-    //std::string str = Promote::call(sz, dummy, non_);
+    std::printf(
+        "%d %d %d\n"
+      , (int)Arity::call(sz, dummy, non_)
+      , (int)Arity::call(_1 + 0, dummy, non_)
+      , (int)Arity::call(_2 + _1, dummy, non_)
+    );
 
-    //std::printf(
-    //    "%d %d %d\n"
-    //  , (int)Arity::call(sz, dummy, non_)
-    //  , (int)Arity::call(_1 + 0, dummy, non_)
-    //  , (int)Arity::call(_2 + _1, dummy, non_)
-    //);
+    using fusion::cons;
+    cons<char, cons<int, cons<float> > > mylist1 =
+        ArgsAsList::call(_1('a', 42, 3.14f), dummy, non_);
+    std::cout << mylist1.car << ' ' << mylist1.cdr.car << ' ' << mylist1.cdr.cdr.car << std::endl;
 
-    //using fusion::cons;
-    //cons<char, cons<int, cons<float> > > mylist1 =
-    //    ArgsAsList::call(_1('a', 42, 3.14f), dummy, non_);
-    //std::cout << mylist1.car << ' ' << mylist1.cdr.car << ' ' << mylist1.cdr.cdr.car << std::endl;
+    cons<int, cons<char, cons<std::string> > > mylist2
+        (FoldTreeToList::call( (_1 = 1, 'a', str), dummy, non_ ));
+    std::cout << mylist2.car << ' ' << mylist2.cdr.car << ' ' << mylist2.cdr.cdr.car << std::endl;
 
-    //cons<int, cons<char, cons<std::string> > > mylist2
-    //    (FoldTreeToList::call( (_1 = 1, 'a', str), dummy, non_ ));
-    //std::cout << mylist2.car << ' ' << mylist2.cdr.car << ' ' << mylist2.cdr.cdr.car << std::endl;
+    default_context ctx;
+    int r1 = eval(as_expr(1) + as_expr(2), ctx);
+    std::cout << r1 << std::endl;
 
-    //default_context ctx;
-    //int r1 = eval(as_expr(1) + as_expr(2), ctx);
-    //std::cout << r1 << std::endl;
+    display_expr((_1 = 1, 'a', str));
 
-    //display_expr((_1 = 1, 'a', str));
-
-    //byvalexpr<
-    //    expr<tag::plus
-    //      , args<
-    //            byvalexpr<expr<tag::terminal, term<int> > >
-    //          , byvalexpr<expr<tag::divides, args<
-    //                byvalexpr<expr<tag::terminal, term<int> > >
-    //              , byvalexpr<expr<tag::terminal, term<int> > >
-    //            > > >
-    //        >
-    //    >
-    //> bve = A+B/C;
+    byvalexpr<
+        expr<tag::plus
+          , args<
+                byvalexpr<expr<tag::terminal, term<int> > >
+              , byvalexpr<expr<tag::divides, args<
+                    byvalexpr<expr<tag::terminal, term<int> > >
+                  , byvalexpr<expr<tag::terminal, term<int> > >
+                > > >
+            >
+        >
+    > bve = A+B/C;
 
     return 0;
 }
