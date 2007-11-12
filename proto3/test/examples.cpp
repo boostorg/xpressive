@@ -22,7 +22,6 @@ using namespace boost::proto;
 using namespace transform;
 namespace mpl = boost::mpl;
 namespace fusion = boost::fusion;
-using boost::array;
 
 struct placeholder1 {};
 struct placeholder2 {};
@@ -175,18 +174,6 @@ struct pop_front : function_transform
     {
         return fusion::pop_front(t);
     }
-};
-
-template<typename T>
-struct as_member
-{
-    typedef T type;
-};
-
-template<typename T, std::size_t N>
-struct as_member<T[N]>
-{
-    typedef array<T, N> type;
 };
 
 //[ AsArgList
