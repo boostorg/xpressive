@@ -16,11 +16,9 @@
 #include <boost/xpressive/proto3/proto.hpp>
 #include <boost/xpressive/proto3/context.hpp>
 #include <boost/xpressive/proto3/proto_typeof.hpp>
-#include <boost/xpressive/proto3/transform/arg.hpp>
-#include <boost/xpressive/proto3/transform/fold.hpp>
-#include <boost/xpressive/proto3/transform/apply.hpp>
-#include <boost/xpressive/proto3/transform/function.hpp>
+#include <boost/xpressive/proto3/transform.hpp>
 using namespace boost::proto;
+using namespace transform;
 namespace mpl = boost::mpl;
 
 // Here is an evaluation context that indexes into a Vec3
@@ -63,23 +61,23 @@ struct CountLeavesCtx
       int count;
 };
 
+struct one : mpl::int_<1> {};
+struct iplus : std::plus<int>, function_transform {};
+
 // Here is a transform that does the same thing as the above context.
 // It demonstrates the use of the std::plus<> function object
-// with the function2 transform. With minor modifications, this
+// with the fold transform. With minor modifications, this
 // transform could be used to calculate the leaf count at compile
 // time, rather at runtime.
 struct CountLeaves
   : or_<
         // match a Vec3 terminal, return 1
-        transform::always<terminal<int[3]>, mpl::int_<1> >
+        case_<terminal<int[3]>, one() >
         // match a terminal, return int() (which is 0)
-      , transform::always<terminal<_>, int>
+      , case_<terminal<_>, int() >
         // fold everything else, using std::plus<> to add
         // the leaf count of each child to the accumulated state.
-      , transform::fold<
-            nary_expr<_, vararg<transform::function2<CountLeaves, std::plus<int> > > >
-          , int // initial state of the fold is int() (which is 0)
-        >
+      , case_< nary_expr<_, vararg<_> >, fold<_, int(), iplus(CountLeaves, _state) > >
     >
 {};
 

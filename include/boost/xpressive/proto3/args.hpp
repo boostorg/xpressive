@@ -145,7 +145,7 @@ namespace boost { namespace proto
             template<typename Ret, typename Fun, typename... Tail, typename... Head>
             static Ret call_(Fun const &fun, cons<Tail...> const &cons, Head const &...head)
             {
-                call_<Ret>(fun, cons.cdr, head..., cons.car);
+                return call_<Ret>(fun, cons.cdr, head..., cons.car);
             }
 
             template<typename Ret, typename Fun, typename... Head>

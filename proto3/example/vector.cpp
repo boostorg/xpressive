@@ -77,7 +77,7 @@ struct VectorSizeCtx
         {
             if(ctx.size_ != proto::arg(expr).size())
             {
-                throw std::invalid_argument("LHS and RHS are not compatible");
+                throw std::runtime_error("LHS and RHS are not compatible");
             }
         }
     };

@@ -407,7 +407,7 @@ namespace boost { namespace proto
 
             static type const call(reference a)
             {
-                expr_type that = {a};
+                expr_type that = {{a}};
                 return Domain::make(that);
             }
         };

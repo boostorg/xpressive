@@ -17,11 +17,12 @@
 #include <boost/xpressive/proto3/debug.hpp>
 #include <boost/xpressive/proto3/traits.hpp>
 #include <boost/xpressive/proto3/domain.hpp>
+#include <boost/xpressive/proto3/matches.hpp>
 #include <boost/xpressive/proto3/extends.hpp>
 #include <boost/xpressive/proto3/literal.hpp>
 #include <boost/xpressive/proto3/generate.hpp>
 #include <boost/xpressive/proto3/operators.hpp>
-#include <boost/xpressive/proto3/matches.hpp>
+#include <boost/xpressive/proto3/deep_copy.hpp>
 #include <boost/xpressive/proto3/transform.hpp>
 #include <boost/xpressive/proto3/fusion.hpp>
 #include <boost/xpressive/proto3/make_expr.hpp>

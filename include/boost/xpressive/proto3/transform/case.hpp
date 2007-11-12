@@ -127,6 +127,12 @@ namespace boost { namespace proto
                 return Type(args...);
             }
 
+            template<typename Type>
+            Type construct_()
+            {
+                return Type();
+            }
+
             template<
                 typename Expr
               , typename State
