@@ -11,6 +11,8 @@
 
 #include <climits> // for INT_MAX
 #include <boost/type_traits.hpp>
+#include <boost/mpl/aux_/template_arity.hpp>
+#include <boost/mpl/aux_/lambda_arity_param.hpp>
 
 namespace boost { namespace proto
 {
@@ -138,6 +140,7 @@ namespace boost { namespace proto
 
         struct proto_expr;
         struct proto_expr_iterator;
+        struct proto_flat_view;
     }
 
     namespace utility

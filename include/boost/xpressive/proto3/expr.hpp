@@ -12,6 +12,7 @@
 #include <cstddef>
 #include <boost/type_traits.hpp>
 #include <boost/utility/enable_if.hpp>
+#include <boost/utility/addressof.hpp>
 #include <boost/xpressive/proto3/proto_fwd.hpp>
 #include <boost/xpressive/proto3/tags.hpp>
 #include <boost/xpressive/proto3/traits.hpp>
@@ -23,6 +24,18 @@ namespace boost { namespace proto
     {
         namespace detail
         {
+            template<typename Tag, typename Arg>
+            struct address_of_hack
+            {
+                typedef address_of_hack type;
+            };
+
+            template<typename Expr>
+            struct address_of_hack<tag::address_of, Expr &>
+            {
+                typedef Expr *type;
+            };
+
             template<typename X, std::size_t N, typename Y>
             void checked_copy(X (&x)[N], Y (&y)[N])
             {
@@ -76,6 +89,7 @@ namespace boost { namespace proto
                 return that;
             }
 
+            // necessary for terminals that store arrays by value
             template<typename A, std::size_t N>
             static expr make(
                 A (&a)[N]
@@ -98,6 +112,17 @@ namespace boost { namespace proto
             expr const &proto_base() const
             {
                 return *this;
+            }
+
+            typedef
+                typename 
+                    exprns_::detail::address_of_hack<Tag, typename Args::cons_type::car_type>
+                ::type
+            address_of_hack_type_;
+
+            operator address_of_hack_type_() const
+            {
+                return boost::addressof(this->arg0.expr);
             }
 
             template<typename A>

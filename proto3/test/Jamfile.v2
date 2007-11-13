@@ -18,8 +18,8 @@ project
 
 test-suite "proto"
     :
-#        [ run proto_fusion.cpp : : : <toolset>gcc:<cxxflags>-ftemplate-depth-1024 ]
-#        [ run proto_fusion_s.cpp ]
+        [ run proto_fusion.cpp : : : <toolset>gcc:<cxxflags>-ftemplate-depth-1024 ]
+        [ run proto_fusion_s.cpp ]
         [ run toy_spirit.cpp ]
         [ run calculator.cpp ]
         [ run lambda.cpp ]

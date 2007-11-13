@@ -66,6 +66,7 @@ namespace boost { namespace proto
         // For fusion
         struct proto_expr {};
         struct proto_expr_iterator {};
+        struct proto_flat_view {};
     }
 
 }}

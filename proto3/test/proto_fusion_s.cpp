@@ -65,51 +65,53 @@ private:
 
 void test1()
 {
-    boost::proto::terminal<char>::type a_ = {'a'};
-    boost::proto::terminal<char>::type b_ = {'b'};
-    boost::proto::terminal<char>::type c_ = {'c'};
-    boost::proto::terminal<char>::type d_ = {'d'};
-    boost::proto::terminal<char>::type e_ = {'e'};
-    boost::proto::terminal<char>::type f_ = {'f'};
-    boost::proto::terminal<char>::type g_ = {'g'};
-    boost::proto::terminal<char>::type h_ = {'h'};
-    boost::proto::terminal<char>::type i_ = {'i'};
+    using boost::proto::flatten;
+
+    boost::proto::terminal<char>::type a_ = {{'a'}};
+    boost::proto::terminal<char>::type b_ = {{'b'}};
+    boost::proto::terminal<char>::type c_ = {{'c'}};
+    boost::proto::terminal<char>::type d_ = {{'d'}};
+    boost::proto::terminal<char>::type e_ = {{'e'}};
+    boost::proto::terminal<char>::type f_ = {{'f'}};
+    boost::proto::terminal<char>::type g_ = {{'g'}};
+    boost::proto::terminal<char>::type h_ = {{'h'}};
+    boost::proto::terminal<char>::type i_ = {{'i'}};
 
     std::stringstream sout;
 
     // Test for 1-way branching "tree"
     sout.str("");
-    boost::fusion::for_each_s(!!!!(a_ >> b_), to_string(sout));
+    boost::fusion::for_each_s(flatten(!!!!(a_ >> b_)), to_string(sout));
     BOOST_CHECK_EQUAL("(a>>b)", sout.str());
 
     // Tests for 2-way branching trees
     sout.str("");
-    boost::fusion::for_each_s(a_ >> b_ >> c_, to_string(sout));
+    boost::fusion::for_each_s(flatten(a_ >> b_ >> c_), to_string(sout));
     BOOST_CHECK_EQUAL("(a)(b)(c)", sout.str());
 
     sout.str("");
-    boost::fusion::for_each_s(a_ | b_ | c_, to_string(sout));
+    boost::fusion::for_each_s(flatten(a_ | b_ | c_), to_string(sout));
     BOOST_CHECK_EQUAL("(a)(b)(c)", sout.str());
 
     sout.str("");
-    boost::fusion::for_each_s(a_ >> b_ | c_ >> d_, to_string(sout));
+    boost::fusion::for_each_s(flatten(a_ >> b_ | c_ >> d_), to_string(sout));
     BOOST_CHECK_EQUAL("(a>>b)(c>>d)", sout.str());
 
     sout.str("");
-    boost::fusion::for_each_s(a_ | b_ >> c_ | d_, to_string(sout));
+    boost::fusion::for_each_s(flatten(a_ | b_ >> c_ | d_), to_string(sout));
     BOOST_CHECK_EQUAL("(a)(b>>c)(d)", sout.str());
 
     sout.str("");
-    boost::fusion::for_each_s(a_ >> b_ | c_ >> d_ | e_ >> f_ >> g_, to_string(sout));
+    boost::fusion::for_each_s(flatten(a_ >> b_ | c_ >> d_ | e_ >> f_ >> g_), to_string(sout));
     BOOST_CHECK_EQUAL("(a>>b)(c>>d)(e>>f>>g)", sout.str());
 
     sout.str("");
-    boost::fusion::for_each_s(a_ >> b_ | c_ >> d_ | e_ >> (f_ | g_) >> h_, to_string(sout));
+    boost::fusion::for_each_s(flatten(a_ >> b_ | c_ >> d_ | e_ >> (f_ | g_) >> h_), to_string(sout));
     BOOST_CHECK_EQUAL("(a>>b)(c>>d)(e>>f|g>>h)", sout.str());
 
     // Test for n-way branching tree
     sout.str("");
-    boost::fusion::for_each_s(a_(b_(c_ >> d_, e_ | f_), g_ >> h_)(i_), to_string(sout));
+    boost::fusion::for_each_s(flatten(a_(b_(c_ >> d_, e_ | f_), g_ >> h_)(i_)), to_string(sout));
     BOOST_CHECK_EQUAL("(a)(b)(c>>d)(e|f)(g>>h)(i)", sout.str());
 }
 
@@ -134,51 +136,53 @@ struct My
 
 void test2()
 {
-    My<boost::proto::terminal<char>::type> a_ = {{'a'}};
-    My<boost::proto::terminal<char>::type> b_ = {{'b'}};
-    My<boost::proto::terminal<char>::type> c_ = {{'c'}};
-    My<boost::proto::terminal<char>::type> d_ = {{'d'}};
-    My<boost::proto::terminal<char>::type> e_ = {{'e'}};
-    My<boost::proto::terminal<char>::type> f_ = {{'f'}};
-    My<boost::proto::terminal<char>::type> g_ = {{'g'}};
-    My<boost::proto::terminal<char>::type> h_ = {{'h'}};
-    My<boost::proto::terminal<char>::type> i_ = {{'i'}};
+    using boost::proto::flatten;
+
+    My<boost::proto::terminal<char>::type> a_ = {{{'a'}}};
+    My<boost::proto::terminal<char>::type> b_ = {{{'b'}}};
+    My<boost::proto::terminal<char>::type> c_ = {{{'c'}}};
+    My<boost::proto::terminal<char>::type> d_ = {{{'d'}}};
+    My<boost::proto::terminal<char>::type> e_ = {{{'e'}}};
+    My<boost::proto::terminal<char>::type> f_ = {{{'f'}}};
+    My<boost::proto::terminal<char>::type> g_ = {{{'g'}}};
+    My<boost::proto::terminal<char>::type> h_ = {{{'h'}}};
+    My<boost::proto::terminal<char>::type> i_ = {{{'i'}}};
 
     std::stringstream sout;
 
     // Test for 1-way branching "tree"
     sout.str("");
-    boost::fusion::for_each_s(!!!!(a_ >> b_), to_string(sout));
+    boost::fusion::for_each_s(flatten(!!!!(a_ >> b_)), to_string(sout));
     BOOST_CHECK_EQUAL("(a>>b)", sout.str());
 
     // Tests for 2-way branching trees
     sout.str("");
-    boost::fusion::for_each_s(a_ >> b_ >> c_, to_string(sout));
+    boost::fusion::for_each_s(flatten(a_ >> b_ >> c_), to_string(sout));
     BOOST_CHECK_EQUAL("(a)(b)(c)", sout.str());
 
     sout.str("");
-    boost::fusion::for_each_s(a_ | b_ | c_, to_string(sout));
+    boost::fusion::for_each_s(flatten(a_ | b_ | c_), to_string(sout));
     BOOST_CHECK_EQUAL("(a)(b)(c)", sout.str());
 
     sout.str("");
-    boost::fusion::for_each_s(a_ >> b_ | c_ >> d_, to_string(sout));
+    boost::fusion::for_each_s(flatten(a_ >> b_ | c_ >> d_), to_string(sout));
     BOOST_CHECK_EQUAL("(a>>b)(c>>d)", sout.str());
 
     sout.str("");
-    boost::fusion::for_each_s(a_ | b_ >> c_ | d_, to_string(sout));
+    boost::fusion::for_each_s(flatten(a_ | b_ >> c_ | d_), to_string(sout));
     BOOST_CHECK_EQUAL("(a)(b>>c)(d)", sout.str());
 
     sout.str("");
-    boost::fusion::for_each_s(a_ >> b_ | c_ >> d_ | e_ >> f_ >> g_, to_string(sout));
+    boost::fusion::for_each_s(flatten(a_ >> b_ | c_ >> d_ | e_ >> f_ >> g_), to_string(sout));
     BOOST_CHECK_EQUAL("(a>>b)(c>>d)(e>>f>>g)", sout.str());
 
     sout.str("");
-    boost::fusion::for_each_s(a_ >> b_ | c_ >> d_ | e_ >> (f_ | g_) >> h_, to_string(sout));
+    boost::fusion::for_each_s(flatten(a_ >> b_ | c_ >> d_ | e_ >> (f_ | g_) >> h_), to_string(sout));
     BOOST_CHECK_EQUAL("(a>>b)(c>>d)(e>>f|g>>h)", sout.str());
 
     // Test for n-way branching tree
     sout.str("");
-    boost::fusion::for_each_s(a_(b_(c_ >> d_, e_ | f_), g_ >> h_)(i_), to_string(sout));
+    boost::fusion::for_each_s(flatten(a_(b_(c_ >> d_, e_ | f_), g_ >> h_)(i_)), to_string(sout));
     BOOST_CHECK_EQUAL("(a)(b)(c>>d)(e|f)(g>>h)(i)", sout.str());
 }
 
