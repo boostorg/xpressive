@@ -65,40 +65,6 @@ struct make_negate : function_transform
     }
 };
 
-struct pop_front : function_transform
-{
-    template<typename Sig> struct result;
-
-    template<typename This, typename T>
-    struct result<This(T)>
-      : fusion::result_of::pop_front<T const>
-    {};
-
-    template<typename T>
-    typename fusion::result_of::pop_front<T const>::type
-    operator()(T const &t) const
-    {
-        return fusion::pop_front(t);
-    }
-};
-
-//struct reverse : function_transform
-//{
-//    template<typename Sig> struct result;
-//
-//    template<typename This, typename T>
-//    struct result<This(T)>
-//      : fusion::result_of::reverse<T const>
-//    {};
-//
-//    template<typename T>
-//    typename fusion::result_of::reverse<T const>::type
-//    operator()(T const &t) const
-//    {
-//        return fusion::reverse(t);
-//    }
-//};
-
 //struct make_cons : function_transform
 //{
 //    template<typename Sig> struct result;

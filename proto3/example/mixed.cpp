@@ -39,33 +39,6 @@ struct iterator_wrapper
     Iter it;
 };
 
-//template<typename Cont>
-//iterator_wrapper<typename Cont::const_iterator> cbegin(Cont const &cont)
-//{
-//    return iterator_wrapper<typename Cont::const_iterator>(cont.begin());
-//}
-//
-//template<typename Grammar>
-//struct begin
-//  : Grammar
-//{
-//    template<typename Expr, typename State, typename Visitor>
-//    struct apply
-//      : proto::terminal<
-//            iterator_wrapper<
-//                typename proto::result_of::arg<Expr>::type::const_iterator
-//            >
-//        >
-//    {};
-//
-//    template<typename Expr, typename State, typename Visitor>
-//    static typename apply<Expr, State, Visitor>::type
-//    call(Expr const &expr, State const &state, Visitor &visitor)
-//    {
-//        return proto::as_expr(cbegin(proto::arg(expr)));
-//    }
-//};
-
 struct begin : proto::function_transform
 {
     template<class Sig> struct result;

@@ -159,23 +159,6 @@ struct CalcArity2
 {};
 //]
 
-struct pop_front : function_transform
-{
-    template<typename Sig> struct result;
-
-    template<typename This, typename T>
-    struct result<This(T)>
-      : fusion::result_of::pop_front<T const>
-    {};
-
-    template<typename T>
-    typename fusion::result_of::pop_front<T const>::type
-    operator()(T const &t) const
-    {
-        return fusion::pop_front(t);
-    }
-};
-
 //[ AsArgList
 // This transform matches function invocations such as foo(1,'a',"b")
 // and transforms them into Fusion cons lists of their arguments. In this
@@ -190,7 +173,7 @@ struct ArgsAsList
             /*<< The first child expression of a `function<>` node is the
             function being invoked. We don't want that in our list, so use
             the `pop_front()` to remove it. >>*/
-            pop_front(_)    // make (_) optional
+            _pop_front(_)    // make (_) optional
           /*<< `nil` is the initial state used by the `reverse_fold<>`
           transform. >>*/
           , fusion::nil()

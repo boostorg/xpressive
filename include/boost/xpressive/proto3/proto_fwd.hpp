@@ -444,7 +444,15 @@ namespace boost { namespace proto
 
         template<typename Tag, typename Domain = deduce_domain>
         struct unfused_expr;
+
+        struct flatten;
+        struct pop_front;
+        struct reverse;
     }
+
+    typedef functional::flatten _flatten;
+    typedef functional::pop_front _pop_front;
+    typedef functional::pop_front _reverse;
 
     template<typename T>
     struct is_extension;

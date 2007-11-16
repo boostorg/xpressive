@@ -17,6 +17,8 @@
 #include <boost/fusion/include/iterator_base.hpp>
 //#include <boost/fusion/include/mpl.hpp>
 #include <boost/fusion/include/intrinsic.hpp>
+#include <boost/fusion/include/pop_front.hpp>
+#include <boost/fusion/include/reverse.hpp>
 #include <boost/fusion/include/single_view.hpp>
 #include <boost/fusion/include/transform_view.hpp>
 #include <boost/fusion/support/ext_/is_segmented.hpp>
@@ -73,12 +75,85 @@ namespace boost { namespace proto
 
         Expr &expr_;
     };
-
-    template<typename Expr>
-    flat_view<Expr const> flatten(Expr const &expr)
+    
+    namespace functional
     {
-        return flat_view<Expr const>(expr);
+        struct flatten
+        {
+            template<typename Sig>
+            struct result;
+
+            template<typename This, typename Expr>
+            struct result<This(Expr)>
+            {
+                typedef flat_view<UNREF(Expr) const> type;
+            };
+
+            template<typename Expr>
+            flat_view<Expr const> operator()(Expr const &expr) const
+            {
+                return flat_view<Expr const>(expr);
+            }
+        };
+
+        struct pop_front
+        {
+            template<typename Sig>
+            struct result;
+
+            template<typename This, typename Expr>
+            struct result<This(Expr)>
+              : fusion::result_of::pop_front<UNREF(Expr) const>
+            {};
+
+            template<typename Expr>
+            typename fusion::result_of::pop_front<Expr const>::type
+            operator()(Expr const &expr) const
+            {
+                return fusion::pop_front(expr);
+            }
+        };
+
+        struct reverse
+        {
+            template<typename Sig>
+            struct result;
+
+            template<typename This, typename Expr>
+            struct result<This(Expr)>
+              : fusion::result_of::reverse<Expr const>
+            {};
+
+            template<typename Expr>
+            typename fusion::result_of::reverse<Expr const>::type
+            operator()(Expr const &expr) const
+            {
+                return fusion::reverse(expr);
+            }
+        };
+
     }
+
+    template<>
+    struct transform_category<functional::flatten>
+    {
+        typedef function_transform type;
+    };
+
+    template<>
+    struct transform_category<functional::pop_front>
+    {
+        typedef function_transform type;
+    };
+
+    template<>
+    struct transform_category<functional::reverse>
+    {
+        typedef function_transform type;
+    };
+
+    functional::flatten const flatten = {};
+
 }}
 
 namespace boost { namespace fusion
