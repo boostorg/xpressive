@@ -139,6 +139,16 @@ namespace boost { namespace xpressive
         using namespace transform;
         using namespace xpressive::detail;
 
+        template<typename Tag>
+        struct is_generic_quant_tag
+          : mpl::false_
+        {};
+
+        template<uint_t Min, uint_t Max>
+        struct is_generic_quant_tag<generic_quant_tag<Min,Max> >
+          : mpl::true_
+        {};
+
         struct as_matcher : function_transform
         {
             template<typename Sig>
@@ -195,6 +205,7 @@ namespace boost { namespace xpressive
         typedef functional::make_expr<tag::terminal> _make_terminal;
         typedef functional::make_expr<tag::assign> _make_assign;
         typedef functional::make_expr<tag::logical_not> _make_logical_not;
+        typedef functional::make_expr<tag::negate> _make_negate;
 
         template<typename Visitor>
         struct traits_type
@@ -244,6 +255,18 @@ namespace boost { namespace xpressive
         template<typename Char, typename Gram>
         struct Cases
         {
+            // Some simple grammars...
+            struct MarkedSubExpr
+              : assign<terminal<mark_placeholder>, _>
+            {};
+
+            struct GenericQuant
+              : and_<
+                    if_<is_generic_quant_tag<tag_of<_> >()>
+                  , unary_expr<_, Gram>
+                >
+            {};
+
             // Here are some transforms ...
             struct as_independent
               : apply_<Gram, _make_shift_right(_, true_matcher()), no_next()>
@@ -274,10 +297,6 @@ namespace boost { namespace xpressive
                 >
             {};
 
-            struct MarkedSubExpr
-              : assign<terminal<mark_placeholder>, _>
-            {};
-
             struct add_hidden_mark
               : if_<
                     matches<_, MarkedSubExpr>()
@@ -286,7 +305,7 @@ namespace boost { namespace xpressive
                 >
             {};
 
-            template<typename Tag>
+            template<typename Greedy, typename Tag>
             struct as_repeater
               : apply_<
                     _
@@ -294,43 +313,50 @@ namespace boost { namespace xpressive
                         repeat_begin_matcher(mark_number(_arg(_left)))
                       , _make_shift_right(
                             _right
-                          , repeat_end_matcher<greedy_t>(
+                          , repeat_end_matcher<Greedy>(
                                 mark_number(_arg(_left))
                               // BUGBUG work around gcc bug
-                              //, min_type<Tag>()
-                              //, max_type<Tag>()
-                              , always<min_type<Tag> >
-                              , always<max_type<Tag> >
+                              , always<min_type<Tag> > //, min_type<Tag>()
+                              , always<max_type<Tag> > //, max_type<Tag>()
                             )
                         )
                     )
                 >
             {};
 
-            template<typename Tag, uint_t = min_type<Tag>::value, uint_t = max_type<Tag>::value>
+            template<typename Greedy, typename Tag, uint_t = min_type<Tag>::value, uint_t = max_type<Tag>::value>
             struct as_default_repeat_impl
-              : apply_<as_repeater<Tag>, as_marker(add_hidden_mark(_arg))>
+              : apply_<as_repeater<Greedy, Tag>, as_marker(add_hidden_mark(_arg))>
             {};
 
-            template<typename Tag, uint_t Max>
-            struct as_default_repeat_impl<Tag, 0, Max>
-              : apply_<_, _make_logical_not(as_default_repeat_impl<generic_quant_tag<1, Max> >)>
+            template<typename Greedy, typename Tag, uint_t Max>
+            struct as_default_repeat_impl<Greedy, Tag, 0, Max>
+              : if_<
+                    Greedy()
+                  , _make_negate(_make_logical_not(as_default_repeat_impl<Greedy, generic_quant_tag<1, Max> >))
+                  , _make_logical_not(as_default_repeat_impl<Greedy, generic_quant_tag<1, Max> >)
+                >
             {};
 
-            template<typename Tag>
-            struct as_default_repeat_impl<Tag, 0, 1>
-              : apply_<_, _make_logical_not(_arg)>
+            template<typename Greedy, typename Tag>
+            struct as_default_repeat_impl<Greedy, Tag, 0, 1>
+              : if_<
+                    Greedy()
+                  , _make_negate(_make_logical_not(_arg))
+                  , _make_logical_not(_arg)
+                >
             {};
 
-            template<typename Tag>
+            template<typename Greedy, typename Tag>
             struct as_default_repeat
-              : as_default_repeat_impl<Tag>
+              : as_default_repeat_impl<Greedy, Tag>
             {};
 
+            template<typename Greedy>
             struct as_simple_repeat
               : apply_<
                     _
-                  , simple_repeat_matcher<as_independent(_arg), greedy_t>(
+                  , simple_repeat_matcher<as_independent(_arg), Greedy>(
                         as_independent(_arg)
                       , min_type<tag_of<_> >()
                       , max_type<tag_of<_> >()
@@ -339,11 +365,21 @@ namespace boost { namespace xpressive
                 >
             {};
 
+            template<typename Greedy>
             struct as_repeat
               : if_<
                     use_simple_repeat<_arg, Char>()
-                  , as_simple_repeat
-                  , Gram(as_default_repeat<tag_of<_> >(_))
+                  , as_simple_repeat<Greedy>
+                  , Gram(as_default_repeat<Greedy, tag_of<_> >(_))
+                >
+            {};
+
+            template<typename Greedy>
+            struct as_optional
+              : if_<
+                    matches<_, MarkedSubExpr>()
+                  , optional_mark_matcher<as_alternate, Greedy>(as_alternate, mark_number(_arg(_left)))
+                  , optional_matcher<as_alternate, Greedy>(as_alternate)
                 >
             {};
 
@@ -376,45 +412,38 @@ namespace boost { namespace xpressive
 
             template<typename Dummy>
             struct case_<tag::dereference, Dummy>
-              : when<dereference<Gram>, as_repeat>
+              : when<dereference<Gram>, as_repeat<greedy_t> >
             {};
 
             template<typename Dummy>
             struct case_<tag::posit, Dummy>
-              : when<posit<Gram>, as_repeat>
+              : when<posit<Gram>, as_repeat<greedy_t> >
             {};
 
             template<uint_t Min, uint_t Max, typename Dummy>
             struct case_<generic_quant_tag<Min, Max>, Dummy>
-              : when<unary_expr<generic_quant_tag<Min, Max>, Gram>, as_repeat>
+              : when<unary_expr<generic_quant_tag<Min, Max>, Gram>, as_repeat<greedy_t> >
             {};
 
             template<typename Dummy>
             struct case_<tag::logical_not, Dummy>
+              : when<logical_not<Gram>, as_optional<greedy_t>(_arg)>
+            {};
+
+            template<typename Dummy>
+            struct case_<tag::negate, Dummy>
               : or_<
-                    when<
-                        logical_not<assign<terminal<mark_placeholder>, Gram> >
-                      , optional_mark_matcher<as_alternate(_arg), greedy_t>(
-                            as_alternate(_arg), mark_number(_arg(_left(_arg)))
-                        )
-                    >
-                  , when<
-                        logical_not<Gram>
-                      , optional_matcher<as_alternate(_arg), greedy_t>(
-                            as_alternate(_arg)
-                        )
-                    >
+                    when<negate<dereference<Gram> > , as_repeat<non_greedy_t>(_arg)>
+                  , when<negate<posit<Gram> >       , as_repeat<non_greedy_t>(_arg)>
+                  , when<negate<GenericQuant>       , as_repeat<non_greedy_t>(_arg)>
+                  , when<negate<logical_not<Gram> > , as_optional<non_greedy_t>(_arg(_arg))>
                 >
             {};
 
             template<typename Dummy>
             struct case_<tag::assign, Dummy>
-              : when<
-                    assign<terminal<mark_placeholder>, Gram>
-                  , Gram(as_marker)
-                >
+              : when<assign<terminal<mark_placeholder>, Gram>, Gram(as_marker)>
             {};
-
         };
 
     } // namespace detail
