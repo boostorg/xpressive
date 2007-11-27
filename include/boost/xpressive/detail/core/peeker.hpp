@@ -174,14 +174,14 @@ struct xpression_peeker
         return mpl::false_();
     }
 
-    template<typename Xpr, bool Greedy>
+    template<typename Xpr, typename Greedy>
     mpl::false_ accept(optional_matcher<Xpr, Greedy> const &)
     {
         this->fail();  // a union of xpr and next
         return mpl::false_();
     }
 
-    template<typename Xpr, bool Greedy>
+    template<typename Xpr, typename Greedy>
     mpl::false_ accept(optional_mark_matcher<Xpr, Greedy> const &)
     {
         this->fail();  // a union of xpr and next
@@ -225,7 +225,7 @@ struct xpression_peeker
         return mpl::false_();
     }
 
-    template<typename Xpr, bool Greedy>
+    template<typename Xpr, typename Greedy>
     mpl::false_ accept(simple_repeat_matcher<Xpr, Greedy> const &xpr)
     {
         0 != xpr.min_ ? xpr.xpr_.peek(*this) : this->fail(); // could be a union of xpr and next

@@ -325,7 +325,7 @@ namespace boost { namespace proto
                     make_args_fun
                   , fusion::transform_view<
                         Sequence const
-                      , functional::as_arg<Domain>
+                      , functional::/*as_arg*/ as_expr<Domain>
                     >
                 >::type
             > expr_type;
@@ -336,8 +336,8 @@ namespace boost { namespace proto
             {
                 fusion::transform_view<
                     Sequence const
-                  , functional::as_arg<Domain>
-                > seq(sequence, functional::as_arg<Domain>());
+                  , functional::/*as_arg*/ as_expr<Domain>
+                > seq(sequence, functional::/*as_arg*/ as_expr<Domain>());
 
                 expr_type that = {
                     fusion::invoke_function_object(argsns_::make_cons_fun(), seq)
@@ -386,13 +386,13 @@ namespace boost { namespace proto
         template<typename Tag, typename Domain, typename... Args>
         struct make_expr_
         {
-            typedef expr<Tag, args<typename proto::result_of::as_arg<Args, Domain>::type...> > expr_type;
+            typedef expr<Tag, args<typename proto::result_of::/*as_arg*/ as_expr<Args, Domain>::type...> > expr_type;
             typedef typename Domain::template apply<expr_type>::type type;
 
-            static type const call(Args &... args)
+            static type call(Args &... args)
             {
                 expr_type that = {
-                    argsns_::make_cons(proto::result_of::as_arg<Args, Domain>::call(args)...)
+                    argsns_::make_cons(proto::result_of::/*as_arg*/ as_expr<Args, Domain>::call(args)...)
                 };
                 return Domain::make(that);
             }
@@ -401,11 +401,20 @@ namespace boost { namespace proto
         template<typename Domain, typename A>
         struct make_expr_<tag::terminal, Domain, A>
         {
-            typedef typename add_reference<A>::type reference;
-            typedef expr<tag::terminal, term<reference> > expr_type;
+            //typedef typename add_reference<A>::type reference;
+            //typedef expr<tag::terminal, term<reference> > expr_type;
+            //typedef typename Domain::template apply<expr_type>::type type;
+
+            //static type const call(reference a)
+            //{
+            //    expr_type that = {{a}};
+            //    return Domain::make(that);
+            //}
+
+            typedef expr<tag::terminal, term<UNCVREF(A)> > expr_type;
             typedef typename Domain::template apply<expr_type>::type type;
 
-            static type const call(reference a)
+            static type call(A const &a)
             {
                 expr_type that = {{a}};
                 return Domain::make(that);
@@ -564,6 +573,26 @@ namespace boost { namespace proto
     {
         return result_of::make_expr<Tag, Domain, Head, Tail...>::call(head, tail...);
     }
+
+
+    template<typename Tag, typename Domain>
+    struct transform_category<functional::make_expr<Tag, Domain> >
+    {
+        typedef function_transform type;
+    };
+
+    template<typename Tag, typename Domain>
+    struct transform_category<functional::unpack_expr<Tag, Domain> >
+    {
+        typedef function_transform type;
+    };
+
+    template<typename Tag, typename Domain>
+    struct transform_category<functional::unfused_expr<Tag, Domain> >
+    {
+        typedef function_transform type;
+    };
+
 }}
 
 #undef CV

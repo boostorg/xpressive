@@ -120,12 +120,12 @@ namespace boost { namespace xpressive { namespace detail
     template<typename Traits, int Size>
     struct set_matcher;
 
-    template<typename Xpr, bool Greedy>
+    template<typename Xpr, typename Greedy>
     struct simple_repeat_matcher;
 
     struct repeat_begin_matcher;
 
-    template<bool Greedy>
+    template<typename Greedy>
     struct repeat_end_matcher;
 
     template<typename Traits, bool ICase, bool Not>
@@ -140,10 +140,10 @@ namespace boost { namespace xpressive { namespace detail
     template<typename Predicate>
     struct predicate_matcher;
 
-    template<typename Xpr, bool Greedy>
+    template<typename Xpr, typename Greedy>
     struct optional_matcher;
 
-    template<typename Xpr, bool Greedy>
+    template<typename Xpr, typename Greedy>
     struct optional_mark_matcher;
 
     template<typename Matcher, typename Traits, bool ICase>
@@ -383,6 +383,9 @@ namespace boost { namespace xpressive { namespace detail
         typedef std::wstring type;
     };
     #endif
+
+    struct greedy_t : mpl::true_ {};
+    struct non_greedy_t : mpl::false_ {};
 
 }}} // namespace boost::xpressive::detail
 

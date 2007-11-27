@@ -97,7 +97,34 @@ namespace boost { namespace proto
         typedef _arg0 _left;
         typedef _arg1 _right;
 
+        template<typename T>
+        struct always : raw_transform
+        {
+            template<typename, typename, typename>
+            struct apply
+            {
+                typedef T type;
+            };
+
+            template<typename Expr, typename State, typename Visitor>
+            static T call(Expr const &, State const &, Visitor &)
+            {
+                return T();
+            }
+        };
     }
+
+    template<typename T>
+    struct transform_category<transform::always<T> >
+    {
+        typedef raw_transform type;
+    };
+
+    template<int I>
+    struct transform_category<transform::_arg_c<I> >
+    {
+        typedef raw_transform type;
+    };
 
 }}
 

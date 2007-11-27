@@ -19,7 +19,7 @@
 #ifndef BOOST_NO_STL_LOCALE
 # include <boost/typeof/std/locale.hpp>
 #endif
-#include <boost/xpressive/proto/proto_typeof.hpp>
+#include <boost/xpressive/proto3/proto_typeof.hpp>
 #include <boost/xpressive/detail/detail_fwd.hpp>
 
 #include BOOST_TYPEOF_INCREMENT_REGISTRATION_GROUP()
@@ -85,11 +85,11 @@ BOOST_TYPEOF_REGISTER_TEMPLATE(boost::xpressive::detail::string_matcher, (typena
 BOOST_TYPEOF_REGISTER_TEMPLATE(boost::xpressive::detail::charset_matcher, (typename)(bool)(typename))
 BOOST_TYPEOF_REGISTER_TEMPLATE(boost::xpressive::detail::logical_newline_matcher, (typename))
 BOOST_TYPEOF_REGISTER_TEMPLATE(boost::xpressive::detail::mark_matcher, (typename)(bool))
-BOOST_TYPEOF_REGISTER_TEMPLATE(boost::xpressive::detail::repeat_end_matcher, (bool))
+BOOST_TYPEOF_REGISTER_TEMPLATE(boost::xpressive::detail::repeat_end_matcher, (typename))
 BOOST_TYPEOF_REGISTER_TEMPLATE(boost::xpressive::detail::alternate_matcher, (typename)(typename))
-BOOST_TYPEOF_REGISTER_TEMPLATE(boost::xpressive::detail::optional_matcher, (typename)(bool))
-BOOST_TYPEOF_REGISTER_TEMPLATE(boost::xpressive::detail::optional_mark_matcher, (typename)(bool))
-BOOST_TYPEOF_REGISTER_TEMPLATE(boost::xpressive::detail::simple_repeat_matcher, (typename)(bool))
+BOOST_TYPEOF_REGISTER_TEMPLATE(boost::xpressive::detail::optional_matcher, (typename)(typename))
+BOOST_TYPEOF_REGISTER_TEMPLATE(boost::xpressive::detail::optional_mark_matcher, (typename)(typename))
+BOOST_TYPEOF_REGISTER_TEMPLATE(boost::xpressive::detail::simple_repeat_matcher, (typename)(typename))
 BOOST_TYPEOF_REGISTER_TEMPLATE(boost::xpressive::detail::regex_byref_matcher, (typename))
 BOOST_TYPEOF_REGISTER_TEMPLATE(boost::xpressive::detail::regex_matcher, (typename))
 BOOST_TYPEOF_REGISTER_TEMPLATE(boost::xpressive::detail::posix_charset_matcher, (typename))

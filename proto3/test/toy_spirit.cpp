@@ -159,31 +159,6 @@ namespace boost { namespace spirit2
 
     struct True : mpl::true_ {};
 
-    // remove_case specializations for stripping case-sensitivity from parsers
-    template<typename T, typename CaseSensitive>
-    struct remove_case
-    {
-        typedef T type;
-    };
-
-    template<>
-    struct remove_case<char, True>
-    {
-        typedef ichar type;
-    };
-
-    template<>
-    struct remove_case<char const *, True>
-    {
-        typedef istr type;
-    };
-
-    template<>
-    struct remove_case<char_range, True>
-    {
-        typedef ichar_range type;
-    };
-
     ///////////////////////////////////////////////////////////////////////////////
     /// Begin Spirit grammar here
     ///////////////////////////////////////////////////////////////////////////////
@@ -219,14 +194,19 @@ namespace boost { namespace spirit2
           : terminal<no_case_tag>
         {};
 
+        // The visitor determines the case-sensitivity of the terminals
+        typedef _visitor _icase;
+
         // Extract the arg from terminals
         struct SpiritTerminal
           : or_<
                 case_< AnyChar,          _arg >
-              , case_< CharLiteral,      remove_case<char, _visitor>(_arg) >
-              , case_< CharParser,       remove_case<char, _visitor>(_arg(_arg1))> // char_('a')
-              , case_< NTBSLiteral,      remove_case<char const *, _visitor>(_arg) >
-              , case_< CharRangeParser,  remove_case<char_range, _visitor>(_arg(_arg1), _arg(_arg2))> // char_('a','z')
+              , case_< CharLiteral,      if_<_icase, ichar(_arg), _arg> >
+              , case_< CharParser,       if_<_icase, ichar(_arg(_arg1)), _arg(_arg1)> > // char_('a')
+              , case_< NTBSLiteral,      if_<_icase, istr(_arg), char const*(_arg)> >
+              , case_< CharRangeParser,  if_<_icase
+                                            , ichar_range(_arg(_arg1), _arg(_arg2))
+                                            , char_range(_arg(_arg1), _arg(_arg2))> >// char_('a','z')
             >
         {};
 

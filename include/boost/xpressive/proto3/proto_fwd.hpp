@@ -295,14 +295,14 @@ namespace boost { namespace proto
         template<typename... Alts>
         struct and_;
 
-        template<typename Condition, typename Then = void, typename Else = void>
+        template<typename Grammar>
+        struct not_;
+
+        template<typename If, typename Then = _, typename Else = not_<_> >
         struct if_;
 
         template<typename Cases>
         struct switch_;
-
-        template<typename Grammar>
-        struct not_;
 
         template<typename T>
         struct exact;
@@ -328,6 +328,9 @@ namespace boost { namespace proto
 
     template<typename T>
     struct transform_category;
+
+    template<typename T>
+    struct is_aggregate;
 
     namespace transform
     {
@@ -370,14 +373,50 @@ namespace boost { namespace proto
         struct _expr;
         struct _state;
         struct _visitor;
+
+        template<int I>
+        struct _arg_c;
+
+        template<typename T>
+        struct always;
+
+        struct _arg0;
+        struct _arg1;
+        struct _arg2;
+        struct _arg3;
+        struct _arg4;
+        struct _arg5;
+        struct _arg6;
+        struct _arg7;
+        struct _arg8;
+        struct _arg9;
+
+        typedef _arg0 _arg;
+        typedef _arg0 _left;
+        typedef _arg1 _right;
     }
 
     using transform::case_;
+    using transform::_arg0;
+    using transform::_arg1;
+    using transform::_arg2;
+    using transform::_arg3;
+    using transform::_arg4;
+    using transform::_arg5;
+    using transform::_arg6;
+    using transform::_arg7;
+    using transform::_arg8;
+    using transform::_arg9;
+    using transform::_arg;
+    using transform::_left;
+    using transform::_right;
     using transform::_expr;
     using transform::_state;
     using transform::_visitor;
+    using transform::_arg_c;
     using transform::bind;
     using transform::fold;
+    using transform::always;
     using transform::reverse_fold;
     using transform::fold_tree;
     using transform::reverse_fold_tree;

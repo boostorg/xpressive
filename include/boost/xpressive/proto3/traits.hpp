@@ -12,6 +12,7 @@
 #include <boost/type_traits.hpp>
 #include <boost/mpl/logical.hpp>
 #include <boost/xpressive/proto3/proto_fwd.hpp>
+#include <boost/xpressive/proto3/args.hpp>
 
 #define CV(T)\
     typename add_const<T>::type
@@ -302,7 +303,7 @@ namespace boost { namespace proto
 
         template<typename Expr, long N>
         struct arg_c
-            : detail::arg_c<typename Expr::proto_args::cons_type, N>
+          : detail::arg_c<typename Expr::proto_args::cons_type, N>
         {};
 
         template<typename Expr>
@@ -332,9 +333,8 @@ namespace boost { namespace proto
 
             typedef expr<tag::terminal, term<value_type> > expr_type;
             typedef typename Domain::template apply<expr_type>::type type;
-            typedef type const result_type;
 
-            static result_type call(CVREF(T) t)
+            static type call(CVREF(T) t)
             {
                 return Domain::make(expr_type::make(t));
             }
@@ -343,10 +343,9 @@ namespace boost { namespace proto
         template<typename T, typename Domain>
         struct as_expr<T, Domain, typename T::proto_is_expr_>
         {
-            typedef typename T::proto_derived_expr type;
-            typedef T const &result_type;
+            typedef typename T::proto_derived_expr type;  // strips the cv-qualification
 
-            static T const &call(T const &t)
+            static type call(T const &t)
             {
                 return t;
             }
@@ -355,10 +354,9 @@ namespace boost { namespace proto
         template<typename T, typename Domain>
         struct as_expr<T &, Domain, typename T::proto_is_expr_>
         {
-            typedef typename T::proto_derived_expr type;
-            typedef T &result_type;
+            typedef typename T::proto_derived_expr type; // strips the cv-qualification
 
-            static T &call(T &t)
+            static type call(T &t)
             {
                 return t;
             }
@@ -427,7 +425,7 @@ namespace boost { namespace proto
             {};
 
             template<typename T>
-            typename result_of::as_expr<T, Domain>::result_type
+            typename result_of::as_expr<T, Domain>::type
             operator ()(T &&t) const
             {
                 return result_of::as_expr<T, Domain>::call(t);
@@ -558,13 +556,13 @@ namespace boost { namespace proto
     }
 
     template<typename T>
-    typename result_of::as_expr<T>::result_type as_expr(T &&t)
+    typename result_of::as_expr<T>::type as_expr(T &&t)
     {
         return result_of::as_expr<T>::call(t);
     }
 
     template<typename Domain, typename T>
-    typename result_of::as_expr<T, Domain>::result_type as_expr(T &&t)
+    typename result_of::as_expr<T, Domain>::type as_expr(T &&t)
     {
         return result_of::as_expr<T, Domain>::call(t);
     }

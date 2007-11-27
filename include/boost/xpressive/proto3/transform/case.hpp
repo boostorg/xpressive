@@ -11,6 +11,8 @@
 
 #include <boost/mpl/bool.hpp>
 #include <boost/mpl/logical.hpp>
+#include <boost/mpl/eval_if.hpp>
+#include <boost/mpl/identity.hpp>
 #include <boost/mpl/aux_/has_type.hpp>
 #include <boost/type_traits.hpp>
 #include <boost/utility/enable_if.hpp>
@@ -20,6 +22,60 @@
 
 namespace boost { namespace proto
 {
+    template<typename T>
+    struct is_aggregate
+      : is_pod<T>
+    {};
+
+    template<typename Tag, typename Args, long N>
+    struct is_aggregate<expr<Tag, Args, N> >
+      : mpl::true_
+    {};
+
+    namespace detail
+    {
+        template<typename T, typename EnableIf = void>
+        struct transform_category2_
+        {
+            typedef no_transform type;
+        };
+
+        template<typename T>
+        struct transform_category2_<T, typename T::proto_raw_transform_>
+        {
+            typedef raw_transform type;
+        };
+
+        template<typename T>
+        struct transform_category2_<T, typename T::proto_function_transform_>
+        {
+            typedef function_transform type;
+        };
+
+        template<typename T>
+        struct transform_category_
+          : transform_category2_<T>
+        {};
+
+        template<template<typename...> class T, typename... Args>
+        struct transform_category_<T<Args...> >
+        {
+            typedef no_transform type;
+        };
+    }
+
+    template<typename T>
+    struct transform_category
+      : proto::detail::transform_category_<T>
+    {};
+
+    // work around GCC bug
+    template<typename Tag, typename Args, long N>
+    struct transform_category<expr<Tag, Args, N> >
+    {
+        typedef no_transform type;
+    };
+
     namespace transform
     {
         namespace detail
@@ -29,16 +85,6 @@ namespace boost { namespace proto
             {
                 typedef void type;
             };
-
-            template<typename T>
-            struct is_aggregate
-              : is_pod<T>
-            {};
-
-            template<typename Tag, typename Args, long N>
-            struct is_aggregate<expr<Tag, Args, N> >
-              : mpl::true_
-            {};
 
             template<typename T, bool HasType = mpl::aux::has_type<T>::value>
             struct nested_type
@@ -67,7 +113,7 @@ namespace boost { namespace proto
             template<typename R, typename Expr, typename State, typename Visitor
                 , typename Category = typename transform_category<R>::type
             >
-            struct apply_lambda_; // function-style transforms cannot be part of lambdas
+            struct apply_lambda_;
 
             template<typename R, typename Expr, typename State, typename Visitor>
             struct apply_lambda_aux_
@@ -143,13 +189,36 @@ namespace boost { namespace proto
             >
             struct apply_
             {
-                typedef typename apply_lambda_<Return, Expr, State, Visitor>::type type;
+                typedef typename apply_lambda_<Return, Expr, State, Visitor>::type lambda_type;
+
+                // If the result of applying the lambda on the return type is a transform,
+                // apply the transform rather than trying to construct it.
+                typedef typename proto::detail::transform_category2_<lambda_type>::type lambda_category;
+
+                typedef
+                    typename mpl::eval_if<
+                        is_same<no_transform, lambda_category>
+                      , mpl::identity<lambda_type>
+                      , apply_<Expr, State, Visitor, lambda_category, lambda_type, Args...>
+                    >::type
+                type;
 
                 static type call(Expr const &expr, State const &state, Visitor &visitor)
+                {
+                    return apply_::call_(expr, state, visitor, is_same<no_transform, lambda_category>());
+                }
+
+            private:
+                static type call_(Expr const &expr, State const &state, Visitor &visitor, mpl::true_)
                 {
                     return detail::construct_<type>(
                         case_<_, Args>::call(expr, state, visitor)...
                     );
+                }
+
+                static type call_(Expr const &expr, State const &state, Visitor &visitor, mpl::false_)
+                {
+                    return apply_<Expr, State, Visitor, lambda_category, lambda_type, Args...>::call(expr, state, visitor);
                 }
             };
 
@@ -241,50 +310,6 @@ namespace boost { namespace proto
         };
 
     }
-
-    namespace detail
-    {
-        template<typename T, typename EnableIf = void>
-        struct transform_category2_
-        {
-            typedef no_transform type;
-        };
-
-        template<typename T>
-        struct transform_category2_<T, typename T::proto_raw_transform_>
-        {
-            typedef raw_transform type;
-        };
-
-        template<typename T>
-        struct transform_category2_<T, typename T::proto_function_transform_>
-        {
-            typedef function_transform type;
-        };
-
-        template<typename T>
-        struct transform_category_
-          : transform_category2_<T>
-        {};
-
-        template<template<typename...> class T, typename... Args>
-        struct transform_category_<T<Args...> >
-        {
-            typedef no_transform type;
-        };
-    }
-
-    template<typename T>
-    struct transform_category
-      : proto::detail::transform_category_<T>
-    {};
-
-    // work around GCC bug
-    template<typename Tag, typename Args, long N>
-    struct transform_category<expr<Tag, Args, N> >
-    {
-        typedef no_transform type;
-    };
 
 }}
 

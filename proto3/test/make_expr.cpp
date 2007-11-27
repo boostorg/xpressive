@@ -30,16 +30,16 @@ template<typename E> struct ewrap
 void test_make_expr()
 {
     int i = 42;
-    posit<terminal<int const &>::type>::type p1 = make_expr<tag::posit>(1);
-    posit<terminal<int &>::type>::type p2 = make_expr<tag::posit>(i);
+    posit<terminal<int>::type>::type p1 = make_expr<tag::posit>(1);
+    posit<terminal<int>::type>::type p2 = make_expr<tag::posit>(i);
     BOOST_CHECK_EQUAL(arg(arg(p2)), 42);
 
-    ewrap<posit<ewrap<terminal<int &>::type> >::type> p3 = make_expr<tag::posit, mydomain>(i);
+    ewrap<posit<ewrap<terminal<int>::type> >::type> p3 = make_expr<tag::posit, mydomain>(i);
     BOOST_CHECK_EQUAL(arg(arg(p3)), 42);
 
     ewrap<plus<
-        ewrap<posit<ewrap<terminal<int &>::type> >::type> &
-      , ewrap<terminal<int const &>::type>
+        ewrap<posit<ewrap<terminal<int>::type> >::type>
+      , ewrap<terminal<int>::type>
     >::type> p4 = make_expr<tag::plus>(p3, 0);
     BOOST_CHECK_EQUAL(arg(arg(left(p4))), 42);
 }
@@ -49,17 +49,17 @@ void test_unpack_expr()
     int i = 42;
     fusion::vector<int> v1(1);
     fusion::vector<int&> v2(i);
-    posit<terminal<int const &>::type>::type p1 = unpack_expr<tag::posit>(v1);
-    posit<terminal<int &>::type>::type p2 = unpack_expr<tag::posit>(v2);
+    posit<terminal<int>::type>::type p1 = unpack_expr<tag::posit>(v1);
+    posit<terminal<int>::type>::type p2 = unpack_expr<tag::posit>(v2);
     BOOST_CHECK_EQUAL(arg(arg(p2)), 42);
 
-    ewrap<posit<ewrap<terminal<int &>::type> >::type> p3 = unpack_expr<tag::posit, mydomain>(v2);
+    ewrap<posit<ewrap<terminal<int>::type> >::type> p3 = unpack_expr<tag::posit, mydomain>(v2);
     BOOST_CHECK_EQUAL(arg(arg(p3)), 42);
 
-    fusion::vector<ewrap<posit<ewrap<terminal<int &>::type> >::type> &, int> v3(p3, 0);
+    fusion::vector<ewrap<posit<ewrap<terminal<int>::type> >::type>, int> v3(p3, 0);
     ewrap<plus<
-        ewrap<posit<ewrap<terminal<int &>::type> >::type> &
-      , ewrap<terminal<int const &>::type>
+        ewrap<posit<ewrap<terminal<int>::type> >::type>
+      , ewrap<terminal<int>::type>
     >::type> p4 = unpack_expr<tag::plus>(v3);
     BOOST_CHECK_EQUAL(arg(arg(left(p4))), 42);
 }

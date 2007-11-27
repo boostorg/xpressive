@@ -11,9 +11,12 @@
 
 #include <boost/mpl/if.hpp>
 #include <boost/mpl/bool.hpp>
+#include <boost/mpl/void.hpp>
 #include <boost/mpl/apply.hpp>
 #include <boost/mpl/assert.hpp>
 #include <boost/mpl/identity.hpp>
+#include <boost/mpl/eval_if.hpp>
+#include <boost/mpl/apply_wrap.hpp>
 #include <boost/type_traits.hpp>
 #include <boost/xpressive/proto3/proto_fwd.hpp>
 #include <boost/xpressive/proto3/transform/arg.hpp>
@@ -361,9 +364,13 @@ namespace boost { namespace proto
             {};
 
             // handle proto::if_
-            template<typename Expr, typename Condition>
-            struct matches_<Expr, proto::if_<Condition> >
-              : mpl::apply1<Condition, Expr>::type
+            template<typename Expr, typename If, typename Then, typename Else>
+            struct matches_<Expr, proto::if_<If, Then, Else> >
+              : mpl::eval_if<
+                    typename mpl::apply_wrap3<case_<_, If>, Expr, mpl::void_, mpl::void_>::type
+                  , matches_<Expr, typename Then::proto_base_expr>
+                  , matches_<Expr, typename Else::proto_base_expr>
+                >::type
             {};
 
             // handle proto::not_
@@ -448,23 +455,34 @@ namespace boost { namespace proto
         };
 
         // if_
-        template<typename Condition, typename Then, typename Else>
-        struct if_
-          : or_<
-                and_<if_<Condition>, Then>
-              , and_<not_<if_<Condition> >, Else>
-            >
-        {};
-
-        template<typename Condition, typename Then>
-        struct if_<Condition, Then, void>
-          : and_<if_<Condition>, Then>
-        {};
-
-        template<typename Condition>
-        struct if_<Condition, void, void> : _expr
+        template<typename If, typename Then, typename Else>
+        struct if_ : raw_transform
         {
             typedef if_ proto_base_expr;
+
+            template<typename Expr, typename State, typename Visitor>
+            struct apply
+              : mpl::eval_if<
+                    typename mpl::apply_wrap3<case_<_, If>, Expr, State, Visitor>::type
+                  , mpl::apply_wrap3<case_<_, Then>, Expr, State, Visitor>
+                  , mpl::apply_wrap3<case_<_, Else>, Expr, State, Visitor>
+                >
+            {};
+
+            template<typename Expr, typename State, typename Visitor>
+            static typename apply<Expr, State, Visitor>::type
+            call(Expr const &expr, State const &state, Visitor &visitor)
+            {
+                typedef
+                    typename mpl::if_<
+                        typename mpl::apply_wrap3<case_<_, If>, Expr, State, Visitor>::type
+                      , case_<_, Then>
+                      , case_<_, Else>
+                    >::type
+                branch;
+
+                return branch::call(expr, state, visitor);
+            }
         };
 
         template<typename Grammar>

@@ -24,11 +24,10 @@ namespace boost { namespace xpressive { namespace detail
     ///////////////////////////////////////////////////////////////////////////////
     // repeat_end_matcher
     //
-    template<bool Greedy>
+    template<typename Greedy>
     struct repeat_end_matcher
       : quant_style<quant_none, 0, false>
     {
-        typedef mpl::bool_<Greedy> greedy_type;
         int mark_number_;
         unsigned int min_, max_;
         mutable void const *back_;
@@ -55,7 +54,7 @@ namespace boost { namespace xpressive { namespace detail
             bool old_zero_width = br.zero_width_;
             br.zero_width_ = (br.begin_ == state.cur_);
 
-            if(this->match_(state, next, greedy_type()))
+            if(this->match_(state, next, Greedy()))
             {
                 return true;
             }

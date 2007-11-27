@@ -55,7 +55,7 @@ namespace boost { namespace proto
         };
 
         template<typename Trans, typename ExprTfx, typename StateTfx>
-        struct apply_<Trans, ExprTfx, StateTfx>
+        struct apply_<Trans, ExprTfx, StateTfx> : raw_transform
         {
             template<typename Expr, typename State, typename Visitor>
             struct apply
@@ -79,7 +79,7 @@ namespace boost { namespace proto
         };
 
         template<typename Trans, typename ExprTfx, typename StateTfx, typename VisitorTfx>
-        struct apply_<Trans, ExprTfx, StateTfx, VisitorTfx>
+        struct apply_<Trans, ExprTfx, StateTfx, VisitorTfx> : raw_transform
         {
             template<typename Expr, typename State, typename Visitor>
             struct apply

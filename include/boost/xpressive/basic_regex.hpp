@@ -23,8 +23,8 @@
 
 // Doxygen can't handle proto :-(
 #ifndef BOOST_XPRESSIVE_DOXYGEN_INVOKED
-# include <boost/xpressive/detail/static/grammar.hpp>
-# include <boost/xpressive/proto/extends.hpp>
+# include <boost/xpressive/detail/static/grammar2.hpp>
+# include <boost/xpressive/proto3/extends.hpp>
 #endif
 
 #if BOOST_XPRESSIVE_HAS_MS_STACK_GUARD

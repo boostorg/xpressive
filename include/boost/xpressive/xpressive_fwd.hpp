@@ -50,11 +50,14 @@
 # endif
 #endif
 
-#include <boost/xpressive/proto/proto_fwd.hpp>
-#include <boost/xpressive/proto/traits.hpp>
+#include <boost/xpressive/proto3/proto_fwd.hpp>
+#include <boost/xpressive/proto3/traits.hpp>
 
 namespace boost { namespace xpressive
 {
+
+    template<typename Char>
+    struct Grammar;
 
     template<typename Char>
     struct cpp_regex_traits;

@@ -11,6 +11,7 @@
 #include <boost/mpl/placeholders.hpp>
 #include <boost/type_traits/is_same.hpp>
 #include <boost/xpressive/proto3/proto.hpp>
+#include <boost/xpressive/proto3/transform.hpp>
 #include <boost/test/unit_test.hpp>
 
 using namespace boost;
@@ -130,20 +131,22 @@ void test_matches()
     assert_matches< terminal<convertible_to<int> > >( as_arg((int_convertible())) );
     assert_matches< terminal<convertible_to<int> > >( as_expr((int_convertible())) );
 
-    assert_matches< if_<is_same<proto::result_of::arg<mpl::_>, int> > >( lit(1) );
-    assert_not_matches< if_<is_same<proto::result_of::arg<mpl::_>, int> > >( lit('a') );
+    using transform::_arg;
+
+    assert_matches< if_<is_same<_arg, int>() > >( lit(1) );
+    assert_not_matches< if_<is_same<_arg, int>() > >( lit('a') );
 
     assert_matches<
         and_<
             terminal<_>
-          , if_<is_same<proto::result_of::arg<mpl::_>, int> >
+          , if_<is_same<_arg, int>() >
         >
     >( lit(1) );
 
     assert_not_matches<
         and_<
             terminal<_>
-          , if_<is_same<proto::result_of::arg<mpl::_>, int> >
+          , if_<is_same<_arg, int>() >
         >
     >( lit('a') );
 
@@ -201,15 +204,15 @@ void test_matches()
 
     assert_matches<
         or_<
-            if_<is_same<proto::result_of::arg<mpl::_>, char> >
-          , if_<is_same<proto::result_of::arg<mpl::_>, int> >
+            if_<is_same<_arg, char>() >
+          , if_<is_same<_arg, int>() >
         >
     >( lit(1) );
 
     assert_not_matches<
         or_<
-            if_<is_same<proto::result_of::arg<mpl::_>, char> >
-          , if_<is_same<proto::result_of::arg<mpl::_>, int> >
+            if_<is_same<_arg, char>() >
+          , if_<is_same<_arg, int>() >
         >
     >( lit(1u) );
 
