@@ -27,16 +27,16 @@ namespace boost { namespace proto
             template<typename Grammar, typename Fun>
             struct fold_tree_
               : or_<
-                    case_<Grammar, fold<_, _state, fold_tree_<Grammar, Fun> > >
-                  , case_<_, Fun>
+                    when<Grammar, fold<_, _state, fold_tree_<Grammar, Fun> > >
+                  , when<_, Fun>
                 >
             {};
 
             template<typename Grammar, typename Fun>
             struct reverse_fold_tree_
               : or_<
-                    case_<Grammar, reverse_fold<_, _state, reverse_fold_tree_<Grammar, Fun> > >
-                  , case_<_, Fun>
+                    when<Grammar, reverse_fold<_, _state, reverse_fold_tree_<Grammar, Fun> > >
+                  , when<_, Fun>
                 >
             {};
 

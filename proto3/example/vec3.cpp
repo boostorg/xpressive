@@ -72,12 +72,12 @@ struct iplus : std::plus<int>, function_transform {};
 struct CountLeaves
   : or_<
         // match a Vec3 terminal, return 1
-        case_<terminal<int[3]>, one() >
+        when<terminal<int[3]>, one() >
         // match a terminal, return int() (which is 0)
-      , case_<terminal<_>, int() >
+      , when<terminal<_>, int() >
         // fold everything else, using std::plus<> to add
         // the leaf count of each child to the accumulated state.
-      , case_< nary_expr<_, vararg<_> >, fold<_, int(), iplus(CountLeaves, _state) > >
+      , when< nary_expr<_, vararg<_> >, fold<_, int(), iplus(CountLeaves, _state) > >
     >
 {};
 

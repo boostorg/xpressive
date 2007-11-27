@@ -253,6 +253,14 @@ namespace boost { namespace xpressive
               : apply_<Gram, _make_shift_right(_, alternate_end_matcher()), no_next()>
             {};
 
+            struct as_alternates_list
+              : reverse_fold_tree<
+                    _
+                  , fusion::nil()
+                  , alternates_list<as_alternate, _state>(as_alternate, _state)
+                >
+            {};
+
             struct as_marker
               : apply_<
                     _
@@ -299,14 +307,14 @@ namespace boost { namespace xpressive
                 >
             {};
 
-            template<typename Tag, uint_t, uint_t>
+            template<typename Tag, uint_t = min_type<Tag>::value, uint_t = max_type<Tag>::value>
             struct as_default_repeat_impl
               : apply_<as_repeater<Tag>, as_marker(add_hidden_mark(_arg))>
             {};
 
             template<typename Tag, uint_t Max>
             struct as_default_repeat_impl<Tag, 0, Max>
-              : apply_<_, _make_logical_not(as_default_repeat_impl<generic_quant_tag<1, Max>, 1, Max>)>
+              : apply_<_, _make_logical_not(as_default_repeat_impl<generic_quant_tag<1, Max> >)>
             {};
 
             template<typename Tag>
@@ -316,7 +324,7 @@ namespace boost { namespace xpressive
 
             template<typename Tag>
             struct as_default_repeat
-              : as_default_repeat_impl<Tag, min_type<Tag>::value, max_type<Tag>::value>
+              : as_default_repeat_impl<Tag>
             {};
 
             struct as_simple_repeat
@@ -347,28 +355,20 @@ namespace boost { namespace xpressive
 
             template<typename Dummy>
             struct case_<tag::terminal, Dummy>
-              : proto::case_< terminal<_>, as_matcher(_arg, _visitor) >
+              : when< terminal<_>, as_matcher(_arg, _visitor) >
             {};
 
             template<typename Dummy>
             struct case_<tag::shift_right, Dummy>
-              : proto::case_<
+              : when<
                     shift_right<Gram, Gram>
                   , reverse_fold_tree<_, _state, in_sequence(Gram, _state) >
                 >
             {};
 
-            struct as_alternates_list
-              : reverse_fold_tree<
-                    _
-                  , fusion::nil()
-                  , alternates_list<as_alternate, _state>(as_alternate, _state)
-                >
-            {};
-
             template<typename Dummy>
             struct case_<tag::bitwise_or, Dummy>
-              : proto::case_<
+              : when<
                     bitwise_or<Gram, Gram>
                   , alternate_matcher<as_alternates_list, traits_type<_visitor> >(as_alternates_list)
                 >
@@ -376,29 +376,29 @@ namespace boost { namespace xpressive
 
             template<typename Dummy>
             struct case_<tag::dereference, Dummy>
-              : proto::case_<dereference<Gram>, as_repeat>
+              : when<dereference<Gram>, as_repeat>
             {};
 
             template<typename Dummy>
             struct case_<tag::posit, Dummy>
-              : proto::case_<posit<Gram>, as_repeat>
+              : when<posit<Gram>, as_repeat>
             {};
 
             template<uint_t Min, uint_t Max, typename Dummy>
             struct case_<generic_quant_tag<Min, Max>, Dummy>
-              : proto::case_<unary_expr<generic_quant_tag<Min, Max>, Gram>, as_repeat>
+              : when<unary_expr<generic_quant_tag<Min, Max>, Gram>, as_repeat>
             {};
 
             template<typename Dummy>
             struct case_<tag::logical_not, Dummy>
-              : proto::or_<
-                    proto::case_<
+              : or_<
+                    when<
                         logical_not<assign<terminal<mark_placeholder>, Gram> >
                       , optional_mark_matcher<as_alternate(_arg), greedy_t>(
                             as_alternate(_arg), mark_number(_arg(_left(_arg)))
                         )
                     >
-                  , proto::case_<
+                  , when<
                         logical_not<Gram>
                       , optional_matcher<as_alternate(_arg), greedy_t>(
                             as_alternate(_arg)
@@ -409,7 +409,7 @@ namespace boost { namespace xpressive
 
             template<typename Dummy>
             struct case_<tag::assign, Dummy>
-              : proto::case_<
+              : when<
                     assign<terminal<mark_placeholder>, Gram>
                   , Gram(as_marker)
                 >

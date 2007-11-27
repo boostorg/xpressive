@@ -63,9 +63,9 @@ namespace grammar
     // The lambda grammar, with the transforms for calculating the max arity
     struct Lambda
       : or_<
-            case_< terminal< placeholder<_> >,  mpl::next<placeholder_arity<_arg> >() >
-          , case_< terminal<_>,                 zero() >
-          , case_< nary_expr<_, vararg<_> >,    fold<_, zero(), mpl::max<Lambda,_state>()> >
+            when< terminal< placeholder<_> >,  mpl::next<placeholder_arity<_arg> >() >
+          , when< terminal<_>,                 zero() >
+          , when< nary_expr<_, vararg<_> >,    fold<_, zero(), mpl::max<Lambda,_state>()> >
         >
     {};
 }

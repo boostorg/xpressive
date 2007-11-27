@@ -200,11 +200,11 @@ namespace boost { namespace spirit2
         // Extract the arg from terminals
         struct SpiritTerminal
           : or_<
-                case_< AnyChar,          _arg >
-              , case_< CharLiteral,      if_<_icase, ichar(_arg), _arg> >
-              , case_< CharParser,       if_<_icase, ichar(_arg(_arg1)), _arg(_arg1)> > // char_('a')
-              , case_< NTBSLiteral,      if_<_icase, istr(_arg), char const*(_arg)> >
-              , case_< CharRangeParser,  if_<_icase
+                when< AnyChar,          _arg >
+              , when< CharLiteral,      if_<_icase, ichar(_arg), _arg> >
+              , when< CharParser,       if_<_icase, ichar(_arg(_arg1)), _arg(_arg1)> > // char_('a')
+              , when< NTBSLiteral,      if_<_icase, istr(_arg), char const*(_arg)> >
+              , when< CharRangeParser,  if_<_icase
                                             , ichar_range(_arg(_arg1), _arg(_arg2))
                                             , char_range(_arg(_arg1), _arg(_arg2))> >// char_('a','z')
             >
@@ -217,18 +217,18 @@ namespace boost { namespace spirit2
         // sequence rule folds all >>'s together into a list
         // and wraps the result in a sequence<> wrapper
         struct SpiritSequence
-          : case_< shift_right<SpiritExpr, SpiritExpr>,  sequence<FoldToList>(FoldToList)  >
+          : when< shift_right<SpiritExpr, SpiritExpr>,  sequence<FoldToList>(FoldToList)  >
         {};
 
         // alternate rule folds all |'s together into a list
         // and wraps the result in a alternate<> wrapper
         struct SpiritAlternate
-          : case_< bitwise_or<SpiritExpr, SpiritExpr>,   alternate<FoldToList>(FoldToList) >
+          : when< bitwise_or<SpiritExpr, SpiritExpr>,   alternate<FoldToList>(FoldToList) >
         {};
 
         // Directives such as no_case are handled here
         struct SpiritDirective
-          : case_< subscript<NoCase, SpiritExpr>, SpiritExpr(_right, _state, True()) >
+          : when< subscript<NoCase, SpiritExpr>, SpiritExpr(_right, _state, True()) >
         {};
 
         // A SpiritExpr is an alternate, a sequence, a directive or a terminal

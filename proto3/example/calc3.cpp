@@ -37,14 +37,14 @@ struct CalculatorGrammar
   : proto::or_<
 
         // placeholders have a non-zero arity ...
-        case_< proto::terminal< arg<_> >, _arg >
+        when< proto::terminal< arg<_> >, _arg >
 
         // Any other terminals have arity 0 ...
-      , case_< proto::terminal<_>, zero() >
+      , when< proto::terminal<_>, zero() >
 
         // For any non-terminals, find the arity of the children and
         // take the maximum. This is recursive.
-      , case_< proto::nary_expr<_, proto::vararg<_> >
+      , when< proto::nary_expr<_, proto::vararg<_> >
              , fold<_, zero(), mpl::max<CalculatorGrammar, _state>() > >
 
     >

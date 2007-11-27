@@ -37,7 +37,7 @@ namespace boost { namespace proto
                   : v_(v)
                 {}
 
-                typedef case_<_, Transform> Tfx;
+                typedef when<_, Transform> Tfx;
 
                 template<typename Sig>
                 struct result;
@@ -83,8 +83,8 @@ namespace boost { namespace proto
             template<typename Expr, typename State, typename Visitor>
             struct apply
               : fusion::result_of::fold<
-                    typename case_<_, Sequence>::template apply<Expr, State, Visitor>::type
-                  , typename case_<_, State0>::template apply<Expr, State, Visitor>::type
+                    typename when<_, Sequence>::template apply<Expr, State, Visitor>::type
+                  , typename when<_, State0>::template apply<Expr, State, Visitor>::type
                   , detail::as_callable<Fun, Visitor>
                 >
             {};
@@ -95,8 +95,8 @@ namespace boost { namespace proto
             {
                 detail::as_callable<Fun, Visitor> fun(visitor);
                 return fusion::fold(
-                    case_<_, Sequence>::call(expr, state, visitor)
-                  , case_<_, State0>::call(expr, state, visitor)
+                    when<_, Sequence>::call(expr, state, visitor)
+                  , when<_, State0>::call(expr, state, visitor)
                   , fun
                 );
             }

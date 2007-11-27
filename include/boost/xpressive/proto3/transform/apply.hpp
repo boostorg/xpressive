@@ -36,7 +36,7 @@ namespace boost { namespace proto
             template<typename Expr, typename State, typename Visitor>
             struct apply
               : Trans::template apply<
-                    typename case_<_, ExprTfx>::template apply<Expr, State, Visitor>::type
+                    typename when<_, ExprTfx>::template apply<Expr, State, Visitor>::type
                   , State
                   , Visitor
                 >
@@ -47,7 +47,7 @@ namespace boost { namespace proto
             call(Expr const &expr, State const &state, Visitor &visitor)
             {
                 return Trans::call(
-                    case_<_, ExprTfx>::call(expr, state, visitor)
+                    when<_, ExprTfx>::call(expr, state, visitor)
                   , state
                   , visitor
                 );
@@ -60,8 +60,8 @@ namespace boost { namespace proto
             template<typename Expr, typename State, typename Visitor>
             struct apply
               : Trans::template apply<
-                    typename case_<_, ExprTfx>::template apply<Expr, State, Visitor>::type
-                  , typename case_<_, StateTfx>::template apply<Expr, State, Visitor>::type
+                    typename when<_, ExprTfx>::template apply<Expr, State, Visitor>::type
+                  , typename when<_, StateTfx>::template apply<Expr, State, Visitor>::type
                   , Visitor
                 >
             {};
@@ -71,8 +71,8 @@ namespace boost { namespace proto
             call(Expr const &expr, State const &state, Visitor &visitor)
             {
                 return Trans::call(
-                    case_<_, ExprTfx>::call(expr, state, visitor)
-                  , case_<_, StateTfx>::call(expr, state, visitor)
+                    when<_, ExprTfx>::call(expr, state, visitor)
+                  , when<_, StateTfx>::call(expr, state, visitor)
                   , visitor
                 );
             }
@@ -84,9 +84,9 @@ namespace boost { namespace proto
             template<typename Expr, typename State, typename Visitor>
             struct apply
               : Trans::template apply<
-                    typename case_<_, ExprTfx>::template apply<Expr, State, Visitor>::type
-                  , typename case_<_, StateTfx>::template apply<Expr, State, Visitor>::type
-                  , typename case_<_, VisitorTfx>::template apply<Expr, State, Visitor>::type
+                    typename when<_, ExprTfx>::template apply<Expr, State, Visitor>::type
+                  , typename when<_, StateTfx>::template apply<Expr, State, Visitor>::type
+                  , typename when<_, VisitorTfx>::template apply<Expr, State, Visitor>::type
                 >
             {};
 
@@ -94,11 +94,11 @@ namespace boost { namespace proto
             static typename apply<Expr, State, Visitor>::type
             call(Expr const &expr, State const &state, Visitor &visitor)
             {
-                typedef typename case_<_, VisitorTfx>::template apply<Expr, State, Visitor>::type visitor_type;
+                typedef typename when<_, VisitorTfx>::template apply<Expr, State, Visitor>::type visitor_type;
                 return Trans::call(
-                    case_<_, ExprTfx>::call(expr, state, visitor)
-                  , case_<_, StateTfx>::call(expr, state, visitor)
-                  , const_cast<visitor_type &>(as_lvalue(case_<_, VisitorTfx>::call(expr, state, visitor)))
+                    when<_, ExprTfx>::call(expr, state, visitor)
+                  , when<_, StateTfx>::call(expr, state, visitor)
+                  , const_cast<visitor_type &>(as_lvalue(when<_, VisitorTfx>::call(expr, state, visitor)))
                 );
             }
         };

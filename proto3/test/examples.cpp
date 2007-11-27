@@ -138,11 +138,11 @@ terminal< placeholder2 >::type const _2 = {{}};
 //[ CalculatorArityGrammar
 struct CalculatorArity
   : or_<
-        case_< terminal< placeholder1 >,    one() >
-      , case_< terminal< placeholder2 >,    two() >
-      , case_< terminal<_>,                 zero() >
-      , case_< unary_expr<_, _>,            unary_arity >
-      , case_< binary_expr<_, _, _>,        binary_arity >
+        when< terminal< placeholder1 >,    one() >
+      , when< terminal< placeholder2 >,    two() >
+      , when< terminal<_>,                 zero() >
+      , when< unary_expr<_, _>,            unary_arity >
+      , when< binary_expr<_, _, _>,        binary_arity >
     >
 {};
 //]
@@ -150,11 +150,11 @@ struct CalculatorArity
 //[ CalculatorArityGrammar2
 struct CalcArity2
   : or_<
-        case_< terminal< placeholder1 >,                one()               >
-      , case_< terminal< placeholder2 >,                two()               >
-      , case_< terminal<_>,                             zero()              >
-      , case_< unary_expr<_, CalcArity2>,               CalcArity2(_arg)    >
-      , case_< binary_expr<_, CalcArity2, CalcArity2>,  mpl::max<CalcArity2(_left), CalcArity2(_right)>()   >
+        when< terminal< placeholder1 >,                one()               >
+      , when< terminal< placeholder2 >,                two()               >
+      , when< terminal<_>,                             zero()              >
+      , when< unary_expr<_, CalcArity2>,               CalcArity2(_arg)    >
+      , when< binary_expr<_, CalcArity2, CalcArity2>,  mpl::max<CalcArity2(_left), CalcArity2(_right)>()   >
     >
 {};
 //]
@@ -164,7 +164,7 @@ struct CalcArity2
 // and transforms them into Fusion cons lists of their arguments. In this
 // case, the result would be cons(1, cons('a', cons("b", nil()))).
 struct ArgsAsList
-  : case_<
+  : when<
         function<terminal<_>, vararg<terminal<_> > >
       /*<< Use a `reverse_fold<>` transform to iterate over the children
       of this node in reverse order, building a fusion list from back to
@@ -195,13 +195,13 @@ struct FoldTreeToList
         // This grammar describes what counts as the terminals in expressions
         // of the form (_1=1,'a',"b"), which will be flattened using
         // reverse_fold_tree<> below.
-        case_<assign<_, terminal<_> >
+        when<assign<_, terminal<_> >
              , _arg(_right)
         >
-      , case_<terminal<_>
+      , when<terminal<_>
              , _arg
         >
-      , case_<
+      , when<
             comma<FoldTreeToList, FoldTreeToList>
           /*<< Fold all terminals that are separated by commas into a Fusion cons list. >>*/
           , reverse_fold_tree<
@@ -221,12 +221,12 @@ struct Promote
   : or_<
         /*<< Match a `terminal<float>`, then construct a 
         `terminal<double>::type` with the `float`. >>*/
-        case_<terminal<float>, terminal<double>::type(_arg) >
-      , case_<terminal<_> >
+        when<terminal<float>, terminal<double>::type(_arg) >
+      , when<terminal<_> >
       /*<< `nary_expr<>` has a pass-through transform which 
       will transform each child sub-expression using the 
       `Promote` transform. >>*/
-      , case_<nary_expr<_, vararg<Promote> > >
+      , when<nary_expr<_, vararg<Promote> > >
     >
 {};
 //]
@@ -239,7 +239,7 @@ terminal<make_pair_tag>::type const make_pair_ = {{}};
 // `make_pair_(1, 3.14)` and actually builds a `std::pair<>`
 // from the arguments.
 struct MakePair
-  : case_<
+  : when<
         /*<< Match expressions like `make_pair_(1, 3.14)` >>*/
         function<terminal<make_pair_tag>, terminal<_>, terminal<_> >
       /*<< Return `std::pair<F,S>(f,s)` where `f` and `s` are the
@@ -251,14 +251,14 @@ struct MakePair
 
 //[ NegateInt
 struct NegateInt
-  : case_<terminal<int>, negate<_>(_)>
+  : when<terminal<int>, negate<_>(_)>
 {};
 //]
 
 #ifndef BOOST_MSVC
 //[ SquareAndPromoteInt
 struct SquareAndPromoteInt
-  : case_<
+  : when<
         terminal<int>
       , multiplies<terminal<long>::type, terminal<long>::type>::type
             (terminal<long>::type(_arg), terminal<long>::type(_arg))

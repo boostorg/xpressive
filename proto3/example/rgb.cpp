@@ -78,9 +78,9 @@ struct Blue
 
 struct RGB
   : or_<
-        case_< Red, RedTag() >
-      , case_< Blue, BlueTag() >
-      , case_< Green, GreenTag() >
+        when< Red, RedTag() >
+      , when< Blue, BlueTag() >
+      , when< Green, GreenTag() >
     >
 {};
 

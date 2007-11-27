@@ -12,8 +12,8 @@
 #include <boost/xpressive/proto3/transform/apply.hpp>
 #include <boost/xpressive/proto3/transform/arg.hpp>
 #include <boost/xpressive/proto3/transform/bind.hpp>
-#include <boost/xpressive/proto3/transform/case.hpp>
 #include <boost/xpressive/proto3/transform/fold.hpp>
 #include <boost/xpressive/proto3/transform/fold_tree.hpp>
+#include <boost/xpressive/proto3/transform/when.hpp>
 
 #endif

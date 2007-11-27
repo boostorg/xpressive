@@ -368,7 +368,7 @@ namespace boost { namespace proto
         struct reverse_fold_tree;
 
         template<typename Grammar, typename Fun = Grammar>
-        struct case_;
+        struct when;
 
         struct _expr;
         struct _state;
@@ -396,7 +396,7 @@ namespace boost { namespace proto
         typedef _arg1 _right;
     }
 
-    using transform::case_;
+    using transform::when;
     using transform::_arg0;
     using transform::_arg1;
     using transform::_arg2;

@@ -87,11 +87,11 @@ struct make_negate : function_transform
 // be compatible with the ops role as a meta-function.
 struct Promote
   : or_<
-        case_< terminal<float>, terminal<double>::type(_arg) >
-      , case_< posit<Promote>, make_negate(Promote(_arg))    >
-      , case_< terminal<char const *>, std::string(_arg)     >
-      , case_< terminal<_> >
-      , case_< nary_expr<_, vararg<Promote> > >
+        when< terminal<float>, terminal<double>::type(_arg) >
+      , when< posit<Promote>, make_negate(Promote(_arg))    >
+      , when< terminal<char const *>, std::string(_arg)     >
+      , when< terminal<_> >
+      , when< nary_expr<_, vararg<Promote> > >
     >
 {};
 
@@ -107,20 +107,20 @@ terminal<placeholder<two> >::type const _2 = {};
 
 struct Arity
   : or_<
-        case_< terminal<placeholder<_> >
+        when< terminal<placeholder<_> >
              , _arg
         >
-      , case_< terminal<_>
+      , when< terminal<_>
              , zero()
         >
-      , case_< nary_expr<_, vararg<Arity> >
+      , when< nary_expr<_, vararg<Arity> >
              , fold<_, zero(), mpl::max<Arity, _state>() >
         >
     >
 {};
 
 struct ArgsAsList
-  : case_<
+  : when<
         function<terminal<_>, vararg<terminal<_> > >
       , reverse_fold<
             pop_front(_)
@@ -132,13 +132,13 @@ struct ArgsAsList
 
 struct FoldTreeToList
   : or_<
-        case_<assign<_, terminal<_> >
+        when<assign<_, terminal<_> >
              , _arg(_right)
         >
-      , case_<terminal<_>
+      , when<terminal<_>
              , _arg
         >
-      , case_<
+      , when<
             comma<FoldTreeToList, FoldTreeToList>
           , reverse_fold_tree<
                 _

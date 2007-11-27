@@ -59,10 +59,10 @@ struct begin : proto::function_transform
 // begin iterators
 struct Begin
   : proto::or_<
-        case_< proto::terminal< std::vector<_, _> >, begin(_arg) >
-      , case_< proto::terminal< std::list<_, _> >, begin(_arg) >
-      , case_< proto::terminal<_> >
-      , case_< proto::nary_expr<_, proto::vararg<Begin> > >
+        when< proto::terminal< std::vector<_, _> >, begin(_arg) >
+      , when< proto::terminal< std::list<_, _> >, begin(_arg) >
+      , when< proto::terminal<_> >
+      , when< proto::nary_expr<_, proto::vararg<Begin> > >
     >
 {};
 

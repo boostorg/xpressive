@@ -367,7 +367,7 @@ namespace boost { namespace proto
             template<typename Expr, typename If, typename Then, typename Else>
             struct matches_<Expr, proto::if_<If, Then, Else> >
               : mpl::eval_if<
-                    typename mpl::apply_wrap3<case_<_, If>, Expr, mpl::void_, mpl::void_>::type
+                    typename mpl::apply_wrap3<when<_, If>, Expr, mpl::void_, mpl::void_>::type
                   , matches_<Expr, typename Then::proto_base_expr>
                   , matches_<Expr, typename Else::proto_base_expr>
                 >::type
@@ -463,9 +463,9 @@ namespace boost { namespace proto
             template<typename Expr, typename State, typename Visitor>
             struct apply
               : mpl::eval_if<
-                    typename mpl::apply_wrap3<case_<_, If>, Expr, State, Visitor>::type
-                  , mpl::apply_wrap3<case_<_, Then>, Expr, State, Visitor>
-                  , mpl::apply_wrap3<case_<_, Else>, Expr, State, Visitor>
+                    typename mpl::apply_wrap3<when<_, If>, Expr, State, Visitor>::type
+                  , mpl::apply_wrap3<when<_, Then>, Expr, State, Visitor>
+                  , mpl::apply_wrap3<when<_, Else>, Expr, State, Visitor>
                 >
             {};
 
@@ -475,9 +475,9 @@ namespace boost { namespace proto
             {
                 typedef
                     typename mpl::if_<
-                        typename mpl::apply_wrap3<case_<_, If>, Expr, State, Visitor>::type
-                      , case_<_, Then>
-                      , case_<_, Else>
+                        typename mpl::apply_wrap3<when<_, If>, Expr, State, Visitor>::type
+                      , when<_, Then>
+                      , when<_, Else>
                     >::type
                 branch;
 

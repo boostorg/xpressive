@@ -25,7 +25,7 @@ namespace boost { namespace proto
             template<typename Expr, typename State, typename Visitor>
             struct apply
               : boost::result_of<
-                    Fun(typename case_<_, Args>::template apply<Expr, State, Visitor>::type...)
+                    Fun(typename when<_, Args>::template apply<Expr, State, Visitor>::type...)
                 >
             {};
 
@@ -34,7 +34,7 @@ namespace boost { namespace proto
             call(Expr const &expr, State const &state, Visitor &visitor)
             {
                 Fun f;
-                return f(case_<_, Args>::call(expr, state, visitor)...);
+                return f(when<_, Args>::call(expr, state, visitor)...);
             }
         };
 
