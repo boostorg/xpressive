@@ -637,6 +637,11 @@ namespace boost { namespace xpressive
                         complement<terminal<posix_charset_placeholder> >
                       , as_posix_charset(_arg(_arg), _visitor, false_())
                     >
+                    // ~range('a','z')
+                  , when<
+                        complement<terminal<range_placeholder<_> > >
+                      , range_matcher<traits(_visitor), icase<_visitor> >(_arg(_arg), true_())
+                    >
                     // ~before(...)
                   , when<
                         complement<unary_expr<lookahead_tag, Gram> >

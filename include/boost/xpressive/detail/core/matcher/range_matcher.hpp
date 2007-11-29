@@ -19,6 +19,7 @@
 #include <boost/xpressive/detail/detail_fwd.hpp>
 #include <boost/xpressive/detail/core/quant_style.hpp>
 #include <boost/xpressive/detail/core/state.hpp>
+#include <boost/xpressive/detail/static/placeholders.hpp>
 
 namespace boost { namespace xpressive { namespace detail
 {
@@ -26,19 +27,19 @@ namespace boost { namespace xpressive { namespace detail
     ///////////////////////////////////////////////////////////////////////////////
     // range_matcher
     //
-    template<typename Traits, bool ICase>
+    template<typename Traits, typename ICase>
     struct range_matcher
       : quant_style_fixed_width<1>
     {
         typedef typename Traits::char_type char_type;
-        typedef mpl::bool_<ICase> icase_type;
+        typedef ICase icase_type;
         char_type ch_min_;
         char_type ch_max_;
         bool not_;
 
-        range_matcher(char_type ch_min, char_type ch_max, bool no, Traits const &)
-          : ch_min_(ch_min)
-          , ch_max_(ch_max)
+        range_matcher(range_placeholder<char_type> const &rng, bool no)
+          : ch_min_(rng.ch_min_)
+          , ch_max_(rng.ch_max_)
           , not_(no)
         {
         }

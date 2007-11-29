@@ -128,12 +128,12 @@ namespace boost { namespace xpressive { namespace detail
         // By design, we don't widen character ranges.
         typedef typename iterator_value<BidiIter>::type char_type;
         BOOST_MPL_ASSERT((is_same<Char, char_type>));
-        typedef range_matcher<Traits, ICase::value> type;
+        typedef range_matcher<Traits, ICase> type;
 
         template<typename Matcher2, typename Visitor>
         static type call(Matcher2 const &m, Visitor &visitor)
         {
-            return type(m.ch_min_, m.ch_max_, m.not_, visitor.traits());
+            return type(m, false);
         }
     };
 

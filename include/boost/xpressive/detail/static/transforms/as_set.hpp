@@ -204,7 +204,7 @@ namespace boost { namespace xpressive { namespace detail
             set_char(this->charset_.charset_, ch.ch_, this->visitor_.traits(), icase_type());
         }
 
-        void set(range_matcher<traits_type, icase_type::value> const &rg) const
+        void set(range_matcher<traits_type, icase_type> const &rg) const
         {
             // BUGBUG fixme!
             BOOST_ASSERT(!rg.not_);

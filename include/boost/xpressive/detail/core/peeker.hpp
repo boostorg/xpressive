@@ -218,10 +218,10 @@ struct xpression_peeker
         return mpl::false_();
     }
 
-    template<typename Traits, bool ICase>
+    template<typename Traits, typename ICase>
     mpl::false_ accept(range_matcher<Traits, ICase> const &xpr)
     {
-        this->bset_.set_range(xpr.ch_min_, xpr.ch_max_, xpr.not_, ICase, this->get_traits_<Traits>());
+        this->bset_.set_range(xpr.ch_min_, xpr.ch_max_, xpr.not_, ICase::value, this->get_traits_<Traits>());
         return mpl::false_();
     }
 
