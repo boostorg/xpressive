@@ -128,7 +128,7 @@ namespace boost { namespace xpressive { namespace detail
     template<typename Greedy>
     struct repeat_end_matcher;
 
-    template<typename Traits, bool ICase, bool Not>
+    template<typename Traits, typename ICase, typename Not>
     struct literal_matcher;
 
     template<typename Traits, bool ICase>
@@ -188,7 +188,7 @@ namespace boost { namespace xpressive { namespace detail
     template<typename Xpr>
     struct lookbehind_matcher;
 
-    template<bool IsBoundary>
+    template<typename IsBoundary>
     struct word_boundary;
 
     template<typename BidiIter, typename Matcher>

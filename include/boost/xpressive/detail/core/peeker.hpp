@@ -142,10 +142,10 @@ struct xpression_peeker
         return mpl::true_();
     }
 
-    template<typename Traits, bool ICase>
-    mpl::false_ accept(literal_matcher<Traits, ICase, false> const &xpr)
+    template<typename Traits, typename ICase>
+    mpl::false_ accept(literal_matcher<Traits, ICase, false_> const &xpr)
     {
-        this->bset_.set_char(xpr.ch_, ICase, this->get_traits_<Traits>());
+        this->bset_.set_char(xpr.ch_, ICase::value, this->get_traits_<Traits>());
         return mpl::false_();
     }
 

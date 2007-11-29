@@ -122,7 +122,7 @@ namespace boost { namespace proto
 
             operator address_of_hack_type_() const
             {
-                return boost::addressof(this->arg0.expr);
+                return boost::addressof(this->proto_args_.car);
             }
 
             template<typename A>

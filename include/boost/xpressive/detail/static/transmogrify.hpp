@@ -44,7 +44,7 @@ namespace boost { namespace xpressive { namespace detail
         typedef typename mpl::if_
         <
             is_char_literal<Matcher, char_type>
-          , literal_matcher<Traits, ICase::value, false>
+          , literal_matcher<Traits, ICase, false_>
           , string_matcher<Traits, ICase::value>
         >::type type;
 
@@ -57,8 +57,8 @@ namespace boost { namespace xpressive { namespace detail
         template<typename Matcher2, typename Visitor>
         static type call_(Matcher2 const &m, Visitor &visitor, mpl::true_)
         {
-            char_type ch = char_cast<char_type>(m, visitor.traits());
-            return type(ch, visitor.traits());
+            //char_type ch = char_cast<char_type>(m, visitor.traits());
+            return type(m, visitor.traits());
         }
 
         template<typename Matcher2, typename Visitor>

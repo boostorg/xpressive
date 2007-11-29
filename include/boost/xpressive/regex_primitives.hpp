@@ -31,7 +31,7 @@
 namespace boost { namespace xpressive { namespace detail
 {
 
-    typedef assert_word_placeholder<word_boundary<true> > assert_word_boundary;
+    typedef assert_word_placeholder<word_boundary<true_> > assert_word_boundary;
     typedef assert_word_placeholder<word_begin> assert_word_begin;
     typedef assert_word_placeholder<word_end> assert_word_end;
 

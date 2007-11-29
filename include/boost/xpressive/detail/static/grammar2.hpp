@@ -207,10 +207,58 @@ namespace boost { namespace xpressive
             
             template<typename Visitor>
             typename Visitor::traits_type const &
-            operator()(Visitor &visitor)
+            operator()(Visitor &visitor) const
             {
                 return visitor.traits();
             }
+        };
+
+        struct newline : function_transform
+        {
+            template<typename Sig>
+            struct result;
+            
+            template<typename This, typename Traits>
+            struct result<This(Traits)>
+            {
+                typedef typename Traits::char_class_type type;
+            };
+            
+            template<typename Traits>
+            typename Traits::char_class_type
+            operator()(Traits const &traits) const
+            {
+                return lookup_classname(traits, "newline");
+            }
+        };
+
+        struct as_posix_charset : function_transform
+        {
+            template<typename Sig>
+            struct result;
+            
+            template<typename This, typename Posix, typename Visitor, typename YesNo>
+            struct result<This(Posix, Visitor, YesNo)>
+            {
+                typedef posix_charset_matcher<typename Visitor::traits_type> type;
+            };
+
+            template<typename Posix, typename Visitor>
+            posix_charset_matcher<typename Visitor::traits_type>
+            operator()(Posix const &posix, Visitor const &visitor, bool yes_no) const
+            {
+                char const *name_end = posix.name_ + std::strlen(posix.name_);
+                return posix_charset_matcher<typename Visitor::traits_type>(
+                    visitor.traits().lookup_classname(posix.name_, name_end, Visitor::icase_type::value)
+                  , yes_no == posix.not_
+                );
+            }
+        };
+
+        template<typename Visitor>
+        struct icase
+        {
+            typedef typename Visitor::icase_type type;
         };
 
         // BUGBUG make_expr uses as_expr, not as_arg. Is that right?
@@ -569,13 +617,35 @@ namespace boost { namespace xpressive
             template<typename Dummy>
             struct case_<tag::complement, Dummy>
               : or_<
+                    // ~_b
                     when<
+                        complement<terminal<assert_word_placeholder<word_boundary<true_> > > >
+                      , assert_word_matcher<word_boundary<false_>, traits(_visitor)>(traits(_visitor))
+                    >
+                    // ~_n
+                  , when<
+                        complement<CharLiteral<Char> >
+                      , literal_matcher<traits(_visitor), icase<_visitor>, true_>(_arg(_arg), traits(_visitor))
+                    >
+                    // ~_ln
+                  , when<
+                        complement<terminal<logical_newline_placeholder> >
+                      , posix_charset_matcher<traits(_visitor)>(newline(traits(_visitor)), true_())
+                    >
+                    // ~alpha
+                  , when<
+                        complement<terminal<posix_charset_placeholder> >
+                      , as_posix_charset(_arg(_arg), _visitor, false_())
+                    >
+                    // ~before(...)
+                  , when<
                         complement<unary_expr<lookahead_tag, Gram> >
                       , lookahead_matcher<as_independent(_arg(_arg))>(
                             as_independent(_arg(_arg))
                           , true_()
                         )
                     >
+                    // ~after(...)
                   , when<
                         complement<unary_expr<lookbehind_tag, Gram> >
                       , lookbehind_matcher<as_independent(_arg(_arg))>(

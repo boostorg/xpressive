@@ -58,12 +58,12 @@ inline sequence<BidiIter> make_char_xpression
 {
     if(0 != (regex_constants::icase_ & flags))
     {
-        literal_matcher<Traits, true, false> matcher(ch, traits);
+        literal_matcher<Traits, true_, false_> matcher(ch, traits);
         return make_dynamic<BidiIter>(matcher);
     }
     else
     {
-        literal_matcher<Traits, false, false> matcher(ch, traits);
+        literal_matcher<Traits, false_, false_> matcher(ch, traits);
         return make_dynamic<BidiIter>(matcher);
     }
 }
@@ -81,7 +81,7 @@ inline sequence<BidiIter> make_any_xpression
     using namespace regex_constants;
     typedef typename iterator_value<BidiIter>::type char_type;
     typedef set_matcher<Traits, mpl::integral_c<int, 2> > set_matcher;
-    typedef literal_matcher<Traits, false, true> literal_matcher;
+    typedef literal_matcher<Traits, false_, true_> literal_matcher;
 
     char_type const newline = traits.widen('\n');
     set_matcher s;
