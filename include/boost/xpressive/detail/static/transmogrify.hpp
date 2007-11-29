@@ -162,7 +162,7 @@ namespace boost { namespace xpressive { namespace detail
         }
     };
 
-    template<typename BidiIter, typename Traits, int Size>
+    template<typename BidiIter, typename Traits, typename Size>
     struct transmogrify<BidiIter, mpl::true_, Traits, set_matcher<Traits, Size> >
     {
         typedef set_matcher<Traits, Size> type;

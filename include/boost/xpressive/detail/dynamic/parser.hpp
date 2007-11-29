@@ -18,6 +18,7 @@
 #endif
 
 #include <boost/assert.hpp>
+#include <boost/mpl/integral_c.hpp>
 #include <boost/xpressive/regex_constants.hpp>
 #include <boost/xpressive/detail/detail_fwd.hpp>
 #include <boost/xpressive/detail/core/matchers.hpp>
@@ -79,7 +80,7 @@ inline sequence<BidiIter> make_any_xpression
 {
     using namespace regex_constants;
     typedef typename iterator_value<BidiIter>::type char_type;
-    typedef set_matcher<Traits, 2> set_matcher;
+    typedef set_matcher<Traits, mpl::integral_c<int, 2> > set_matcher;
     typedef literal_matcher<Traits, false, true> literal_matcher;
 
     char_type const newline = traits.widen('\n');

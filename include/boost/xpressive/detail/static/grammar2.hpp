@@ -18,6 +18,7 @@
 #include <boost/mpl/assert.hpp>
 #include <boost/mpl/eval_if.hpp>
 #include <boost/mpl/apply_wrap.hpp>
+#include <boost/mpl/next_prior.hpp>
 #include <boost/fusion/include/cons.hpp>
 #include <boost/xpressive/proto3/proto.hpp>
 #include <boost/xpressive/proto3/transform.hpp>
@@ -200,21 +201,31 @@ namespace boost { namespace xpressive
             }
         };
 
+        struct traits : function_transform
+        {
+            template<typename Sig>
+            struct result;
+            
+            template<typename This, typename Visitor>
+            struct result<This(Visitor)>
+            {
+                typedef typename Visitor::traits_type type;
+            };
+            
+            template<typename Visitor>
+            typename Visitor::traits_type const &
+            operator()(Visitor &visitor)
+            {
+                return visitor.traits();
+            }
+        };
+
         // BUGBUG make_expr uses as_expr, not as_arg. Is that right?
         typedef functional::make_expr<tag::shift_right> _make_shift_right;
         typedef functional::make_expr<tag::terminal> _make_terminal;
         typedef functional::make_expr<tag::assign> _make_assign;
         typedef functional::make_expr<tag::logical_not> _make_logical_not;
         typedef functional::make_expr<tag::negate> _make_negate;
-
-        template<typename Visitor>
-        struct traits_type
-        {
-            typedef typename Visitor::traits_type type;
-        };
-
-        struct greedy : mpl::true_ {};
-        struct non_greedy : mpl::false_ {};
 
         // Place a head and a tail in sequence, if it's not
         // already in sequence.
@@ -250,6 +261,76 @@ namespace boost { namespace xpressive
             }
         };
 
+        ///////////////////////////////////////////////////////////////////////////
+        // CharLiteral
+        template<typename Char>
+        struct CharLiteral
+          : proto::or_<
+                proto::terminal<char>
+              , proto::terminal<Char>
+            >
+        {};
+
+        template<>
+        struct CharLiteral<char>
+          : proto::terminal<char>
+        {};
+        
+        struct _one : mpl::int_<1> {};
+
+        ///////////////////////////////////////////////////////////////////////////
+        // ListSet
+        //  matches expressions like (set= 'a','b','c')
+        //  calculates the size of the set
+        //  populates an array of characters
+        template<typename Char>
+        struct ListSet
+          : or_<
+                when<
+                    comma<ListSet<Char>, CharLiteral<Char> >
+                  , mpl::next<ListSet<Char>(_left)>()
+                >
+              , when<
+                    assign<terminal<set_initializer>, CharLiteral<Char> >
+                  , _one()
+                >
+            >
+        {};
+        
+        struct fill_list_set : function_transform
+        {
+            template<typename Sig>
+            struct result;
+
+            template<typename This, typename Set, typename Expr, typename Visitor>
+            struct result<This(Set, Expr, Visitor)>
+            {
+                typedef Set type;
+            };
+
+            template<typename Set, typename Expr, typename Visitor>
+            Set operator()(Set set, Expr const &expr, Visitor &visitor) const
+            {
+                typename Set::char_type *buffer = set.set_;
+                this->fill(buffer, expr, visitor.traits());
+                return set;
+            }
+
+        private:
+            template<typename Char, typename Expr, typename Traits>
+            void fill(Char *&buffer, Expr const &expr, Traits const &traits) const
+            {
+                this->fill(buffer, proto::left(expr), traits);
+                *buffer++ = traits.translate(
+                    char_cast<Char>(proto::arg(proto::right(expr)), traits)
+                );
+            }
+
+            template<typename Char, typename Traits>
+            void fill(Char *&, set_initializer_type, Traits const &) const
+            {}
+        };
+        
         ///////////////////////////////////////////////////////////////////////////
         // Cases
         template<typename Char, typename Gram>
@@ -382,6 +463,17 @@ namespace boost { namespace xpressive
                   , optional_matcher<as_alternate, Greedy>(as_alternate)
                 >
             {};
+            
+            struct as_list_set
+              : apply_<
+                    _
+                  , fill_list_set(
+                        set_matcher<traits(_visitor), ListSet<Char>(_) >()
+                      , _
+                      , _visitor
+                    )
+                >
+            {};
 
             // Here are the cases, which use the transforms defined above.
             template<typename Tag, typename Dummy = void>
@@ -391,14 +483,14 @@ namespace boost { namespace xpressive
 
             template<typename Dummy>
             struct case_<tag::terminal, Dummy>
-              : when< terminal<_>, as_matcher(_arg, _visitor) >
+              : when<_, as_matcher(_arg, _visitor)>
             {};
 
             template<typename Dummy>
             struct case_<tag::shift_right, Dummy>
               : when<
                     shift_right<Gram, Gram>
-                  , reverse_fold_tree<_, _state, in_sequence(Gram, _state) >
+                  , reverse_fold_tree<_, _state, in_sequence(Gram, _state)>
                 >
             {};
 
@@ -406,7 +498,7 @@ namespace boost { namespace xpressive
             struct case_<tag::bitwise_or, Dummy>
               : when<
                     bitwise_or<Gram, Gram>
-                  , alternate_matcher<as_alternates_list, traits_type<_visitor> >(as_alternates_list)
+                  , alternate_matcher<as_alternates_list, traits(_visitor)>(as_alternates_list)
                 >
             {};
 
@@ -442,7 +534,15 @@ namespace boost { namespace xpressive
 
             template<typename Dummy>
             struct case_<tag::assign, Dummy>
-              : when<assign<terminal<mark_placeholder>, Gram>, Gram(as_marker)>
+              : or_<
+                    when<assign<terminal<mark_placeholder>, Gram>, Gram(as_marker)>
+                  , when<ListSet<Char>, as_list_set>
+                >
+            {};
+
+            template<typename Dummy>
+            struct case_<tag::comma, Dummy>
+              : when<ListSet<Char>, as_list_set>
             {};
         };
 

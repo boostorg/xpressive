@@ -117,7 +117,7 @@ namespace boost { namespace xpressive { namespace detail
     template<typename Traits, bool ICase>
     struct range_matcher;
 
-    template<typename Traits, int Size>
+    template<typename Traits, typename Size>
     struct set_matcher;
 
     template<typename Xpr, typename Greedy>
