@@ -52,13 +52,6 @@ namespace boost { namespace proto
     struct is_aggregate<xpressive::detail::mark_placeholder>
       : mpl::true_
     {};
-
-    // work around gcc bug.
-    template<unsigned int Min, unsigned int Max>
-    struct transform_category<xpressive::detail::generic_quant_tag<Min, Max> >
-    {
-        typedef no_transform type;
-    };
 }}
 
 namespace boost { namespace xpressive
@@ -543,6 +536,55 @@ namespace boost { namespace xpressive
             template<typename Dummy>
             struct case_<tag::comma, Dummy>
               : when<ListSet<Char>, as_list_set>
+            {};
+
+            template<typename Dummy>
+            struct case_<keeper_tag, Dummy>
+              : when<
+                    unary_expr<keeper_tag, Gram>
+                  , keeper_matcher<as_independent(_arg)>(as_independent(_arg))
+                >
+            {};
+
+            template<typename Dummy>
+            struct case_<lookahead_tag, Dummy>
+              : when<
+                    unary_expr<lookahead_tag, Gram>
+                  , lookahead_matcher<as_independent(_arg)>(as_independent(_arg), false_())
+                >
+            {};
+
+            template<typename Dummy>
+            struct case_<lookbehind_tag, Dummy>
+              : when<
+                    unary_expr<lookbehind_tag, Gram>
+                  , lookbehind_matcher<as_independent(_arg)>(
+                        as_independent(_arg)
+                      , get_width(as_independent(_arg))
+                      , false_()
+                    )
+                >
+            {};
+
+            template<typename Dummy>
+            struct case_<tag::complement, Dummy>
+              : or_<
+                    when<
+                        complement<unary_expr<lookahead_tag, Gram> >
+                      , lookahead_matcher<as_independent(_arg(_arg))>(
+                            as_independent(_arg(_arg))
+                          , true_()
+                        )
+                    >
+                  , when<
+                        complement<unary_expr<lookbehind_tag, Gram> >
+                      , lookbehind_matcher<as_independent(_arg(_arg))>(
+                            as_independent(_arg(_arg))
+                          , get_width(as_independent(_arg(_arg)))
+                          , true_()
+                        )
+                    >
+                >
             {};
         };
 

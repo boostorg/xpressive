@@ -384,8 +384,11 @@ namespace boost { namespace xpressive { namespace detail
     };
     #endif
 
-    struct greedy_t : mpl::true_ {};
-    struct non_greedy_t : mpl::false_ {};
+    struct true_ : mpl::true_ {};
+    struct false_ : mpl::false_ {};
+
+    typedef true_ greedy_t;
+    typedef false_ non_greedy_t;
 
 }}} // namespace boost::xpressive::detail
 
