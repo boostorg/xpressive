@@ -111,7 +111,7 @@ namespace boost { namespace xpressive { namespace detail
     template<typename Traits>
     struct compound_charset;
 
-    template<typename Traits, bool ICase, typename CharSet = compound_charset<Traits> >
+    template<typename Traits, typename ICase, typename CharSet = compound_charset<Traits> >
     struct charset_matcher;
 
     template<typename Traits, typename ICase>

@@ -209,12 +209,12 @@ struct xpression_peeker
         return mpl::false_();
     }
 
-    template<bool ICase, typename Traits>
+    template<typename ICase, typename Traits>
     typename enable_if<is_narrow_char<typename Traits::char_type>, mpl::false_>::type
     accept(charset_matcher<Traits, ICase, basic_chset<Char> > const &xpr)
     {
         BOOST_ASSERT(0 != xpr.charset_.base().count());
-        this->bset_.set_charset(xpr.charset_, ICase);
+        this->bset_.set_charset(xpr.charset_, ICase::value);
         return mpl::false_();
     }
 

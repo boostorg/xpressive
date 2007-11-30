@@ -371,7 +371,63 @@ namespace boost { namespace xpressive
             void fill(Char *&, set_initializer_type, Traits const &) const
             {}
         };
-        
+
+        template<typename T>
+        T &uncv(T const volatile &t)
+        {
+            return const_cast<T &>(t);
+        }
+
+        struct merge_charset : function_transform
+        {
+            template<typename Sig>
+            struct result;
+
+            template<typename This, typename CharSet, typename Xpr, typename Visitor>
+            struct result<This(CharSet, Xpr, Visitor)>
+            {
+                typedef CharSet type;
+            };
+
+            template<typename CharSet, typename Traits, typename ICase, typename Not, typename Visitor>
+            CharSet const &
+            operator()(CharSet const &charset, literal_matcher<Traits, ICase, Not> const &ch, Visitor &visitor) const
+            {
+                BOOST_MPL_ASSERT_NOT((Not)); // TODO fixme!
+                set_char(uncv(charset.charset_), ch.ch_, visitor.traits(), ICase());
+                return charset;
+            }
+
+            template<typename CharSet, typename Traits, typename ICase, typename Visitor>
+            CharSet const &
+            operator()(CharSet const &charset, range_matcher<Traits, ICase> const &rg, Visitor &visitor) const
+            {
+                BOOST_ASSERT(!rg.not_); // TODO fixme!
+                set_range(uncv(charset.charset_), rg.ch_min_, rg.ch_max_, visitor.traits(), ICase());
+                return charset;
+            }
+
+            template<typename CharSet, typename Traits, typename Size, typename Visitor>
+            CharSet const &
+            operator()(CharSet const &charset, set_matcher<Traits, Size> const &set_, Visitor &visitor) const
+            {
+                BOOST_ASSERT(!set_.not_); // TODO fixme!
+                for(int i=0; i < Size::value; ++i)
+                {
+                    set_char(uncv(charset.charset_), set_.set_[i], visitor.traits(), Visitor::icase_type::value);
+                }
+                return charset;
+            }
+
+            template<typename CharSet, typename Traits, typename Visitor>
+            CharSet const &
+            operator()(CharSet const &charset, posix_charset_matcher<Traits> const &posix, Visitor &visitor) const
+            {
+                set_class(uncv(charset.charset_), posix.mask_, posix.not_, visitor.traits());
+                return charset;
+            }
+        };
+
         ///////////////////////////////////////////////////////////////////////////
         // Cases
         template<typename Char, typename Gram>
@@ -513,6 +569,22 @@ namespace boost { namespace xpressive
                       , _
                       , _visitor
                     )
+                >
+            {};
+
+            struct as_set
+              : fold_tree<
+                    _
+                  , charset_matcher<
+                        traits(_visitor)
+                      , icase<_visitor>
+                      , if_<
+                            is_narrow_char<Char>()
+                          , basic_chset<Char>()
+                          , compound_charset<traits(_visitor)>()
+                        >
+                    >()
+                  , merge_charset(_state, Gram(_make_shift_right(_, end_matcher()), no_next()), _visitor)
                 >
             {};
 
@@ -658,6 +730,20 @@ namespace boost { namespace xpressive
                           , get_width(as_independent(_arg(_arg)))
                           , true_()
                         )
+                    >
+                >
+            {};
+
+            template<typename Dummy>
+            struct case_<tag::subscript, Dummy>
+              : or_<
+                    when<
+                        subscript<terminal<set_initializer>, bitwise_or<Gram, Gram> >
+                      , as_set(_right)
+                    >
+                  , when<
+                        subscript<terminal<set_initializer>, terminal<_> >
+                      , as_matcher(_arg(_right), _visitor)
                     >
                 >
             {};

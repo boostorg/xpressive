@@ -103,8 +103,20 @@ namespace boost { namespace proto
         typedef raw_transform type;
     };
 
+    template<typename Grammar, typename Fun>
+    struct transform_category<transform::detail::fold_tree_<Grammar, Fun> >
+    {
+        typedef raw_transform type;
+    };
+
     template<typename Sequence, typename State0, typename Fun>
     struct transform_category<transform::reverse_fold_tree<Sequence, State0, Fun> >
+    {
+        typedef raw_transform type;
+    };
+
+    template<typename Grammar, typename Fun>
+    struct transform_category<transform::detail::reverse_fold_tree_<Grammar, Fun> >
     {
         typedef raw_transform type;
     };

@@ -227,13 +227,13 @@ inline sequence<BidiIter> make_charset_xpression
         charset_type charset(chset.base());
         if(icase)
         {
-            charset_matcher<Traits, true, charset_type> matcher(charset);
+            charset_matcher<Traits, true_, charset_type> matcher(charset);
             merge_charset(matcher.charset_, chset, traits);
             return make_dynamic<BidiIter>(matcher);
         }
         else
         {
-            charset_matcher<Traits, false, charset_type> matcher(charset);
+            charset_matcher<Traits, false_, charset_type> matcher(charset);
             merge_charset(matcher.charset_, chset, traits);
             return make_dynamic<BidiIter>(matcher);
         }
@@ -252,12 +252,12 @@ inline sequence<BidiIter> make_charset_xpression
     {
         if(icase)
         {
-            charset_matcher<Traits, true> matcher(chset);
+            charset_matcher<Traits, true_> matcher(chset);
             return make_dynamic<BidiIter>(matcher);
         }
         else
         {
-            charset_matcher<Traits, false> matcher(chset);
+            charset_matcher<Traits, false_> matcher(chset);
             return make_dynamic<BidiIter>(matcher);
         }
     }
