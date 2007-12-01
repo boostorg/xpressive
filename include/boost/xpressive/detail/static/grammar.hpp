@@ -528,7 +528,7 @@ namespace boost { namespace xpressive
                   , _make_shift_right(
                         repeat_begin_matcher(mark_number(_arg(_left)))
                       , _make_shift_right(
-                            _right
+                            _
                           , repeat_end_matcher<Greedy>(
                                 mark_number(_arg(_left))
                               // BUGBUG work around gcc bug
