@@ -10,8 +10,8 @@
 // from PETE (http://www.codesourcery.com/pooma/download.html).
 
 #include <iostream>
-#include <boost/xpressive/proto3/proto.hpp>
-#include <boost/xpressive/proto3/transform.hpp>
+#include <boost/xpressive/proto/proto.hpp>
+#include <boost/xpressive/proto/transform.hpp>
 using namespace boost::proto;
 
 struct RedTag

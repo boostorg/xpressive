@@ -6,8 +6,8 @@
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_PROTO3_EVAL_HPP_EAN_03_29_2007
-#define BOOST_PROTO3_EVAL_HPP_EAN_03_29_2007
+#ifndef BOOST_PROTO_EVAL_HPP_EAN_03_29_2007
+#define BOOST_PROTO_EVAL_HPP_EAN_03_29_2007
 
 #include <boost/type_traits.hpp>
 

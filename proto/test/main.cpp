@@ -8,9 +8,9 @@
 #include <boost/fusion/include/cons.hpp>
 #include <boost/fusion/include/pop_front.hpp>
 #include <boost/fusion/include/reverse.hpp>
-#include <boost/xpressive/proto3/proto.hpp>
-#include <boost/xpressive/proto3/transform.hpp>
-#include <boost/xpressive/proto3/context.hpp>
+#include <boost/xpressive/proto/proto.hpp>
+#include <boost/xpressive/proto/transform.hpp>
+#include <boost/xpressive/proto/context.hpp>
 
 namespace boost { namespace fusion
 {

@@ -6,17 +6,17 @@
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_PROTO3_DEBUG_HPP_EAN_12_31_2006
-#define BOOST_PROTO3_DEBUG_HPP_EAN_12_31_2006
+#ifndef BOOST_PROTO_DEBUG_HPP_EAN_12_31_2006
+#define BOOST_PROTO_DEBUG_HPP_EAN_12_31_2006
 
 #if !defined(__WAVE__) || !defined(BOOST_PROTO_DOXYGEN_INVOKED)
 #include <iomanip>
 #include <iostream>
 #include <typeinfo>
-#include <boost/xpressive/proto3/proto_fwd.hpp>
-#include <boost/xpressive/proto3/expr.hpp>
-#include <boost/xpressive/proto3/traits.hpp>
-#include <boost/xpressive/proto3/detail/dont_care.hpp>
+#include <boost/xpressive/proto/proto_fwd.hpp>
+#include <boost/xpressive/proto/expr.hpp>
+#include <boost/xpressive/proto/traits.hpp>
+#include <boost/xpressive/proto/detail/dont_care.hpp>
 #else
 /// INTERNAL ONLY
 /// Needed to work around doxygen bug

@@ -10,8 +10,8 @@
 # error This test only works on Boost v1.35
 #endif
 
-#include <boost/xpressive/proto3/proto.hpp>
-#include <boost/xpressive/proto3/fusion.hpp>
+#include <boost/xpressive/proto/proto.hpp>
+#include <boost/xpressive/proto/fusion.hpp>
 #include <boost/fusion/include/for_each.hpp>
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/addressof.hpp>

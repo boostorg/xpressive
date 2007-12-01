@@ -20,8 +20,8 @@
 #include <boost/mpl/apply_wrap.hpp>
 #include <boost/mpl/next_prior.hpp>
 #include <boost/fusion/include/cons.hpp>
-#include <boost/xpressive/proto3/proto.hpp>
-#include <boost/xpressive/proto3/transform.hpp>
+#include <boost/xpressive/proto/proto.hpp>
+#include <boost/xpressive/proto/transform.hpp>
 #include <boost/xpressive/detail/detail_fwd.hpp>
 #include <boost/xpressive/detail/static/static.hpp>
 #include <boost/xpressive/detail/static/is_pure.hpp>

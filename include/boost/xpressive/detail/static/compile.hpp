@@ -15,7 +15,7 @@
 
 #include <boost/mpl/bool.hpp>
 #include <boost/iterator/iterator_traits.hpp>
-#include <boost/xpressive/proto3/proto.hpp>
+#include <boost/xpressive/proto/proto.hpp>
 #include <boost/xpressive/regex_traits.hpp>
 #include <boost/xpressive/detail/core/regex_impl.hpp>
 #include <boost/xpressive/detail/core/linker.hpp>
@@ -24,7 +24,7 @@
 #include <boost/xpressive/detail/core/matcher/end_matcher.hpp>
 #include <boost/xpressive/detail/static/static.hpp>
 #include <boost/xpressive/detail/static/visitor.hpp>
-#include <boost/xpressive/detail/static/grammar2.hpp>
+#include <boost/xpressive/detail/static/grammar.hpp>
 
 namespace boost { namespace xpressive { namespace detail
 {

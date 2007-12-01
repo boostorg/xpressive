@@ -15,8 +15,8 @@
 #include <boost/mpl/assert.hpp>
 #include <boost/utility/result_of.hpp>
 #include <boost/type_traits/is_same.hpp>
-#include <boost/xpressive/proto3/proto.hpp>
-#include <boost/xpressive/proto3/transform.hpp>
+#include <boost/xpressive/proto/proto.hpp>
+#include <boost/xpressive/proto/transform.hpp>
 #if BOOST_VERSION < 103500
 # include <boost/spirit/fusion/algorithm/for_each.hpp>
 # include <boost/spirit/fusion/algorithm/fold.hpp>

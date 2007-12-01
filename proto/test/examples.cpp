@@ -8,11 +8,11 @@
 #include <iostream>
 #include <boost/config.hpp>
 #include <boost/mpl/min_max.hpp>
-#include <boost/xpressive/proto3/proto.hpp>
-#include <boost/xpressive/proto3/transform.hpp>
-#include <boost/xpressive/proto3/transform/arg.hpp>
-#include <boost/xpressive/proto3/transform/fold.hpp>
-#include <boost/xpressive/proto3/transform/fold_tree.hpp>
+#include <boost/xpressive/proto/proto.hpp>
+#include <boost/xpressive/proto/transform.hpp>
+#include <boost/xpressive/proto/transform/arg.hpp>
+#include <boost/xpressive/proto/transform/fold.hpp>
+#include <boost/xpressive/proto/transform/fold_tree.hpp>
 #include <boost/utility/result_of.hpp>
 #include <boost/fusion/include/cons.hpp>
 #include <boost/fusion/include/pop_front.hpp>

@@ -6,8 +6,8 @@
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_PROTO3_TRANSFORM_CASE_HPP_EAN_10_29_2007
-#define BOOST_PROTO3_TRANSFORM_CASE_HPP_EAN_10_29_2007
+#ifndef BOOST_PROTO_TRANSFORM_CASE_HPP_EAN_10_29_2007
+#define BOOST_PROTO_TRANSFORM_CASE_HPP_EAN_10_29_2007
 
 #include <boost/mpl/bool.hpp>
 #include <boost/mpl/logical.hpp>
@@ -16,9 +16,9 @@
 #include <boost/mpl/aux_/has_type.hpp>
 #include <boost/type_traits.hpp>
 #include <boost/utility/enable_if.hpp>
-#include <boost/xpressive/proto3/proto_fwd.hpp>
-#include <boost/xpressive/proto3/transform/bind.hpp>
-#include <boost/xpressive/proto3/transform/apply.hpp>
+#include <boost/xpressive/proto/proto_fwd.hpp>
+#include <boost/xpressive/proto/transform/bind.hpp>
+#include <boost/xpressive/proto/transform/apply.hpp>
 
 namespace boost { namespace proto
 {

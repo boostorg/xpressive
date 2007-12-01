@@ -6,14 +6,14 @@
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_PROTO3_TRANSFORM_FOLD_HPP_EAN_11_04_2007
-#define BOOST_PROTO3_TRANSFORM_FOLD_HPP_EAN_11_04_2007
+#ifndef BOOST_PROTO_TRANSFORM_FOLD_HPP_EAN_11_04_2007
+#define BOOST_PROTO_TRANSFORM_FOLD_HPP_EAN_11_04_2007
 
 #include <boost/fusion/include/fold.hpp>
 #include <boost/fusion/include/reverse.hpp>
-#include <boost/xpressive/proto3/proto_fwd.hpp>
-#include <boost/xpressive/proto3/fusion.hpp>
-#include <boost/xpressive/proto3/traits.hpp>
+#include <boost/xpressive/proto/proto_fwd.hpp>
+#include <boost/xpressive/proto/fusion.hpp>
+#include <boost/xpressive/proto/traits.hpp>
 
 #define UNREF(T)\
     typename remove_reference<T>::type

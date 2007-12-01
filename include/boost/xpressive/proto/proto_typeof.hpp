@@ -7,13 +7,13 @@
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_PROTO3_PROTO_TYPEOF_H
-#define BOOST_PROTO3_PROTO_TYPEOF_H
+#ifndef BOOST_PROTO_PROTO_TYPEOF_H
+#define BOOST_PROTO_PROTO_TYPEOF_H
 
 #include <boost/config.hpp>
 #include <boost/typeof/typeof.hpp>
-#include <boost/xpressive/proto3/proto_fwd.hpp>
-#include <boost/xpressive/proto3/deep_copy.hpp>
+#include <boost/xpressive/proto/proto_fwd.hpp>
+#include <boost/xpressive/proto/deep_copy.hpp>
 #include BOOST_TYPEOF_INCREMENT_REGISTRATION_GROUP()
 
 BOOST_TYPEOF_REGISTER_TYPE(boost::proto::tag::terminal)

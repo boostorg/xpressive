@@ -6,25 +6,25 @@
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_PROTO3_PROTO_EAN_10_28_2007
-#define BOOST_PROTO3_PROTO_EAN_10_28_2007
+#ifndef BOOST_PROTO_PROTO_EAN_10_28_2007
+#define BOOST_PROTO_PROTO_EAN_10_28_2007
 
-#include <boost/xpressive/proto3/proto_fwd.hpp>
-#include <boost/xpressive/proto3/args.hpp>
-#include <boost/xpressive/proto3/tags.hpp>
-#include <boost/xpressive/proto3/eval.hpp>
-#include <boost/xpressive/proto3/expr.hpp>
-#include <boost/xpressive/proto3/debug.hpp>
-#include <boost/xpressive/proto3/traits.hpp>
-#include <boost/xpressive/proto3/domain.hpp>
-#include <boost/xpressive/proto3/matches.hpp>
-#include <boost/xpressive/proto3/extends.hpp>
-#include <boost/xpressive/proto3/literal.hpp>
-#include <boost/xpressive/proto3/generate.hpp>
-#include <boost/xpressive/proto3/operators.hpp>
-#include <boost/xpressive/proto3/deep_copy.hpp>
-#include <boost/xpressive/proto3/transform.hpp>
-#include <boost/xpressive/proto3/fusion.hpp>
-#include <boost/xpressive/proto3/make_expr.hpp>
+#include <boost/xpressive/proto/proto_fwd.hpp>
+#include <boost/xpressive/proto/args.hpp>
+#include <boost/xpressive/proto/tags.hpp>
+#include <boost/xpressive/proto/eval.hpp>
+#include <boost/xpressive/proto/expr.hpp>
+#include <boost/xpressive/proto/debug.hpp>
+#include <boost/xpressive/proto/traits.hpp>
+#include <boost/xpressive/proto/domain.hpp>
+#include <boost/xpressive/proto/matches.hpp>
+#include <boost/xpressive/proto/extends.hpp>
+#include <boost/xpressive/proto/literal.hpp>
+#include <boost/xpressive/proto/generate.hpp>
+#include <boost/xpressive/proto/operators.hpp>
+#include <boost/xpressive/proto/deep_copy.hpp>
+#include <boost/xpressive/proto/transform.hpp>
+#include <boost/xpressive/proto/fusion.hpp>
+#include <boost/xpressive/proto/make_expr.hpp>
 
 #endif

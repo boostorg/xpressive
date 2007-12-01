@@ -6,7 +6,7 @@
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
 #include <sstream>
-#include <boost/xpressive/proto3/proto.hpp>
+#include <boost/xpressive/proto/proto.hpp>
 #include <boost/fusion/include/vector.hpp>
 #include <boost/test/unit_test.hpp>
 

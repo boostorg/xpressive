@@ -6,10 +6,10 @@
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_PROTO3_TAGS_HPP_EAN_10_28_2007
-#define BOOST_PROTO3_TAGS_HPP_EAN_10_28_2007
+#ifndef BOOST_PROTO_TAGS_HPP_EAN_10_28_2007
+#define BOOST_PROTO_TAGS_HPP_EAN_10_28_2007
 
-#include <boost/xpressive/proto3/proto_fwd.hpp>
+#include <boost/xpressive/proto/proto_fwd.hpp>
 
 namespace boost { namespace proto
 {

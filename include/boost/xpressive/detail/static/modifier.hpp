@@ -17,7 +17,7 @@
 #endif
 
 #include <boost/xpressive/detail/detail_fwd.hpp>
-#include <boost/xpressive/proto3/traits.hpp>
+#include <boost/xpressive/proto/traits.hpp>
 #include <boost/xpressive/regex_constants.hpp>
 
 namespace boost { namespace xpressive { namespace detail

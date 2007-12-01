@@ -8,8 +8,8 @@
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_PROTO3_CONTEXT_DEFAULT_HPP_EAN_01_08_2007
-#define BOOST_PROTO3_CONTEXT_DEFAULT_HPP_EAN_01_08_2007
+#ifndef BOOST_PROTO_CONTEXT_DEFAULT_HPP_EAN_01_08_2007
+#define BOOST_PROTO_CONTEXT_DEFAULT_HPP_EAN_01_08_2007
 
 #include <boost/config.hpp>
 #include <boost/detail/workaround.hpp>
@@ -17,10 +17,10 @@
 #include <boost/typeof/typeof.hpp>
 #include <boost/utility/result_of.hpp>
 #include <boost/type_traits.hpp>
-#include <boost/xpressive/proto3/proto_fwd.hpp>
-#include <boost/xpressive/proto3/tags.hpp>
-#include <boost/xpressive/proto3/eval.hpp>
-#include <boost/xpressive/proto3/traits.hpp> // for proto::arg_c()
+#include <boost/xpressive/proto/proto_fwd.hpp>
+#include <boost/xpressive/proto/tags.hpp>
+#include <boost/xpressive/proto/eval.hpp>
+#include <boost/xpressive/proto/traits.hpp> // for proto::arg_c()
 
 // If we're generating doxygen documentation, hide all the nasty
 // Boost.Typeof gunk.

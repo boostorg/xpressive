@@ -25,9 +25,9 @@ namespace boost { namespace fusion { namespace result_of { using namespace meta;
 #include <boost/typeof/std/iostream.hpp>
 #include <boost/type_traits/add_const.hpp>
 #include <boost/type_traits/add_reference.hpp>
-#include <boost/xpressive/proto3/proto.hpp>
-#include <boost/xpressive/proto3/context.hpp>
-#include <boost/xpressive/proto3/transform.hpp>
+#include <boost/xpressive/proto/proto.hpp>
+#include <boost/xpressive/proto/context.hpp>
+#include <boost/xpressive/proto/transform.hpp>
 #include <boost/test/unit_test.hpp>
 #include <boost/test/floating_point_comparison.hpp>
 

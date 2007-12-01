@@ -13,9 +13,9 @@
 #include <boost/mpl/int.hpp>
 #include <boost/mpl/assert.hpp>
 #include <boost/mpl/min_max.hpp>
-#include <boost/xpressive/proto3/proto.hpp>
-#include <boost/xpressive/proto3/context.hpp>
-#include <boost/xpressive/proto3/transform.hpp>
+#include <boost/xpressive/proto/proto.hpp>
+#include <boost/xpressive/proto/context.hpp>
+#include <boost/xpressive/proto/transform.hpp>
 using namespace boost;
 
 // Will be used to define the placeholders _1 and _2

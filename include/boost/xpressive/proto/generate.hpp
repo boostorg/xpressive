@@ -7,13 +7,13 @@
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_PROTO3_GENERATE_HPP_EAN_02_13_2007
-#define BOOST_PROTO3_GENERATE_HPP_EAN_02_13_2007
+#ifndef BOOST_PROTO_GENERATE_HPP_EAN_02_13_2007
+#define BOOST_PROTO_GENERATE_HPP_EAN_02_13_2007
 
 #include <boost/mpl/long.hpp>
 #include <boost/utility/enable_if.hpp>
-#include <boost/xpressive/proto3/proto_fwd.hpp>
-#include <boost/xpressive/proto3/matches.hpp>
+#include <boost/xpressive/proto/proto_fwd.hpp>
+#include <boost/xpressive/proto/matches.hpp>
 
 #define UNREF(X)                                                                \
     typename remove_reference<X>::type
@@ -149,4 +149,4 @@ namespace boost { namespace proto
 #undef UNREF
 #undef UNCVREF
 
-#endif // BOOST_PROTO3_GENERATE_HPP_EAN_02_13_2007
+#endif // BOOST_PROTO_GENERATE_HPP_EAN_02_13_2007

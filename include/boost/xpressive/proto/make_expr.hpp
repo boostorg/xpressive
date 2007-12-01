@@ -7,8 +7,8 @@
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_PROTO3_MAKE_EXPR_HPP_EAN_04_01_2005
-#define BOOST_PROTO3_MAKE_EXPR_HPP_EAN_04_01_2005
+#ifndef BOOST_PROTO_MAKE_EXPR_HPP_EAN_04_01_2005
+#define BOOST_PROTO_MAKE_EXPR_HPP_EAN_04_01_2005
 
 #include <boost/version.hpp>
 #include <boost/ref.hpp>
@@ -18,10 +18,10 @@
 #include <boost/type_traits/is_same.hpp>
 #include <boost/type_traits/add_reference.hpp>
 #include <boost/type_traits/remove_reference.hpp>
-#include <boost/xpressive/proto3/proto_fwd.hpp>
-#include <boost/xpressive/proto3/traits.hpp>
-#include <boost/xpressive/proto3/domain.hpp>
-#include <boost/xpressive/proto3/generate.hpp>
+#include <boost/xpressive/proto/proto_fwd.hpp>
+#include <boost/xpressive/proto/traits.hpp>
+#include <boost/xpressive/proto/domain.hpp>
+#include <boost/xpressive/proto/generate.hpp>
 #include <boost/fusion/include/at.hpp>
 #include <boost/fusion/include/value_at.hpp>
 #include <boost/fusion/include/size.hpp>

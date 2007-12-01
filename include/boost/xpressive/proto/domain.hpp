@@ -7,12 +7,12 @@
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_PROTO3_DOMAIN_HPP_EAN_02_13_2007
-#define BOOST_PROTO3_DOMAIN_HPP_EAN_02_13_2007
+#ifndef BOOST_PROTO_DOMAIN_HPP_EAN_02_13_2007
+#define BOOST_PROTO_DOMAIN_HPP_EAN_02_13_2007
 
 #include <boost/mpl/bool.hpp>
-#include <boost/xpressive/proto3/proto_fwd.hpp>
-#include <boost/xpressive/proto3/generate.hpp>
+#include <boost/xpressive/proto/proto_fwd.hpp>
+#include <boost/xpressive/proto/generate.hpp>
 
 namespace boost { namespace proto
 {

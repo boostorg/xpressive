@@ -13,10 +13,10 @@
 #include <iostream>
 #include <functional>
 #include <boost/mpl/int.hpp>
-#include <boost/xpressive/proto3/proto.hpp>
-#include <boost/xpressive/proto3/context.hpp>
-#include <boost/xpressive/proto3/proto_typeof.hpp>
-#include <boost/xpressive/proto3/transform.hpp>
+#include <boost/xpressive/proto/proto.hpp>
+#include <boost/xpressive/proto/context.hpp>
+#include <boost/xpressive/proto/proto_typeof.hpp>
+#include <boost/xpressive/proto/transform.hpp>
 using namespace boost::proto;
 using namespace transform;
 namespace mpl = boost::mpl;

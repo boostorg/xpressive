@@ -23,7 +23,7 @@
 #include <boost/mpl/equal_to.hpp>
 #include <boost/type_traits/is_same.hpp>
 #include <boost/xpressive/detail/detail_fwd.hpp>
-#include <boost/xpressive/proto3/traits.hpp>
+#include <boost/xpressive/proto/traits.hpp>
 
 namespace boost { namespace xpressive { namespace detail
 {

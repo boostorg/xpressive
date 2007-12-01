@@ -15,8 +15,8 @@
 #include <vector>
 #include <iostream>
 #include <boost/mpl/int.hpp>
-#include <boost/xpressive/proto3/proto.hpp>
-#include <boost/xpressive/proto3/context.hpp>
+#include <boost/xpressive/proto/proto.hpp>
+#include <boost/xpressive/proto/context.hpp>
 using namespace boost;
 
 using proto::_;
