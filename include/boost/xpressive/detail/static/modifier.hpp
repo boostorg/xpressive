@@ -32,20 +32,14 @@ namespace boost { namespace xpressive { namespace detail
 
         template<typename Expr>
         struct apply
-        {
-            typedef typename proto::binary_expr<
-                modifier_tag
-              , typename proto::terminal<Modifier>::type
-              , typename proto::result_of::as_arg<Expr const>::type
-            >::type type;
-        };
+          : proto::result_of::make_expr<modifier_tag, Modifier, Expr const>
+        {};
 
         template<typename Expr>
-        typename apply<Expr>::type const
+        typename proto::result_of::make_expr<modifier_tag, Modifier, Expr const>::type
         operator ()(Expr const &expr) const
         {
-            typename apply<Expr>::type that = {{this->mod_}, proto::as_arg(expr)};
-            return that;
+            return proto::make_expr<modifier_tag>(this->mod_, expr);
         }
 
         operator opt_type() const

@@ -448,6 +448,24 @@ namespace boost { namespace xpressive
             }
         };
 
+        struct modify : function_transform
+        {
+            template<typename Sig>
+            struct result;
+
+            template<typename This, typename Modifier, typename Visitor>
+            struct result<This(Modifier, Visitor)>
+              : Modifier::template apply<Visitor>
+            {};
+
+            template<typename Modifier, typename Visitor>
+            typename Modifier::template apply<Visitor>::type
+            operator()(Modifier const &modifier, Visitor &visitor) const
+            {
+                return modifier.call(visitor);
+            }
+        };
+
         ///////////////////////////////////////////////////////////////////////////
         // Cases
         template<typename Char, typename Gram>
@@ -800,6 +818,14 @@ namespace boost { namespace xpressive
                         subscript<terminal<set_initializer>, terminal<_> >
                       , as_matcher(_arg(_right), _visitor)
                     >
+                >
+            {};
+
+            template<typename Dummy>
+            struct case_<modifier_tag, Dummy>
+              : when<
+                    binary_expr<modifier_tag, terminal<_>, Gram>
+                  , Gram(_right, _state, modify(_arg(_left), _visitor))
                 >
             {};
         };
