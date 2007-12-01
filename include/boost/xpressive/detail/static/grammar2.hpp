@@ -261,12 +261,13 @@ namespace boost { namespace xpressive
             typedef typename Visitor::icase_type type;
         };
 
-        // BUGBUG make_expr uses as_expr, not as_arg. Is that right?
-        typedef functional::make_expr<tag::shift_right> _make_shift_right;
-        typedef functional::make_expr<tag::terminal> _make_terminal;
-        typedef functional::make_expr<tag::assign> _make_assign;
+        // TODO make_expr uses as_expr, not as_arg. Is that right?
+        typedef functional::make_expr<tag::assign>      _make_assign;
+        typedef functional::make_expr<tag::negate>      _make_negate;
+        typedef functional::make_expr<tag::terminal>    _make_terminal;
+        typedef functional::make_expr<tag::complement>  _make_complement;
         typedef functional::make_expr<tag::logical_not> _make_logical_not;
-        typedef functional::make_expr<tag::negate> _make_negate;
+        typedef functional::make_expr<tag::shift_right> _make_shift_right;
 
         // Place a head and a tail in sequence, if it's not
         // already in sequence.
@@ -428,6 +429,25 @@ namespace boost { namespace xpressive
             }
         };
 
+        struct invert : function_transform
+        {
+            template<typename Sig>
+            struct result;
+
+            template<typename This, typename Set>
+            struct result<This(Set)>
+            {
+                typedef Set type;
+            };
+
+            template<typename Set>
+            Set operator()(Set set) const
+            {
+                set.inverse();
+                return set;
+            }
+        };
+
         ///////////////////////////////////////////////////////////////////////////
         // Cases
         template<typename Char, typename Gram>
@@ -560,7 +580,7 @@ namespace boost { namespace xpressive
                   , optional_matcher<as_alternate, Greedy>(as_alternate)
                 >
             {};
-            
+
             struct as_list_set
               : apply_<
                     _
@@ -596,12 +616,14 @@ namespace boost { namespace xpressive
 
             template<typename Dummy>
             struct case_<tag::terminal, Dummy>
+                // 'a'
               : when<_, as_matcher(_arg, _visitor)>
             {};
 
             template<typename Dummy>
             struct case_<tag::shift_right, Dummy>
               : when<
+                    // _ >> 'a'
                     shift_right<Gram, Gram>
                   , reverse_fold_tree<_, _state, in_sequence(Gram, _state)>
                 >
@@ -610,6 +632,7 @@ namespace boost { namespace xpressive
             template<typename Dummy>
             struct case_<tag::bitwise_or, Dummy>
               : when<
+                    // _ | 'a'
                     bitwise_or<Gram, Gram>
                   , alternate_matcher<as_alternates_list, traits(_visitor)>(as_alternates_list)
                 >
@@ -617,30 +640,38 @@ namespace boost { namespace xpressive
 
             template<typename Dummy>
             struct case_<tag::dereference, Dummy>
+                // *_
               : when<dereference<Gram>, as_repeat<greedy_t> >
             {};
 
             template<typename Dummy>
             struct case_<tag::posit, Dummy>
+                // +_
               : when<posit<Gram>, as_repeat<greedy_t> >
             {};
 
             template<uint_t Min, uint_t Max, typename Dummy>
             struct case_<generic_quant_tag<Min, Max>, Dummy>
+                // repeat<0,42>(_)
               : when<unary_expr<generic_quant_tag<Min, Max>, Gram>, as_repeat<greedy_t> >
             {};
 
             template<typename Dummy>
             struct case_<tag::logical_not, Dummy>
+                // !_
               : when<logical_not<Gram>, as_optional<greedy_t>(_arg)>
             {};
 
             template<typename Dummy>
             struct case_<tag::negate, Dummy>
               : or_<
+                    // -*_
                     when<negate<dereference<Gram> > , as_repeat<non_greedy_t>(_arg)>
+                    // -+_
                   , when<negate<posit<Gram> >       , as_repeat<non_greedy_t>(_arg)>
+                    // -repeat<0,42>(_)
                   , when<negate<GenericQuant>       , as_repeat<non_greedy_t>(_arg)>
+                    // -!_
                   , when<negate<logical_not<Gram> > , as_optional<non_greedy_t>(_arg(_arg))>
                 >
             {};
@@ -648,19 +679,23 @@ namespace boost { namespace xpressive
             template<typename Dummy>
             struct case_<tag::assign, Dummy>
               : or_<
+                    // (s1= ...)
                     when<assign<terminal<mark_placeholder>, Gram>, Gram(as_marker)>
-                  , when<ListSet<Char>, as_list_set>
+                    // (set= 'a')
+                  , when<ListSet<Char>, as_matcher(_arg(_right), _visitor)>
                 >
             {};
 
             template<typename Dummy>
             struct case_<tag::comma, Dummy>
+                // (set= 'a','b','c')
               : when<ListSet<Char>, as_list_set>
             {};
 
             template<typename Dummy>
             struct case_<keeper_tag, Dummy>
               : when<
+                    // keep(...)
                     unary_expr<keeper_tag, Gram>
                   , keeper_matcher<as_independent(_arg)>(as_independent(_arg))
                 >
@@ -669,6 +704,7 @@ namespace boost { namespace xpressive
             template<typename Dummy>
             struct case_<lookahead_tag, Dummy>
               : when<
+                    // before(...)
                     unary_expr<lookahead_tag, Gram>
                   , lookahead_matcher<as_independent(_arg)>(as_independent(_arg), false_())
                 >
@@ -677,6 +713,7 @@ namespace boost { namespace xpressive
             template<typename Dummy>
             struct case_<lookbehind_tag, Dummy>
               : when<
+                    // after(...)
                     unary_expr<lookbehind_tag, Gram>
                   , lookbehind_matcher<as_independent(_arg)>(
                         as_independent(_arg)
@@ -731,16 +768,34 @@ namespace boost { namespace xpressive
                           , true_()
                         )
                     >
+                    // ~set['a'] or ~(set='a')
+                  , when<
+                        or_<
+                            complement<subscript<terminal<set_initializer>, terminal<_> > >
+                          , complement<assign<terminal<set_initializer>, terminal<_> > >
+                        >
+                      , Gram(_make_complement(_right(_arg)))
+                    >
+                    // ~set['a' | alpha | ... ] or ~(set='a','b','c')
+                  , when<
+                        or_<
+                            complement<subscript<terminal<set_initializer>, bitwise_or<Gram, Gram> > >
+                          , complement<ListSet<Char> >
+                        >
+                      , invert(Gram(_arg))
+                    >
                 >
             {};
 
             template<typename Dummy>
             struct case_<tag::subscript, Dummy>
               : or_<
+                    // set['a' | alpha | ... ]
                     when<
                         subscript<terminal<set_initializer>, bitwise_or<Gram, Gram> >
                       , as_set(_right)
                     >
+                    // set['a']
                   , when<
                         subscript<terminal<set_initializer>, terminal<_> >
                       , as_matcher(_arg(_right), _visitor)
