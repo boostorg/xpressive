@@ -187,7 +187,7 @@ namespace boost { namespace proto
               , typename Return
               , typename... Args
             >
-            struct apply_
+            struct apply
             {
                 typedef typename apply_lambda_<Return, Expr, State, Visitor>::type lambda_type;
 
@@ -199,13 +199,13 @@ namespace boost { namespace proto
                     typename mpl::eval_if<
                         is_same<no_transform, lambda_category>
                       , mpl::identity<lambda_type>
-                      , apply_<Expr, State, Visitor, lambda_category, lambda_type, Args...>
+                      , apply<Expr, State, Visitor, lambda_category, lambda_type, Args...>
                     >::type
                 type;
 
                 static type call(Expr const &expr, State const &state, Visitor &visitor)
                 {
-                    return apply_::call_(expr, state, visitor, is_same<no_transform, lambda_category>());
+                    return apply::call_(expr, state, visitor, is_same<no_transform, lambda_category>());
                 }
 
             private:
@@ -218,7 +218,7 @@ namespace boost { namespace proto
 
                 static type call_(Expr const &expr, State const &state, Visitor &visitor, mpl::false_)
                 {
-                    return apply_<Expr, State, Visitor, lambda_category, lambda_type, Args...>::call(expr, state, visitor);
+                    return apply<Expr, State, Visitor, lambda_category, lambda_type, Args...>::call(expr, state, visitor);
                 }
             };
 
@@ -229,7 +229,7 @@ namespace boost { namespace proto
               , typename Return
               , typename... Args
             >
-            struct apply_<Expr, State, Visitor, function_transform, Return, Args...>
+            struct apply<Expr, State, Visitor, function_transform, Return, Args...>
             {
                 typedef typename boost::result_of<
                     transform::call<Return, Args...>(Expr, State, Visitor)
@@ -248,15 +248,15 @@ namespace boost { namespace proto
               , typename Return
               , typename... Args
             >
-            struct apply_<Expr, State, Visitor, raw_transform, Return, Args...>
+            struct apply<Expr, State, Visitor, raw_transform, Return, Args...>
             {
                 typedef typename boost::result_of<
-                    transform::apply_<Return, Args...>(Expr, State, Visitor)
+                    transform::apply<Return, Args...>(Expr, State, Visitor)
                 >::type type;
 
                 static type call(Expr const &expr, State const &state, Visitor &visitor)
                 {
-                    return transform::apply_<Return, Args...>()(expr, state, visitor);
+                    return transform::apply<Return, Args...>()(expr, state, visitor);
                 }
             };
 
@@ -285,7 +285,7 @@ namespace boost { namespace proto
 
             template<typename This, typename Expr, typename State, typename Visitor>
             struct result<This(Expr, State, Visitor)>
-              : detail::apply_<Expr, State, Visitor, typename transform_category<Return>::type, Return, Args...>
+              : detail::apply<Expr, State, Visitor, typename transform_category<Return>::type, Return, Args...>
             {};
 
             // BUGBUG makes a temporary
@@ -308,7 +308,7 @@ namespace boost { namespace proto
 
             template<typename This, typename Expr, typename State, typename Visitor>
             struct result<This(Expr, State, Visitor)>
-              : detail::apply_<Expr, State, Visitor, typename transform_category<Return>::type, Return, Args...>
+              : detail::apply<Expr, State, Visitor, typename transform_category<Return>::type, Return, Args...>
             {};
 
             template<typename Expr, typename State, typename Visitor>

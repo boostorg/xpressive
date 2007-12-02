@@ -485,11 +485,11 @@ namespace boost { namespace xpressive
 
             // Here are some transforms ...
             struct as_independent
-              : apply_<Gram, _make_shift_right(_, true_matcher()), no_next()>
+              : apply<Gram, _make_shift_right(_, true_matcher()), no_next()>
             {};
 
             struct as_alternate
-              : apply_<Gram, _make_shift_right(_, alternate_end_matcher()), no_next()>
+              : apply<Gram, _make_shift_right(_, alternate_end_matcher()), no_next()>
             {};
 
             struct as_alternates_list
@@ -540,7 +540,7 @@ namespace boost { namespace xpressive
 
             template<typename Greedy, typename Tag, uint_t = min_type<Tag>::value, uint_t = max_type<Tag>::value>
             struct as_default_repeat_impl
-              : apply_<as_repeater<Greedy, Tag>, as_marker(add_hidden_mark(_arg))>
+              : apply<as_repeater<Greedy, Tag>, as_marker(add_hidden_mark(_arg))>
             {};
 
             template<typename Greedy, typename Tag, uint_t Max>
@@ -568,7 +568,7 @@ namespace boost { namespace xpressive
 
             template<typename Greedy>
             struct as_simple_repeat
-              : apply_<
+              : apply<
                     _
                   , simple_repeat_matcher<as_independent(_arg), Greedy>(
                         as_independent(_arg)

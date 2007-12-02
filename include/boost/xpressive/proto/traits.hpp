@@ -247,17 +247,17 @@ namespace boost { namespace proto
             template<typename This, typename Expr, typename State, typename Visitor>
             struct result<This(Expr, State, Visitor)>
             {
-                typedef detail::apply_args<args<Args...>, typename Expr::proto_args, State, Visitor> apply_;
-                typedef expr<typename Expr::proto_tag, typename apply_::type> type;
+                typedef detail::apply_args<args<Args...>, typename Expr::proto_args, State, Visitor> apply;
+                typedef expr<typename Expr::proto_tag, typename apply::type> type;
             };
 
             template<typename Expr, typename State, typename Visitor>
             typename result<nary_expr(Expr, State, Visitor)>::type
             operator()(Expr const &expr, State const &state, Visitor &visitor) const
             {
-                typedef typename result<nary_expr(Expr, State, Visitor)>::apply_ apply_;
+                typedef typename result<nary_expr(Expr, State, Visitor)>::apply apply;
                 typename result<nary_expr(Expr, State, Visitor)>::type that = {
-                    apply_::call(expr.proto_base().proto_args_, state, visitor)
+                    apply::call(expr.proto_base().proto_args_, state, visitor)
                 };
                 return that;
             }

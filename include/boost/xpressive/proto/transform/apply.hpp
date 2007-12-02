@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 /// \file apply.hpp
-/// Contains definition of the apply_<> transform.
+/// Contains definition of the apply<> transform.
 //
 //  Copyright 2007 Eric Niebler. Distributed under the Boost
 //  Software License, Version 1.0. (See accompanying file
@@ -26,12 +26,12 @@ namespace boost { namespace proto
         }
 
         template<typename Trans>
-        struct apply_<Trans>
+        struct apply<Trans>
           : Trans
         {};
 
         template<typename Trans, typename ExprTfx>
-        struct apply_<Trans, ExprTfx> : raw_transform
+        struct apply<Trans, ExprTfx> : raw_transform
         {
             template<typename Sig>
             struct result;
@@ -46,7 +46,7 @@ namespace boost { namespace proto
             {};
 
             template<typename Expr, typename State, typename Visitor>
-            typename result<apply_(Expr, State, Visitor)>::type
+            typename result<apply(Expr, State, Visitor)>::type
             operator()(Expr const &expr, State const &state, Visitor &visitor) const
             {
                 return Trans()(
@@ -58,7 +58,7 @@ namespace boost { namespace proto
         };
 
         template<typename Trans, typename ExprTfx, typename StateTfx>
-        struct apply_<Trans, ExprTfx, StateTfx> : raw_transform
+        struct apply<Trans, ExprTfx, StateTfx> : raw_transform
         {
             template<typename Sig>
             struct result;
@@ -73,7 +73,7 @@ namespace boost { namespace proto
             {};
 
             template<typename Expr, typename State, typename Visitor>
-            typename result<apply_(Expr, State, Visitor)>::type
+            typename result<apply(Expr, State, Visitor)>::type
             operator()(Expr const &expr, State const &state, Visitor &visitor) const
             {
                 return Trans()(
@@ -85,7 +85,7 @@ namespace boost { namespace proto
         };
 
         template<typename Trans, typename ExprTfx, typename StateTfx, typename VisitorTfx>
-        struct apply_<Trans, ExprTfx, StateTfx, VisitorTfx> : raw_transform
+        struct apply<Trans, ExprTfx, StateTfx, VisitorTfx> : raw_transform
         {
             template<typename Sig>
             struct result;
@@ -100,7 +100,7 @@ namespace boost { namespace proto
             {};
 
             template<typename Expr, typename State, typename Visitor>
-            typename result<apply_(Expr, State, Visitor)>::type
+            typename result<apply(Expr, State, Visitor)>::type
             operator()(Expr const &expr, State const &state, Visitor &visitor) const
             {
                 typedef typename boost::result_of<when<_, VisitorTfx>(Expr, State, Visitor)>::type visitor_type;
@@ -115,7 +115,7 @@ namespace boost { namespace proto
     }
 
     template<typename Trans, typename... Args>
-    struct transform_category<transform::apply_<Trans, Args...> >
+    struct transform_category<transform::apply<Trans, Args...> >
     {
         typedef raw_transform type;
     };

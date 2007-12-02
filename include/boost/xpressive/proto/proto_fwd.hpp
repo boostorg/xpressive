@@ -352,7 +352,7 @@ namespace boost { namespace proto
         struct call;
 
         template<typename Trans, typename... Args>
-        struct apply_;
+        struct apply;
 
         template<typename Sequence, typename State, typename Fun>
         struct fold;
