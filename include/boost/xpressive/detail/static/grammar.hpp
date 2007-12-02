@@ -501,9 +501,8 @@ namespace boost { namespace xpressive
             {};
 
             struct as_marker
-              : apply_<
-                    _
-                  , _make_shift_right(
+              : call<
+                    _make_shift_right(
                         mark_begin_matcher(mark_number(_arg(_left)))
                       , _make_shift_right(
                             _right
@@ -523,9 +522,8 @@ namespace boost { namespace xpressive
 
             template<typename Greedy, typename Tag>
             struct as_repeater
-              : apply_<
-                    _
-                  , _make_shift_right(
+              : call<
+                    _make_shift_right(
                         repeat_begin_matcher(mark_number(_arg(_left)))
                       , _make_shift_right(
                             _
@@ -600,9 +598,8 @@ namespace boost { namespace xpressive
             {};
 
             struct as_list_set
-              : apply_<
-                    _
-                  , fill_list_set(
+              : call<
+                    fill_list_set(
                         set_matcher<traits(_visitor), ListSet<Char>(_) >()
                       , _
                       , _visitor

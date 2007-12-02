@@ -85,7 +85,7 @@ namespace boost { namespace proto
             struct apply_args<args<G...>, args<E...>, S, V, N, N, false>
             {
                 typedef args<
-                    typename G::template apply<UNCVREF(E), S, V>::type...
+                    typename boost::result_of<G(UNCVREF(E), S, V)>::type...
                 > type;
 
                 static typename type::cons_type
@@ -100,7 +100,7 @@ namespace boost { namespace proto
                 {
                     using result_of::detail::arg_c;
                     typename type::cons_type that = {
-                        G::call(arg_c<argsns_::cons<E...>, I>::call(a), s, v)...
+                        G()(arg_c<argsns_::cons<E...>, I>::call(a), s, v)...
                     };
                     return that;
                 }
@@ -133,22 +133,25 @@ namespace boost { namespace proto
             typedef expr<Tag, args<T> > type;
             typedef type proto_base_expr;
 
-            template<typename Expr, typename State, typename Visitor>
-            struct apply
+            template<typename Sig>
+            struct result;
+
+            template<typename This, typename Expr, typename State, typename Visitor>
+            struct result<This(Expr, State, Visitor)>
             {
                 typedef expr<typename Expr::proto_tag, args<
-                    typename T::template apply<
-                        typename result_of::arg_c<Expr, 0>::type, State, Visitor
+                    typename boost::result_of<
+                        T(typename result_of::arg_c<Expr, 0>::type, State, Visitor)
                     >::type
                 > > type;
             };
 
             template<typename Expr, typename State, typename Visitor>
-            static typename apply<Expr, State, Visitor>::type
-            call(Expr const &expr, State const &state, Visitor &visitor)
+            typename result<unary_expr(Expr, State, Visitor)>::type
+            operator()(Expr const &expr, State const &state, Visitor &visitor) const
             {
-                typename apply<Expr, State, Visitor>::type that = {
-                    T::call(proto::arg_c<0>(expr), state, visitor)
+                typename result<unary_expr(Expr, State, Visitor)>::type that = {
+                    T()(proto::arg_c<0>(expr), state, visitor)
                 };
                 return that;
             }
@@ -160,22 +163,25 @@ namespace boost { namespace proto
             typedef expr<Tag, args<T, U> > type;
             typedef type proto_base_expr;
 
-            template<typename Expr, typename State, typename Visitor>
-            struct apply
+            template<typename Sig>
+            struct result;
+
+            template<typename This, typename Expr, typename State, typename Visitor>
+            struct result<This(Expr, State, Visitor)>
             {
                 typedef expr<typename Expr::proto_tag, args<
-                    typename T::template apply<typename result_of::arg_c<Expr, 0>::type, State, Visitor>::type
-                  , typename U::template apply<typename result_of::arg_c<Expr, 1>::type, State, Visitor>::type
+                    typename boost::result_of<T(typename result_of::arg_c<Expr, 0>::type, State, Visitor)>::type
+                  , typename boost::result_of<U(typename result_of::arg_c<Expr, 1>::type, State, Visitor)>::type
                 > > type;
             };
 
             template<typename Expr, typename State, typename Visitor>
-            static typename apply<Expr, State, Visitor>::type
-            call(Expr const &expr, State const &state, Visitor &visitor)
+            typename result<binary_expr(Expr, State, Visitor)>::type
+            operator()(Expr const &expr, State const &state, Visitor &visitor) const
             {
-                typename apply<Expr, State, Visitor>::type that = {
-                    T::call(proto::arg_c<0>(expr), state, visitor)
-                  , U::call(proto::arg_c<1>(expr), state, visitor)
+                typename result<binary_expr(Expr, State, Visitor)>::type that = {
+                    T()(proto::arg_c<0>(expr), state, visitor)
+                  , U()(proto::arg_c<1>(expr), state, visitor)
                 };
                 return that;
             }
@@ -232,19 +238,24 @@ namespace boost { namespace proto
             typedef expr<Tag, args<Args...> > type;
             typedef type proto_base_expr;
 
-            template<typename Expr, typename State, typename Visitor>
-            struct apply
+            template<typename Sig>
+            struct result;
+
+            template<typename This, typename Expr, typename State, typename Visitor>
+            struct result<This(Expr, State, Visitor)>
             {
                 typedef detail::apply_args<args<Args...>, typename Expr::proto_args, State, Visitor> apply_;
                 typedef expr<typename Expr::proto_tag, typename apply_::type> type;
             };
 
             template<typename Expr, typename State, typename Visitor>
-            static typename apply<Expr, State, Visitor>::type
-            call(Expr const &expr, State const &state, Visitor &visitor)
+            typename result<nary_expr(Expr, State, Visitor)>::type
+            operator()(Expr const &expr, State const &state, Visitor &visitor) const
             {
-                typename apply<Expr, State, Visitor>::type that = 
-                    {apply<Expr, State, Visitor>::apply_::call(expr.proto_base().proto_args_, state, visitor)};
+                typedef typename result<nary_expr(Expr, State, Visitor)>::apply_ apply_;
+                typename result<nary_expr(Expr, State, Visitor)>::type that = {
+                    apply_::call(expr.proto_base().proto_args_, state, visitor)
+                };
                 return that;
             }
         };

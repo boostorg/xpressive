@@ -20,15 +20,18 @@ namespace boost { namespace proto
 
         struct _expr : raw_transform
         {
-            template<typename Expr, typename, typename>
-            struct apply
+            template<typename Sig>
+            struct result;
+
+            template<typename This, typename Expr, typename State, typename Visitor>
+            struct result<This(Expr, State, Visitor)>
             {
                 typedef Expr type;
             };
 
             template<typename Expr, typename State, typename Visitor>
-            static Expr const &
-            call(Expr const &expr, State const &, Visitor &)
+            Expr const &
+            operator()(Expr const &expr, State const &, Visitor &) const
             {
                 return expr;
             }
@@ -36,15 +39,18 @@ namespace boost { namespace proto
 
         struct _state : raw_transform
         {
-            template<typename, typename State, typename>
-            struct apply
+            template<typename Sig>
+            struct result;
+
+            template<typename This, typename Expr, typename State, typename Visitor>
+            struct result<This(Expr, State, Visitor)>
             {
                 typedef State type;
             };
 
             template<typename Expr, typename State, typename Visitor>
-            static State const &
-            call(Expr const &, State const &state, Visitor &)
+            State const &
+            operator()(Expr const &, State const &state, Visitor &) const
             {
                 return state;
             }
@@ -52,15 +58,18 @@ namespace boost { namespace proto
 
         struct _visitor : raw_transform
         {
-            template<typename, typename, typename Visitor>
-            struct apply
+            template<typename Sig>
+            struct result;
+
+            template<typename This, typename Expr, typename State, typename Visitor>
+            struct result<This(Expr, State, Visitor)>
             {
                 typedef Visitor type;
             };
 
             template<typename Expr, typename State, typename Visitor>
-            static Visitor &
-            call(Expr const &, State const &, Visitor &visitor)
+            Visitor &
+            operator()(Expr const &, State const &, Visitor &visitor) const
             {
                 return visitor;
             }
@@ -69,14 +78,17 @@ namespace boost { namespace proto
         template<int I>
         struct _arg_c : raw_transform
         {
-            template<typename Expr, typename, typename>
-            struct apply
+            template<typename Sig>
+            struct result;
+
+            template<typename This, typename Expr, typename State, typename Visitor>
+            struct result<This(Expr, State, Visitor)>
               : proto::result_of::arg_c<Expr, I>
             {};
 
             template<typename Expr, typename State, typename Visitor>
-            static typename boost::proto::result_of::arg_c<Expr, I>::const_reference
-            call(Expr const &expr, State const &, Visitor &)
+            typename boost::proto::result_of::arg_c<Expr, I>::const_reference
+            operator()(Expr const &expr, State const &, Visitor &) const
             {
                 return proto::arg_c<I>(expr);
             }
@@ -100,14 +112,17 @@ namespace boost { namespace proto
         template<typename T>
         struct always : raw_transform
         {
-            template<typename, typename, typename>
-            struct apply
+            template<typename Sig>
+            struct result;
+
+            template<typename This, typename Expr, typename State, typename Visitor>
+            struct result<This(Expr, State, Visitor)>
             {
                 typedef T type;
             };
 
             template<typename Expr, typename State, typename Visitor>
-            static T call(Expr const &, State const &, Visitor &)
+            T operator()(Expr const &, State const &, Visitor &) const
             {
                 return T();
             }

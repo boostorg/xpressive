@@ -247,7 +247,7 @@ namespace VectorOps
         int i = 0;
         IncrementCtx const inc = {};
         DereferenceCtx const deref = {};
-        typename Begin::apply<Expr, int, int>::type expr2 = Begin::call(expr, i, i);
+        typename boost::result_of<Begin(Expr, int, int)>::type expr2 = Begin()(expr, i, i);
         for(; begin != end; ++begin)
         {
             op(*begin, proto::eval(expr2, deref));

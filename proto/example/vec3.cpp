@@ -135,7 +135,7 @@ int count_leaves(Expr const &expr)
     
     // This is another way to count the leaves using a transform.
     int i = 0;
-    assert( CountLeaves::call(expr, i, i) == ctx.count );
+    assert( CountLeaves()(expr, i, i) == ctx.count );
 
     return ctx.count;
 }

@@ -55,7 +55,7 @@ namespace boost { namespace proto
                 typedef void type;
             };
         }
-        
+
         template<typename Tag, typename Args, long Arity>
         struct expr
         {
@@ -69,18 +69,6 @@ namespace boost { namespace proto
             typedef tag::proto_expr fusion_tag;
 
             typename Args::cons_type proto_args_;
-
-            template<typename Expr, typename, typename>
-            struct apply
-            {
-                typedef Expr type;
-            };
-
-            template<typename Expr, typename State, typename Visitor>
-            static Expr const &call(Expr const &expr, State const &, Visitor &)
-            {
-                return expr;
-            }
 
             template<typename... A>
             static expr make(A &&... a)

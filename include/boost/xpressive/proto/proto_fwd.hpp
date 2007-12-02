@@ -349,7 +349,7 @@ namespace boost { namespace proto
         };
 
         template<typename Fun, typename... Args>
-        struct bind;
+        struct call;
 
         template<typename Trans, typename... Args>
         struct apply_;
@@ -414,7 +414,7 @@ namespace boost { namespace proto
     using transform::_state;
     using transform::_visitor;
     using transform::_arg_c;
-    using transform::bind;
+    using transform::call;
     using transform::fold;
     using transform::always;
     using transform::reverse_fold;

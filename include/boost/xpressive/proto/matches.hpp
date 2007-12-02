@@ -367,7 +367,7 @@ namespace boost { namespace proto
             template<typename Expr, typename If, typename Then, typename Else>
             struct matches_<Expr, proto::if_<If, Then, Else> >
               : mpl::eval_if<
-                    typename mpl::apply_wrap3<when<_, If>, Expr, mpl::void_, mpl::void_>::type
+                    typename boost::result_of<when<_, If>(Expr, mpl::void_, mpl::void_)>::type
                   , matches_<Expr, typename Then::proto_base_expr>
                   , matches_<Expr, typename Else::proto_base_expr>
                 >::type
@@ -433,18 +433,23 @@ namespace boost { namespace proto
         {
             typedef or_ proto_base_expr;
 
-            template<typename Expr, typename State, typename Visitor>
-            struct apply
+            template<typename Sig>
+            struct result;
+
+            template<typename This, typename Expr, typename State, typename Visitor>
+            struct result<This(Expr, State, Visitor)>
             {
-                typedef typename detail::which<Expr, Alts...>::type
-                    ::template apply<Expr, State, Visitor>::type type;
+                typedef typename boost::result_of<
+                    typename detail::which<Expr, Alts...>::type(Expr, State, Visitor)
+                >::type type;
             };
 
             template<typename Expr, typename State, typename Visitor>
-            static typename apply<Expr, State, Visitor>::type
-            call(Expr const &expr, State const &state, Visitor &visitor)
+            typename result<or_(Expr, State, Visitor)>::type
+            operator()(Expr const &expr, State const &state, Visitor &visitor) const
             {
-                return detail::which<Expr, Alts...>::type::call(expr, state, visitor);
+                typedef typename detail::which<Expr, Alts...>::type which;
+                return which()(expr, state, visitor);
             }
         };
 
@@ -460,28 +465,31 @@ namespace boost { namespace proto
         {
             typedef if_ proto_base_expr;
 
-            template<typename Expr, typename State, typename Visitor>
-            struct apply
+            template<typename Sig>
+            struct result;
+
+            template<typename This, typename Expr, typename State, typename Visitor>
+            struct result<This(Expr, State, Visitor)>
               : mpl::eval_if<
-                    typename mpl::apply_wrap3<when<_, If>, Expr, State, Visitor>::type
-                  , mpl::apply_wrap3<when<_, Then>, Expr, State, Visitor>
-                  , mpl::apply_wrap3<when<_, Else>, Expr, State, Visitor>
+                    typename boost::result_of<when<_, If>(Expr, State, Visitor)>::type
+                  , boost::result_of<when<_, Then>(Expr, State, Visitor)>
+                  , boost::result_of<when<_, Else>(Expr, State, Visitor)>
                 >
             {};
 
             template<typename Expr, typename State, typename Visitor>
-            static typename apply<Expr, State, Visitor>::type
-            call(Expr const &expr, State const &state, Visitor &visitor)
+            typename result<if_(Expr, State, Visitor)>::type
+            operator()(Expr const &expr, State const &state, Visitor &visitor) const
             {
                 typedef
                     typename mpl::if_<
-                        typename mpl::apply_wrap3<when<_, If>, Expr, State, Visitor>::type
+                        typename boost::result_of<when<_, If>(Expr, State, Visitor)>::type
                       , when<_, Then>
                       , when<_, Else>
                     >::type
                 branch;
 
-                return branch::call(expr, state, visitor);
+                return branch()(expr, state, visitor);
             }
         };
 
@@ -496,16 +504,20 @@ namespace boost { namespace proto
         {
             typedef switch_ proto_base_expr;
 
-            template<typename Expr, typename State, typename Visitor>
-            struct apply
-              : Cases::template case_<typename Expr::proto_tag>::template apply<Expr, State, Visitor>
+            template<typename Sig>
+            struct result;
+
+            template<typename This, typename Expr, typename State, typename Visitor>
+            struct result<This(Expr, State, Visitor)>
+              : boost::result_of<typename Cases::template case_<typename Expr::proto_tag>(Expr, State, Visitor)>
             {};
 
             template<typename Expr, typename State, typename Visitor>
-            static typename apply<Expr, State, Visitor>::type
-            call(Expr const &expr, State const &state, Visitor &visitor)
+            typename result<switch_(Expr, State, Visitor)>::type
+            operator()(Expr const &expr, State const &state, Visitor &visitor) const
             {
-                return Cases::template case_<typename Expr::proto_tag>::call(expr, state, visitor);
+                typedef typename Cases::template case_<typename Expr::proto_tag> case_;
+                return case_()(expr, state, visitor);
             }
         };
 

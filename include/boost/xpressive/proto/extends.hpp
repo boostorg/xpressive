@@ -39,18 +39,6 @@ namespace boost { namespace proto
         typedef void proto_is_expr_;\
         typedef boost::proto::tag::proto_expr fusion_tag;\
         \
-        template<typename Expr_, typename, typename>\
-        struct apply\
-        {\
-            typedef Expr_ type;\
-        };\
-        \
-        template<typename Expr_, typename State, typename Visitor>\
-        static Expr_ const &call(Expr_ const &expr, State const &, Visitor &)\
-        {\
-            return expr;\
-        }\
-        \
         static Derived make(Expr const &expr)\
         {\
             Derived that = {expr};\

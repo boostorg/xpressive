@@ -33,21 +33,24 @@ namespace boost { namespace proto
         template<typename Trans, typename ExprTfx>
         struct apply_<Trans, ExprTfx> : raw_transform
         {
-            template<typename Expr, typename State, typename Visitor>
-            struct apply
-              : Trans::template apply<
-                    typename when<_, ExprTfx>::template apply<Expr, State, Visitor>::type
+            template<typename Sig>
+            struct result;
+
+            template<typename This, typename Expr, typename State, typename Visitor>
+            struct result<This(Expr, State, Visitor)>
+                : boost::result_of<Trans(
+                    typename boost::result_of<when<_, ExprTfx>(Expr, State, Visitor)>::type
                   , State
                   , Visitor
-                >
+                )>
             {};
 
             template<typename Expr, typename State, typename Visitor>
-            static typename apply<Expr, State, Visitor>::type
-            call(Expr const &expr, State const &state, Visitor &visitor)
+            typename result<apply_(Expr, State, Visitor)>::type
+            operator()(Expr const &expr, State const &state, Visitor &visitor) const
             {
-                return Trans::call(
-                    when<_, ExprTfx>::call(expr, state, visitor)
+                return Trans()(
+                    when<_, ExprTfx>()(expr, state, visitor)
                   , state
                   , visitor
                 );
@@ -57,22 +60,25 @@ namespace boost { namespace proto
         template<typename Trans, typename ExprTfx, typename StateTfx>
         struct apply_<Trans, ExprTfx, StateTfx> : raw_transform
         {
-            template<typename Expr, typename State, typename Visitor>
-            struct apply
-              : Trans::template apply<
-                    typename when<_, ExprTfx>::template apply<Expr, State, Visitor>::type
-                  , typename when<_, StateTfx>::template apply<Expr, State, Visitor>::type
+            template<typename Sig>
+            struct result;
+
+            template<typename This, typename Expr, typename State, typename Visitor>
+            struct result<This(Expr, State, Visitor)>
+              : boost::result_of<Trans(
+                    typename boost::result_of<when<_, ExprTfx>(Expr, State, Visitor)>::type
+                  , typename boost::result_of<when<_, StateTfx>(Expr, State, Visitor)>::type
                   , Visitor
-                >
+                )>
             {};
 
             template<typename Expr, typename State, typename Visitor>
-            static typename apply<Expr, State, Visitor>::type
-            call(Expr const &expr, State const &state, Visitor &visitor)
+            typename result<apply_(Expr, State, Visitor)>::type
+            operator()(Expr const &expr, State const &state, Visitor &visitor) const
             {
-                return Trans::call(
-                    when<_, ExprTfx>::call(expr, state, visitor)
-                  , when<_, StateTfx>::call(expr, state, visitor)
+                return Trans()(
+                    when<_, ExprTfx>()(expr, state, visitor)
+                  , when<_, StateTfx>()(expr, state, visitor)
                   , visitor
                 );
             }
@@ -81,24 +87,27 @@ namespace boost { namespace proto
         template<typename Trans, typename ExprTfx, typename StateTfx, typename VisitorTfx>
         struct apply_<Trans, ExprTfx, StateTfx, VisitorTfx> : raw_transform
         {
-            template<typename Expr, typename State, typename Visitor>
-            struct apply
-              : Trans::template apply<
-                    typename when<_, ExprTfx>::template apply<Expr, State, Visitor>::type
-                  , typename when<_, StateTfx>::template apply<Expr, State, Visitor>::type
-                  , typename when<_, VisitorTfx>::template apply<Expr, State, Visitor>::type
-                >
+            template<typename Sig>
+            struct result;
+
+            template<typename This, typename Expr, typename State, typename Visitor>
+            struct result<This(Expr, State, Visitor)>
+              : boost::result_of<Trans(
+                    typename boost::result_of<when<_, ExprTfx>(Expr, State, Visitor)>::type
+                  , typename boost::result_of<when<_, StateTfx>(Expr, State, Visitor)>::type
+                  , typename boost::result_of<when<_, VisitorTfx>(Expr, State, Visitor)>::type
+                )>
             {};
 
             template<typename Expr, typename State, typename Visitor>
-            static typename apply<Expr, State, Visitor>::type
-            call(Expr const &expr, State const &state, Visitor &visitor)
+            typename result<apply_(Expr, State, Visitor)>::type
+            operator()(Expr const &expr, State const &state, Visitor &visitor) const
             {
-                typedef typename when<_, VisitorTfx>::template apply<Expr, State, Visitor>::type visitor_type;
-                return Trans::call(
-                    when<_, ExprTfx>::call(expr, state, visitor)
-                  , when<_, StateTfx>::call(expr, state, visitor)
-                  , const_cast<visitor_type &>(as_lvalue(when<_, VisitorTfx>::call(expr, state, visitor)))
+                typedef typename boost::result_of<when<_, VisitorTfx>(Expr, State, Visitor)>::type visitor_type;
+                return Trans()(
+                    when<_, ExprTfx>()(expr, state, visitor)
+                  , when<_, StateTfx>()(expr, state, visitor)
+                  , const_cast<visitor_type &>(as_lvalue(when<_, VisitorTfx>()(expr, state, visitor)))
                 );
             }
         };

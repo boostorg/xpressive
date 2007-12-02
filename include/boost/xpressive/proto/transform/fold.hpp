@@ -44,14 +44,14 @@ namespace boost { namespace proto
 
                 template<typename This, typename Expr, typename State>
                 struct result<This(Expr, State)>
-                  : Tfx::template apply<UNCVREF(Expr), UNCVREF(State), Visitor>
+                  : boost::result_of<Tfx(UNCVREF(Expr), UNCVREF(State), Visitor)>
                 {};
 
                 template<typename Expr, typename State>
-                typename Tfx::template apply<Expr, State, Visitor>::type
+                typename boost::result_of<Tfx(Expr, State, Visitor)>::type
                 operator()(Expr const &expr, State const &state) const
                 {
-                    return Tfx::call(expr, state, this->v_);
+                    return Tfx()(expr, state, this->v_);
                 }
 
             private:
@@ -80,23 +80,26 @@ namespace boost { namespace proto
         template<typename Sequence, typename State0, typename Fun>
         struct fold : raw_transform
         {
-            template<typename Expr, typename State, typename Visitor>
-            struct apply
+            template<typename Sig>
+            struct result;
+
+            template<typename This, typename Expr, typename State, typename Visitor>
+            struct result<This(Expr, State, Visitor)>
               : fusion::result_of::fold<
-                    typename when<_, Sequence>::template apply<Expr, State, Visitor>::type
-                  , typename when<_, State0>::template apply<Expr, State, Visitor>::type
+                    typename boost::result_of<when<_, Sequence>(Expr, State, Visitor)>::type
+                  , typename boost::result_of<when<_, State0>(Expr, State, Visitor)>::type
                   , detail::as_callable<Fun, Visitor>
                 >
             {};
 
             template<typename Expr, typename State, typename Visitor>
-            static typename apply<Expr, State, Visitor>::type
-            call(Expr const &expr, State const &state, Visitor &visitor)
+            typename result<fold(Expr, State, Visitor)>::type
+            operator()(Expr const &expr, State const &state, Visitor &visitor) const
             {
                 detail::as_callable<Fun, Visitor> fun(visitor);
                 return fusion::fold(
-                    when<_, Sequence>::call(expr, state, visitor)
-                  , when<_, State0>::call(expr, state, visitor)
+                    when<_, Sequence>()(expr, state, visitor)
+                  , when<_, State0>()(expr, state, visitor)
                   , fun
                 );
             }

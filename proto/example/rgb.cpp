@@ -88,7 +88,7 @@ template<typename Expr>
 void printColor(Expr const & expr)
 {
     int i = 0; // dummy state and visitor parameter, not used
-    std::cout << RGB::call(expr, i, i) << std::endl;
+    std::cout << RGB()(expr, i, i) << std::endl;
 }
 
 int main()

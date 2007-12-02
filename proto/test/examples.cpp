@@ -60,32 +60,35 @@ struct CalculatorArity;
 // calculator expression by finding the arity of the
 // child expression.
 struct unary_arity
-  /*<< All custom transforms should inherit from
-  transform_base. In some cases, (e.g., when the transform
+  /*<< Custom transforms should inherit from
+  raw_transform. In some cases, (e.g., when the transform
   is a template), it is also necessary to specialize 
-  the proto::is_transform<> trait. >>*/
+  the proto::transform_category<> trait. >>*/
   : raw_transform
 {
-    template<typename Expr, typename State, typename Visitor>
-    /*<< Transforms have a nested `apply<>` for calculating their return type. >>*/
-    struct apply
+    template<typename Sig>
+    struct result;
+
+    template<typename This, typename Expr, typename State, typename Visitor>
+    /*<< Transforms have a nested `result<>` for calculating their return type. >>*/
+    struct result<This(Expr, State, Visitor)>
     {
         /*<< Get the child. >>*/
         typedef typename result_of::arg<Expr>::type child_expr;
 
         /*<< Apply `CalculatorArity` to find the arity of the child. >>*/
-        typedef typename mpl::apply_wrap3<CalculatorArity, child_expr, State, Visitor>::type type;
+        typedef typename boost::result_of<CalculatorArity(child_expr, State, Visitor)>::type type;
     };
 
     template<typename Expr, typename State, typename Visitor>
-    static typename apply<Expr, State, Visitor>::type
-    /*<< Transforms have a nested `call()` member function. >>*/
-    call(Expr const &, State const &, Visitor &)
+    typename result<unary_arity(Expr, State, Visitor)>::type
+    /*<< Transforms have a nested `operator()` member function. >>*/
+    operator()(Expr const &, State const &, Visitor &) const
     {
         /*<< The `unary_arity` transform doesn't have an interesting
         runtime counterpart, so just return a default-constructed object
         of the correct type. >>*/
-        return typename apply<Expr, State, Visitor>::type();
+        return typename result<unary_arity(Expr, State, Visitor)>::type();
     }
 };
 
@@ -99,31 +102,34 @@ struct binary_arity
   the proto::is_transform<> trait. >>*/
   : raw_transform
 {
-    template<typename Expr, typename State, typename Visitor>
-    /*<< Transforms have a nested `apply<>` for calculating their return type. >>*/
-    struct apply
+    template<typename Sig>
+    struct result;
+
+    template<typename This, typename Expr, typename State, typename Visitor>
+    /*<< Transforms have a nested `result<>` for calculating their return type. >>*/
+    struct result<This(Expr, State, Visitor)>
     {
         /*<< Get the left and right children. >>*/
         typedef typename result_of::left<Expr>::type left_expr;
         typedef typename result_of::right<Expr>::type right_expr;
 
         /*<< Apply `CalculatorArity` to find the arity of the left and right children. >>*/
-        typedef typename mpl::apply_wrap3<CalculatorArity, left_expr, State, Visitor>::type left_arity;
-        typedef typename mpl::apply_wrap3<CalculatorArity, right_expr, State, Visitor>::type right_arity;
+        typedef typename boost::result_of<CalculatorArity(left_expr, State, Visitor)>::type left_arity;
+        typedef typename boost::result_of<CalculatorArity(right_expr, State, Visitor)>::type right_arity;
 
         /*<< The return type is the maximum of the children's arities. >>*/
         typedef typename mpl::max<left_arity, right_arity>::type type;
     };
 
     template<typename Expr, typename State, typename Visitor>
-    static typename apply<Expr, State, Visitor>::type
+    typename result<binary_arity(Expr, State, Visitor)>::type
     /*<< Transforms have a nested `call()` member function. >>*/
-    call(Expr const &, State const &, Visitor &)
+    operator()(Expr const &, State const &, Visitor &) const
     {
         /*<< The `binary_arity` transform doesn't have an interesting
         runtime counterpart, so just return a default-constructed object
         of the correct type. >>*/
-        return typename apply<Expr, State, Visitor>::type();
+        return typename result<binary_arity(Expr, State, Visitor)>::type();
     }
 };
 //]
@@ -272,27 +278,27 @@ void test_examples()
     //[ CalculatorArityTest
     int i = 0; // not used, dummy state and visitor parameter
 
-    std::cout << CalculatorArity::call( lit(100) * 200, i, i) << '\n';
-    std::cout << CalculatorArity::call( (_1 - _1) / _1 * 100, i, i) << '\n';
-    std::cout << CalculatorArity::call( (_2 - _1) / _2 * 100, i, i) << '\n';
+    std::cout << CalculatorArity()( lit(100) * 200, i, i) << '\n';
+    std::cout << CalculatorArity()( (_1 - _1) / _1 * 100, i, i) << '\n';
+    std::cout << CalculatorArity()( (_2 - _1) / _2 * 100, i, i) << '\n';
     //]
 
-    BOOST_CHECK_EQUAL(0, CalculatorArity::call( lit(100) * 200, i, i));
-    BOOST_CHECK_EQUAL(1, CalculatorArity::call( (_1 - _1) / _1 * 100, i, i));
-    BOOST_CHECK_EQUAL(2, CalculatorArity::call( (_2 - _1) / _2 * 100, i, i));
+    BOOST_CHECK_EQUAL(0, CalculatorArity()( lit(100) * 200, i, i));
+    BOOST_CHECK_EQUAL(1, CalculatorArity()( (_1 - _1) / _1 * 100, i, i));
+    BOOST_CHECK_EQUAL(2, CalculatorArity()( (_2 - _1) / _2 * 100, i, i));
 
-    BOOST_CHECK_EQUAL(0, CalcArity2::call( lit(100) * 200, i, i));
-    BOOST_CHECK_EQUAL(1, CalcArity2::call( (_1 - _1) / _1 * 100, i, i));
-    BOOST_CHECK_EQUAL(2, CalcArity2::call( (_2 - _1) / _2 * 100, i, i));
+    BOOST_CHECK_EQUAL(0, CalcArity2()( lit(100) * 200, i, i));
+    BOOST_CHECK_EQUAL(1, CalcArity2()( (_1 - _1) / _1 * 100, i, i));
+    BOOST_CHECK_EQUAL(2, CalcArity2()( (_2 - _1) / _2 * 100, i, i));
 
     using boost::fusion::cons;
     using boost::fusion::nil;
-    cons<int, cons<char, cons<std::string> > > args(ArgsAsList::call( _1(1, 'a', std::string("b")), i, i ));
+    cons<int, cons<char, cons<std::string> > > args(ArgsAsList()( _1(1, 'a', std::string("b")), i, i ));
     BOOST_CHECK_EQUAL(args.car, 1);
     BOOST_CHECK_EQUAL(args.cdr.car, 'a');
     BOOST_CHECK_EQUAL(args.cdr.cdr.car, std::string("b"));
 
-    cons<int, cons<char, cons<std::string> > > lst(FoldTreeToList::call( (_1 = 1, 'a', std::string("b")), i, i ));
+    cons<int, cons<char, cons<std::string> > > lst(FoldTreeToList()( (_1 = 1, 'a', std::string("b")), i, i ));
     BOOST_CHECK_EQUAL(lst.car, 1);
     BOOST_CHECK_EQUAL(lst.cdr.car, 'a');
     BOOST_CHECK_EQUAL(lst.cdr.cdr.car, std::string("b"));
@@ -300,12 +306,12 @@ void test_examples()
     plus<
         terminal<double>::type
       , terminal<double>::type
-    >::type p = Promote::call( lit(1.f) + 2.f, i, i );
+    >::type p = Promote()( lit(1.f) + 2.f, i, i );
 
     //[ LazyMakePairTest
     int j = 0; // not used, dummy state and visitor parameter
 
-    std::pair<int, double> p2 = MakePair::call( make_pair_(1, 3.14), j, j );
+    std::pair<int, double> p2 = MakePair()( make_pair_(1, 3.14), j, j );
     
     std::cout << p2.first << std::endl;
     std::cout << p2.second << std::endl;
@@ -314,9 +320,9 @@ void test_examples()
     BOOST_CHECK_EQUAL(p2.first, 1);
     BOOST_CHECK_EQUAL(p2.second, 3.14);
 
-    NegateInt::call(lit(1), i, i);
+    NegateInt()(lit(1), i, i);
 #ifndef BOOST_MSVC
-    SquareAndPromoteInt::call(lit(1), i, i);
+    SquareAndPromoteInt()(lit(1), i, i);
 #endif
 }
 

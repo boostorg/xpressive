@@ -46,8 +46,11 @@ namespace boost { namespace proto
         struct fold_tree
           : raw_transform
         {
-            template<typename Expr, typename State, typename Visitor>
-            struct apply
+            template<typename Sig>
+            struct result;
+
+            template<typename This, typename Expr, typename State, typename Visitor>
+            struct result<This(Expr, State, Visitor)>
             {
                 typedef fold<
                     Sequence
@@ -58,14 +61,15 @@ namespace boost { namespace proto
                     >
                 > impl;
 
-                typedef typename impl::template apply<Expr, State, Visitor>::type type;
+                typedef typename boost::result_of<impl(Expr, State, Visitor)>::type type;
             };
 
             template<typename Expr, typename State, typename Visitor>
-            static typename apply<Expr, State, Visitor>::type
-            call(Expr const &expr, State const &state, Visitor &visitor)
+            typename result<fold_tree(Expr, State, Visitor)>::type
+            operator()(Expr const &expr, State const &state, Visitor &visitor) const
             {
-                return apply<Expr, State, Visitor>::impl::call(expr, state, visitor);
+                typedef typename result<fold_tree(Expr, State, Visitor)>::impl impl;
+                return impl()(expr, state, visitor);
             }
         };
 
@@ -73,8 +77,11 @@ namespace boost { namespace proto
         struct reverse_fold_tree
           : raw_transform
         {
-            template<typename Expr, typename State, typename Visitor>
-            struct apply
+            template<typename Sig>
+            struct result;
+
+            template<typename This, typename Expr, typename State, typename Visitor>
+            struct result<This(Expr, State, Visitor)>
             {
                 typedef reverse_fold<
                     Sequence
@@ -85,14 +92,15 @@ namespace boost { namespace proto
                     >
                 > impl;
 
-                typedef typename impl::template apply<Expr, State, Visitor>::type type;
+                typedef typename boost::result_of<impl(Expr, State, Visitor)>::type type;
             };
 
             template<typename Expr, typename State, typename Visitor>
-            static typename apply<Expr, State, Visitor>::type
-            call(Expr const &expr, State const &state, Visitor &visitor)
+            typename result<reverse_fold_tree(Expr, State, Visitor)>::type
+            operator()(Expr const &expr, State const &state, Visitor &visitor) const
             {
-                return apply<Expr, State, Visitor>::impl::call(expr, state, visitor);
+                typedef typename result<reverse_fold_tree(Expr, State, Visitor)>::impl impl;
+                return impl()(expr, state, visitor);
             }
         };
     }

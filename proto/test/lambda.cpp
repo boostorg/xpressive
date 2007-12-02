@@ -73,7 +73,7 @@ namespace grammar
 // simple wrapper for calculating a lambda expression's arity.
 template<typename Expr>
 struct lambda_arity
-  : grammar::Lambda::apply<Expr, mpl::void_, mpl::void_>
+  : boost::result_of<grammar::Lambda(Expr, mpl::void_, mpl::void_)>
 {};
 
 // The lambda context is the same as the default context

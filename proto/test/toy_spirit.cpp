@@ -375,7 +375,7 @@ namespace boost { namespace spirit2
     {
         mpl::false_ is_case_sensitive;
         parser<Iterator> parse_fun(begin, end);
-        return parse_fun(SpiritExpr::call(rule, 0, is_case_sensitive));
+        return parse_fun(SpiritExpr()(rule, 0, is_case_sensitive));
     }
 
     // 2nd overload provides a short error message for invalid rules

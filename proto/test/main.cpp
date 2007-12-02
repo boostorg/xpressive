@@ -270,33 +270,33 @@ int main()
     terminal<float>::type ff = {1.F};
     check<Promote>(ff+ff);
     plus<terminal<double>::type, terminal<double>::type>::type dd = 
-        Promote::call(ff+ff, dummy, non_);
+        Promote()(ff+ff, dummy, non_);
 
     plus<terminal<double>::type, terminal<int>::type>::type du = 
-        Promote::call(ff+u, dummy, non_);
+        Promote()(ff+u, dummy, non_);
     std::printf("%g %d\n", arg_c<0>(arg_c<0>(du)), arg_c<0>(arg_c<1>(du)));
 
     plus<negate<terminal<double>::type>::type, terminal<int>::type>::type ndu = 
-        Promote::call(+ff+u, dummy, non_);
+        Promote()(+ff+u, dummy, non_);
     std::printf("%g %d\n", arg_c<0>(arg_c<0>(arg_c<0>(ndu))), arg_c<0>(arg_c<1>(ndu)));
 
     terminal<char const *>::type sz = {"hello"};
-    std::string str = Promote::call(sz, dummy, non_);
+    std::string str = Promote()(sz, dummy, non_);
 
     std::printf(
         "%d %d %d\n"
-      , (int)Arity::call(sz, dummy, non_)
-      , (int)Arity::call(_1 + 0, dummy, non_)
-      , (int)Arity::call(_2 + _1, dummy, non_)
+      , (int)Arity()(sz, dummy, non_)
+      , (int)Arity()(_1 + 0, dummy, non_)
+      , (int)Arity()(_2 + _1, dummy, non_)
     );
 
     using fusion::cons;
     cons<char, cons<int, cons<float> > > mylist1 =
-        ArgsAsList::call(_1('a', 42, 3.14f), dummy, non_);
+        ArgsAsList()(_1('a', 42, 3.14f), dummy, non_);
     std::cout << mylist1.car << ' ' << mylist1.cdr.car << ' ' << mylist1.cdr.cdr.car << std::endl;
 
     cons<int, cons<char, cons<std::string> > > mylist2
-        (FoldTreeToList::call( (_1 = 1, 'a', str), dummy, non_ ));
+        (FoldTreeToList()( (_1 = 1, 'a', str), dummy, non_ ));
     std::cout << mylist2.car << ' ' << mylist2.cdr.car << ' ' << mylist2.cdr.cdr.car << std::endl;
 
     default_context ctx;

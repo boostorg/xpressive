@@ -17,7 +17,7 @@
 #include <boost/type_traits.hpp>
 #include <boost/utility/enable_if.hpp>
 #include <boost/xpressive/proto/proto_fwd.hpp>
-#include <boost/xpressive/proto/transform/bind.hpp>
+#include <boost/xpressive/proto/transform/call.hpp>
 #include <boost/xpressive/proto/transform/apply.hpp>
 
 namespace boost { namespace proto
@@ -137,17 +137,17 @@ namespace boost { namespace proto
 
             template<typename R, typename Expr, typename State, typename Visitor>
             struct apply_lambda_<R, Expr, State, Visitor, raw_transform>
-              : R::template apply<Expr, State, Visitor>
+              : boost::result_of<R(Expr, State, Visitor)>
             {};
 
             template<typename R, typename... Args, typename Expr, typename State, typename Visitor>
             struct apply_lambda_<R(Args...), Expr, State, Visitor, no_transform>
-              : when<_, R(Args...)>::template apply<Expr, State, Visitor>
+              : boost::result_of<when<_, R(Args...)>(Expr, State, Visitor)>
             {};
 
             template<typename R, typename... Args, typename Expr, typename State, typename Visitor>
             struct apply_lambda_<R(*)(Args...), Expr, State, Visitor, no_transform>
-              : when<_, R(*)(Args...)>::template apply<Expr, State, Visitor>
+              : boost::result_of<when<_, R(*)(Args...)>(Expr, State, Visitor)>
             {};
 
             // work around GCC bug
@@ -212,7 +212,7 @@ namespace boost { namespace proto
                 static type call_(Expr const &expr, State const &state, Visitor &visitor, mpl::true_)
                 {
                     return detail::construct_<type>(
-                        when<_, Args>::call(expr, state, visitor)...
+                        when<_, Args>()(expr, state, visitor)...
                     );
                 }
 
@@ -231,11 +231,13 @@ namespace boost { namespace proto
             >
             struct apply_<Expr, State, Visitor, function_transform, Return, Args...>
             {
-                typedef typename bind<Return, Args...>::template apply<Expr, State, Visitor>::type type;
+                typedef typename boost::result_of<
+                    transform::call<Return, Args...>(Expr, State, Visitor)
+                >::type type;
 
                 static type call(Expr const &expr, State const &state, Visitor &visitor)
                 {
-                    return bind<Return, Args...>::call(expr, state, visitor);
+                    return transform::call<Return, Args...>()(expr, state, visitor);
                 }
             };
 
@@ -248,11 +250,13 @@ namespace boost { namespace proto
             >
             struct apply_<Expr, State, Visitor, raw_transform, Return, Args...>
             {
-                typedef typename transform::apply_<Return, Args...>::template apply<Expr, State, Visitor>::type type;
+                typedef typename boost::result_of<
+                    transform::apply_<Return, Args...>(Expr, State, Visitor)
+                >::type type;
 
                 static type call(Expr const &expr, State const &state, Visitor &visitor)
                 {
-                    return transform::apply_<Return, Args...>::call(expr, state, visitor);
+                    return transform::apply_<Return, Args...>()(expr, state, visitor);
                 }
             };
 
@@ -276,17 +280,20 @@ namespace boost { namespace proto
         {
             typedef typename Grammar::proto_base_expr proto_base_expr;
 
-            template<typename Expr, typename State, typename Visitor>
-            struct apply
+            template<typename Sig>
+            struct result;
+
+            template<typename This, typename Expr, typename State, typename Visitor>
+            struct result<This(Expr, State, Visitor)>
               : detail::apply_<Expr, State, Visitor, typename transform_category<Return>::type, Return, Args...>
             {};
 
             // BUGBUG makes a temporary
             template<typename Expr, typename State, typename Visitor>
-            static typename apply<Expr, State, Visitor>::type
-            call(Expr const &expr, State const &state, Visitor &visitor)
+            typename result<when(Expr, State, Visitor)>::type
+            operator()(Expr const &expr, State const &state, Visitor &visitor) const
             {
-                return apply<Expr, State, Visitor>::call(expr, state, visitor);
+                return result<when(Expr, State, Visitor)>::call(expr, state, visitor);
             }
         };
 
@@ -296,16 +303,19 @@ namespace boost { namespace proto
         {
             typedef typename Grammar::proto_base_expr proto_base_expr;
 
-            template<typename Expr, typename State, typename Visitor>
-            struct apply
+            template<typename Sig>
+            struct result;
+
+            template<typename This, typename Expr, typename State, typename Visitor>
+            struct result<This(Expr, State, Visitor)>
               : detail::apply_<Expr, State, Visitor, typename transform_category<Return>::type, Return, Args...>
             {};
 
             template<typename Expr, typename State, typename Visitor>
-            static typename apply<Expr, State, Visitor>::type
-            call(Expr const &expr, State const &state, Visitor &visitor)
+            typename result<when(Expr, State, Visitor)>::type
+            operator()(Expr const &expr, State const &state, Visitor &visitor) const
             {
-                return apply<Expr, State, Visitor>::call(expr, state, visitor);
+                return result<when(Expr, State, Visitor)>::call(expr, state, visitor);
             }
         };
 
