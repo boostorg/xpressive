@@ -113,15 +113,18 @@ namespace boost { namespace proto
             typedef expr<tag::terminal, term<T> > type;
             typedef type proto_base_expr;
 
-            template<typename Expr, typename, typename>
-            struct apply
+            template<typename Sig>
+            struct result;
+
+            template<typename This, typename Expr, typename State, typename Visitor>
+            struct result<This(Expr, State, Visitor)>
             {
                 typedef Expr type;
             };
 
             template<typename Expr, typename State, typename Visitor>
-            static Expr const &
-            call(Expr const &expr, State const &, Visitor &)
+            Expr const &
+            operator()(Expr const &expr, State const &, Visitor &) const
             {
                 return expr;
             }

@@ -55,7 +55,7 @@ struct CalculatorGrammar
 // is not used, is mpl::void_.
 template<typename Expr>
 struct calculator_arity
-  : CalculatorGrammar::apply<Expr, zero, mpl::void_>
+  : boost::result_of<CalculatorGrammar(Expr, zero, mpl::void_)>
 {};
 
 // For expressions in the calculator domain, operator()
