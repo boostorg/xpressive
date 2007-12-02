@@ -9,7 +9,6 @@
 #ifndef BOOST_PROTO_TRANSFORM_HPP_EAN_10_29_2007
 #define BOOST_PROTO_TRANSFORM_HPP_EAN_10_29_2007
 
-#include <boost/xpressive/proto/transform/apply.hpp>
 #include <boost/xpressive/proto/transform/arg.hpp>
 #include <boost/xpressive/proto/transform/call.hpp>
 #include <boost/xpressive/proto/transform/fold.hpp>

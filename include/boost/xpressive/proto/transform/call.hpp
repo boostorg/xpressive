@@ -40,48 +40,69 @@ namespace boost { namespace proto
             yes_type check_fun_arity(T const &);
 
             no_type check_fun_arity(private_type_ const &);
+            
+            template<typename Fun>
+            struct callable1_wrap : Fun
+            {
+                callable1_wrap();
+                typedef private_type_ const &(*pfun1)(dont_care);
+                operator pfun1() const;
+            };
 
             template<typename Fun>
-            struct fun_wrap : Fun
+            struct callable2_wrap : Fun
             {
-                fun_wrap();
-                typedef private_type_ const &(*pfun1)(dont_care);
+                callable2_wrap();
                 typedef private_type_ const &(*pfun2)(dont_care, dont_care);
-                typedef private_type_ const &(*pfun3)(dont_care, dont_care, dont_care);
-                operator pfun1() const;
                 operator pfun2() const;
-                operator pfun3() const;
+            };
+
+            template<typename Fun, typename A0>
+            struct arity1
+            {
+                static callable1_wrap<Fun> &fun;
+                static A0 &a0;
+
+                static int const value =
+                    sizeof(yes_type) == sizeof(check_fun_arity((fun(a0), 0)))
+                  ? 1
+                  : 3;
+            };
+            
+            template<typename Fun, typename A0, typename A1>
+            struct arity2
+            {
+                static callable2_wrap<Fun> &fun;
+                static A0 &a0;
+                static A1 &a1;
+
+                static int const value =
+                    sizeof(yes_type) == sizeof(check_fun_arity((fun(a0, a1), 0)))
+                  ? 2
+                  : 3;
             };
 
             template<typename Fun, typename Expr, typename State, typename Visitor>
-            struct fun_arity
+            struct call3
             {
-                static fun_wrap<Fun> &fun_;
-                static Expr &expr_;
-                static State &state_;
-                static Visitor &visitor_;
-
-                static int const value =
-                    (sizeof(check_fun_arity((fun_(expr_), 0)))-1)? 1 :
-                    (sizeof(check_fun_arity((fun_(expr_, state_), 0)))-1)? 2 :
-                    (sizeof(check_fun_arity((fun_(expr_, state_, visitor_), 0)))-1)? 3 :
-                    -1;
+                typedef typename boost::result_of<Fun(Expr, State, Visitor)>::type type;
+                
+                template<typename A, typename B, typename C>
+                static type call(A &&expr, B &&state, C &&visitor)
+                {
+                    Fun f;
+                    return f(expr, state, visitor);
+                }
             };
             
-            template<
-                typename Fun
-              , typename Expr
-              , typename State
-              , typename Visitor
-              , int Needs
-              , int Arity =
-                    (fun_arity<Fun, Expr, State, Visitor>::value > Needs) ?
-                    fun_arity<Fun, Expr, State, Visitor>::value : Needs
-            >
-            struct call_;
+            template<typename Fun, typename Expr, typename State, typename Visitor
+              , int Arity = arity1<Fun, Expr>::value>
+            struct call1
+              : call3<Fun, Expr, State, Visitor>
+            {};
 
-            template<typename Fun, typename Expr, typename State, typename Visitor, int Needs>
-            struct call_<Fun, Expr, State, Visitor, Needs, 1>
+            template<typename Fun, typename Expr, typename State, typename Visitor>
+            struct call1<Fun, Expr, State, Visitor, 1>
             {
                 typedef typename boost::result_of<Fun(Expr)>::type type;
                 
@@ -93,8 +114,14 @@ namespace boost { namespace proto
                 }
             };
 
-            template<typename Fun, typename Expr, typename State, typename Visitor, int Needs>
-            struct call_<Fun, Expr, State, Visitor, Needs, 2>
+            template<typename Fun, typename Expr, typename State, typename Visitor
+              , int Arity = arity2<Fun, Expr, State>::value>
+            struct call2
+              : call3<Fun, Expr, State, Visitor>
+            {};
+
+            template<typename Fun, typename Expr, typename State, typename Visitor>
+            struct call2<Fun, Expr, State, Visitor, 2>
             {
                 typedef typename boost::result_of<Fun(Expr, State)>::type type;
                 
@@ -103,19 +130,6 @@ namespace boost { namespace proto
                 {
                     Fun f;
                     return f(expr, state);
-                }
-            };
-            
-            template<typename Fun, typename Expr, typename State, typename Visitor, int Needs>
-            struct call_<Fun, Expr, State, Visitor, Needs, 3>
-            {
-                typedef typename boost::result_of<Fun(Expr, State, Visitor)>::type type;
-                
-                template<typename A, typename B, typename C>
-                static type call(A &&expr, B &&state, C &&visitor)
-                {
-                    Fun f;
-                    return f(expr, state, visitor);
                 }
             };
         }
@@ -150,12 +164,11 @@ namespace boost { namespace proto
 
             template<typename This, typename Expr, typename State, typename Visitor>
             struct result<This(Expr, State, Visitor)>
-              : detail::call_<
+              : detail::call1<
                     Fun
                   , typename boost::result_of<when<_, Arg0>(Expr, State, Visitor)>::type
                   , State
                   , Visitor
-                  , 1
                 >
             {};
 
@@ -179,12 +192,11 @@ namespace boost { namespace proto
 
             template<typename This, typename Expr, typename State, typename Visitor>
             struct result<This(Expr, State, Visitor)>
-              : detail::call_<
+              : detail::call2<
                     Fun
                   , typename boost::result_of<when<_, Arg0>(Expr, State, Visitor)>::type
                   , typename boost::result_of<when<_, Arg1>(Expr, State, Visitor)>::type
                   , Visitor
-                  , 2
                 >
             {};
 

@@ -18,7 +18,6 @@
 #include <boost/utility/enable_if.hpp>
 #include <boost/xpressive/proto/proto_fwd.hpp>
 #include <boost/xpressive/proto/transform/call.hpp>
-#include <boost/xpressive/proto/transform/apply.hpp>
 
 namespace boost { namespace proto
 {
@@ -251,12 +250,12 @@ namespace boost { namespace proto
             struct apply<Expr, State, Visitor, raw_transform, Return, Args...>
             {
                 typedef typename boost::result_of<
-                    transform::apply<Return, Args...>(Expr, State, Visitor)
+                    transform::call<Return, Args...>(Expr, State, Visitor)
                 >::type type;
 
                 static type call(Expr const &expr, State const &state, Visitor &visitor)
                 {
-                    return transform::apply<Return, Args...>()(expr, state, visitor);
+                    return transform::call<Return, Args...>()(expr, state, visitor);
                 }
             };
 
