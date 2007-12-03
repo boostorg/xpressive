@@ -13,13 +13,6 @@
 #include <boost/xpressive/proto/proto_fwd.hpp>
 #include <boost/xpressive/proto/traits.hpp>
 
-// BUGBUG these are not the same:
-//   as_foo< transform(_arg) >(_)
-//   call<as_foo< transform(_arg) >(_)>
-//
-// The problem is that in the second, the inner transform is
-// evaluated, but in the first it isn't.
-
 namespace boost { namespace proto
 {
 
@@ -72,7 +65,7 @@ namespace boost { namespace proto
                 operator pfun2() const;
             };
 
-            template<typename Fun, typename A0>
+            template<typename Fun>
             struct arity0
             {
                 static callable0_wrap<Fun> &fun;
@@ -122,7 +115,7 @@ namespace boost { namespace proto
             };
 
             template<typename Fun, typename Expr, typename State, typename Visitor
-              , int Arity = arity0<Fun, Expr>::value>
+              , int Arity = arity0<Fun>::value>
             struct call0
               : call3<Fun, Expr, State, Visitor>
             {};
