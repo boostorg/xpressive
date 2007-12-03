@@ -31,6 +31,38 @@ namespace boost { namespace proto
 
     namespace detail
     {
+        template<typename... Args>
+        struct back;
+
+        template<typename A0>
+        struct back<A0>
+        {
+            typedef A0 type;
+        };
+
+        template<typename A0, typename A1>
+        struct back<A0, A1>
+        {
+            typedef A1 type;
+        };
+
+        template<typename A0, typename A1, typename A2>
+        struct back<A0, A1, A2>
+        {
+            typedef A2 type;
+        };
+
+        template<typename A0, typename A1, typename A2, typename A3>
+        struct back<A0, A1, A2, A3>
+        {
+            typedef A3 type;
+        };
+
+        template<typename A0, typename A1, typename A2, typename A3, typename... Rest>
+        struct back<A0, A1, A2, A3, Rest...>
+          : back<Rest...>
+        {};
+
         template<typename T, typename EnableIf = void>
         struct is_transform2_
           : mpl::false_
@@ -48,7 +80,7 @@ namespace boost { namespace proto
 
         template<template<typename...> class T, typename... Args>
         struct is_transform_<T<Args...> >
-          : mpl::false_
+          : is_same<typename back<Args...>::type, transform_base>
         {};
     }
 
@@ -67,7 +99,6 @@ namespace boost { namespace proto
     {
         namespace detail
         {
-            // can't this apply template be always used? What is the purpose of the one below?
             template<
                 typename Expr
               , typename State

@@ -324,12 +324,12 @@ namespace boost { namespace xpressive
         //  matches expressions like (set= 'a','b','c')
         //  calculates the size of the set
         //  populates an array of characters
-        template<typename Char>
+        template<typename Char, typename Dummy = transform_base>
         struct ListSet
           : or_<
                 when<
                     comma<ListSet<Char>, CharLiteral<Char> >
-                  , mpl::next<call<ListSet<Char>(_left)> >()
+                  , mpl::next<ListSet<Char>(_left)>()
                 >
               , when<
                     assign<terminal<set_initializer>, CharLiteral<Char> >
@@ -608,7 +608,7 @@ namespace boost { namespace xpressive
             struct as_list_set
               : call<
                     fill_list_set(
-                        set_matcher<traits(_visitor), call<ListSet<Char> > >()
+                        set_matcher<traits(_visitor), ListSet<Char> >()
                       , _
                       , _visitor
                     )
