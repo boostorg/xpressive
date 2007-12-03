@@ -593,6 +593,89 @@ namespace boost { namespace proto
         return result_of::as_arg<T, Domain>::call(t);
     }
 
+    namespace detail
+    {
+        template<typename... Args>
+        struct back;
+
+        template<typename A0>
+        struct back<A0>
+        {
+            typedef A0 type;
+        };
+
+        template<typename A0, typename A1>
+        struct back<A0, A1>
+        {
+            typedef A1 type;
+        };
+
+        template<typename A0, typename A1, typename A2>
+        struct back<A0, A1, A2>
+        {
+            typedef A2 type;
+        };
+
+        template<typename A0, typename A1, typename A2, typename A3>
+        struct back<A0, A1, A2, A3>
+        {
+            typedef A3 type;
+        };
+
+        template<typename A0, typename A1, typename A2, typename A3, typename... Rest>
+        struct back<A0, A1, A2, A3, Rest...>
+          : back<Rest...>
+        {};
+
+        template<typename T, typename EnableIf = void>
+        struct is_transform2_
+          : mpl::false_
+        {};
+
+        template<typename T>
+        struct is_transform2_<T, typename T::proto_is_transform_>
+          : mpl::true_
+        {};
+
+        template<typename T>
+        struct is_transform_
+          : is_transform2_<T>
+        {};
+
+        // TODO when gcc #33965 is fixed, change the idiom to
+        // template<typename X, bool IsTransform = true> struct my_transform {...};
+        template<template<typename...> class T, typename... Args>
+        struct is_transform_<T<Args...> >
+          : is_same<typename back<Args...>::type, transform_base>
+        {};
+
+    } // namespace detail
+
+    /// is_transform
+    ///
+    template<typename T>
+    struct is_transform
+      : proto::detail::is_transform_<T>
+    {};
+
+    // work around GCC bug
+    template<typename Tag, typename Args, long N>
+    struct is_transform<expr<Tag, Args, N> >
+      : mpl::false_
+    {};
+
+    /// is_aggregate
+    ///
+    template<typename T>
+    struct is_aggregate
+      : is_pod<T>
+    {};
+
+    template<typename Tag, typename Args, long N>
+    struct is_aggregate<expr<Tag, Args, N> >
+      : mpl::true_
+    {};
+
 }}
 
 #undef CV

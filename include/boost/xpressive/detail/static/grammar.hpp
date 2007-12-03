@@ -532,9 +532,8 @@ namespace boost { namespace xpressive
                             _
                           , repeat_end_matcher<Greedy>(
                                 mark_number(_arg(_left))
-                              // BUGBUG work around gcc bug
-                              , always<min_type<Tag> > //, min_type<Tag>()
-                              , always<max_type<Tag> > //, max_type<Tag>()
+                              , always<min_type<Tag> > // min_type<Tag>()
+                              , always<max_type<Tag> > // max_type<Tag>()
                             )
                         )
                     )

@@ -89,7 +89,7 @@ namespace boost { namespace proto
 
             template<typename R, typename... Args, typename Expr, typename State, typename Visitor>
             struct apply_lambda_<R(*)(Args...), Expr, State, Visitor, false>
-              : boost::result_of<when<_, R(*)(Args...)>(Expr, State, Visitor)>
+              : boost::result_of<when<_, R(Args...)>(Expr, State, Visitor)>
             {};
 
             // work around GCC bug
