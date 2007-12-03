@@ -567,13 +567,13 @@ namespace boost { namespace xpressive
 
             template<typename Greedy>
             struct as_simple_repeat
-              : call< // TODO add a make<> transform
-                    _(simple_repeat_matcher<as_independent(_arg), Greedy>(
+              : make<
+                    simple_repeat_matcher<as_independent(_arg), Greedy>(
                         as_independent(_arg)
                       , min_type<tag_of<_> >()
                       , max_type<tag_of<_> >()
                       , get_width(as_independent(_arg))
-                    ))
+                    )
                 >
             {};
 

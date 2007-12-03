@@ -11,6 +11,7 @@
 
 #include <climits> // for INT_MAX
 #include <boost/type_traits.hpp>
+#include <boost/mpl/bool.hpp>
 #include <boost/mpl/aux_/template_arity.hpp>
 #include <boost/mpl/aux_/lambda_arity_param.hpp>
 
@@ -339,8 +340,14 @@ namespace boost { namespace proto
             typedef void proto_is_transform_;
         };
 
+        template<typename Grammar, typename Fun = Grammar>
+        struct when;
+
         template<typename Fun, typename... Args>
         struct call;
+
+        template<typename Fun, typename... Args>
+        struct make;
 
         template<typename Sequence, typename State, typename Fun>
         struct fold;
@@ -354,9 +361,6 @@ namespace boost { namespace proto
 
         template<typename Sequence, typename State, typename Fun>
         struct reverse_fold_tree;
-
-        template<typename Grammar, typename Fun = Grammar>
-        struct when;
 
         struct _expr;
         struct _state;
@@ -403,6 +407,7 @@ namespace boost { namespace proto
     using transform::_visitor;
     using transform::_arg_c;
     using transform::call;
+    using transform::make;
     using transform::fold;
     using transform::always;
     using transform::reverse_fold;
