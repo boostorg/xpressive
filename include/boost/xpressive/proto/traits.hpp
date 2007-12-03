@@ -664,6 +664,11 @@ namespace boost { namespace proto
       : mpl::false_
     {};
 
+    template<>
+    struct is_transform<transform_base>
+      : mpl::false_
+    {};
+
     /// is_aggregate
     ///
     template<typename T>

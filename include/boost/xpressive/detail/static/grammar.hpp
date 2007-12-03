@@ -523,7 +523,7 @@ namespace boost { namespace xpressive
                 >
             {};
 
-            template<typename Greedy, typename Tag>
+            template<typename Greedy, typename Tag, typename Base = transform_base>
             struct as_repeater
               : call<
                     _make_shift_right(
@@ -563,12 +563,12 @@ namespace boost { namespace xpressive
                 >
             {};
 
-            template<typename Greedy, typename Tag>
+            template<typename Greedy, typename Tag , typename Base = transform_base >
             struct as_default_repeat
               : as_default_repeat_impl<Greedy, Tag>
             {};
 
-            template<typename Greedy>
+            template<typename Greedy , typename Base = transform_base >
             struct as_simple_repeat
               : make<
                     simple_repeat_matcher<as_independent(_arg), Greedy>(
@@ -580,7 +580,7 @@ namespace boost { namespace xpressive
                 >
             {};
 
-            template<typename Greedy>
+            template<typename Greedy, typename Base = transform_base>
             struct as_repeat
               : if_<
                     use_simple_repeat<_arg, Char>()
@@ -589,10 +589,7 @@ namespace boost { namespace xpressive
                 >
             {};
 
-            struct as_greedy_repeat         : as_repeat<greedy_t>       {};
-            struct as_non_greedy_repeat     : as_repeat<non_greedy_t>   {};
-
-            template<typename Greedy>
+            template<typename Greedy, typename Base = transform_base>
             struct as_optional
               : if_<
                     matches<_, MarkedSubExpr>()
@@ -600,9 +597,6 @@ namespace boost { namespace xpressive
                   , optional_matcher<as_alternate, Greedy>(as_alternate)
                 >
             {};
-
-            struct as_greedy_optional       : as_optional<greedy_t>     {};
-            struct as_non_greedy_optional   : as_optional<non_greedy_t> {};
 
             struct as_list_set
               : call<
@@ -663,38 +657,38 @@ namespace boost { namespace xpressive
             template<typename Dummy>
             struct case_<tag::dereference, Dummy>
                 // *_
-              : when<dereference<Gram>, as_greedy_repeat>
+              : when<dereference<Gram>, as_repeat<greedy_t> >
             {};
 
             template<typename Dummy>
             struct case_<tag::posit, Dummy>
                 // +_
-              : when<posit<Gram>, as_greedy_repeat>
+              : when<posit<Gram>, as_repeat<greedy_t> >
             {};
 
             template<uint_t Min, uint_t Max, typename Dummy>
             struct case_<generic_quant_tag<Min, Max>, Dummy>
                 // repeat<0,42>(_)
-              : when<unary_expr<generic_quant_tag<Min, Max>, Gram>, as_greedy_repeat>
+              : when<unary_expr<generic_quant_tag<Min, Max>, Gram>, as_repeat<greedy_t> >
             {};
 
             template<typename Dummy>
             struct case_<tag::logical_not, Dummy>
                 // !_
-              : when<logical_not<Gram>, as_greedy_optional(_arg)>
+              : when<logical_not<Gram>, as_optional<greedy_t> (_arg)>
             {};
 
             template<typename Dummy>
             struct case_<tag::negate, Dummy>
               : or_<
                     // -*_
-                    when<negate<dereference<Gram> > , as_non_greedy_repeat(_arg)>
+                    when<negate<dereference<Gram> > , as_repeat<non_greedy_t>(_arg)>
                     // -+_
-                  , when<negate<posit<Gram> >       , as_non_greedy_repeat(_arg)>
+                  , when<negate<posit<Gram> >       , as_repeat<non_greedy_t>(_arg)>
                     // -repeat<0,42>(_)
-                  , when<negate<GenericQuant>       , as_non_greedy_repeat(_arg)>
+                  , when<negate<GenericQuant>       , as_repeat<non_greedy_t>(_arg)>
                     // -!_
-                  , when<negate<logical_not<Gram> > , as_non_greedy_optional(_arg(_arg))>
+                  , when<negate<logical_not<Gram> > , as_optional<non_greedy_t>(_arg(_arg))>
                 >
             {};
 

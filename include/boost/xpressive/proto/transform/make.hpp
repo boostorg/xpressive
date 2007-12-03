@@ -9,11 +9,13 @@
 #ifndef BOOST_PROTO_TRANSFORM_MAKE_HPP_EAN_12_02_2007
 #define BOOST_PROTO_TRANSFORM_MAKE_HPP_EAN_12_02_2007
 
+#include <boost/mpl/eval_if.hpp>
 #include <boost/mpl/aux_/has_type.hpp>
 #include <boost/utility/result_of.hpp>
 #include <boost/utility/enable_if.hpp>
 #include <boost/xpressive/proto/proto_fwd.hpp>
 #include <boost/xpressive/proto/traits.hpp>
+#include <boost/xpressive/proto/args.hpp>
 
 namespace boost { namespace proto
 {
@@ -55,46 +57,46 @@ namespace boost { namespace proto
             template<typename R, typename Expr, typename State, typename Visitor
                 , bool IsTransform = is_transform<R>::value
             >
-            struct apply_lambda_;
+            struct make_if_;
 
             template<typename R, typename Expr, typename State, typename Visitor>
-            struct apply_lambda_aux_
+            struct make_
             {
                 typedef R type;
                 typedef void not_applied_;
             };
 
             template<template<typename...> class R, typename... Args, typename Expr, typename State, typename Visitor>
-            struct apply_lambda_aux_<R<Args...>, Expr, State, Visitor>
+            struct make_<R<Args...>, Expr, State, Visitor>
               : nested_type_if<
-                    R<typename apply_lambda_<Args, Expr, State, Visitor>::type...>
-                  , typelist<apply_lambda_<Args, Expr, State, Visitor>...>
+                    R<typename make_if_<Args, Expr, State, Visitor>::type...>
+                  , typelist<make_if_<Args, Expr, State, Visitor>...>
                 >
             {};
 
             template<typename R, typename Expr, typename State, typename Visitor>
-            struct apply_lambda_<R, Expr, State, Visitor, false>
-              : apply_lambda_aux_<R, Expr, State, Visitor>
+            struct make_if_<R, Expr, State, Visitor, false>
+              : make_<R, Expr, State, Visitor>
             {};
 
             template<typename R, typename Expr, typename State, typename Visitor>
-            struct apply_lambda_<R, Expr, State, Visitor, true>
+            struct make_if_<R, Expr, State, Visitor, true>
               : boost::result_of<R(Expr, State, Visitor)>
             {};
 
             template<typename R, typename... Args, typename Expr, typename State, typename Visitor>
-            struct apply_lambda_<R(Args...), Expr, State, Visitor, false>
+            struct make_if_<R(Args...), Expr, State, Visitor, false>
               : boost::result_of<when<_, R(Args...)>(Expr, State, Visitor)>
             {};
 
             template<typename R, typename... Args, typename Expr, typename State, typename Visitor>
-            struct apply_lambda_<R(*)(Args...), Expr, State, Visitor, false>
+            struct make_if_<R(*)(Args...), Expr, State, Visitor, false>
               : boost::result_of<when<_, R(Args...)>(Expr, State, Visitor)>
             {};
 
             // work around GCC bug
             template<typename Tag, typename Args, long N, typename Expr, typename State, typename Visitor>
-            struct apply_lambda_<expr<Tag, Args, N>, Expr, State, Visitor, false>
+            struct make_if_<expr<Tag, Args, N>, Expr, State, Visitor, false>
             {
                 typedef expr<Tag, Args, N> type;
                 typedef void not_applied_;
@@ -130,7 +132,7 @@ namespace boost { namespace proto
 
             template<typename This, typename Expr, typename State, typename Visitor>
             struct result<This(Expr, State, Visitor)>
-              : detail::apply_lambda_<Return, Expr, State, Visitor>
+              : detail::make_<Return, Expr, State, Visitor>
             {};
 
             template<typename Expr, typename State, typename Visitor>
@@ -139,6 +141,26 @@ namespace boost { namespace proto
             {
                 typedef typename result<make(Expr, State, Visitor)>::type result_type;
                 return detail::construct_<result_type>(when<_, Args>()(expr, state, visitor)...);
+            }
+        };
+
+        // work around gcc bug
+        template<typename T, typename A, long N, typename... Args>
+        struct make<expr<T, A, N>, Args... > : transform_base
+        {
+            template<typename Sig>
+            struct result
+            {
+                typedef expr<T, A, N> type;
+            };
+
+            template<typename Expr, typename State, typename Visitor>
+            expr<T, A, N> operator()(Expr const &expr, State const &state, Visitor &visitor) const
+            {
+                proto::expr<T, A, N> that = {{
+                    when<_, Args>()(expr, state, visitor)...
+                }};
+                return that;
             }
         };
 
