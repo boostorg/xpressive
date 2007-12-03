@@ -78,28 +78,37 @@ namespace boost { namespace proto
             >
             struct apply
             {
-                typedef 
-                    typename boost::result_of<
-                        transform::make<Return, Args...>(Expr, State, Visitor)
-                    >::type
-                lambda_type;
-
-                // If the result of applying the lambda on the return type is a transform,
-                // apply the transform rather than trying to construct it.
-                typedef
-                    typename mpl::if_<
-                        proto::detail::is_transform2_<lambda_type>
-                      , transform::call<lambda_type, Args...>
-                      , transform::make<Return, Args...>
-                    >::type
-                transform_type;
-
-                typedef typename boost::result_of<transform_type(Expr, State, Visitor)>::type type;
+                typedef typename boost::result_of<
+                    transform::make<Return, Args...>(Expr, State, Visitor)
+                >::type type;
 
                 static type call(Expr const &expr, State const &state, Visitor &visitor)
                 {
-                    return transform_type()(expr, state, visitor);
+                    return transform::make<Return, Args...>()(expr, state, visitor);
                 }
+
+                //typedef 
+                //    typename boost::result_of<
+                //        transform::make<Return, Args...>(Expr, State, Visitor)
+                //    >::type
+                //lambda_type;
+
+                //// If the result of applying the lambda on the return type is a transform,
+                //// apply the transform rather than trying to construct it.
+                //typedef
+                //    typename mpl::if_<
+                //        proto::detail::is_transform2_<lambda_type>
+                //      , transform::call<lambda_type, Args...>
+                //      , transform::make<Return, Args...>
+                //    >::type
+                //transform_type;
+
+                //typedef typename boost::result_of<transform_type(Expr, State, Visitor)>::type type;
+
+                //static type call(Expr const &expr, State const &state, Visitor &visitor)
+                //{
+                //    return transform_type()(expr, state, visitor);
+                //}
             };
 
             template<

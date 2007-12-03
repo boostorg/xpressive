@@ -13,6 +13,13 @@
 #include <boost/xpressive/proto/proto_fwd.hpp>
 #include <boost/xpressive/proto/traits.hpp>
 
+// BUGBUG these are not the same:
+//   as_foo< transform(_arg) >(_)
+//   call<as_foo< transform(_arg) >(_)>
+//
+// The problem is that in the second, the inner transform is
+// evaluated, but in the first it isn't.
+
 namespace boost { namespace proto
 {
 
@@ -42,6 +49,14 @@ namespace boost { namespace proto
             no_type check_fun_arity(private_type_ const &);
 
             template<typename Fun>
+            struct callable0_wrap : Fun
+            {
+                callable0_wrap();
+                typedef private_type_ const &(*pfun0)();
+                operator pfun0() const;
+            };
+
+            template<typename Fun>
             struct callable1_wrap : Fun
             {
                 callable1_wrap();
@@ -55,6 +70,17 @@ namespace boost { namespace proto
                 callable2_wrap();
                 typedef private_type_ const &(*pfun2)(dont_care, dont_care);
                 operator pfun2() const;
+            };
+
+            template<typename Fun, typename A0>
+            struct arity0
+            {
+                static callable0_wrap<Fun> &fun;
+
+                static int const value =
+                    sizeof(yes_type) == sizeof(check_fun_arity((fun(), 0)))
+                  ? 0
+                  : 3;
             };
 
             template<typename Fun, typename A0>
@@ -92,6 +118,25 @@ namespace boost { namespace proto
                 {
                     Fun f;
                     return f(expr, state, visitor);
+                }
+            };
+
+            template<typename Fun, typename Expr, typename State, typename Visitor
+              , int Arity = arity0<Fun, Expr>::value>
+            struct call0
+              : call3<Fun, Expr, State, Visitor>
+            {};
+
+            template<typename Fun, typename Expr, typename State, typename Visitor>
+            struct call0<Fun, Expr, State, Visitor, 0>
+            {
+                typedef typename boost::result_of<Fun()>::type type;
+
+                template<typename A, typename B, typename C>
+                static type call(A &&, B &&, C &&)
+                {
+                    Fun f;
+                    return f();
                 }
             };
 
@@ -153,6 +198,34 @@ namespace boost { namespace proto
             {
                 Fun f;
                 return f(when<_, Args>()(expr, state, visitor)...);
+            }
+        };
+
+        template<typename Fun>
+        struct call<Fun> : transform_base
+        {
+            template<typename Sig>
+            struct result;
+
+            template<typename This, typename Expr, typename State, typename Visitor>
+            struct result<This(Expr, State, Visitor)>
+              : detail::call0<
+                    Fun
+                  , Expr
+                  , State
+                  , Visitor
+                >
+            {};
+
+            template<typename Expr, typename State, typename Visitor>
+            typename result<call(Expr, State, Visitor)>::type
+            operator()(Expr const &expr, State const &state, Visitor &visitor) const
+            {
+                return result<call(Expr, State, Visitor)>::call(
+                    expr
+                  , state
+                  , visitor
+                );
             }
         };
 

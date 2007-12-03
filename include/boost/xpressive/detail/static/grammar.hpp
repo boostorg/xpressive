@@ -329,7 +329,7 @@ namespace boost { namespace xpressive
           : or_<
                 when<
                     comma<ListSet<Char>, CharLiteral<Char> >
-                  , mpl::next<ListSet<Char>(_left)>()
+                  , mpl::next<call<ListSet<Char>(_left)> >()
                 >
               , when<
                     assign<terminal<set_initializer>, CharLiteral<Char> >
@@ -483,12 +483,16 @@ namespace boost { namespace xpressive
             {};
 
             // Here are some transforms ...
+            struct as_regex
+              : call<Gram>
+            {};
+
             struct as_independent
-              : call<Gram(_make_shift_right(_, true_matcher()), no_next())>
+              : call<as_regex(_make_shift_right(_, true_matcher()), no_next())>
             {};
 
             struct as_alternate
-              : call<Gram(_make_shift_right(_, alternate_end_matcher()), no_next())>
+              : call<as_regex(_make_shift_right(_, alternate_end_matcher()), no_next())>
             {};
 
             struct as_alternates_list
@@ -582,9 +586,12 @@ namespace boost { namespace xpressive
               : if_<
                     use_simple_repeat<_arg, Char>()
                   , as_simple_repeat<Greedy>
-                  , Gram(as_default_repeat<Greedy, tag_of<_> >(_))
+                  , as_regex(bind<as_default_repeat<Greedy, tag_of<_> > >)
                 >
             {};
+
+            struct as_greedy_repeat         : as_repeat<greedy_t>       {};
+            struct as_non_greedy_repeat     : as_repeat<non_greedy_t>   {};
 
             template<typename Greedy>
             struct as_optional
@@ -595,10 +602,13 @@ namespace boost { namespace xpressive
                 >
             {};
 
+            struct as_greedy_optional       : as_optional<greedy_t>     {};
+            struct as_non_greedy_optional   : as_optional<non_greedy_t> {};
+
             struct as_list_set
               : call<
                     fill_list_set(
-                        set_matcher<traits(_visitor), ListSet<Char>(_) >()
+                        set_matcher<traits(_visitor), call<ListSet<Char> > >()
                       , _
                       , _visitor
                     )
@@ -617,7 +627,7 @@ namespace boost { namespace xpressive
                           , compound_charset<traits(_visitor)>()
                         >
                     >()
-                  , merge_charset(_state, Gram(_make_shift_right(_, end_matcher()), no_next()), _visitor)
+                  , merge_charset(_state, as_regex(_make_shift_right(_, end_matcher()), no_next()), _visitor)
                 >
             {};
 
@@ -638,7 +648,7 @@ namespace boost { namespace xpressive
               : when<
                     // _ >> 'a'
                     shift_right<Gram, Gram>
-                  , reverse_fold_tree<_, _state, in_sequence(Gram, _state)>
+                  , reverse_fold_tree<_, _state, in_sequence(as_regex, _state)>
                 >
             {};
 
@@ -654,38 +664,38 @@ namespace boost { namespace xpressive
             template<typename Dummy>
             struct case_<tag::dereference, Dummy>
                 // *_
-              : when<dereference<Gram>, as_repeat<greedy_t> >
+              : when<dereference<Gram>, as_greedy_repeat>
             {};
 
             template<typename Dummy>
             struct case_<tag::posit, Dummy>
                 // +_
-              : when<posit<Gram>, as_repeat<greedy_t> >
+              : when<posit<Gram>, as_greedy_repeat>
             {};
 
             template<uint_t Min, uint_t Max, typename Dummy>
             struct case_<generic_quant_tag<Min, Max>, Dummy>
                 // repeat<0,42>(_)
-              : when<unary_expr<generic_quant_tag<Min, Max>, Gram>, as_repeat<greedy_t> >
+              : when<unary_expr<generic_quant_tag<Min, Max>, Gram>, as_greedy_repeat>
             {};
 
             template<typename Dummy>
             struct case_<tag::logical_not, Dummy>
                 // !_
-              : when<logical_not<Gram>, as_optional<greedy_t>(_arg)>
+              : when<logical_not<Gram>, as_greedy_optional(_arg)>
             {};
 
             template<typename Dummy>
             struct case_<tag::negate, Dummy>
               : or_<
                     // -*_
-                    when<negate<dereference<Gram> > , as_repeat<non_greedy_t>(_arg)>
+                    when<negate<dereference<Gram> > , as_non_greedy_repeat(_arg)>
                     // -+_
-                  , when<negate<posit<Gram> >       , as_repeat<non_greedy_t>(_arg)>
+                  , when<negate<posit<Gram> >       , as_non_greedy_repeat(_arg)>
                     // -repeat<0,42>(_)
-                  , when<negate<GenericQuant>       , as_repeat<non_greedy_t>(_arg)>
+                  , when<negate<GenericQuant>       , as_non_greedy_repeat(_arg)>
                     // -!_
-                  , when<negate<logical_not<Gram> > , as_optional<non_greedy_t>(_arg(_arg))>
+                  , when<negate<logical_not<Gram> > , as_non_greedy_optional(_arg(_arg))>
                 >
             {};
 
@@ -693,7 +703,7 @@ namespace boost { namespace xpressive
             struct case_<tag::assign, Dummy>
               : or_<
                     // (s1= ...)
-                    when<assign<terminal<mark_placeholder>, Gram>, Gram(as_marker)>
+                    when<assign<terminal<mark_placeholder>, Gram>, as_regex(as_marker)>
                     // (set= 'a')
                   , when<ListSet<Char>, as_matcher(_arg(_right), _visitor)>
                 >
@@ -787,7 +797,7 @@ namespace boost { namespace xpressive
                             complement<subscript<terminal<set_initializer>, terminal<_> > >
                           , complement<assign<terminal<set_initializer>, terminal<_> > >
                         >
-                      , Gram(_make_complement(_right(_arg)))
+                      , as_regex(_make_complement(_right(_arg)))
                     >
                     // ~set['a' | alpha | ... ] or ~(set='a','b','c')
                   , when<
@@ -795,7 +805,7 @@ namespace boost { namespace xpressive
                             complement<subscript<terminal<set_initializer>, bitwise_or<Gram, Gram> > >
                           , complement<ListSet<Char> >
                         >
-                      , invert(Gram(_arg))
+                      , invert(as_regex(_arg))
                     >
                 >
             {};
@@ -820,7 +830,7 @@ namespace boost { namespace xpressive
             struct case_<modifier_tag, Dummy>
               : when<
                     binary_expr<modifier_tag, terminal<_>, Gram>
-                  , Gram(_right, _state, modify(_arg(_left), _visitor))
+                  , as_regex(_right, _state, modify(_arg(_left), _visitor))
                 >
             {};
         };

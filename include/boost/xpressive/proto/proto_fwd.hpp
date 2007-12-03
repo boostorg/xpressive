@@ -349,6 +349,9 @@ namespace boost { namespace proto
         template<typename Fun, typename... Args>
         struct make;
 
+        template<typename Fun, typename... Args>
+        struct bind;
+
         template<typename Sequence, typename State, typename Fun>
         struct fold;
 
@@ -408,6 +411,7 @@ namespace boost { namespace proto
     using transform::_arg_c;
     using transform::call;
     using transform::make;
+    using transform::bind;
     using transform::fold;
     using transform::always;
     using transform::reverse_fold;
