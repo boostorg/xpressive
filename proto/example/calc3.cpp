@@ -5,7 +5,7 @@
 //
 // This example enhances the arithmetic expression evaluator
 // in calc2.cpp by using a proto transform to calculate the
-// number of arguments an expression requires and using a 
+// number of arguments an expression requires and using a
 // compile-time assert to guarantee that the right number of
 // arguments are actually specified.
 
@@ -96,7 +96,7 @@ struct calculator_expression
     typedef
         proto::extends<Expr, calculator_expression<Expr>, calculator_domain>
     base_type;
-    
+
     explicit calculator_expression(Expr const &expr = Expr())
       : base_type(expr)
     {}

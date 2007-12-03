@@ -197,13 +197,13 @@ namespace boost { namespace xpressive
         {
             template<typename Sig>
             struct result;
-            
+
             template<typename This, typename Visitor>
             struct result<This(Visitor)>
             {
                 typedef typename Visitor::traits_type type;
             };
-            
+
             template<typename Visitor>
             typename Visitor::traits_type const &
             operator()(Visitor &visitor) const
@@ -216,13 +216,13 @@ namespace boost { namespace xpressive
         {
             template<typename Sig>
             struct result;
-            
+
             template<typename This, typename Traits>
             struct result<This(Traits)>
             {
                 typedef typename Traits::char_class_type type;
             };
-            
+
             template<typename Traits>
             typename Traits::char_class_type
             operator()(Traits const &traits) const
@@ -235,7 +235,7 @@ namespace boost { namespace xpressive
         {
             template<typename Sig>
             struct result;
-            
+
             template<typename This, typename Posix, typename Visitor, typename YesNo>
             struct result<This(Posix, Visitor, YesNo)>
             {
@@ -316,7 +316,7 @@ namespace boost { namespace xpressive
         struct CharLiteral<char>
           : proto::terminal<char>
         {};
-        
+
         struct _one : mpl::int_<1> {};
 
         ///////////////////////////////////////////////////////////////////////////
@@ -337,7 +337,7 @@ namespace boost { namespace xpressive
                 >
             >
         {};
-        
+
         struct fill_list_set : transform_base
         {
             template<typename Sig>

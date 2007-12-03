@@ -61,7 +61,7 @@ namespace boost { namespace proto
                 return Expr::proto_domain::make(expr_type::make(proto::arg(expr)));
             }
         };
-        
+
         template<typename Expr, typename... Args>
         struct deep_copy_impl<Expr, args<Args...> >
         {

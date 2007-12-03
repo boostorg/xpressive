@@ -111,7 +111,7 @@ namespace boost { namespace xpressive
           : boost::proto::transform::fold<
                 boost::proto::function<
                     boost::proto::transform::state<boost::proto::terminal<let_tag> >
-                  , boost::proto::vararg< BindArg< boost::proto::assign<boost::proto::_, boost::proto::_> > > 
+                  , boost::proto::vararg< BindArg< boost::proto::assign<boost::proto::_, boost::proto::_> > >
                 >
             >
         {};

@@ -22,7 +22,7 @@ using namespace boost;
 using proto::_;
 
 // This grammar describes which lazy vector expressions
-// are allowed; namely, vector terminals and addition 
+// are allowed; namely, vector terminals and addition
 // and subtraction of lazy vector expressions.
 struct LazyVectorGrammar
   : proto::or_<

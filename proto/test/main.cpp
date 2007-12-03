@@ -194,7 +194,7 @@ int main()
 {
     int dummy=0;
     noncopy non_;
-    
+
     terminal<int>::type u = {42};
     terminal<int>::type const t = {42};
 
@@ -269,14 +269,14 @@ int main()
 
     terminal<float>::type ff = {1.F};
     check<Promote>(ff+ff);
-    plus<terminal<double>::type, terminal<double>::type>::type dd = 
+    plus<terminal<double>::type, terminal<double>::type>::type dd =
         Promote()(ff+ff, dummy, non_);
 
-    plus<terminal<double>::type, terminal<int>::type>::type du = 
+    plus<terminal<double>::type, terminal<int>::type>::type du =
         Promote()(ff+u, dummy, non_);
     std::printf("%g %d\n", arg_c<0>(arg_c<0>(du)), arg_c<0>(arg_c<1>(du)));
 
-    plus<negate<terminal<double>::type>::type, terminal<int>::type>::type ndu = 
+    plus<negate<terminal<double>::type>::type, terminal<int>::type>::type ndu =
         Promote()(+ff+u, dummy, non_);
     std::printf("%g %d\n", arg_c<0>(arg_c<0>(arg_c<0>(ndu))), arg_c<0>(arg_c<1>(ndu)));
 

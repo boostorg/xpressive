@@ -295,7 +295,7 @@ namespace boost { namespace proto
             template<typename Sig>
             struct result
             {};
-            
+
             template<typename This, typename Domain>
             struct result<This(Domain)>
               : domain_of<UNCVREF(Domain)>
@@ -307,7 +307,7 @@ namespace boost { namespace proto
             template<typename Sig>
             struct result
             {};
-            
+
             template<typename This, typename... Args>
             struct result<This(Args...)>
             {

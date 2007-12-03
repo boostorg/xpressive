@@ -163,7 +163,7 @@ struct TArray
     TArray &operator =(Expr const & expr)
     {
         // proto::as_expr<TArrayDomain>(expr) is the same as
-        // expr unless expr is an integer, in which case it 
+        // expr unless expr is an integer, in which case it
         // is made into a TArrayExpr terminal first.
         return this->assign(proto::as_expr<TArrayDomain>(expr));
     }

@@ -93,7 +93,7 @@ namespace boost { namespace proto
     namespace tag
     {
         struct terminal;
-        struct posit;        
+        struct posit;
         struct negate;
         struct dereference;
         struct complement;
@@ -210,11 +210,11 @@ namespace boost { namespace proto
     arg_c(Expr &expr);
 
     template<long N, typename Expr>
-    typename result_of::arg_c<Expr, N>::const_reference 
+    typename result_of::arg_c<Expr, N>::const_reference
     arg_c(Expr const &expr);
 
     template<typename T>
-    typename result_of::as_arg<T>::type 
+    typename result_of::as_arg<T>::type
     as_arg(T &&t);
 
     namespace op

@@ -5,7 +5,7 @@
 //
 // This example enhances the simple arithmetic expression evaluator
 // in calc1.cpp by using proto::extends to make arithemetic
-// expressions immediately evaluatable with operator(), a-la a 
+// expressions immediately evaluatable with operator(), a-la a
 // function object
 
 #include <iostream>
@@ -55,7 +55,7 @@ struct calculator_expression
     typedef
         proto::extends<Expr, calculator_expression<Expr>, calculator_domain>
     base_type;
-    
+
     explicit calculator_expression(Expr const &expr = Expr())
       : base_type(expr)
     {}

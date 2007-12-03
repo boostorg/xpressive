@@ -25,7 +25,7 @@ namespace boost { namespace proto
             {
                 return const_cast<T &>(t);
             }
-            
+
             struct dont_care { dont_care(...); };
 
             typedef char (&yes_type)[2];
@@ -40,7 +40,7 @@ namespace boost { namespace proto
             yes_type check_fun_arity(T const &);
 
             no_type check_fun_arity(private_type_ const &);
-            
+
             template<typename Fun>
             struct callable1_wrap : Fun
             {
@@ -68,7 +68,7 @@ namespace boost { namespace proto
                   ? 1
                   : 3;
             };
-            
+
             template<typename Fun, typename A0, typename A1>
             struct arity2
             {
@@ -86,7 +86,7 @@ namespace boost { namespace proto
             struct call3
             {
                 typedef typename boost::result_of<Fun(Expr, State, Visitor)>::type type;
-                
+
                 template<typename A, typename B, typename C>
                 static type call(A &&expr, B &&state, C &&visitor)
                 {
@@ -94,7 +94,7 @@ namespace boost { namespace proto
                     return f(expr, state, visitor);
                 }
             };
-            
+
             template<typename Fun, typename Expr, typename State, typename Visitor
               , int Arity = arity1<Fun, Expr>::value>
             struct call1
@@ -105,7 +105,7 @@ namespace boost { namespace proto
             struct call1<Fun, Expr, State, Visitor, 1>
             {
                 typedef typename boost::result_of<Fun(Expr)>::type type;
-                
+
                 template<typename A, typename B, typename C>
                 static type call(A &&expr, B &&, C &&)
                 {
@@ -124,7 +124,7 @@ namespace boost { namespace proto
             struct call2<Fun, Expr, State, Visitor, 2>
             {
                 typedef typename boost::result_of<Fun(Expr, State)>::type type;
-                
+
                 template<typename A, typename B, typename C>
                 static type call(A &&expr, B &&state, C &&)
                 {
@@ -133,7 +133,7 @@ namespace boost { namespace proto
                 }
             };
         }
-        
+
         template<typename Fun, typename... Args>
         struct call : transform_base
         {
@@ -155,7 +155,7 @@ namespace boost { namespace proto
                 return f(when<_, Args>()(expr, state, visitor)...);
             }
         };
-        
+
         template<typename Fun, typename Arg0>
         struct call<Fun, Arg0> : transform_base
         {
@@ -183,7 +183,7 @@ namespace boost { namespace proto
                 );
             }
         };
-        
+
         template<typename Fun, typename Arg0, typename Arg1>
         struct call<Fun, Arg0, Arg1> : transform_base
         {
@@ -211,7 +211,7 @@ namespace boost { namespace proto
                 );
             }
         };
-        
+
         template<typename Fun, typename Arg0, typename Arg1, typename Arg2>
         struct call<Fun, Arg0, Arg1, Arg2> : transform_base
         {

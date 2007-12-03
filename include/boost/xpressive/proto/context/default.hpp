@@ -243,7 +243,7 @@ namespace boost { namespace proto
         BOOST_PROTO_BINARY_OP_RESULT(^=, proto::tag::bitwise_xor_assign)
 
         template<typename Expr, typename Context>
-        
+
         struct default_eval<Expr, Context, proto::tag::terminal>
         {
             typedef

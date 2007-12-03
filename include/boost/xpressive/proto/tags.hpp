@@ -18,7 +18,7 @@ namespace boost { namespace proto
     {
 
         struct terminal {};
-        struct posit {};        
+        struct posit {};
         struct negate {};
         struct dereference {};
         struct complement {};

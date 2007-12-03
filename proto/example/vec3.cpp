@@ -43,21 +43,21 @@ struct Vec3SubscriptCtx
 };
 
 // Here is an evaluation context that counts the number
-// of Vec3 terminals in an expression. 
+// of Vec3 terminals in an expression.
 struct CountLeavesCtx
   : callable_context< CountLeavesCtx, null_context >
 {
     CountLeavesCtx()
       : count(0)
       {}
-      
+
       typedef void result_type;
-      
+
       void operator()(tag::terminal, int const(&)[3])
       {
           ++this->count;
       }
-      
+
       int count;
 };
 
@@ -132,7 +132,7 @@ int count_leaves(Expr const &expr)
     // CountLeavesCtx evaluation context.
     CountLeavesCtx ctx;
     eval(expr, ctx);
-    
+
     // This is another way to count the leaves using a transform.
     int i = 0;
     assert( CountLeaves()(expr, i, i) == ctx.count );

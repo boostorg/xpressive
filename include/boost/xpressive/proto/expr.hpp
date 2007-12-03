@@ -103,7 +103,7 @@ namespace boost { namespace proto
             }
 
             typedef
-                typename 
+                typename
                     exprns_::detail::address_of_hack<Tag, typename Args::cons_type::car_type>
                 ::type
             address_of_hack_type_;

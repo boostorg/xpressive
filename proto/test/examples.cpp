@@ -52,7 +52,7 @@ namespace test1
 //[ binary_arity
 /*<< The `CalculatorArity` is a transform for calculating
 the arity of a calculator expression. It will be define in
-terms of `binary_arity`, which is defined in terms of 
+terms of `binary_arity`, which is defined in terms of
 `CalculatorArity`; hence, the definition is recursive.>>*/
 struct CalculatorArity;
 
@@ -62,7 +62,7 @@ struct CalculatorArity;
 struct unary_arity
   /*<< Custom transforms should inherit from
   transform_base. In some cases, (e.g., when the transform
-  is a template), it is also necessary to specialize 
+  is a template), it is also necessary to specialize
   the proto::is_transform<> trait. >>*/
   : transform_base
 {
@@ -98,7 +98,7 @@ struct unary_arity
 struct binary_arity
   /*<< All custom transforms should inherit from
   transform_base. In some cases, (e.g., when the transform
-  is a template), it is also necessary to specialize 
+  is a template), it is also necessary to specialize
   the proto::is_transform<> trait. >>*/
   : transform_base
 {
@@ -225,12 +225,12 @@ struct FoldTreeToList
 // them to doubles.
 struct Promote
   : or_<
-        /*<< Match a `terminal<float>`, then construct a 
+        /*<< Match a `terminal<float>`, then construct a
         `terminal<double>::type` with the `float`. >>*/
         when<terminal<float>, terminal<double>::type(_arg) >
       , when<terminal<_> >
-      /*<< `nary_expr<>` has a pass-through transform which 
-      will transform each child sub-expression using the 
+      /*<< `nary_expr<>` has a pass-through transform which
+      will transform each child sub-expression using the
       `Promote` transform. >>*/
       , when<nary_expr<_, vararg<Promote> > >
     >
@@ -312,7 +312,7 @@ void test_examples()
     int j = 0; // not used, dummy state and visitor parameter
 
     std::pair<int, double> p2 = MakePair()( make_pair_(1, 3.14), j, j );
-    
+
     std::cout << p2.first << std::endl;
     std::cout << p2.second << std::endl;
     //]

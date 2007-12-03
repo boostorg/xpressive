@@ -248,7 +248,7 @@ namespace boost { namespace proto
             return result_of::make_expr<tag::if_else_, A, B, C>::call(a, b, c);
         }
     }
-    
+
     using exprns_::if_else;
 
 #define BOOST_PROTO_DEFINE_UNARY_OPERATOR(OP, TAG, TRAIT, DOMAIN, POST)                             \

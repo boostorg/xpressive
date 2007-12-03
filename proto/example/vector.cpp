@@ -124,7 +124,7 @@ struct VectorDomain
 {};
 
 // Here is VectorExpr, which extends a proto expr type by
-// giving it an operator[] which uses the VectorSubscriptCtx 
+// giving it an operator[] which uses the VectorSubscriptCtx
 // to evaluate an expression with a given index.
 template<typename Expr>
 struct VectorExpr

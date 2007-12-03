@@ -75,7 +75,7 @@ namespace boost { namespace proto
 
         Expr &expr_;
     };
-    
+
     namespace functional
     {
         struct flatten
@@ -204,7 +204,7 @@ namespace boost { namespace fusion
             template<typename Iterator>
             struct apply
             {
-                typedef 
+                typedef
                     typename proto::result_of::arg_c<
                         typename Iterator::expr_type
                       , Iterator::index
@@ -329,7 +329,7 @@ namespace boost { namespace fusion
             template<typename Sequence>
             struct apply
             {
-                typedef 
+                typedef
                     proto::detail::expr_iterator<
                         Sequence
                       , 0 == Sequence::proto_arity ? 1 : Sequence::proto_arity

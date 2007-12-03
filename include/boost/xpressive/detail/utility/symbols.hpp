@@ -74,9 +74,9 @@ namespace boost { namespace xpressive { namespace detail
 
     private:
         ///////////////////////////////////////////////////////////////////////////////
-        // struct node : a node in the TST. 
+        // struct node : a node in the TST.
         //     The "eq" field stores the result pointer when ch is zero.
-        // 
+        //
         struct node
             : boost::noncopyable
         {
@@ -124,7 +124,7 @@ namespace boost { namespace xpressive { namespace detail
 
         ///////////////////////////////////////////////////////////////////////////////
         // insert : insert a string into the TST
-        // 
+        //
         template<typename Trans>
         node* insert(node* p, key_iterator &begin, key_iterator end, result_type r, Trans trans) const
         {
@@ -167,7 +167,7 @@ namespace boost { namespace xpressive { namespace detail
         ///////////////////////////////////////////////////////////////////////////////
         // conditional rotation : the goal is to minimize the overall
         //     weighted path length of each binary search tree
-        // 
+        //
         bool cond_rotation(bool left, node* const i, node* const j) const
         {
             // don't rotate top node in binary search tree
@@ -200,7 +200,7 @@ namespace boost { namespace xpressive { namespace detail
 
         ///////////////////////////////////////////////////////////////////////////////
         // search : find a string in the TST
-        // 
+        //
         template<typename BidiIter, typename Trans>
         result_type search(BidiIter &begin, BidiIter end, Trans trans, node* p) const
         {
