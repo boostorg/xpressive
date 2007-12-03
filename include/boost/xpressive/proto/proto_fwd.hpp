@@ -327,32 +327,20 @@ namespace boost { namespace proto
     using control::N;
 
     template<typename T>
-    struct transform_category;
+    struct is_transform;
 
     template<typename T>
     struct is_aggregate;
 
     namespace transform
     {
-        // Transforms can be of these 3 types
-        struct no_transform
-        {};
-
-        struct raw_transform
+        struct transform_base
         {
-            typedef void proto_raw_transform_;
-        };
-
-        struct function_transform
-        {
-            typedef void proto_function_transform_;
+            typedef void proto_is_transform_;
         };
 
         template<typename Fun, typename... Args>
         struct call;
-
-        template<typename Trans, typename... Args>
-        struct apply;
 
         template<typename Sequence, typename State, typename Fun>
         struct fold;
@@ -420,9 +408,7 @@ namespace boost { namespace proto
     using transform::reverse_fold;
     using transform::fold_tree;
     using transform::reverse_fold_tree;
-    using transform::no_transform;
-    using transform::raw_transform;
-    using transform::function_transform;
+    using transform::transform_base;
 
     namespace context
     {

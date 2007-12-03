@@ -135,7 +135,7 @@ namespace boost { namespace proto
         }
         
         template<typename Fun, typename... Args>
-        struct call : raw_transform
+        struct call : transform_base
         {
             template<typename Sig>
             struct result;
@@ -157,7 +157,7 @@ namespace boost { namespace proto
         };
         
         template<typename Fun, typename Arg0>
-        struct call<Fun, Arg0> : raw_transform
+        struct call<Fun, Arg0> : transform_base
         {
             template<typename Sig>
             struct result;
@@ -185,7 +185,7 @@ namespace boost { namespace proto
         };
         
         template<typename Fun, typename Arg0, typename Arg1>
-        struct call<Fun, Arg0, Arg1> : raw_transform
+        struct call<Fun, Arg0, Arg1> : transform_base
         {
             template<typename Sig>
             struct result;
@@ -213,7 +213,7 @@ namespace boost { namespace proto
         };
         
         template<typename Fun, typename Arg0, typename Arg1, typename Arg2>
-        struct call<Fun, Arg0, Arg1, Arg2> : raw_transform
+        struct call<Fun, Arg0, Arg1, Arg2> : transform_base
         {
             template<typename Sig>
             struct result;
@@ -250,10 +250,9 @@ namespace boost { namespace proto
     }
 
     template<typename Fun, typename... Args>
-    struct transform_category<transform::call<Fun, Args...> >
-    {
-        typedef raw_transform type;
-    };
+    struct is_transform<transform::call<Fun, Args...> >
+      : mpl::true_
+    {};
 
 }}
 

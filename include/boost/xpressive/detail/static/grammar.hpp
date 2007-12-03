@@ -17,7 +17,6 @@
 #include <boost/mpl/bool.hpp>
 #include <boost/mpl/assert.hpp>
 #include <boost/mpl/eval_if.hpp>
-#include <boost/mpl/apply_wrap.hpp>
 #include <boost/mpl/next_prior.hpp>
 #include <boost/fusion/include/cons.hpp>
 #include <boost/xpressive/proto/proto.hpp>
@@ -143,7 +142,7 @@ namespace boost { namespace xpressive
           : mpl::true_
         {};
 
-        struct as_matcher : function_transform
+        struct as_matcher : transform_base
         {
             template<typename Sig>
             struct result;
@@ -161,7 +160,7 @@ namespace boost { namespace xpressive
             }
         };
 
-        struct get_width : function_transform
+        struct get_width : transform_base
         {
             typedef std::size_t result_type;
 
@@ -172,7 +171,7 @@ namespace boost { namespace xpressive
             }
         };
 
-        struct mark_number : function_transform
+        struct mark_number : transform_base
         {
             typedef int result_type;
 
@@ -183,7 +182,7 @@ namespace boost { namespace xpressive
             }
         };
 
-        struct get_hidden_mark : function_transform
+        struct get_hidden_mark : transform_base
         {
             typedef int result_type;
 
@@ -194,7 +193,7 @@ namespace boost { namespace xpressive
             }
         };
 
-        struct traits : function_transform
+        struct traits : transform_base
         {
             template<typename Sig>
             struct result;
@@ -213,7 +212,7 @@ namespace boost { namespace xpressive
             }
         };
 
-        struct newline : function_transform
+        struct newline : transform_base
         {
             template<typename Sig>
             struct result;
@@ -232,7 +231,7 @@ namespace boost { namespace xpressive
             }
         };
 
-        struct as_posix_charset : function_transform
+        struct as_posix_charset : transform_base
         {
             template<typename Sig>
             struct result;
@@ -271,7 +270,7 @@ namespace boost { namespace xpressive
 
         // Place a head and a tail in sequence, if it's not
         // already in sequence.
-        struct in_sequence : function_transform
+        struct in_sequence : transform_base
         {
             template<typename Sig>
             struct result;
@@ -339,7 +338,7 @@ namespace boost { namespace xpressive
             >
         {};
         
-        struct fill_list_set : function_transform
+        struct fill_list_set : transform_base
         {
             template<typename Sig>
             struct result;
@@ -379,7 +378,7 @@ namespace boost { namespace xpressive
             return const_cast<T &>(t);
         }
 
-        struct merge_charset : function_transform
+        struct merge_charset : transform_base
         {
             template<typename Sig>
             struct result;
@@ -429,7 +428,7 @@ namespace boost { namespace xpressive
             }
         };
 
-        struct invert : function_transform
+        struct invert : transform_base
         {
             template<typename Sig>
             struct result;
@@ -448,7 +447,7 @@ namespace boost { namespace xpressive
             }
         };
 
-        struct modify : function_transform
+        struct modify : transform_base
         {
             template<typename Sig>
             struct result;

@@ -44,7 +44,7 @@ namespace boost { namespace proto
 
         template<typename Sequence, typename State0, typename Fun>
         struct fold_tree
-          : raw_transform
+          : transform_base
         {
             template<typename Sig>
             struct result;
@@ -75,7 +75,7 @@ namespace boost { namespace proto
 
         template<typename Sequence, typename State0, typename Fun>
         struct reverse_fold_tree
-          : raw_transform
+          : transform_base
         {
             template<typename Sig>
             struct result;
@@ -106,28 +106,24 @@ namespace boost { namespace proto
     }
 
     template<typename Sequence, typename State0, typename Fun>
-    struct transform_category<transform::fold_tree<Sequence, State0, Fun> >
-    {
-        typedef raw_transform type;
-    };
+    struct is_transform<transform::fold_tree<Sequence, State0, Fun> >
+      : mpl::true_
+    {};
 
     template<typename Grammar, typename Fun>
-    struct transform_category<transform::detail::fold_tree_<Grammar, Fun> >
-    {
-        typedef raw_transform type;
-    };
+    struct is_transform<transform::detail::fold_tree_<Grammar, Fun> >
+      : mpl::true_
+    {};
 
     template<typename Sequence, typename State0, typename Fun>
-    struct transform_category<transform::reverse_fold_tree<Sequence, State0, Fun> >
-    {
-        typedef raw_transform type;
-    };
+    struct is_transform<transform::reverse_fold_tree<Sequence, State0, Fun> >
+      : mpl::true_
+    {};
 
     template<typename Grammar, typename Fun>
-    struct transform_category<transform::detail::reverse_fold_tree_<Grammar, Fun> >
-    {
-        typedef raw_transform type;
-    };
+    struct is_transform<transform::detail::reverse_fold_tree_<Grammar, Fun> >
+      : mpl::true_
+    {};
 
 }}
 

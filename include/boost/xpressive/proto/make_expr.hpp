@@ -13,7 +13,6 @@
 #include <boost/version.hpp>
 #include <boost/ref.hpp>
 #include <boost/mpl/if.hpp>
-#include <boost/mpl/apply_wrap.hpp>
 #include <boost/utility/enable_if.hpp>
 #include <boost/type_traits/is_same.hpp>
 #include <boost/type_traits/add_reference.hpp>
@@ -576,22 +575,19 @@ namespace boost { namespace proto
 
 
     template<typename Tag, typename Domain>
-    struct transform_category<functional::make_expr<Tag, Domain> >
-    {
-        typedef function_transform type;
-    };
+    struct is_transform<functional::make_expr<Tag, Domain> >
+      : mpl::true_
+    {};
 
     template<typename Tag, typename Domain>
-    struct transform_category<functional::unpack_expr<Tag, Domain> >
-    {
-        typedef function_transform type;
-    };
+    struct is_transform<functional::unpack_expr<Tag, Domain> >
+      : mpl::true_
+    {};
 
     template<typename Tag, typename Domain>
-    struct transform_category<functional::unfused_expr<Tag, Domain> >
-    {
-        typedef function_transform type;
-    };
+    struct is_transform<functional::unfused_expr<Tag, Domain> >
+      : mpl::true_
+    {};
 
 }}
 

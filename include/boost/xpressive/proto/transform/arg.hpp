@@ -18,7 +18,7 @@ namespace boost { namespace proto
     namespace transform
     {
 
-        struct _expr : raw_transform
+        struct _expr : transform_base
         {
             template<typename Sig>
             struct result;
@@ -37,7 +37,7 @@ namespace boost { namespace proto
             }
         };
 
-        struct _state : raw_transform
+        struct _state : transform_base
         {
             template<typename Sig>
             struct result;
@@ -56,7 +56,7 @@ namespace boost { namespace proto
             }
         };
 
-        struct _visitor : raw_transform
+        struct _visitor : transform_base
         {
             template<typename Sig>
             struct result;
@@ -76,7 +76,7 @@ namespace boost { namespace proto
         };
 
         template<int I>
-        struct _arg_c : raw_transform
+        struct _arg_c : transform_base
         {
             template<typename Sig>
             struct result;
@@ -110,7 +110,7 @@ namespace boost { namespace proto
         typedef _arg1 _right;
 
         template<typename T>
-        struct always : raw_transform
+        struct always : transform_base
         {
             template<typename Sig>
             struct result;
@@ -130,16 +130,14 @@ namespace boost { namespace proto
     }
 
     template<typename T>
-    struct transform_category<transform::always<T> >
-    {
-        typedef raw_transform type;
-    };
+    struct is_transform<transform::always<T> >
+      : mpl::true_
+    {};
 
     template<int I>
-    struct transform_category<transform::_arg_c<I> >
-    {
-        typedef raw_transform type;
-    };
+    struct is_transform<transform::_arg_c<I> >
+      : mpl::true_
+    {};
 
 }}
 

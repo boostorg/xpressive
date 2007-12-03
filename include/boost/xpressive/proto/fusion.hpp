@@ -135,22 +135,19 @@ namespace boost { namespace proto
     }
 
     template<>
-    struct transform_category<functional::flatten>
-    {
-        typedef function_transform type;
-    };
+    struct is_transform<functional::flatten>
+      : mpl::true_
+    {};
 
     template<>
-    struct transform_category<functional::pop_front>
-    {
-        typedef function_transform type;
-    };
+    struct is_transform<functional::pop_front>
+      : mpl::true_
+    {};
 
     template<>
-    struct transform_category<functional::reverse>
-    {
-        typedef function_transform type;
-    };
+    struct is_transform<functional::reverse>
+      : mpl::true_
+    {};
 
     functional::flatten const flatten = {};
 

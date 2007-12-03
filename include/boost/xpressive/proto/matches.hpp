@@ -16,7 +16,6 @@
 #include <boost/mpl/assert.hpp>
 #include <boost/mpl/identity.hpp>
 #include <boost/mpl/eval_if.hpp>
-#include <boost/mpl/apply_wrap.hpp>
 #include <boost/type_traits.hpp>
 #include <boost/xpressive/proto/proto_fwd.hpp>
 #include <boost/xpressive/proto/transform/arg.hpp>
@@ -429,7 +428,7 @@ namespace boost { namespace proto
         } // namespace detail
 
         template<typename... Alts>
-        struct or_ : raw_transform
+        struct or_ : transform_base
         {
             typedef or_ proto_base_expr;
 
@@ -461,7 +460,7 @@ namespace boost { namespace proto
 
         // if_
         template<typename If, typename Then, typename Else>
-        struct if_ : raw_transform
+        struct if_ : transform_base
         {
             typedef if_ proto_base_expr;
 
@@ -500,7 +499,7 @@ namespace boost { namespace proto
         };
 
         template<typename Cases>
-        struct switch_ : raw_transform
+        struct switch_ : transform_base
         {
             typedef switch_ proto_base_expr;
 
@@ -539,40 +538,34 @@ namespace boost { namespace proto
     }
 
     template<typename... Args>
-    struct transform_category<or_<Args...> >
-    {
-        typedef raw_transform type;
-    };
+    struct is_transform<or_<Args...> >
+      : mpl::true_
+    {};
 
     template<typename... Args>
-    struct transform_category<and_<Args...> >
-    {
-        typedef raw_transform type;
-    };
+    struct is_transform<and_<Args...> >
+      : mpl::true_
+    {};
 
     template<typename Grammar>
-    struct transform_category<not_<Grammar> >
-    {
-        typedef raw_transform type;
-    };
+    struct is_transform<not_<Grammar> >
+      : mpl::true_
+    {};
 
     template<typename If, typename Then, typename Else>
-    struct transform_category<if_<If, Then, Else> >
-    {
-        typedef raw_transform type;
-    };
+    struct is_transform<if_<If, Then, Else> >
+      : mpl::true_
+    {};
 
     template<typename Grammar>
-    struct transform_category<vararg<Grammar> >
-    {
-        typedef raw_transform type;
-    };
+    struct is_transform<vararg<Grammar> >
+      : mpl::true_
+    {};
 
     template<>
-    struct transform_category<_>
-    {
-        typedef raw_transform type;
-    };
+    struct is_transform<_>
+      : mpl::true_
+    {};
 
 }}
 

@@ -58,7 +58,7 @@ namespace boost { namespace proto
                 Visitor &v_;
             };
 
-            struct reverse : function_transform
+            struct reverse : transform_base
             {
                 template<typename Sig> struct result;
 
@@ -78,7 +78,7 @@ namespace boost { namespace proto
         } // namespace detail
 
         template<typename Sequence, typename State0, typename Fun>
-        struct fold : raw_transform
+        struct fold : transform_base
         {
             template<typename Sig>
             struct result;
@@ -113,16 +113,14 @@ namespace boost { namespace proto
     }
 
     template<typename Sequence, typename State, typename Fun>
-    struct transform_category<transform::fold<Sequence, State, Fun> >
-    {
-        typedef raw_transform type;
-    };
+    struct is_transform<transform::fold<Sequence, State, Fun> >
+      : mpl::true_
+    {};
 
     template<typename Sequence, typename State, typename Fun>
-    struct transform_category<transform::reverse_fold<Sequence, State, Fun> >
-    {
-        typedef raw_transform type;
-    };
+    struct is_transform<transform::reverse_fold<Sequence, State, Fun> >
+      : mpl::true_
+    {};
 
 }}
 

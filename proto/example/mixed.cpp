@@ -39,7 +39,7 @@ struct iterator_wrapper
     Iter it;
 };
 
-struct begin : proto::function_transform
+struct begin : proto::transform_base
 {
     template<class Sig> struct result;
     template<class This, class Cont>

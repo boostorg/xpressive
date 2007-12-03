@@ -62,7 +62,7 @@ struct CountLeavesCtx
 };
 
 struct one : mpl::int_<1> {};
-struct iplus : std::plus<int>, function_transform {};
+struct iplus : std::plus<int>, transform_base {};
 
 // Here is a transform that does the same thing as the above context.
 // It demonstrates the use of the std::plus<> function object

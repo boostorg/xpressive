@@ -34,46 +34,36 @@ namespace boost { namespace proto
     namespace detail
     {
         template<typename T, typename EnableIf = void>
-        struct transform_category2_
-        {
-            typedef no_transform type;
-        };
+        struct is_transform2_
+          : mpl::false_
+        {};
 
         template<typename T>
-        struct transform_category2_<T, typename T::proto_raw_transform_>
-        {
-            typedef raw_transform type;
-        };
+        struct is_transform2_<T, typename T::proto_is_transform_>
+          : mpl::true_
+        {};
 
         template<typename T>
-        struct transform_category2_<T, typename T::proto_function_transform_>
-        {
-            typedef function_transform type;
-        };
-
-        template<typename T>
-        struct transform_category_
-          : transform_category2_<T>
+        struct is_transform_
+          : is_transform2_<T>
         {};
 
         template<template<typename...> class T, typename... Args>
-        struct transform_category_<T<Args...> >
-        {
-            typedef no_transform type;
-        };
+        struct is_transform_<T<Args...> >
+          : mpl::false_
+        {};
     }
 
     template<typename T>
-    struct transform_category
-      : proto::detail::transform_category_<T>
+    struct is_transform
+      : proto::detail::is_transform_<T>
     {};
 
     // work around GCC bug
     template<typename Tag, typename Args, long N>
-    struct transform_category<expr<Tag, Args, N> >
-    {
-        typedef no_transform type;
-    };
+    struct is_transform<expr<Tag, Args, N> >
+      : mpl::false_
+    {};
 
     namespace transform
     {
@@ -110,7 +100,7 @@ namespace boost { namespace proto
             };
 
             template<typename R, typename Expr, typename State, typename Visitor
-                , typename Category = typename transform_category<R>::type
+                , bool IsTransform = is_transform<R>::value
             >
             struct apply_lambda_;
 
@@ -130,28 +120,28 @@ namespace boost { namespace proto
             {};
 
             template<typename R, typename Expr, typename State, typename Visitor>
-            struct apply_lambda_<R, Expr, State, Visitor, no_transform>
+            struct apply_lambda_<R, Expr, State, Visitor, false>
               : apply_lambda_aux_<R, Expr, State, Visitor>
             {};
 
             template<typename R, typename Expr, typename State, typename Visitor>
-            struct apply_lambda_<R, Expr, State, Visitor, raw_transform>
+            struct apply_lambda_<R, Expr, State, Visitor, true>
               : boost::result_of<R(Expr, State, Visitor)>
             {};
 
             template<typename R, typename... Args, typename Expr, typename State, typename Visitor>
-            struct apply_lambda_<R(Args...), Expr, State, Visitor, no_transform>
+            struct apply_lambda_<R(Args...), Expr, State, Visitor, false>
               : boost::result_of<when<_, R(Args...)>(Expr, State, Visitor)>
             {};
 
             template<typename R, typename... Args, typename Expr, typename State, typename Visitor>
-            struct apply_lambda_<R(*)(Args...), Expr, State, Visitor, no_transform>
+            struct apply_lambda_<R(*)(Args...), Expr, State, Visitor, false>
               : boost::result_of<when<_, R(*)(Args...)>(Expr, State, Visitor)>
             {};
 
             // work around GCC bug
             template<typename Tag, typename Args, long N, typename Expr, typename State, typename Visitor>
-            struct apply_lambda_<expr<Tag, Args, N>, Expr, State, Visitor, no_transform>
+            struct apply_lambda_<expr<Tag, Args, N>, Expr, State, Visitor, false>
             {
                 typedef expr<Tag, Args, N> type;
                 typedef void not_applied_;
@@ -182,7 +172,7 @@ namespace boost { namespace proto
                 typename Expr
               , typename State
               , typename Visitor
-              , typename TransformCategory
+              , bool IsTransform
               , typename Return
               , typename... Args
             >
@@ -192,32 +182,30 @@ namespace boost { namespace proto
 
                 // If the result of applying the lambda on the return type is a transform,
                 // apply the transform rather than trying to construct it.
-                typedef typename proto::detail::transform_category2_<lambda_type>::type lambda_category;
-
                 typedef
                     typename mpl::eval_if<
-                        is_same<no_transform, lambda_category>
+                        proto::detail::is_transform2_<lambda_type>
+                      , apply<Expr, State, Visitor, true, lambda_type, Args...>
                       , mpl::identity<lambda_type>
-                      , apply<Expr, State, Visitor, lambda_category, lambda_type, Args...>
                     >::type
                 type;
 
                 static type call(Expr const &expr, State const &state, Visitor &visitor)
                 {
-                    return apply::call_(expr, state, visitor, is_same<no_transform, lambda_category>());
+                    return apply::call_(expr, state, visitor, proto::detail::is_transform2_<lambda_type>());
                 }
 
             private:
-                static type call_(Expr const &expr, State const &state, Visitor &visitor, mpl::true_)
+                static type call_(Expr const &expr, State const &state, Visitor &visitor, mpl::false_)
                 {
                     return detail::construct_<type>(
                         when<_, Args>()(expr, state, visitor)...
                     );
                 }
 
-                static type call_(Expr const &expr, State const &state, Visitor &visitor, mpl::false_)
+                static type call_(Expr const &expr, State const &state, Visitor &visitor, mpl::true_)
                 {
-                    return apply<Expr, State, Visitor, lambda_category, lambda_type, Args...>::call(expr, state, visitor);
+                    return apply<Expr, State, Visitor, true, lambda_type, Args...>::call(expr, state, visitor);
                 }
             };
 
@@ -228,26 +216,7 @@ namespace boost { namespace proto
               , typename Return
               , typename... Args
             >
-            struct apply<Expr, State, Visitor, function_transform, Return, Args...>
-            {
-                typedef typename boost::result_of<
-                    transform::call<Return, Args...>(Expr, State, Visitor)
-                >::type type;
-
-                static type call(Expr const &expr, State const &state, Visitor &visitor)
-                {
-                    return transform::call<Return, Args...>()(expr, state, visitor);
-                }
-            };
-
-            template<
-                typename Expr
-              , typename State
-              , typename Visitor
-              , typename Return
-              , typename... Args
-            >
-            struct apply<Expr, State, Visitor, raw_transform, Return, Args...>
+            struct apply<Expr, State, Visitor, true, Return, Args...>
             {
                 typedef typename boost::result_of<
                     transform::call<Return, Args...>(Expr, State, Visitor)
@@ -275,7 +244,7 @@ namespace boost { namespace proto
         // (possibly lambda) type and constructor arguments.
         template<typename Grammar, typename Return, typename... Args>
         struct when<Grammar, Return(Args...)>
-          : raw_transform
+          : transform_base
         {
             typedef typename Grammar::proto_base_expr proto_base_expr;
 
@@ -284,7 +253,7 @@ namespace boost { namespace proto
 
             template<typename This, typename Expr, typename State, typename Visitor>
             struct result<This(Expr, State, Visitor)>
-              : detail::apply<Expr, State, Visitor, typename transform_category<Return>::type, Return, Args...>
+              : detail::apply<Expr, State, Visitor, is_transform<Return>::value, Return, Args...>
             {};
 
             // BUGBUG makes a temporary
@@ -298,7 +267,7 @@ namespace boost { namespace proto
 
         template<typename Grammar, typename Return, typename... Args>
         struct when<Grammar, Return(*)(Args...)>
-          : raw_transform
+          : transform_base
         {
             typedef typename Grammar::proto_base_expr proto_base_expr;
 
@@ -307,7 +276,7 @@ namespace boost { namespace proto
 
             template<typename This, typename Expr, typename State, typename Visitor>
             struct result<This(Expr, State, Visitor)>
-              : detail::apply<Expr, State, Visitor, typename transform_category<Return>::type, Return, Args...>
+              : detail::apply<Expr, State, Visitor, is_transform<Return>::value, Return, Args...>
             {};
 
             template<typename Expr, typename State, typename Visitor>

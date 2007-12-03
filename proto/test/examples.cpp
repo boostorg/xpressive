@@ -61,10 +61,10 @@ struct CalculatorArity;
 // child expression.
 struct unary_arity
   /*<< Custom transforms should inherit from
-  raw_transform. In some cases, (e.g., when the transform
+  transform_base. In some cases, (e.g., when the transform
   is a template), it is also necessary to specialize 
-  the proto::transform_category<> trait. >>*/
-  : raw_transform
+  the proto::is_transform<> trait. >>*/
+  : transform_base
 {
     template<typename Sig>
     struct result;
@@ -100,7 +100,7 @@ struct binary_arity
   transform_base. In some cases, (e.g., when the transform
   is a template), it is also necessary to specialize 
   the proto::is_transform<> trait. >>*/
-  : raw_transform
+  : transform_base
 {
     template<typename Sig>
     struct result;
