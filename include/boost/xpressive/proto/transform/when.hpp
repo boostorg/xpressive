@@ -66,6 +66,11 @@ namespace boost { namespace proto { namespace transform
         }
     };
 
+    template<typename Fun>
+    struct otherwise
+      : when<_, Fun>
+    {};
+
 }}} // namespace boost::proto::transform
 
 #endif

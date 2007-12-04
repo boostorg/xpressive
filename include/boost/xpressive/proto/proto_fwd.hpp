@@ -343,6 +343,9 @@ namespace boost { namespace proto
         template<typename Grammar, typename Fun = Grammar>
         struct when;
 
+        template<typename Fun>
+        struct otherwise;
+
         template<typename Fun, typename... Args>
         struct call;
 
@@ -392,6 +395,7 @@ namespace boost { namespace proto
     }
 
     using transform::when;
+    using transform::otherwise;
     using transform::_arg0;
     using transform::_arg1;
     using transform::_arg2;

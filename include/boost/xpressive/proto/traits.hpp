@@ -275,41 +275,58 @@ namespace boost { namespace proto
 
         namespace detail
         {
-            // TODO unroll this loop with a few extra specializations
-            template<typename Head, typename... Tail, long N>
-            struct arg_c<argsns_::cons<Head, Tail...>, N>
+            template<typename Cons, long N>
+            struct arg_c
             {
-                typedef arg_c<argsns_::cons<Tail...>, N-1> base_type;
+                typedef arg_c<typename Cons::cdr_type::cdr_type, N-2> base_type;
                 typedef typename base_type::type type;
                 typedef typename base_type::reference reference;
                 typedef typename base_type::const_reference const_reference;
 
-                static reference call(argsns_::cons<Head, Tail...> &args)
+                static reference call(Cons &args)
                 {
-                    return base_type::call(args.cdr);
+                    return base_type::call(args.cdr.cdr);
                 }
 
-                static const_reference call(argsns_::cons<Head, Tail...> const &args)
+                static const_reference call(Cons const &args)
                 {
-                    return base_type::call(args.cdr);
+                    return base_type::call(args.cdr.cdr);
                 }
             };
 
-            template<typename Head, typename... Tail>
-            struct arg_c<argsns_::cons<Head, Tail...>, 0>
+            template<typename Cons>
+            struct arg_c<Cons, 0>
             {
-                typedef UNCVREF(Head) type;
-                typedef REF(Head) reference;
-                typedef CVREF(Head) const_reference;
+                typedef UNCVREF(typename Cons::car_type) type;
+                typedef REF(typename Cons::car_type) reference;
+                typedef CVREF(typename Cons::car_type) const_reference;
 
-                static reference call(argsns_::cons<Head, Tail...> &args)
+                static reference call(Cons &args)
                 {
                     return args.car;
                 }
 
-                static const_reference call(argsns_::cons<Head, Tail...> const &args)
+                static const_reference call(Cons const &args)
                 {
                     return args.car;
+                }
+            };
+
+            template<typename Cons>
+            struct arg_c<Cons, 1>
+            {
+                typedef UNCVREF(typename Cons::cdr_type::car_type) type;
+                typedef REF(typename Cons::cdr_type::car_type) reference;
+                typedef CVREF(typename Cons::cdr_type::car_type) const_reference;
+
+                static reference call(Cons &args)
+                {
+                    return args.cdr.car;
+                }
+
+                static const_reference call(Cons const &args)
+                {
+                    return args.cdr.car;
                 }
             };
 

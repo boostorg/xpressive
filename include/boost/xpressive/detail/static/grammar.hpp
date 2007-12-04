@@ -475,6 +475,17 @@ namespace boost { namespace xpressive
               : assign<terminal<mark_placeholder>, _>
             {};
 
+            struct MarkedSubExprEx
+              : or_<
+                    assign<terminal<mark_placeholder>, _>
+                  , shift_right<terminal<mark_begin_matcher>, _>
+                  , shift_right<
+                        terminal<repeat_begin_matcher>
+                      , shift_right<shift_right<terminal<mark_begin_matcher>, _>, _>
+                    >
+                >
+            {};
+
             struct GenericQuant
               : and_<
                     if_<is_generic_quant_tag<tag_of<_> >()>
@@ -516,10 +527,9 @@ namespace boost { namespace xpressive
             {};
 
             struct add_hidden_mark
-              : if_<
-                    matches<_, MarkedSubExpr>()
-                  , _
-                  , _make_assign(mark_placeholder(get_hidden_mark(_visitor)), _)
+              : or_<
+                    when<MarkedSubExpr, _>
+                  , otherwise<_make_assign(mark_placeholder(get_hidden_mark(_visitor)), _)>
                 >
             {};
 
@@ -549,8 +559,8 @@ namespace boost { namespace xpressive
             struct as_default_repeat_impl<Greedy, Tag, 0, Max>
               : if_<
                     Greedy()
-                  , _make_negate(_make_logical_not(as_default_repeat_impl<Greedy, generic_quant_tag<1, Max> >))
                   , _make_logical_not(as_default_repeat_impl<Greedy, generic_quant_tag<1, Max> >)
+                  , _make_negate(_make_logical_not(as_default_repeat_impl<Greedy, generic_quant_tag<1, Max> >))
                 >
             {};
 
@@ -558,8 +568,8 @@ namespace boost { namespace xpressive
             struct as_default_repeat_impl<Greedy, Tag, 0, 1>
               : if_<
                     Greedy()
-                  , _make_negate(_make_logical_not(_arg))
                   , _make_logical_not(_arg)
+                  , _make_negate(_make_logical_not(_arg))
                 >
             {};
 
@@ -591,10 +601,15 @@ namespace boost { namespace xpressive
 
             template<typename Greedy, typename Base = transform_base>
             struct as_optional
-              : if_<
-                    matches<_, MarkedSubExpr>()
-                  , optional_mark_matcher<as_alternate, Greedy>(as_alternate, mark_number(_arg(_left)))
-                  , optional_matcher<as_alternate, Greedy>(as_alternate)
+                // BUGBUG if_< matches<_, Foo>() ... Foo can be treated as a transform!
+              : or_<
+                    when<
+                        MarkedSubExprEx
+                      , optional_mark_matcher<as_alternate, Greedy>(as_alternate, mark_number(_arg(_left)))
+                    >
+                  , otherwise<
+                        optional_matcher<as_alternate, Greedy>(as_alternate)
+                    >
                 >
             {};
 
@@ -675,7 +690,7 @@ namespace boost { namespace xpressive
             template<typename Dummy>
             struct case_<tag::logical_not, Dummy>
                 // !_
-              : when<logical_not<Gram>, as_optional<greedy_t> (_arg)>
+              : when<logical_not<Gram>, as_optional<greedy_t>(_arg)>
             {};
 
             template<typename Dummy>
@@ -784,6 +799,11 @@ namespace boost { namespace xpressive
                           , true_()
                         )
                     >
+                    // ~set[~alpha]
+                  , when<
+                        complement<subscript<terminal<set_initializer>, complement<terminal<_> > > >
+                      , as_matcher(_arg(_arg(_right(_arg))), _visitor)
+                    >
                     // ~set['a'] or ~(set='a')
                   , when<
                         or_<
@@ -815,6 +835,11 @@ namespace boost { namespace xpressive
                   , when<
                         subscript<terminal<set_initializer>, terminal<_> >
                       , as_matcher(_arg(_right), _visitor)
+                    >
+                    // set[~alpha]
+                  , when<
+                        subscript<terminal<set_initializer>, complement<terminal<_> > >
+                      , as_regex(_right)
                     >
                 >
             {};
