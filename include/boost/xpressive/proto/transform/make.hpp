@@ -146,7 +146,7 @@ namespace boost { namespace proto
 
         // work around gcc bug
         template<typename T, typename A, long N, typename... Args>
-        struct make<expr<T, A, N>, Args... > : transform_base
+        struct make<expr<T, A, N>, Args...> : transform_base
         {
             template<typename Sig>
             struct result

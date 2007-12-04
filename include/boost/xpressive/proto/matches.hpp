@@ -372,6 +372,11 @@ namespace boost { namespace proto
                 >::type
             {};
 
+            template<typename Expr, typename If>
+            struct matches_<Expr, proto::if_<If> >
+              : boost::result_of<when<_, If>(Expr, mpl::void_, mpl::void_)>::type
+            {};
+
             // handle proto::not_
             template<typename Expr, typename Grammar>
             struct matches_<Expr, proto::not_<Grammar> >

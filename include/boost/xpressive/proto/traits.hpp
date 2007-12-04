@@ -37,71 +37,75 @@ namespace boost { namespace proto
 
         namespace detail
         {
+            using argsns_::cons;
 
-            template<typename Args, int N, typename Result = args<>, bool Done = (N == 0) >
-            struct resize;
-
-            template<typename Head, typename... Tail, int N, typename... Result>
-            struct resize<args<Head, Tail...>, N, args<Result...>, false>
-              : resize<args<Tail...>, N-1, args<Result..., Head> >
-            {};
-
-            template<typename... Args, typename... Result>
-            struct resize<args<Args...>, 0, args<Result...>, true>
-            {
-                typedef args<Result...> type;
-            };
-
-            template<int... I>
-            struct indices
-            {};
-
-            template<int N, int... I>
-            struct make_indices<N, indices<I...> >
-              : make_indices<N-1, indices<N-1, I...> >
-            {};
-
-            template<int... I>
-            struct make_indices<0, indices<I...> >
-            {
-                typedef indices<I...> type;
-            };
-
-            template<typename G, typename E, typename S, typename V
-                , long GN = G::size, long EN = E::size, bool B = (GN > EN)>
+            template<typename G, typename E, typename S, typename V>
             struct apply_args;
 
-            template<typename... G, typename... E, typename S, typename V, long GN, long EN>
-            struct apply_args<args<G...>, args<E...>, S, V, GN, EN, false>
-              : apply_args<args<G..., typename back<args<G...> >::type>, args<E...>, S, V>
-            {};
-
-            template<typename... G, typename... E, typename S, typename V, long GN, long EN>
-            struct apply_args<args<G...>, args<E...>, S, V, GN, EN, true>
-              : apply_args<typename resize<args<G...>, EN>::type, args<E...>, S, V>
-            {};
-
-            template<typename... G, typename... E, typename S, typename V, long N>
-            struct apply_args<args<G...>, args<E...>, S, V, N, N, false>
+            template<typename G, typename E, typename S, typename V>
+            struct apply_args<args<G>, args<E>, S, V>
             {
                 typedef args<
-                    typename boost::result_of<G(UNCVREF(E), S, V)>::type...
+                    typename boost::result_of<G(UNCVREF(E), S, V)>::type
                 > type;
 
                 static typename type::cons_type
-                call(argsns_::cons<E...> const &a, S const &s, V &v)
+                call(cons<E> const &a, S const &s, V &v)
                 {
-                    return apply_args::call_(a, s, v, typename make_indices<sizeof...(E)>::type());
+                    typename type::cons_type that = {G()(a.car, s, v)};
+                    return that;
                 }
+            };
 
-                template<int... I>
+            template<typename G1, typename... G2, typename E1, typename... E2, typename S, typename V>
+            struct apply_args<args<G1, G2...>, args<E1, E2...>, S, V>
+            {
+                typedef args<
+                    typename boost::result_of<G1(UNCVREF(E1), S, V)>::type
+                  , typename boost::result_of<G2(UNCVREF(E2), S, V)>::type...
+                > type;
+
                 static typename type::cons_type
-                call_(argsns_::cons<E...> const &a, S const &s, V &v, indices<I...>)
+                call(cons<E1, E2...> const &a, S const &s, V &v)
                 {
-                    using result_of::detail::arg_c;
                     typename type::cons_type that = {
-                        G()(arg_c<argsns_::cons<E...>, I>::call(a), s, v)...
+                        G1()(a.car, s, v)
+                      , apply_args<args<G2...>, args<E2...>, S, V>::call(a.cdr, s, v)
                     };
+                    return that;
+                }
+            };
+
+            template<typename G, typename E1, typename... E2, typename S, typename V>
+            struct apply_args<args<G>, args<E1, E2...>, S, V>
+            {
+                typedef args<
+                    typename boost::result_of<G(UNCVREF(E1), S, V)>::type
+                  , typename boost::result_of<G(UNCVREF(E2), S, V)>::type...
+                > type;
+
+                static typename type::cons_type
+                call(cons<E1, E2...> const &a, S const &s, V &v)
+                {
+                    typename type::cons_type that = {
+                        G()(a.car, s, v)
+                      , apply_args<args<G>, args<E2...>, S, V>::call(a.cdr, s, v)
+                    };
+                    return that;
+                }
+            };
+
+            template<typename G1, typename... G2, typename E, typename S, typename V>
+            struct apply_args<args<G1, G2...>, args<E>, S, V>
+            {
+                typedef args<
+                    typename boost::result_of<G1(UNCVREF(E), S, V)>::type
+                > type;
+
+                static typename type::cons_type
+                call(cons<E> const &a, S const &s, V &v)
+                {
+                    typename type::cons_type that = {G1()(a.car, s, v)};
                     return that;
                 }
             };

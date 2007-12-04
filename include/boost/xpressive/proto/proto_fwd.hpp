@@ -17,6 +17,15 @@
 
 namespace boost { namespace proto
 {
+    namespace detail
+    {
+        template<int... I>
+        struct indices;
+
+        template<int N, typename T = indices<> >
+        struct make_indices;
+    }
+
     namespace wildns_
     {
         struct _;
@@ -223,11 +232,6 @@ namespace boost { namespace proto
         // BUGBUG move this elsewhere
         namespace detail
         {
-            template<int... I>
-            struct indices;
-
-            template<int N, typename T = indices<> >
-            struct make_indices;
         }
 
         template<typename T> struct terminal;
@@ -439,7 +443,7 @@ namespace boost { namespace proto
         struct callable_context;
 
         template<typename Expr, typename Context,
-            typename Indices = typename op::detail::make_indices<
+            typename Indices = typename proto::detail::make_indices<
                 Expr::proto_arity == 0 ? 1 : Expr::proto_arity
             >::type
         >

@@ -20,6 +20,7 @@
 #include <boost/type_traits.hpp>
 #include <boost/xpressive/proto/proto_fwd.hpp>
 #include <boost/xpressive/proto/traits.hpp> // for arg_c
+#include <boost/xpressive/proto/detail/indices.hpp>
 #include <boost/xpressive/proto/detail/dont_care.hpp>
 
 namespace boost { namespace proto
@@ -72,7 +73,7 @@ namespace boost { namespace proto
         struct is_expr_handled_aux_;
 
         template<typename Expr, typename Context, typename... Args, int... Indices>
-        struct is_expr_handled_aux_<Expr, Context, args<Args...>, op::detail::indices<Indices...> >
+        struct is_expr_handled_aux_<Expr, Context, args<Args...>, proto::detail::indices<Indices...> >
         {
             typedef typename make_dont_care<sizeof...(Args)>::type DontCare;
 
@@ -96,12 +97,17 @@ namespace boost { namespace proto
 
         template<typename Expr, typename Context, typename... Args>
         struct is_expr_handled<Expr, Context, args<Args...> >
-          : is_expr_handled_aux_<Expr, Context, args<Args...>, typename op::detail::make_indices<sizeof...(Args)>::type >
+          : is_expr_handled_aux_<
+                Expr
+              , Context
+              , args<Args...>
+              , typename proto::detail::make_indices<sizeof...(Args)>::type
+            >
         {};
 
         template<typename Expr, typename Context, typename T>
         struct is_expr_handled<Expr, Context, term<T> >
-          : is_expr_handled_aux_<Expr, Context, args<T>, op::detail::indices<0> >
+          : is_expr_handled_aux_<Expr, Context, args<T>, proto::detail::indices<0> >
         {};
 
     }
@@ -132,7 +138,7 @@ namespace boost { namespace proto
         };
 
         template<typename Expr, typename Context, int... Indices>
-        struct callable_eval<Expr, Context, op::detail::indices<Indices...> >
+        struct callable_eval<Expr, Context, proto::detail::indices<Indices...> >
         {
             typedef
                 typename boost::result_of<

@@ -21,6 +21,7 @@
 #include <boost/xpressive/proto/tags.hpp>
 #include <boost/xpressive/proto/eval.hpp>
 #include <boost/xpressive/proto/traits.hpp> // for proto::arg_c()
+#include <boost/xpressive/proto/detail/indices.hpp>
 
 // If we're generating doxygen documentation, hide all the nasty
 // Boost.Typeof gunk.
@@ -127,7 +128,7 @@ namespace boost { namespace proto
         struct default_eval_function_;
 
         template<typename Expr, typename Context, int Zero, int... Indices>
-        struct default_eval_function_<Expr, Context, op::detail::indices<Zero, Indices...> >
+        struct default_eval_function_<Expr, Context, proto::detail::indices<Zero, Indices...> >
         {
             typedef
                 typename proto::detail::result_of_fixup<
@@ -346,7 +347,7 @@ namespace boost { namespace proto
           : proto::detail::default_eval_function_<
                 Expr
               , Context
-              , typename op::detail::make_indices<Expr::proto_arity>::type
+              , typename proto::detail::make_indices<Expr::proto_arity>::type
             >
         {};
 

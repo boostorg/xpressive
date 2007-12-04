@@ -39,7 +39,6 @@ namespace boost { namespace proto
                   , when<_, Fun>
                 >
             {};
-
         }
 
         template<typename Sequence, typename State0, typename Fun>
@@ -124,7 +123,6 @@ namespace boost { namespace proto
     struct is_transform<transform::detail::reverse_fold_tree_<Grammar, Fun> >
       : mpl::true_
     {};
-
 }}
 
 #endif
