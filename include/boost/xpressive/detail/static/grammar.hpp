@@ -17,6 +17,7 @@
 #include <boost/mpl/bool.hpp>
 #include <boost/mpl/assert.hpp>
 #include <boost/mpl/eval_if.hpp>
+#include <boost/mpl/min_max.hpp>
 #include <boost/mpl/next_prior.hpp>
 #include <boost/fusion/include/cons.hpp>
 #include <boost/xpressive/proto/proto.hpp>
@@ -57,6 +58,9 @@ namespace boost { namespace xpressive
 {
     template<typename Char>
     struct Grammar;
+
+    template<typename Char>
+    struct ActionableGrammar;
 
     namespace detail
     {
@@ -131,6 +135,21 @@ namespace boost { namespace xpressive
         using namespace proto;
         using namespace transform;
         using namespace xpressive::detail;
+
+        struct MarkedSubExpr
+          : assign<terminal<mark_placeholder>, _>
+        {};
+
+        struct MarkedSubExprEx
+          : or_<
+                assign<terminal<mark_placeholder>, _>
+              , shift_right<terminal<mark_begin_matcher>, _>
+              , shift_right<
+                    terminal<repeat_begin_matcher>
+                  , shift_right<shift_right<terminal<mark_begin_matcher>, _>, _>
+                >
+            >
+        {};
 
         template<typename Tag>
         struct is_generic_quant_tag
@@ -260,14 +279,6 @@ namespace boost { namespace xpressive
             typedef typename Visitor::icase_type type;
         };
 
-        // TODO make_expr uses as_expr, not as_arg. Is that right?
-        typedef functional::make_expr<tag::assign>      _make_assign;
-        typedef functional::make_expr<tag::negate>      _make_negate;
-        typedef functional::make_expr<tag::terminal>    _make_terminal;
-        typedef functional::make_expr<tag::complement>  _make_complement;
-        typedef functional::make_expr<tag::logical_not> _make_logical_not;
-        typedef functional::make_expr<tag::shift_right> _make_shift_right;
-
         // Place a head and a tail in sequence, if it's not
         // already in sequence.
         struct in_sequence : transform_base
@@ -317,7 +328,8 @@ namespace boost { namespace xpressive
           : proto::terminal<char>
         {};
 
-        struct _one : mpl::int_<1> {};
+        struct _zero : mpl::int_<0> {};
+        struct _one  : mpl::int_<1> {};
 
         ///////////////////////////////////////////////////////////////////////////
         // ListSet
@@ -465,27 +477,167 @@ namespace boost { namespace xpressive
             }
         };
 
+        struct as_marker
+          : call<
+                _make_shift_right(
+                    mark_begin_matcher(mark_number(_arg(_left)))
+                  , _make_shift_right(
+                        _right
+                      , mark_end_matcher(mark_number(_arg(_left)))
+                    )
+                )
+            >
+        {};
+
+        struct add_hidden_mark
+          : or_<
+                when<MarkedSubExpr, _>
+              , otherwise<_make_assign(mark_placeholder(get_hidden_mark(_visitor)), _)>
+            >
+        {};
+
+        ///////////////////////////////////////////////////////////////////////////////
+        // FindAttr
+        //  Look for patterns like (a1= terminal<RHS>) and return the type of the RHS.
+        template<typename Nbr>
+        struct FindAttr
+          : or_<
+                // Ignore nested actions, because attributes are scoped
+                when< subscript<_, _>,                                  _state >
+              , when< terminal<_>,                                      _state >
+              , when< assign<terminal<attribute_placeholder<Nbr> >, _>, _arg(_right) >
+              , when< nary_expr<_, vararg<_> >,                         fold<_, _state, FindAttr<Nbr> > >
+            >
+        {};
+
+        ///////////////////////////////////////////////////////////////////////////////
+        // read_attr
+        //  Placeholder that knows the slot number of an attribute as well as the type
+        //  of the object stored in it.
+        template<typename Nbr, typename Matcher>
+        struct read_attr
+        {
+            read_attr() {}
+            typedef Nbr nbr_type;
+            typedef Matcher matcher_type;
+        };
+
+        template<typename Attr>
+        struct attr_number
+        {
+            typedef typename Attr::nbr_type type;
+        };
+
+        struct as_read_attr
+          : call<
+                _make_terminal(
+                    read_attr<
+                        attr_number<_>
+                      , bind<FindAttr<attr_number<_> >(_state, mpl::void_(), mpl::void_())>
+                    >
+                )
+            >
+        {};
+
+        ///////////////////////////////////////////////////////////////////////////////
+        // DeepCopy
+        //  Turn all refs into values, and also bind all attribute placeholders with
+        //  the types from which they are being assigned.
+        struct DeepCopy
+          : or_<
+                when< terminal<attribute_placeholder<_> >, as_read_attr(_arg) >
+              , when< terminal<_>, _make_terminal(_arg) >
+              , otherwise< fold<_, _state, DeepCopy> >
+            >
+        {};
+
+        ///////////////////////////////////////////////////////////////////////////////
+        // MaxAttr
+        //  In an action (rx)[act], find the largest attribute slot being used.
+        struct MaxAttr
+          : or_<
+                when< terminal<attribute_placeholder<_> >,  attr_number<_arg>() >
+              , when< terminal<_>,                          _zero()             >
+                // Ignore nested actions, because attributes are scoped:
+              , when< subscript<_, _>,                      _zero()             >
+              , otherwise< fold<_, _zero(), mpl::max<MaxAttr, _state>() >       >
+            >
+        {};
+
+        // _expr is (a1 = sym)
+        struct as_attr_matcher
+          : make<
+                attr_matcher<
+                    _arg(_right)
+                  , traits(_visitor)
+                  , icase<_visitor>
+                >(attr_number<_arg(_left)>(), _arg(_right), traits(_visitor))
+            >
+        {};
+
+        struct add_attrs
+          : call<
+                _make_shift_right(
+                    attr_begin_matcher<MaxAttr(_, _zero(), int())>()
+                  , _make_shift_right(
+                        _
+                      , attr_end_matcher()
+                    )
+                )
+            >
+        {};
+
+        ///////////////////////////////////////////////////////////////////////////////
+        // add_attrs_if
+        struct add_attrs_if
+          : if_<MaxAttr(_, _zero(), int()), add_attrs, _>
+        {};
+
+        ///////////////////////////////////////////////////////////////////////////////
+        // CheckAssertion
+        struct CheckAssertion
+          : proto::function<terminal<check_tag>, _>
+        {};
+
+        ///////////////////////////////////////////////////////////////////////////////
+        // action_transform
+        //  Turn A[B] into (mark_begin(n) >> A >> mark_end(n) >> action_matcher<B>(n))
+        //  If A and B use attributes, wrap the above expression in
+        //  a attr_begin_matcher<Count> / attr_end_matcher pair, where Count is
+        //  the number of attribute slots used by the pattern/action.
+        struct as_action
+          : call<
+                add_attrs_if(
+                    _make_shift_right(
+                        _left
+                      , _make_terminal(
+                            or_<
+                                when<
+                                    subscript<_, CheckAssertion>
+                                  , predicate_matcher<DeepCopy(_right, _left, int())>(
+                                        DeepCopy(_right, _left, int())
+                                      , mark_number(arg(_left(_left)))
+                                    )
+                                >
+                              , otherwise<
+                                    action_matcher<DeepCopy(_right, _left, int())>(
+                                        DeepCopy(_right, _left, int())
+                                      , mark_number(arg(_left(_left)))
+                                    )
+                                >
+                            >
+                        )
+                    )
+                )
+            >
+        {};
+
         ///////////////////////////////////////////////////////////////////////////
         // Cases
         template<typename Char, typename Gram>
         struct Cases
         {
             // Some simple grammars...
-            struct MarkedSubExpr
-              : assign<terminal<mark_placeholder>, _>
-            {};
-
-            struct MarkedSubExprEx
-              : or_<
-                    assign<terminal<mark_placeholder>, _>
-                  , shift_right<terminal<mark_begin_matcher>, _>
-                  , shift_right<
-                        terminal<repeat_begin_matcher>
-                      , shift_right<shift_right<terminal<mark_begin_matcher>, _>, _>
-                    >
-                >
-            {};
-
             struct GenericQuant
               : and_<
                     if_<is_generic_quant_tag<tag_of<_> >()>
@@ -511,25 +663,6 @@ namespace boost { namespace xpressive
                     _
                   , fusion::nil()
                   , alternates_list<as_alternate, _state>(as_alternate, _state)
-                >
-            {};
-
-            struct as_marker
-              : call<
-                    _make_shift_right(
-                        mark_begin_matcher(mark_number(_arg(_left)))
-                      , _make_shift_right(
-                            _right
-                          , mark_end_matcher(mark_number(_arg(_left)))
-                        )
-                    )
-                >
-            {};
-
-            struct add_hidden_mark
-              : or_<
-                    when<MarkedSubExpr, _>
-                  , otherwise<_make_assign(mark_placeholder(get_hidden_mark(_visitor)), _)>
                 >
             {};
 
@@ -841,6 +974,10 @@ namespace boost { namespace xpressive
                         subscript<terminal<set_initializer>, complement<terminal<_> > >
                       , as_regex(_right)
                     >
+                  , when<
+                        subscript<ActionableGrammar<Char>, _>
+                      , as_regex(as_action(_make_subscript(add_hidden_mark(_left), _right)))
+                    >
                 >
             {};
 
@@ -853,6 +990,28 @@ namespace boost { namespace xpressive
             {};
         };
 
+        ///////////////////////////////////////////////////////////////////////////
+        // ActionableCases
+        template<typename Char, typename Gram>
+        struct ActionableCases
+        {
+            template<typename Tag, typename Dummy = void>
+            struct case_
+              : Cases<Char, Gram>::template case_<Tag>
+            {};
+
+            // Only in sub-expressions with actions attached do we allow attribute assignements
+            template<typename Dummy>
+            struct case_<tag::assign, Dummy>
+              : or_<
+                    typename Cases<Char, Gram>::template case_<tag::assign>
+                  , when<
+                        assign<terminal<attribute_placeholder<_> >, _>
+                      , as_attr_matcher
+                    >
+                >
+            {};
+        };
     } // namespace detail
 
     ///////////////////////////////////////////////////////////////////////////
@@ -860,6 +1019,11 @@ namespace boost { namespace xpressive
     template<typename Char>
     struct Grammar
       : proto::switch_<grammar_detail::Cases<Char, Grammar<Char> > >
+    {};
+
+    template<typename Char>
+    struct ActionableGrammar
+      : proto::switch_<grammar_detail::ActionableCases<Char, ActionableGrammar<Char> > >
     {};
 
     ///////////////////////////////////////////////////////////////////////////

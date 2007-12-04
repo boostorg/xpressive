@@ -86,18 +86,19 @@ namespace boost { namespace xpressive
         struct check_tag
         {};
 
-        template<typename Grammar>
         struct BindArg
-          : Grammar
         {
-            template<typename Expr, typename State, typename Visitor>
-            struct apply
+            template<typename Sig>
+            struct result;
+
+            template<typename This, typename Expr, typename State, typename Visitor>
+            struct result<This(Expr, State, Visitor)>
             {
                 typedef State type;
             };
 
             template<typename Expr, typename State, typename Visitor>
-            static State call(Expr const &expr, State const &state, Visitor &visitor)
+            State operator()(Expr const &expr, State const &state, Visitor &visitor) const
             {
                 visitor.let(expr);
                 return state;
@@ -108,11 +109,12 @@ namespace boost { namespace xpressive
         {};
 
         struct BindArgs
-          : boost::proto::transform::fold<
-                boost::proto::function<
-                    boost::proto::transform::state<boost::proto::terminal<let_tag> >
-                  , boost::proto::vararg< BindArg< boost::proto::assign<boost::proto::_, boost::proto::_> > >
+          : proto::when<
+                proto::function<
+                    proto::terminal<let_tag>
+                  , proto::vararg<proto::assign<proto::_, proto::_> >
                 >
+              , proto::fold<proto::_pop_front(proto::_), proto::_state, BindArg>
             >
         {};
 
@@ -130,7 +132,7 @@ namespace boost { namespace xpressive
         template<typename Args, typename BidiIter>
         void bind_args(let_<Args> const &args, match_results<BidiIter> &what)
         {
-            BindArgs::call(args, 0, what);
+            BindArgs()(args, 0, what);
         }
     }
 
@@ -684,45 +686,45 @@ namespace boost { namespace xpressive
         }
     };
 
-    /// as (a.k.a., lexical_cast)
-    ///
-    BOOST_PROTO_DEFINE_FUNCTION_TEMPLATE(
-        1
-      , as
-      , boost::proto::default_domain
-      , (boost::proto::tag::function)
-      , ((op::as)(typename))
-    )
+    ///// as (a.k.a., lexical_cast)
+    /////
+    //BOOST_PROTO_DEFINE_FUNCTION_TEMPLATE(
+    //    1
+    //  , as
+    //  , boost::proto::default_domain
+    //  , (boost::proto::tag::function)
+    //  , ((op::as)(typename))
+    //)
 
-    /// static_cast_
-    ///
-    BOOST_PROTO_DEFINE_FUNCTION_TEMPLATE(
-        1
-      , static_cast_
-      , boost::proto::default_domain
-      , (boost::proto::tag::function)
-      , ((op::static_cast_)(typename))
-    )
+    ///// static_cast_
+    /////
+    //BOOST_PROTO_DEFINE_FUNCTION_TEMPLATE(
+    //    1
+    //  , static_cast_
+    //  , boost::proto::default_domain
+    //  , (boost::proto::tag::function)
+    //  , ((op::static_cast_)(typename))
+    //)
 
-    /// dynamic_cast_
-    ///
-    BOOST_PROTO_DEFINE_FUNCTION_TEMPLATE(
-        1
-      , dynamic_cast_
-      , boost::proto::default_domain
-      , (boost::proto::tag::function)
-      , ((op::dynamic_cast_)(typename))
-    )
+    ///// dynamic_cast_
+    /////
+    //BOOST_PROTO_DEFINE_FUNCTION_TEMPLATE(
+    //    1
+    //  , dynamic_cast_
+    //  , boost::proto::default_domain
+    //  , (boost::proto::tag::function)
+    //  , ((op::dynamic_cast_)(typename))
+    //)
 
-    /// const_cast_
-    ///
-    BOOST_PROTO_DEFINE_FUNCTION_TEMPLATE(
-        1
-      , const_cast_
-      , boost::proto::default_domain
-      , (boost::proto::tag::function)
-      , ((op::const_cast_)(typename))
-    )
+    ///// const_cast_
+    /////
+    //BOOST_PROTO_DEFINE_FUNCTION_TEMPLATE(
+    //    1
+    //  , const_cast_
+    //  , boost::proto::default_domain
+    //  , (boost::proto::tag::function)
+    //  , ((op::const_cast_)(typename))
+    //)
 
     /// val()
     ///
@@ -771,23 +773,23 @@ namespace boost { namespace xpressive
         BOOST_PROTO_EXTENDS_FUNCTION(action_arg_type, this_type, proto::default_domain)
     };
 
-    /// Usage: construct\<Type\>(arg1, arg2)
-    ///
-    BOOST_PROTO_DEFINE_VARARG_FUNCTION_TEMPLATE(
-        construct
-      , boost::proto::default_domain
-      , (boost::proto::tag::function)
-      , ((op::construct)(typename))
-    )
+    ///// Usage: construct\<Type\>(arg1, arg2)
+    /////
+    //BOOST_PROTO_DEFINE_VARARG_FUNCTION_TEMPLATE(
+    //    construct
+    //  , boost::proto::default_domain
+    //  , (boost::proto::tag::function)
+    //  , ((op::construct)(typename))
+    //)
 
-    /// Usage: throw_\<Exception\>(arg1, arg2)
-    ///
-    BOOST_PROTO_DEFINE_VARARG_FUNCTION_TEMPLATE(
-        throw_
-      , boost::proto::default_domain
-      , (boost::proto::tag::function)
-      , ((op::throw_)(typename))
-    )
+    ///// Usage: throw_\<Exception\>(arg1, arg2)
+    /////
+    //BOOST_PROTO_DEFINE_VARARG_FUNCTION_TEMPLATE(
+    //    throw_
+    //  , boost::proto::default_domain
+    //  , (boost::proto::tag::function)
+    //  , ((op::throw_)(typename))
+    //)
 
     namespace detail
     {

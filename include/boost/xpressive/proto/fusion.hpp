@@ -151,6 +151,31 @@ namespace boost { namespace proto
 
     functional::flatten const flatten = {};
 
+    template<typename Context>
+    struct eval_fun
+    {
+        explicit eval_fun(Context &ctx)
+          : ctx_(ctx)
+        {}
+
+        template<typename Sig>
+        struct result {};
+
+        template<typename This, typename Expr>
+        struct result<This(Expr)>
+          : proto::result_of::eval<UNREF(Expr), Context>
+        {};
+
+        template<typename Expr>
+        typename proto::result_of::eval<Expr, Context>::type
+        operator()(Expr &expr) const
+        {
+            return proto::eval(expr, this->ctx_);
+        }
+
+    private:
+        Context &ctx_;
+    };
 }}
 
 namespace boost { namespace fusion

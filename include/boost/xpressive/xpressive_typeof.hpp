@@ -101,7 +101,7 @@ BOOST_TYPEOF_REGISTER_TEMPLATE(boost::xpressive::detail::lookbehind_matcher, (ty
 BOOST_TYPEOF_REGISTER_TEMPLATE(boost::xpressive::detail::set_matcher, (typename)(typename))
 BOOST_TYPEOF_REGISTER_TEMPLATE(boost::xpressive::detail::predicate_matcher, (typename))
 BOOST_TYPEOF_REGISTER_TEMPLATE(boost::xpressive::detail::action_matcher, (typename))
-BOOST_TYPEOF_REGISTER_TEMPLATE(boost::xpressive::detail::attr_matcher, (typename)(typename)(bool))
+BOOST_TYPEOF_REGISTER_TEMPLATE(boost::xpressive::detail::attr_matcher, (typename)(typename)(typename))
 BOOST_TYPEOF_REGISTER_TEMPLATE(boost::xpressive::detail::attr_begin_matcher, (typename))
 
 ///////////////////////////////////////////////////////////////////////////////

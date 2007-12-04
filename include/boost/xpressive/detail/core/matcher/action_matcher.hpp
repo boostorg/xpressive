@@ -27,10 +27,10 @@
 #include <boost/xpressive/detail/core/quant_style.hpp>
 #include <boost/xpressive/detail/core/action.hpp>
 #include <boost/xpressive/detail/core/state.hpp>
+#include <boost/xpressive/detail/static/grammar.hpp>
 #include <boost/xpressive/proto/proto.hpp>
 #include <boost/xpressive/proto/context.hpp>
 #include <boost/xpressive/match_results.hpp> // for type_info_less
-#include <boost/xpressive/detail/static/transforms/as_action.hpp> // for 'read_attr'
 #if BOOST_VERSION >= 103500
 # include <boost/xpressive/proto/fusion.hpp>
 # include <boost/fusion/include/transform_view.hpp>
@@ -75,7 +75,7 @@ namespace boost { namespace xpressive { namespace detail
         typedef
             fusion::transform_view<
                 typename fusion::result_of::push_front<
-                    typename fusion::result_of::pop_front<proto::children<right_type> >::type const
+                    typename fusion::result_of::pop_front<right_type>::type const
                   , reference_wrapper<left_type>
                 >::type const
               , proto::eval_fun<Context>
@@ -91,7 +91,10 @@ namespace boost { namespace xpressive { namespace detail
             return fusion::invoke<function_type>(
                 proto::arg(proto::arg_c<0>(proto::right(expr)))
               , evaluated_args(
-                    fusion::push_front(fusion::pop_front(proto::children_of(proto::right(expr))), boost::ref(proto::left(expr)))
+                    fusion::push_front(
+                        fusion::pop_front(proto::right(expr))
+                      , boost::ref(proto::left(expr))
+                    )
                   , proto::eval_fun<Context>(ctx)
                 )
             );
@@ -260,49 +263,42 @@ namespace boost { namespace xpressive { namespace detail
         Actor actor_;
     };
 
-    ///////////////////////////////////////////////////////////////////////////////
-    // subreg_transform
-    //
-    template<typename Grammar>
-    struct subreg_transform
-      : Grammar
+    struct get_sub_match : proto::transform_base
     {
-        subreg_transform();
+        template<typename Sig>
+        struct result;
 
-        template<typename Expr, typename State, typename Visitor>
-        struct apply
-          : proto::terminal<sub_match<typename State::iterator> >
-        {};
-
-        template<typename Expr, typename State, typename Visitor>
-        static typename apply<Expr, State, Visitor>::type
-        call(Expr const &, State const &state, Visitor &visitor)
+        template<typename This, typename State, typename Index>
+        struct result<This(State, Index)>
         {
-            sub_match<typename State::iterator> const &sub = state.sub_matches_[ visitor ];
-            return proto::as_expr(sub);
+            typedef sub_match<typename State::iterator> type;
+        };
+
+        template<typename State, typename Index>
+        sub_match<typename State::iterator> operator()(State const &state, Index i)
+        {
+            return state.sub_matches_[i];
         }
     };
 
-    ///////////////////////////////////////////////////////////////////////////////
-    // mark_transform
-    //
-    template<typename Grammar>
-    struct mark_transform
-      : Grammar
+    struct get_attr_slot : proto::transform_base
     {
-        mark_transform();
+        template<typename Sig>
+        struct result;
 
-        template<typename Expr, typename State, typename Visitor>
-        struct apply
-          : proto::terminal<sub_match<typename State::iterator> >
-        {};
-
-        template<typename Expr, typename State, typename Visitor>
-        static typename apply<Expr, State, Visitor>::type
-        call(Expr const &expr, State const &state, Visitor &)
+        template<typename This, typename State, typename Attr>
+        struct result<This(State, Attr)>
         {
-            sub_match<typename State::iterator> const &sub = state.sub_matches_[ proto::arg(expr).mark_number_ ];
-            return proto::as_expr(sub);
+            typedef typename Attr::matcher_type::value_type::second_type const *type;
+        };
+
+        template<typename State, typename Attr>
+        typename Attr::matcher_type::value_type::second_type const *
+        operator()(State const &state, Attr const &)
+        {
+            typedef typename Attr::matcher_type::value_type::second_type attr_type;
+            int slot = typename Attr::nbr_type();
+            return static_cast<attr_type const *>(state.attr_context_.attr_slots_[slot-1]);
         }
     };
 
@@ -328,99 +324,54 @@ namespace boost { namespace xpressive { namespace detail
         T const *t_;
     };
 
-    ///////////////////////////////////////////////////////////////////////////////
-    // attr_transform
-    //
-    template<typename Grammar>
-    struct attr_transform
-      : Grammar
+    template<typename Attr>
+    struct attr_value_type
     {
-        attr_transform();
-
-        template<typename Expr, typename State, typename Visitor>
-        struct apply
-          : proto::result_of::as_expr<
-                opt<typename Expr::proto_arg0::matcher_type::value_type::second_type>
-            >
-        {};
-
-        template<typename Expr, typename State, typename Visitor>
-        static typename apply<Expr, State, Visitor>::type
-        call(Expr const &, State const &state, Visitor &)
-        {
-            typedef typename Expr::proto_arg0::matcher_type::value_type::second_type attr_type;
-            int slot = typename Expr::proto_arg0::nbr_type();
-            attr_type const *attr = static_cast<attr_type const *>(state.attr_context_.attr_slots_[slot-1]);
-            return proto::as_expr(opt<attr_type>(attr));
-        }
+        typedef typename Attr::matcher_type::value_type::second_type type;
     };
 
-    ///////////////////////////////////////////////////////////////////////////////
-    // attr_with_default_transform
-    //
-    template<typename Grammar>
-    struct attr_with_default_transform
-      : Grammar
+    template<typename Expr>
+    struct const_reference
     {
-        attr_with_default_transform();
-
-        template<typename Expr, typename State, typename Visitor>
-        struct apply
-          : proto::unary_expr<
-                attr_with_default_tag
-              , typename Grammar::template apply<Expr, State, Visitor>::type
-            >
-        {};
-
-        template<typename Expr, typename State, typename Visitor>
-        static typename apply<Expr, State, Visitor>::type
-        call(Expr const &expr, State const &state, Visitor &visitor)
-        {
-            typename apply<Expr, State, Visitor>::type that = {
-                Grammar::call(expr, state, visitor)
-            };
-            return that;
-        }
+        typedef typename proto::result_of::arg<Expr>::const_reference type;
     };
 
-    ///////////////////////////////////////////////////////////////////////////////
-    // by_ref_transform
-    //
-    template<typename Grammar>
-    struct by_ref_transform
-      : Grammar
-    {
-        by_ref_transform();
-
-        template<typename Expr, typename State, typename Visitor>
-        struct apply
-          : proto::terminal<typename proto::result_of::arg<Expr>::const_reference>
-        {};
-
-        template<typename Expr, typename State, typename Visitor>
-        static typename apply<Expr, State, Visitor>::type
-        call(Expr const &expr, State const &, Visitor &)
-        {
-            return apply<Expr, State, Visitor>::type::make(proto::arg(expr));
-        }
-    };
+    using grammar_detail::mark_number;
+    using grammar_detail::read_attr;
 
     ///////////////////////////////////////////////////////////////////////////////
     // BindActionArgs
     //
     struct BindActionArgs
       : proto::or_<
-            subreg_transform<proto::terminal<any_matcher> >
-          , mark_transform<proto::terminal<mark_placeholder> >
-          , attr_transform<proto::terminal<read_attr<proto::_, proto::_> > >
-          , by_ref_transform<proto::terminal<proto::_> >
-          , attr_with_default_transform<
+            proto::when<
+                proto::terminal<any_matcher>
+              , proto::_make_terminal(get_sub_match(proto::_state, proto::_visitor))
+            >
+          , proto::when<
+                proto::terminal<mark_placeholder>
+              , proto::_make_terminal(get_sub_match(proto::_state, mark_number(proto::_arg)))
+            >
+          , proto::when<
+                proto::terminal<read_attr<proto::_, proto::_> >
+              , proto::_make_terminal(opt<attr_value_type<proto::_arg> >(get_attr_slot(proto::_state, proto::_arg)))
+            >
+          , proto::when<
+                proto::terminal<proto::_>
+              , proto::terminal<const_reference<proto::_> >(proto::_arg)
+            >
+          , proto::when<
                 proto::bitwise_or<
-                    attr_transform<proto::terminal<read_attr<proto::_, proto::_> > >
+                    proto::terminal<read_attr<proto::_, proto::_> >
                   , BindActionArgs
                 >
+              , proto::functional::make_expr<attr_with_default_tag>(
+                    proto::bitwise_or<BindActionArgs, BindActionArgs>
+                )
             >
-          , proto::nary_expr<proto::_, proto::vararg<BindActionArgs> >
+          , proto::otherwise<
+                proto::nary_expr<proto::_, proto::vararg<BindActionArgs> >
+            >
         >
     {};
 
@@ -444,8 +395,8 @@ namespace boost { namespace xpressive { namespace detail
         bool match(match_state<BidiIter> &state, Next const &next) const
         {
             // Bind the arguments
-            typedef typename BindActionArgs::apply<Actor, match_state<BidiIter>, int>::type action_type;
-            action<action_type> actor(BindActionArgs::call(this->actor_, state, this->sub_));
+            typedef typename boost::result_of<BindActionArgs(Actor, match_state<BidiIter>, int)>::type action_type;
+            action<action_type> actor(BindActionArgs()(this->actor_, state, this->sub_));
 
             // Put the action in the action list
             actionable const **action_list_tail = state.action_list_tail_;

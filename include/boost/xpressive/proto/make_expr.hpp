@@ -589,6 +589,17 @@ namespace boost { namespace proto
       : mpl::true_
     {};
 
+
+
+    // TODO make_expr uses as_expr, not as_arg. Is that right?
+    typedef functional::make_expr<tag::assign>      _make_assign;
+    typedef functional::make_expr<tag::negate>      _make_negate;
+    typedef functional::make_expr<tag::terminal>    _make_terminal;
+    typedef functional::make_expr<tag::complement>  _make_complement;
+    typedef functional::make_expr<tag::logical_not> _make_logical_not;
+    typedef functional::make_expr<tag::shift_right> _make_shift_right;
+
+
 }}
 
 #undef CV

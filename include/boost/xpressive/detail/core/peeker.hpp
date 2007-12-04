@@ -167,10 +167,10 @@ struct xpression_peeker
         return mpl::false_();
     }
 
-    template<typename Matcher, typename Traits, bool ICase>
+    template<typename Matcher, typename Traits, typename ICase>
     mpl::false_ accept(attr_matcher<Matcher, Traits, ICase> const &xpr)
     {
-        xpr.sym_.peek(char_sink<Traits, ICase>(this->bset_, this->get_traits_<Traits>()));
+        xpr.sym_.peek(char_sink<Traits, ICase::value>(this->bset_, this->get_traits_<Traits>()));
         return mpl::false_();
     }
 
