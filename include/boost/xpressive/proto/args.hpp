@@ -71,6 +71,13 @@ namespace boost { namespace proto
             typedef cons<Tail...> cdr_type;
             car_type car;
             cdr_type cdr;
+
+            template<typename Head2, typename... Tail2>
+            static cons<Head, Tail...> make(Head2 &&head, Tail2 &&... tail)
+            {
+                cons<Head, Tail...> that = {head, cdr_type::make(tail...)};
+                return that;
+            }
         };
 
         template<>
@@ -89,6 +96,13 @@ namespace boost { namespace proto
             typedef cons<> cdr_type;
             car_type car;
             static cdr_type const cdr;
+
+            template<typename Head2>
+            static cons<Head> make(Head2 &&head)
+            {
+                cons<Head> that = {head};
+                return that;
+            }
         };
 
         template<typename Head>
@@ -105,18 +119,10 @@ namespace boost { namespace proto
                 typedef cons<UNCV(Args)...> type;
             };
 
-            template<typename Head, typename... Tail>
-            cons<UNCV(Head), UNCV(Tail)...> operator()(Head &&head, Tail &&... tail) const
+            template<typename... Args>
+            cons<UNCV(Args)...> operator()(Args &&... args) const
             {
-                cons<UNCV(Head), UNCV(Tail)...> that = {head, (*this)(std::forward<Tail>(tail)...)};
-                return that;
-            }
-
-            template<typename Head>
-            cons<UNCV(Head)> operator()(Head &&head) const
-            {
-                cons<UNCV(Head)> that = {head};
-                return that;
+                return cons<UNCV(Args)...>::make(args...);
             }
         };
 

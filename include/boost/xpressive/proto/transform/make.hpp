@@ -12,7 +12,6 @@
 #include <boost/mpl/eval_if.hpp>
 #include <boost/mpl/aux_/has_type.hpp>
 #include <boost/utility/result_of.hpp>
-#include <boost/utility/enable_if.hpp>
 #include <boost/xpressive/proto/proto_fwd.hpp>
 #include <boost/xpressive/proto/traits.hpp>
 #include <boost/xpressive/proto/args.hpp>
@@ -102,25 +101,52 @@ namespace boost { namespace proto
                 typedef void not_applied_;
             };
 
-            template<typename Type, typename... Args>
-            typename enable_if<is_aggregate<Type>, Type>::type
-            construct_(Args &&... args)
+            template<typename Type, bool IsAggregate = is_aggregate<Type>::value>
+            struct construct_
             {
-                Type that = { args... };
-                return that;
-            }
+                typedef Type result_type;
 
-            template<typename Type, typename... Args>
-            typename disable_if<is_aggregate<Type>, Type>::type
-            construct_(Args &&... args)
-            {
-                return Type(args...);
-            }
+                template<typename... Args>
+                Type operator()(Args &&... args) const
+                {
+                    return Type(args...);
+                }
+            };
 
             template<typename Type>
-            Type construct_()
+            struct construct_<Type, true>
             {
-                return Type();
+                typedef Type result_type;
+
+                template<typename... Args>
+                Type operator()(Args &&... args) const
+                {
+                    Type that = {args...};
+                    return that;
+                }
+
+                Type operator()() const
+                {
+                    return Type();
+                }
+            };
+
+            template<typename T, typename A, long N>
+            struct construct_<expr<T, A, N>, true>
+            {
+                typedef expr<T, A, N> result_type;
+
+                template<typename... Args>
+                result_type operator()(Args &&... args) const
+                {
+                    return result_type::make(args...);
+                }
+            };
+
+            template<typename Type, typename... Args>
+            Type construct(Args &&... args)
+            {
+                return construct_<Type>()(args...);
             }
         }
 
@@ -140,7 +166,7 @@ namespace boost { namespace proto
             operator()(Expr const &expr, State const &state, Visitor &visitor) const
             {
                 typedef typename result<make(Expr, State, Visitor)>::type result_type;
-                return detail::construct_<result_type>(when<_, Args>()(expr, state, visitor)...);
+                return detail::construct<result_type>(when<_, Args>()(expr, state, visitor)...);
             }
         };
 
@@ -157,10 +183,7 @@ namespace boost { namespace proto
             template<typename Expr, typename State, typename Visitor>
             expr<T, A, N> operator()(Expr const &expr, State const &state, Visitor &visitor) const
             {
-                proto::expr<T, A, N> that = {{
-                    when<_, Args>()(expr, state, visitor)...
-                }};
-                return that;
+                return proto::expr<T, A, N>::make(when<_, Args>()(expr, state, visitor)...);
             }
         };
 
