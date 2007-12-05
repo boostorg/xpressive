@@ -308,10 +308,10 @@ namespace boost { namespace xpressive { namespace detail
     template<typename T>
     struct opt
     {
-        typedef T type;
+        typedef T value_type;
         typedef T const &reference;
 
-        opt(T const *t)
+        explicit opt(T const *t)
           : t_(t)
         {}
 

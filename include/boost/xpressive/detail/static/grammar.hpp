@@ -506,7 +506,7 @@ namespace boost { namespace xpressive
                 when< subscript<_, _>,                                  _state >
               , when< terminal<_>,                                      _state >
               , when< assign<terminal<attribute_placeholder<Nbr> >, _>, _arg(_right) >
-              , when< nary_expr<_, vararg<_> >,                         fold<_, _state, FindAttr<Nbr> > >
+              , otherwise< fold<_, _state, FindAttr<Nbr> > >
             >
         {};
 
@@ -533,8 +533,8 @@ namespace boost { namespace xpressive
                 _make_terminal(
                     read_attr<
                         attr_number<_>
-                      , bind<FindAttr<attr_number<_> >(_state, mpl::void_(), mpl::void_())>
-                    >
+                      , bind<FindAttr<attr_number<_> >(_state, mpl::void_())>
+                    >()
                 )
             >
         {};
@@ -976,7 +976,7 @@ namespace boost { namespace xpressive
                     >
                   , when<
                         subscript<ActionableGrammar<Char>, _>
-                      , as_regex(as_action(_make_subscript(add_hidden_mark(_left), _right)))
+                      , call<ActionableGrammar<Char>(as_action(_make_subscript(add_hidden_mark(_left), _right)))>
                     >
                 >
             {};
