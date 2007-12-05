@@ -52,51 +52,44 @@ namespace boost { namespace xpressive { namespace detail
         using proto::extends<basic_mark_tag, mark_tag>::operator =;
     };
 
-    //template<typename Grammar>
-    //struct push_back_sub
-    //  //: proto::transform::identity<Grammar>
-    //  : proto::_expr
-    //{
-    //    template<typename Sub>
-    //    static int to_sub(Sub const &sub, proto::tag::terminal)
-    //    {
-    //        return proto::arg(sub).mark_number_;
-    //    }
+    struct push_back : proto::transform_base
+    {
+        typedef int result_type;
 
-    //    template<typename Sub>
-    //    static int to_sub(Sub const &, proto::tag::negate)
-    //    {
-    //        return -1;
-    //    }
+        template<typename Subs>
+        int operator()(Subs &subs, int i) const
+        {
+            subs.push_back(i);
+            return i;
+        }
+    };
 
-    //    template<typename Expr, typename State, typename Visitor>
-    //    static Expr const &call(Expr const &expr, State const &, Visitor &subs)
-    //    {
-    //        subs.push_back(push_back_sub::to_sub(expr, typename Expr::proto_tag()));
-    //        return expr;
-    //    }
-    //};
+    struct negative_one : mpl::int_<-1> {};
+    using grammar_detail::mark_number;
 
-    //// s1 or -s1
-    //struct SubMatch
-    //  : push_back_sub<proto::or_<basic_mark_tag, proto::negate<basic_mark_tag > > >
-    //{};
+    // s1 or -s1
+    struct SubMatch
+      : proto::or_<
+            proto::when<basic_mark_tag, push_back(proto::_visitor, mark_number(proto::_arg))>
+          , proto::when<proto::negate<basic_mark_tag >, push_back(proto::_visitor, negative_one())>
+        >
+    {};
 
-    //struct SubMatchList
-    //  : proto::or_<SubMatch, proto::comma<SubMatchList, SubMatch> >
-    //{};
+    struct SubMatchList
+      : proto::or_<SubMatch, proto::comma<SubMatchList, SubMatch> >
+    {};
 
-    //template<typename Subs>
-    //typename enable_if<
-    //    mpl::and_<proto::is_expr<Subs>, proto::matches<Subs, SubMatchList> >
-    //  , std::vector<int>
-    //>::type
-    //to_vector(Subs const &subs)
-    //{
-    //    std::vector<int> subs_;
-    //    SubMatchList::call(subs, 0, subs_);
-    //    return subs_;
-    //}
+    template<typename Subs>
+    typename enable_if<
+        mpl::and_<proto::is_expr<Subs>, proto::matches<Subs, SubMatchList> >
+      , std::vector<int>
+    >::type
+    to_vector(Subs const &subs)
+    {
+        std::vector<int> subs_;
+        SubMatchList()(subs, 0, subs_);
+        return subs_;
+    }
 
 
 /*

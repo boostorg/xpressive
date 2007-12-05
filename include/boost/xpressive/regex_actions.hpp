@@ -686,6 +686,22 @@ namespace boost { namespace xpressive
         }
     };
 
+    template<typename T, typename A>
+    typename proto::result_of::make_expr<
+        proto::tag::function
+      , proto::default_domain
+      , op::as<T> const
+      , A
+    >::type as(A &&a)
+    {
+        return proto::result_of::make_expr<
+            proto::tag::function
+          , proto::default_domain
+          , op::as<T> const
+          , A
+        >::call(op::as<T>(), a);
+    }
+
     ///// as (a.k.a., lexical_cast)
     /////
     //BOOST_PROTO_DEFINE_FUNCTION_TEMPLATE(
