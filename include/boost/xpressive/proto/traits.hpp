@@ -259,7 +259,7 @@ namespace boost { namespace proto
             typename result<nary_expr(Expr, State, Visitor)>::type
             operator()(Expr const &expr, State const &state, Visitor &visitor) const
             {
-                typedef typename result<nary_expr(Expr, State, Visitor)>::apply apply;
+                typedef detail::apply_args<args<Args...>, typename Expr::proto_args, State, Visitor> apply;
                 typename result<nary_expr(Expr, State, Visitor)>::type that = {
                     apply::call(expr.proto_base().proto_args_, state, visitor)
                 };

@@ -547,7 +547,7 @@ namespace boost { namespace xpressive
           : or_<
                 when< terminal<attribute_placeholder<_> >, as_read_attr(_arg) >
               , when< terminal<_>, _make_terminal(_arg) >
-              , otherwise< fold<_, _state, DeepCopy> >
+              , otherwise< nary_expr<_, vararg<DeepCopy> > >
             >
         {};
 
@@ -616,13 +616,13 @@ namespace boost { namespace xpressive
                                     subscript<_, CheckAssertion>
                                   , predicate_matcher<DeepCopy(_right, _left, int())>(
                                         DeepCopy(_right, _left, int())
-                                      , mark_number(arg(_left(_left)))
+                                      , mark_number(_arg(_left(_left)))
                                     )
                                 >
                               , otherwise<
                                     action_matcher<DeepCopy(_right, _left, int())>(
                                         DeepCopy(_right, _left, int())
-                                      , mark_number(arg(_left(_left)))
+                                      , mark_number(_arg(_left(_left)))
                                     )
                                 >
                             >
