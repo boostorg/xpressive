@@ -54,6 +54,7 @@ test-suite "xpressive"
          [ run test_actions.cpp ]
          [ run test_assert.cpp ]
          [ run test_symbols.cpp ]
+         [ run test_symbols2.cpp ]
          [ run test_dynamic.cpp ]
          [ run test_dynamic_grammar.cpp ]
          [ link multiple_defs1.cpp multiple_defs2.cpp : : multiple_defs ]

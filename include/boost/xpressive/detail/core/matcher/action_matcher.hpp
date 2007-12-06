@@ -219,7 +219,7 @@ namespace boost { namespace xpressive { namespace detail
                 >::type
             temp_type;
 
-            typedef typename temp_type::type result_type;
+            typedef typename temp_type::value_type result_type;
 
             result_type operator ()(Expr const &expr, action_context const &ctx) const
             {
