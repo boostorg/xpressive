@@ -36,11 +36,11 @@ namespace boost { namespace proto
             {};
 
             template<typename Expr, typename State, typename Visitor>
-            typename result<bind(Expr, State, Visitor)>::type
+            typename result<bind(Expr const &, State const &, Visitor &)>::type
             operator()(Expr const &expr, State const &state, Visitor &visitor) const
             {
                 return call<
-                    typename boost::result_of<make<Return>(Expr, State, Visitor)>::type
+                    typename boost::result_of<make<Return>(Expr const &, State const &, Visitor &)>::type
                   , Args...
                 >()(expr, state, visitor);
             }

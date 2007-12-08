@@ -80,17 +80,23 @@ namespace boost { namespace proto
 
             template<typename R, typename Expr, typename State, typename Visitor>
             struct make_if_<R, Expr, State, Visitor, true>
-              : boost::result_of<R(Expr, State, Visitor)>
+              : remove_const<typename remove_reference<
+                    typename boost::result_of<R(Expr, State, Visitor)>::type
+                >::type>
             {};
 
             template<typename R, typename... Args, typename Expr, typename State, typename Visitor>
             struct make_if_<R(Args...), Expr, State, Visitor, false>
-              : boost::result_of<when<_, R(Args...)>(Expr, State, Visitor)>
+              : remove_const<typename remove_reference<
+                    typename boost::result_of<when<_, R(Args...)>(Expr, State, Visitor)>::type
+                >::type>
             {};
 
             template<typename R, typename... Args, typename Expr, typename State, typename Visitor>
             struct make_if_<R(*)(Args...), Expr, State, Visitor, false>
-              : boost::result_of<when<_, R(Args...)>(Expr, State, Visitor)>
+              : remove_const<typename remove_reference<
+                    typename boost::result_of<when<_, R(Args...)>(Expr, State, Visitor)>::type
+                >::type>
             {};
 
             // work around GCC bug
@@ -162,10 +168,10 @@ namespace boost { namespace proto
             {};
 
             template<typename Expr, typename State, typename Visitor>
-            typename result<make(Expr, State, Visitor)>::type
+            typename result<make(Expr const &, State const &, Visitor &)>::type
             operator()(Expr const &expr, State const &state, Visitor &visitor) const
             {
-                typedef typename result<make(Expr, State, Visitor)>::type result_type;
+                typedef typename result<make(Expr const &, State const &, Visitor &)>::type result_type;
                 return detail::construct<result_type>(when<_, Args>()(expr, state, visitor)...);
             }
         };

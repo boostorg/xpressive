@@ -366,7 +366,7 @@ namespace boost { namespace proto
             template<typename Expr, typename If, typename Then, typename Else>
             struct matches_<Expr, proto::if_<If, Then, Else> >
               : mpl::eval_if<
-                    typename boost::result_of<when<_, If>(Expr, mpl::void_, mpl::void_)>::type
+                    UNCVREF(typename boost::result_of<otherwise<If>(Expr, mpl::void_, mpl::void_)>::type)
                   , matches_<Expr, typename Then::proto_base_expr>
                   , matches_<Expr, typename Else::proto_base_expr>
                 >::type
@@ -374,7 +374,11 @@ namespace boost { namespace proto
 
             template<typename Expr, typename If>
             struct matches_<Expr, proto::if_<If> >
-              : boost::result_of<when<_, If>(Expr, mpl::void_, mpl::void_)>::type
+              : remove_cv<
+                    typename remove_reference<
+                        typename boost::result_of<when<_, If>(Expr, mpl::void_, mpl::void_)>::type
+                    >::type
+                >::type
             {};
 
             // handle proto::not_
@@ -444,12 +448,12 @@ namespace boost { namespace proto
             struct result<This(Expr, State, Visitor)>
             {
                 typedef typename boost::result_of<
-                    typename detail::which<Expr, Alts...>::type(Expr, State, Visitor)
+                    typename detail::which<UNCVREF(Expr), Alts...>::type(Expr, State, Visitor)
                 >::type type;
             };
 
             template<typename Expr, typename State, typename Visitor>
-            typename result<or_(Expr, State, Visitor)>::type
+            typename result<or_(Expr const &, State const &, Visitor &)>::type
             operator()(Expr const &expr, State const &state, Visitor &visitor) const
             {
                 typedef typename detail::which<Expr, Alts...>::type which;
@@ -475,19 +479,19 @@ namespace boost { namespace proto
             template<typename This, typename Expr, typename State, typename Visitor>
             struct result<This(Expr, State, Visitor)>
               : mpl::eval_if<
-                    typename boost::result_of<when<_, If>(Expr, State, Visitor)>::type
+                    UNCVREF(typename boost::result_of<otherwise<If>(Expr, State, Visitor)>::type)
                   , boost::result_of<when<_, Then>(Expr, State, Visitor)>
                   , boost::result_of<when<_, Else>(Expr, State, Visitor)>
                 >
             {};
 
             template<typename Expr, typename State, typename Visitor>
-            typename result<if_(Expr, State, Visitor)>::type
+            typename result<if_(Expr const &, State const &, Visitor &)>::type
             operator()(Expr const &expr, State const &state, Visitor &visitor) const
             {
                 typedef
                     typename mpl::if_<
-                        typename boost::result_of<when<_, If>(Expr, State, Visitor)>::type
+                        UNCVREF(typename boost::result_of<otherwise<If>(Expr const &, State const &, Visitor &)>::type)
                       , when<_, Then>
                       , when<_, Else>
                     >::type
@@ -513,11 +517,11 @@ namespace boost { namespace proto
 
             template<typename This, typename Expr, typename State, typename Visitor>
             struct result<This(Expr, State, Visitor)>
-              : boost::result_of<typename Cases::template case_<typename Expr::proto_tag>(Expr, State, Visitor)>
+              : boost::result_of<typename Cases::template case_<UNREF(Expr)::proto_tag>(Expr, State, Visitor)>
             {};
 
             template<typename Expr, typename State, typename Visitor>
-            typename result<switch_(Expr, State, Visitor)>::type
+            typename result<switch_(Expr const &, State const &, Visitor &)>::type
             operator()(Expr const &expr, State const &state, Visitor &visitor) const
             {
                 typedef typename Cases::template case_<typename Expr::proto_tag> case_;

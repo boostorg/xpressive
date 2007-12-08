@@ -94,7 +94,7 @@ namespace boost { namespace xpressive
             template<typename This, typename Expr, typename State, typename Visitor>
             struct result<This(Expr, State, Visitor)>
             {
-                typedef State type;
+                typedef UNCVREF(State) type;
             };
 
             template<typename Expr, typename State, typename Visitor>

@@ -481,7 +481,7 @@ namespace boost { namespace proto
             {};
 
             template<typename... A>
-            typename result_of::make_expr<Tag, Domain, A...>::type const
+            typename result_of::make_expr<Tag, Domain, A...>::type
             operator ()(A &&...a) const
             {
                 return result_of::make_expr<Tag, Domain, A...>::call(a...);

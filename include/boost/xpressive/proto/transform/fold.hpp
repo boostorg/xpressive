@@ -44,11 +44,11 @@ namespace boost { namespace proto
 
                 template<typename This, typename Expr, typename State>
                 struct result<This(Expr, State)>
-                  : boost::result_of<Tfx(UNCVREF(Expr), UNCVREF(State), Visitor)>
+                  : boost::result_of<Tfx(Expr, State, Visitor &)>
                 {};
 
                 template<typename Expr, typename State>
-                typename boost::result_of<Tfx(Expr, State, Visitor)>::type
+                typename boost::result_of<Tfx(Expr const &, State const &, Visitor &)>::type
                 operator()(Expr const &expr, State const &state) const
                 {
                     return Tfx()(expr, state, this->v_);
@@ -60,11 +60,12 @@ namespace boost { namespace proto
 
             struct reverse : transform_base
             {
-                template<typename Sig> struct result;
+                template<typename Sig>
+                struct result;
 
                 template<typename This, typename T>
                 struct result<This(T)>
-                  : fusion::result_of::reverse<T const>
+                  : fusion::result_of::reverse<UNREF(T) const>
                 {};
 
                 template<typename T>
@@ -86,14 +87,14 @@ namespace boost { namespace proto
             template<typename This, typename Expr, typename State, typename Visitor>
             struct result<This(Expr, State, Visitor)>
               : fusion::result_of::fold<
-                    typename boost::result_of<when<_, Sequence>(Expr, State, Visitor)>::type
-                  , typename boost::result_of<when<_, State0>(Expr, State, Visitor)>::type
-                  , detail::as_callable<Fun, Visitor>
+                    UNREF(typename boost::result_of<otherwise<Sequence>(Expr, State, Visitor)>::type)
+                  , UNCVREF(typename boost::result_of<otherwise<State0>(Expr, State, Visitor)>::type)
+                  , detail::as_callable<Fun, UNREF(Visitor)>
                 >
             {};
 
             template<typename Expr, typename State, typename Visitor>
-            typename result<fold(Expr, State, Visitor)>::type
+            typename result<fold(Expr const &, State const &, Visitor &)>::type
             operator()(Expr const &expr, State const &state, Visitor &visitor) const
             {
                 detail::as_callable<Fun, Visitor> fun(visitor);

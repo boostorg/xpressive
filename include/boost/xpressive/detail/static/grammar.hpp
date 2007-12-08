@@ -26,6 +26,24 @@
 #include <boost/xpressive/detail/static/static.hpp>
 #include <boost/xpressive/detail/static/is_pure.hpp>
 
+#define CV(T)\
+    typename add_const<T>::type
+
+#define REF(T)\
+    typename add_reference<T>::type
+
+#define CVREF(T)\
+    REF(CV(T))
+
+#define UNCV(T)\
+    typename remove_cv<T>::type
+
+#define UNREF(T)\
+    typename remove_reference<T>::type
+
+#define UNCVREF(T)\
+    UNCV(UNREF(T))
+
 #define BOOST_XPRESSIVE_CHECK_REGEX(Expr, Char)\
     BOOST_MPL_ASSERT\
     ((\
@@ -168,7 +186,7 @@ namespace boost { namespace xpressive
 
             template<typename This, typename T, typename Visitor>
             struct result<This(T, Visitor)>
-              : Visitor::template apply<T>
+              : remove_reference<Visitor>::type::template apply<UNCVREF(T)>
             {};
 
             template<typename T, typename Visitor>
@@ -220,7 +238,7 @@ namespace boost { namespace xpressive
             template<typename This, typename Visitor>
             struct result<This(Visitor)>
             {
-                typedef typename Visitor::traits_type type;
+                typedef UNREF(Visitor)::traits_type const &type;
             };
 
             template<typename Visitor>
@@ -239,7 +257,7 @@ namespace boost { namespace xpressive
             template<typename This, typename Traits>
             struct result<This(Traits)>
             {
-                typedef typename Traits::char_class_type type;
+                typedef UNREF(Traits)::char_class_type type;
             };
 
             template<typename Traits>
@@ -258,7 +276,7 @@ namespace boost { namespace xpressive
             template<typename This, typename Posix, typename Visitor, typename YesNo>
             struct result<This(Posix, Visitor, YesNo)>
             {
-                typedef posix_charset_matcher<typename Visitor::traits_type> type;
+                typedef posix_charset_matcher<UNREF(Visitor)::traits_type> type;
             };
 
             template<typename Posix, typename Visitor>
@@ -289,7 +307,7 @@ namespace boost { namespace xpressive
             template<typename This, typename Matcher, typename Next>
             struct result<This(Matcher, Next)>
             {
-                typedef static_xpression<Matcher, Next> type;
+                typedef static_xpression<UNCVREF(Matcher), UNCVREF(Next)> type;
             };
 
             template<typename This, typename Matcher, typename Next, typename Next2>
@@ -306,7 +324,7 @@ namespace boost { namespace xpressive
             }
 
             template<typename Matcher, typename Next, typename Next2>
-            static_xpression<Matcher, Next> const &
+            static_xpression<Matcher, Next>
             operator()(static_xpression<Matcher, Next> const &xpr, Next2 const &) const
             {
                 return xpr;
@@ -358,7 +376,7 @@ namespace boost { namespace xpressive
             template<typename This, typename Set, typename Expr, typename Visitor>
             struct result<This(Set, Expr, Visitor)>
             {
-                typedef Set type;
+                typedef UNCVREF(Set) type;
             };
 
             template<typename Set, typename Expr, typename Visitor>
@@ -398,7 +416,7 @@ namespace boost { namespace xpressive
             template<typename This, typename CharSet, typename Xpr, typename Visitor>
             struct result<This(CharSet, Xpr, Visitor)>
             {
-                typedef CharSet type;
+                typedef CVREF(UNREF(CharSet)) type;
             };
 
             template<typename CharSet, typename Traits, typename ICase, typename Not, typename Visitor>
@@ -448,7 +466,7 @@ namespace boost { namespace xpressive
             template<typename This, typename Set>
             struct result<This(Set)>
             {
-                typedef Set type;
+                typedef UNCVREF(Set) type;
             };
 
             template<typename Set>
@@ -466,7 +484,7 @@ namespace boost { namespace xpressive
 
             template<typename This, typename Modifier, typename Visitor>
             struct result<This(Modifier, Visitor)>
-              : Modifier::template apply<Visitor>
+              : remove_reference<Modifier>::type::template apply<UNCVREF(Visitor)>
             {};
 
             template<typename Modifier, typename Visitor>
@@ -1040,5 +1058,12 @@ namespace boost { namespace xpressive
     {};
 
 }} // namespace boost::xpressive
+
+#undef CV
+#undef REF
+#undef CVREF
+#undef UNCV
+#undef UNREF
+#undef UNCVREF
 
 #endif

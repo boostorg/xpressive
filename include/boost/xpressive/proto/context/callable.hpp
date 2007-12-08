@@ -144,7 +144,7 @@ namespace boost { namespace proto
                 typename boost::result_of<
                     Context(
                         typename Expr::proto_tag
-                      , typename proto::result_of::arg_c<Expr, Indices>::const_reference...
+                      , typename proto::result_of::arg_c<Expr, Indices>::type...
                     )
                 >::type
             result_type;

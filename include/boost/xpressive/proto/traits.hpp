@@ -23,11 +23,14 @@
 #define CVREF(T)\
     REF(CV(T))
 
+#define UNCV(T)\
+    typename remove_cv<T>::type
+
 #define UNREF(T)\
     typename remove_reference<T>::type
 
 #define UNCVREF(T)\
-    typename remove_cv<UNREF(T)>::type
+    UNCV(UNREF(T))
 
 namespace boost { namespace proto
 {
@@ -146,7 +149,7 @@ namespace boost { namespace proto
             template<typename This, typename Expr, typename State, typename Visitor>
             struct result<This(Expr, State, Visitor)>
             {
-                typedef expr<typename Expr::proto_tag, args<
+                typedef expr<UNREF(Expr)::proto_tag, args<
                     typename boost::result_of<
                         T(typename result_of::arg_c<Expr, 0>::type, State, Visitor)
                     >::type
@@ -154,12 +157,12 @@ namespace boost { namespace proto
             };
 
             template<typename Expr, typename State, typename Visitor>
-            typename result<unary_expr(Expr, State, Visitor)>::type
+            typename result<unary_expr(Expr const &, State const &, Visitor &)>::type
             operator()(Expr const &expr, State const &state, Visitor &visitor) const
             {
-                typename result<unary_expr(Expr, State, Visitor)>::type that = {
+                typename result<unary_expr(Expr const &, State const &, Visitor &)>::type that = {{
                     T()(proto::arg_c<0>(expr), state, visitor)
-                };
+                }};
                 return that;
             }
         };
@@ -176,17 +179,17 @@ namespace boost { namespace proto
             template<typename This, typename Expr, typename State, typename Visitor>
             struct result<This(Expr, State, Visitor)>
             {
-                typedef expr<typename Expr::proto_tag, args<
+                typedef expr<UNREF(Expr)::proto_tag, args<
                     typename boost::result_of<T(typename result_of::arg_c<Expr, 0>::type, State, Visitor)>::type
                   , typename boost::result_of<U(typename result_of::arg_c<Expr, 1>::type, State, Visitor)>::type
                 > > type;
             };
 
             template<typename Expr, typename State, typename Visitor>
-            typename result<binary_expr(Expr, State, Visitor)>::type
+            typename result<binary_expr(Expr const &, State const &, Visitor &)>::type
             operator()(Expr const &expr, State const &state, Visitor &visitor) const
             {
-                typename result<binary_expr(Expr, State, Visitor)>::type that = {{
+                typename result<binary_expr(Expr const &, State const &, Visitor &)>::type that = {{
                     T()(proto::arg_c<0>(expr), state, visitor)
                   , {U()(proto::arg_c<1>(expr), state, visitor)}
                 }};
@@ -251,17 +254,17 @@ namespace boost { namespace proto
             template<typename This, typename Expr, typename State, typename Visitor>
             struct result<This(Expr, State, Visitor)>
             {
-                typedef detail::apply_args<args<Args...>, typename Expr::proto_args, State, Visitor> apply;
-                typedef expr<typename Expr::proto_tag, typename apply::type> type;
+                typedef detail::apply_args<args<Args...>, UNREF(Expr)::proto_args, State, Visitor> apply_;
+                typedef expr<UNREF(Expr)::proto_tag, typename apply_::type> type;
             };
 
             template<typename Expr, typename State, typename Visitor>
-            typename result<nary_expr(Expr, State, Visitor)>::type
+            typename result<nary_expr(Expr const &, State const &, Visitor &)>::type
             operator()(Expr const &expr, State const &state, Visitor &visitor) const
             {
-                typedef detail::apply_args<args<Args...>, typename Expr::proto_args, State, Visitor> apply;
-                typename result<nary_expr(Expr, State, Visitor)>::type that = {
-                    apply::call(expr.proto_base().proto_args_, state, visitor)
+                typedef result<nary_expr(Expr const &, State const &, Visitor &)> result_;
+                typename result_::type that = {
+                    result_::apply_::call(expr.proto_base().proto_args_, state, visitor)
                 };
                 return that;
             }
@@ -284,15 +287,8 @@ namespace boost { namespace proto
             {
                 typedef arg_c<typename Cons::cdr_type::cdr_type, N-2> base_type;
                 typedef typename base_type::type type;
-                typedef typename base_type::reference reference;
-                typedef typename base_type::const_reference const_reference;
 
-                static reference call(Cons &args)
-                {
-                    return base_type::call(args.cdr.cdr);
-                }
-
-                static const_reference call(Cons const &args)
+                static type call(Cons &args)
                 {
                     return base_type::call(args.cdr.cdr);
                 }
@@ -301,16 +297,9 @@ namespace boost { namespace proto
             template<typename Cons>
             struct arg_c<Cons, 0>
             {
-                typedef UNCVREF(typename Cons::car_type) type;
-                typedef REF(typename Cons::car_type) reference;
-                typedef CVREF(typename Cons::car_type) const_reference;
+                typedef REF(typename Cons::car_type) type;
 
-                static reference call(Cons &args)
-                {
-                    return args.car;
-                }
-
-                static const_reference call(Cons const &args)
+                static type call(Cons &args)
                 {
                     return args.car;
                 }
@@ -319,41 +308,101 @@ namespace boost { namespace proto
             template<typename Cons>
             struct arg_c<Cons, 1>
             {
-                typedef UNCVREF(typename Cons::cdr_type::car_type) type;
-                typedef REF(typename Cons::cdr_type::car_type) reference;
-                typedef CVREF(typename Cons::cdr_type::car_type) const_reference;
+                typedef REF(typename Cons::cdr_type::car_type) type;
 
-                static reference call(Cons &args)
-                {
-                    return args.cdr.car;
-                }
-
-                static const_reference call(Cons const &args)
+                static type call(Cons &args)
                 {
                     return args.cdr.car;
                 }
             };
 
+
+            template<typename Cons, long N>
+            struct arg_cv
+            {
+                typedef arg_cv<typename Cons::cdr_type::cdr_type, N-2> base_type;
+                typedef typename base_type::type type;
+
+                static type call(Cons const &args)
+                {
+                    return base_type::call(args.cdr.cdr);
+                }
+            };
+
+            template<typename Cons>
+            struct arg_cv<Cons, 0>
+            {
+                typedef CVREF(typename Cons::car_type) type;
+
+                static type call(Cons const &args)
+                {
+                    return args.car;
+                }
+            };
+
+            template<typename Cons>
+            struct arg_cv<Cons, 1>
+            {
+                typedef CVREF(typename Cons::cdr_type::car_type) type;
+
+                static type call(Cons const &args)
+                {
+                    return args.cdr.car;
+                }
+            };
+
+            template<typename Cons, long N>
+            struct value_at_c
+              : value_at_c<typename Cons::cdr_type::cdr_type, N-2>
+            {};
+
+            template<typename Cons>
+            struct value_at_c<Cons, 0>
+            {
+                typedef typename Cons::car_type type;
+            };
+
+            template<typename Cons>
+            struct value_at_c<Cons, 1>
+            {
+                typedef typename Cons::cdr_type::car_type type;
+            };
+
         } // namespace detail
+
+        template<typename Expr, long N>
+        struct value_at_c
+          : detail::value_at_c<typename Expr::proto_args::cons_type, N>
+        {};
 
         template<typename Expr, long N>
         struct arg_c
           : detail::arg_c<typename Expr::proto_args::cons_type, N>
         {};
 
+        template<typename Expr, long N>
+        struct arg_c<Expr const, N>
+          : detail::arg_cv<typename Expr::proto_args::cons_type, N>
+        {};
+
+        template<typename Expr, long N>
+        struct arg_c<Expr &, N>
+          : arg_c<Expr, N>
+        {};
+
         template<typename Expr>
         struct arg
-          : detail::arg_c<typename Expr::proto_args::cons_type, 0>
+          : arg_c<Expr, 0>
         {};
 
         template<typename Expr>
         struct left
-          : detail::arg_c<typename Expr::proto_args::cons_type, 0>
+          : arg_c<Expr, 0>
         {};
 
         template<typename Expr>
         struct right
-          : detail::arg_c<typename Expr::proto_args::cons_type, 1>
+          : arg_c<Expr, 1>
         {};
 
         // as_expr
@@ -494,19 +543,21 @@ namespace boost { namespace proto
 
             template<typename This, typename Expr>
             struct result<This(Expr)>
-              : result_of::arg_c<UNCVREF(Expr), N>
+              : result_of::arg_c<Expr, N>
             {};
 
             template<typename Expr>
-            typename result_of::arg_c<Expr, N>::reference operator ()(Expr &expr) const
+            typename result_of::arg_c<Expr, N>::type
+            operator ()(Expr &expr) const
             {
                 return result_of::arg_c<Expr, N>::call(expr);
             }
 
             template<typename Expr>
-            typename result_of::arg_c<Expr, N>::const_reference operator ()(Expr const &expr) const
+            typename result_of::arg_c<Expr const, N>::type
+            operator ()(Expr const &expr) const
             {
-                return result_of::arg_c<Expr, N>::call(expr);
+                return result_of::arg_c<Expr const, N>::call(expr);
             }
         };
 
@@ -543,51 +594,51 @@ namespace boost { namespace proto
     }
 
     template<typename Expr>
-    typename result_of::arg<Expr>::reference arg(Expr &expr)
+    typename result_of::arg<Expr>::type arg(Expr &expr)
     {
         return result_of::arg<Expr>::call(expr.proto_base().proto_args_);
     }
 
     template<typename Expr>
-    typename result_of::arg<Expr>::const_reference arg(Expr const &expr)
+    typename result_of::arg<Expr const>::type arg(Expr const &expr)
     {
-        return result_of::arg<Expr>::call(expr.proto_base().proto_args_);
+        return result_of::arg<Expr const>::call(expr.proto_base().proto_args_);
     }
 
     template<typename Expr>
-    typename result_of::left<Expr>::reference left(Expr &expr)
+    typename result_of::left<Expr>::type left(Expr &expr)
     {
         return result_of::left<Expr>::call(expr.proto_base().proto_args_);
     }
 
     template<typename Expr>
-    typename result_of::left<Expr>::const_reference left(Expr const &expr)
+    typename result_of::left<Expr const>::type left(Expr const &expr)
     {
-        return result_of::left<Expr>::call(expr.proto_base().proto_args_);
+        return result_of::left<Expr const>::call(expr.proto_base().proto_args_);
     }
 
     template<typename Expr>
-    typename result_of::right<Expr>::reference right(Expr &expr)
+    typename result_of::right<Expr>::type right(Expr &expr)
     {
         return result_of::right<Expr>::call(expr.proto_base().proto_args_);
     }
 
     template<typename Expr>
-    typename result_of::right<Expr>::const_reference right(Expr const &expr)
+    typename result_of::right<Expr const>::type right(Expr const &expr)
     {
-        return result_of::right<Expr>::call(expr.proto_base().proto_args_);
+        return result_of::right<Expr const>::call(expr.proto_base().proto_args_);
     }
 
     template<long N, typename Expr>
-    typename result_of::arg_c<Expr, N>::reference arg_c(Expr &expr)
+    typename result_of::arg_c<Expr, N>::type arg_c(Expr &expr)
     {
         return result_of::arg_c<Expr, N>::call(expr.proto_base().proto_args_);
     }
 
     template<long N, typename Expr>
-    typename result_of::arg_c<Expr, N>::const_reference arg_c(Expr const &expr)
+    typename result_of::arg_c<Expr const, N>::type arg_c(Expr const &expr)
     {
-        return result_of::arg_c<Expr, N>::call(expr.proto_base().proto_args_);
+        return result_of::arg_c<Expr const, N>::call(expr.proto_base().proto_args_);
     }
 
     template<typename T>
@@ -707,6 +758,7 @@ namespace boost { namespace proto
 #undef CV
 #undef REF
 #undef CVREF
+#undef UNCV
 #undef UNREF
 #undef UNCVREF
 

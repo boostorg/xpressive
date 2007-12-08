@@ -121,7 +121,7 @@ namespace boost { namespace proto
 
             template<typename This, typename Expr>
             struct result<This(Expr)>
-              : fusion::result_of::reverse<Expr const>
+              : fusion::result_of::reverse<UNREF(Expr) const>
             {};
 
             template<typename Expr>
@@ -213,7 +213,7 @@ namespace boost { namespace fusion
         {
             template<typename Iterator>
             struct apply
-              : proto::result_of::arg_c<
+              : proto::result_of::value_at_c<
                     typename Iterator::expr_type
                   , Iterator::index
                 >
@@ -231,9 +231,9 @@ namespace boost { namespace fusion
             {
                 typedef
                     typename proto::result_of::arg_c<
-                        typename Iterator::expr_type
+                        typename Iterator::expr_type const
                       , Iterator::index
-                    >::const_reference
+                    >::type
                 type;
 
                 static type call(Iterator const &iter)
@@ -369,6 +369,36 @@ namespace boost { namespace fusion
         };
 
         template<typename Tag>
+        struct value_at_impl;
+
+        template<>
+        struct value_at_impl<proto::tag::proto_expr>
+        {
+            template<typename Sequence, typename Index>
+            struct apply
+              : proto::result_of::value_at_c<Sequence, Index::value>
+            {};
+        };
+
+        template<typename Tag>
+        struct at_impl;
+
+        template<>
+        struct at_impl<proto::tag::proto_expr>
+        {
+            template<typename Sequence, typename Index>
+            struct apply
+            {
+                typedef typename proto::result_of::arg_c<Sequence, Index::value>::type type;
+
+                static type call(Sequence &seq)
+                {
+                    return proto::arg_c<Index::value>(seq);
+                }
+            };
+        };
+
+        template<typename Tag>
         struct is_segmented_impl;
 
         template<>
@@ -396,10 +426,10 @@ namespace boost { namespace fusion
             {};
 
             template<typename Expr>
-            typename result<as_element(Expr)>::type
+            typename result<as_element(Expr &)>::type
             operator()(Expr &expr) const
             {
-                return typename result<as_element(Expr)>::type(expr);
+                return typename result<as_element(Expr &)>::type(expr);
             }
         };
 

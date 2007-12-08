@@ -28,7 +28,7 @@
 #ifndef BOOST_PROTO_DOXYGEN_INVOKED
     #define BOOST_PROTO_DECLTYPE_NESTED_TYPEDEF_TPL_(Nested, Expr)\
         BOOST_TYPEOF_NESTED_TYPEDEF_TPL(BOOST_PP_CAT(nested_and_hidden_, Nested), Expr)\
-        static int const sz = sizeof(detail::check_reference(Expr));\
+        static int const sz = sizeof(proto::detail::check_reference(Expr));\
         struct Nested\
           : mpl::if_c<\
                 1==sz\
@@ -245,16 +245,9 @@ namespace boost { namespace proto
         BOOST_PROTO_BINARY_OP_RESULT(^=, proto::tag::bitwise_xor_assign)
 
         template<typename Expr, typename Context>
-
         struct default_eval<Expr, Context, proto::tag::terminal>
         {
-            typedef
-                typename mpl::if_<
-                    is_const<Expr>
-                  , typename proto::result_of::arg<Expr>::const_reference
-                  , typename proto::result_of::arg<Expr>::reference
-                >::type
-            result_type;
+            typedef typename proto::result_of::arg<Expr>::type result_type;
 
             result_type operator()(Expr &expr, Context &) const
             {

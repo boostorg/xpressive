@@ -21,6 +21,15 @@ using proto::_;
 template<typename Expr>
 struct VectorExpr;
 
+template<typename T>
+struct arg
+  : remove_cv<
+        typename remove_reference<
+            typename proto::result_of::value_at_c<T, 0>::type
+        >::type
+    >
+{};
+
 // Here is an evaluation context that indexes into a std::vector
 // expression and combines the result.
 struct VectorSubscriptCtx
@@ -31,7 +40,7 @@ struct VectorSubscriptCtx
 
     // Unless this is a vector terminal, use the
     // default evaluation context
-    template<typename Expr, typename Arg = typename proto::result_of::arg<Expr>::type>
+    template<typename Expr, typename Arg = typename arg<Expr>::type>
     struct eval
       : proto::default_eval<Expr, VectorSubscriptCtx const>
     {};
@@ -61,7 +70,7 @@ struct VectorSizeCtx
 
     // Unless this is a vector terminal, use the
     // null evaluation context
-    template<typename Expr, typename Arg = typename proto::result_of::arg<Expr>::type>
+    template<typename Expr, typename Arg = typename arg<Expr>::type>
     struct eval
       : proto::null_eval<Expr, VectorSizeCtx const>
     {};

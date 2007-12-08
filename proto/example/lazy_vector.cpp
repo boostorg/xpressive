@@ -55,7 +55,7 @@ struct lazy_subscript_context
     template<typename Expr>
     struct eval<Expr, proto::tag::terminal>
     {
-        typedef typename proto::result_of::arg<Expr>::type::value_type result_type;
+        typedef typename proto::result_of::value_at_c<Expr, 0>::type::value_type result_type;
 
         result_type operator()( Expr const & expr, lazy_subscript_context & ctx ) const
         {

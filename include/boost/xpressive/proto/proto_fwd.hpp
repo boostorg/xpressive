@@ -163,17 +163,14 @@ namespace boost { namespace proto
 
     namespace result_of
     {
-        namespace detail
-        {
-            template<typename Args, long N>
-            struct arg_c;
-        }
-
         template<typename Expr>
         struct tag_of
         {
             typedef typename Expr::proto_tag type;
         };
+
+        template<typename Expr, long N>
+        struct value_at_c;
 
         template<typename Expr, long N>
         struct arg_c;
@@ -216,11 +213,11 @@ namespace boost { namespace proto
 	using result_of::is_expr;
 
     template<long N, typename Expr>
-    typename result_of::arg_c<Expr, N>::reference
+    typename result_of::arg_c<Expr, N>::type
     arg_c(Expr &expr);
 
     template<long N, typename Expr>
-    typename result_of::arg_c<Expr, N>::const_reference
+    typename result_of::arg_c<Expr const, N>::type
     arg_c(Expr const &expr);
 
     template<typename T>
@@ -229,11 +226,6 @@ namespace boost { namespace proto
 
     namespace op
     {
-        // BUGBUG move this elsewhere
-        namespace detail
-        {
-        }
-
         template<typename T> struct terminal;
         template<typename T> struct posit;
         template<typename T> struct negate;

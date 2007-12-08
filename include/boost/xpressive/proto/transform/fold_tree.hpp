@@ -15,6 +15,24 @@
 #include <boost/xpressive/proto/traits.hpp>
 #include <boost/xpressive/proto/transform/fold.hpp>
 
+#define CV(T)\
+    typename add_const<T>::type
+
+#define REF(T)\
+    typename add_reference<T>::type
+
+#define CVREF(T)\
+    REF(CV(T))
+
+#define UNCV(T)\
+    typename remove_cv<T>::type
+
+#define UNREF(T)\
+    typename remove_reference<T>::type
+
+#define UNCVREF(T)\
+    UNCV(UNREF(T))
+
 namespace boost { namespace proto
 {
 
@@ -55,7 +73,7 @@ namespace boost { namespace proto
                     Sequence
                   , State0
                   , detail::fold_tree_<
-                        nary_expr<typename Expr::proto_tag, vararg<_> >
+                        nary_expr<UNREF(Expr)::proto_tag, vararg<_> >
                       , Fun
                     >
                 > impl;
@@ -64,10 +82,10 @@ namespace boost { namespace proto
             };
 
             template<typename Expr, typename State, typename Visitor>
-            typename result<fold_tree(Expr, State, Visitor)>::type
+            typename result<fold_tree(Expr const &, State const &, Visitor &)>::type
             operator()(Expr const &expr, State const &state, Visitor &visitor) const
             {
-                typedef typename result<fold_tree(Expr, State, Visitor)>::impl impl;
+                typedef typename result<fold_tree(Expr const &, State const &, Visitor &)>::impl impl;
                 return impl()(expr, state, visitor);
             }
         };
@@ -86,7 +104,7 @@ namespace boost { namespace proto
                     Sequence
                   , State0
                   , detail::reverse_fold_tree_<
-                        nary_expr<typename Expr::proto_tag, vararg<_> >
+                        nary_expr<UNREF(Expr)::proto_tag, vararg<_> >
                       , Fun
                     >
                 > impl;
@@ -95,10 +113,10 @@ namespace boost { namespace proto
             };
 
             template<typename Expr, typename State, typename Visitor>
-            typename result<reverse_fold_tree(Expr, State, Visitor)>::type
+            typename result<reverse_fold_tree(Expr const &, State const &, Visitor &)>::type
             operator()(Expr const &expr, State const &state, Visitor &visitor) const
             {
-                typedef typename result<reverse_fold_tree(Expr, State, Visitor)>::impl impl;
+                typedef typename result<reverse_fold_tree(Expr const &, State const &, Visitor &)>::impl impl;
                 return impl()(expr, state, visitor);
             }
         };
@@ -124,5 +142,12 @@ namespace boost { namespace proto
       : mpl::true_
     {};
 }}
+
+#undef CV
+#undef REF
+#undef CVREF
+#undef UNCV
+#undef UNREF
+#undef UNCVREF
 
 #endif

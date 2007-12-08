@@ -13,6 +13,24 @@
 #include <boost/xpressive/proto/proto_fwd.hpp>
 #include <boost/xpressive/proto/traits.hpp>
 
+#define CV(T)\
+    typename add_const<T>::type
+
+#define REF(T)\
+    typename add_reference<T>::type
+
+#define CVREF(T)\
+    REF(CV(T))
+
+#define UNCV(T)\
+    typename remove_cv<T>::type
+
+#define UNREF(T)\
+    typename remove_reference<T>::type
+
+#define UNCVREF(T)\
+    UNCV(UNREF(T))
+
 namespace boost { namespace proto
 {
 
@@ -80,7 +98,7 @@ namespace boost { namespace proto
             struct arity1
             {
                 static callable1_wrap<Fun> &fun;
-                static A0 &a0;
+                static REF(A0) a0;
 
                 static int const value =
                     sizeof(yes_type) == sizeof(check_fun_arity((fun(a0), 0)))
@@ -92,8 +110,8 @@ namespace boost { namespace proto
             struct arity2
             {
                 static callable2_wrap<Fun> &fun;
-                static A0 &a0;
-                static A1 &a1;
+                static REF(A0) a0;
+                static REF(A1) a1;
 
                 static int const value =
                     sizeof(yes_type) == sizeof(check_fun_arity((fun(a0, a1), 0)))
@@ -186,7 +204,7 @@ namespace boost { namespace proto
             {};
 
             template<typename Expr, typename State, typename Visitor>
-            typename result<call(Expr, State, Visitor)>::type
+            typename result<call(Expr const &, State const &, Visitor &)>::type
             operator()(Expr const &expr, State const &state, Visitor &visitor) const
             {
                 Fun f;
@@ -211,10 +229,10 @@ namespace boost { namespace proto
             {};
 
             template<typename Expr, typename State, typename Visitor>
-            typename result<call(Expr, State, Visitor)>::type
+            typename result<call(Expr const &, State const &, Visitor &)>::type
             operator()(Expr const &expr, State const &state, Visitor &visitor) const
             {
-                return result<call(Expr, State, Visitor)>::call(
+                return result<call(Expr const &, State const &, Visitor &)>::call(
                     expr
                   , state
                   , visitor
@@ -239,10 +257,10 @@ namespace boost { namespace proto
             {};
 
             template<typename Expr, typename State, typename Visitor>
-            typename result<call(Expr, State, Visitor)>::type
+            typename result<call(Expr const &, State const &, Visitor &)>::type
             operator()(Expr const &expr, State const &state, Visitor &visitor) const
             {
-                return result<call(Expr, State, Visitor)>::call(
+                return result<call(Expr const &, State const &, Visitor &)>::call(
                     when<_, Arg0>()(expr, state, visitor)
                   , state
                   , visitor
@@ -267,10 +285,10 @@ namespace boost { namespace proto
             {};
 
             template<typename Expr, typename State, typename Visitor>
-            typename result<call(Expr, State, Visitor)>::type
+            typename result<call(Expr const &, State const &, Visitor &)>::type
             operator()(Expr const &expr, State const &state, Visitor &visitor) const
             {
-                return result<call(Expr, State, Visitor)>::call(
+                return result<call(Expr const &, State const &, Visitor &)>::call(
                     when<_, Arg0>()(expr, state, visitor)
                   , when<_, Arg1>()(expr, state, visitor)
                   , visitor
@@ -296,7 +314,7 @@ namespace boost { namespace proto
             {};
 
             template<typename Expr, typename State, typename Visitor>
-            typename result<call(Expr, State, Visitor)>::type
+            typename result<call(Expr const &, State const &, Visitor &)>::type
             operator()(Expr const &expr, State const &state, Visitor &visitor) const
             {
                 Fun f;
@@ -321,5 +339,12 @@ namespace boost { namespace proto
     {};
 
 }}
+
+#undef CV
+#undef REF
+#undef CVREF
+#undef UNCV
+#undef UNREF
+#undef UNCVREF
 
 #endif

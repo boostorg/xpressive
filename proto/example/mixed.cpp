@@ -29,6 +29,15 @@ using proto::_;
 template<typename Expr>
 struct MixedExpr;
 
+template<typename T>
+struct arg
+  : remove_cv<
+        typename remove_reference<
+            typename proto::result_of::value_at_c<T, 0>::type
+        >::type
+    >
+{};
+
 template<typename Iter>
 struct iterator_wrapper
 {
@@ -41,13 +50,18 @@ struct iterator_wrapper
 
 struct begin : proto::transform_base
 {
-    template<class Sig> struct result;
+    template<class Sig>
+    struct result;
+    
     template<class This, class Cont>
     struct result<This(Cont)>
-      : proto::result_of::as_expr<iterator_wrapper<typename Cont::const_iterator> >
+      : proto::result_of::as_expr<
+            iterator_wrapper<typename remove_reference<Cont>::type::const_iterator>
+        >
     {};
+    
     template<typename Cont>
-    typename proto::result_of::as_expr<iterator_wrapper<typename Cont::const_iterator> >::type
+    typename result<begin(Cont const &)>::type
     operator()(Cont const &cont) const
     {
         iterator_wrapper<typename Cont::const_iterator> it(cont.begin());
@@ -72,7 +86,7 @@ struct DereferenceCtx
 {
     // Unless this is a vector terminal, use the
     // default evaluation context
-    template<typename Expr, typename Arg = typename proto::result_of::arg<Expr>::type>
+    template<typename Expr, typename Arg = typename arg<Expr>::type>
     struct eval
       : proto::default_eval<Expr, DereferenceCtx const>
     {};
@@ -96,7 +110,7 @@ struct IncrementCtx
 {
     // Unless this is a vector terminal, use the
     // default evaluation context
-    template<typename Expr, typename Arg = typename proto::result_of::arg<Expr>::type>
+    template<typename Expr, typename Arg = typename arg<Expr>::type>
     struct eval
       : proto::null_eval<Expr, IncrementCtx const>
     {};

@@ -49,11 +49,9 @@ namespace boost { namespace xpressive { namespace detail
 
     template<typename Expr, long N>
     struct child_
-      : remove_reference<typename mpl::if_<
-            is_const<Expr>
-          , typename proto::result_of::arg_c<Expr, N>::const_reference
-          , typename proto::result_of::arg_c<Expr, N>::reference
-        >::type>
+      : remove_reference<
+            typename proto::result_of::arg_c<Expr, N>::type
+        >
     {};
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -271,7 +269,7 @@ namespace boost { namespace xpressive { namespace detail
         template<typename This, typename State, typename Index>
         struct result<This(State, Index)>
         {
-            typedef sub_match<typename State::iterator> type;
+            typedef sub_match<typename remove_reference<State>::type::iterator> type;
         };
 
         template<typename State, typename Index>
@@ -289,7 +287,7 @@ namespace boost { namespace xpressive { namespace detail
         template<typename This, typename State, typename Attr>
         struct result<This(State, Attr)>
         {
-            typedef typename Attr::matcher_type::value_type::second_type const *type;
+            typedef typename remove_reference<Attr>::type::matcher_type::value_type::second_type const *type;
         };
 
         template<typename State, typename Attr>
@@ -333,7 +331,7 @@ namespace boost { namespace xpressive { namespace detail
     template<typename Expr>
     struct const_reference
     {
-        typedef typename proto::result_of::arg<Expr>::const_reference type;
+        typedef typename proto::result_of::arg<Expr>::type type;
     };
 
     using grammar_detail::mark_number;

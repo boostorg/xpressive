@@ -43,17 +43,19 @@ namespace boost { namespace proto
             };
 
             template<typename... Args>
-            argsns_::cons<typename deep_copy_impl<UNCVREF(Args)>::type...>
+            typename result<deep_copy_cons(Args...)>::type
             operator()(Args const &... args) const
             {
-                return argsns_::make_cons(deep_copy_impl<Args>::call(args)...);
+                return result<deep_copy_cons(Args...)>::type::make(
+                    deep_copy_impl<Args>::call(args)...
+                );
             }
         };
 
         template<typename Expr, typename T>
         struct deep_copy_impl<Expr, term<T> >
         {
-            typedef typename terminal<typename result_of::arg<Expr>::type>::type expr_type;
+            typedef typename terminal<UNCVREF(T)>::type expr_type;
             typedef typename Expr::proto_domain::template apply<expr_type>::type type;
 
             static type call(Expr const &expr)
