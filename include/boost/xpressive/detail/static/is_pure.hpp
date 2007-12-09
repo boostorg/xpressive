@@ -63,14 +63,14 @@ namespace boost { namespace xpressive { namespace detail
 
     template<typename Expr, typename Char>
     struct use_simple_repeat_<Expr, Char, proto::tag::terminal>
-      : use_simple_repeat_terminal<typename proto::result_of::arg<Expr>::type, Char>
+      : use_simple_repeat_terminal<typename unref_arg_c<Expr, 0>::type, Char>
     {};
 
     template<typename Expr, typename Char>
     struct use_simple_repeat_<Expr, Char, proto::tag::shift_right>
       : mpl::and_<
-            use_simple_repeat_<typename proto::result_of::arg_c<Expr, 0>::type, Char>
-          , use_simple_repeat_<typename proto::result_of::arg_c<Expr, 1>::type, Char>
+            use_simple_repeat_<typename unref_arg_c<Expr, 0>::type, Char>
+          , use_simple_repeat_<typename unref_arg_c<Expr, 1>::type, Char>
         >
     {};
 
@@ -78,8 +78,8 @@ namespace boost { namespace xpressive { namespace detail
     struct use_simple_repeat_<Expr, Char, proto::tag::bitwise_or>
       : mpl::and_<
             mpl::not_equal_to<unknown_width, width_of<Expr, Char> >
-          , use_simple_repeat_<typename proto::result_of::arg_c<Expr, 0>::type, Char>
-          , use_simple_repeat_<typename proto::result_of::arg_c<Expr, 1>::type, Char>
+          , use_simple_repeat_<typename unref_arg_c<Expr, 0>::type, Char>
+          , use_simple_repeat_<typename unref_arg_c<Expr, 1>::type, Char>
         >
     {};
 
@@ -105,12 +105,12 @@ namespace boost { namespace xpressive { namespace detail
     // either (s1 = ...) or (a1 = ...) or (set = ...)
     template<typename Expr, typename Char>
     struct use_simple_repeat_<Expr, Char, proto::tag::assign>
-      : use_simple_repeat_assign<typename proto::result_of::arg<typename proto::result_of::arg_c<Expr, 0>::type>::type>
+      : use_simple_repeat_assign<typename unref_arg_c<typename unref_arg_c<Expr, 0>::type, 0>::type>
     {};
 
     template<typename Expr, typename Char>
     struct use_simple_repeat_<Expr, Char, modifier_tag>
-      : use_simple_repeat_<typename proto::result_of::arg_c<Expr, 0>::type, Char>
+      : use_simple_repeat_<typename unref_arg_c<Expr, 0>::type, Char>
     {};
 
     template<typename Expr, typename Char>
@@ -131,7 +131,7 @@ namespace boost { namespace xpressive { namespace detail
     // when complementing a set or an assertion, the purity is that of the set (true) or the assertion
     template<typename Expr, typename Char>
     struct use_simple_repeat_<Expr, Char, proto::tag::complement>
-      : use_simple_repeat_<typename proto::result_of::arg_c<Expr, 0>::type, Char>
+      : use_simple_repeat_<typename unref_arg_c<Expr, 0>::type, Char>
     {};
 
     // The comma is used in list-initialized sets, which are pure
@@ -154,7 +154,7 @@ namespace boost { namespace xpressive { namespace detail
 
     template<typename Expr, typename Char>
     struct use_simple_repeat_<Expr, Char, proto::tag::subscript>
-      : use_simple_repeat_subscript<Expr, Char, typename proto::result_of::arg_c<Expr, 0>::type>
+      : use_simple_repeat_subscript<Expr, Char, typename unref_arg_c<Expr, 0>::type>
     {};
 
     // Quantified expressions are variable-width and cannot use the simple quantifier
@@ -180,12 +180,12 @@ namespace boost { namespace xpressive { namespace detail
 
     template<typename Expr, typename Char, uint_t Count>
     struct use_simple_repeat_<Expr, Char, generic_quant_tag<Count, Count> >
-      : use_simple_repeat_<typename proto::result_of::arg_c<Expr, 0>::type, Char>
+      : use_simple_repeat_<typename unref_arg_c<Expr, 0>::type, Char>
     {};
 
     template<typename Expr, typename Char>
     struct use_simple_repeat_<Expr, Char, proto::tag::negate>
-      : use_simple_repeat_<typename proto::result_of::arg_c<Expr, 0>::type, Char>
+      : use_simple_repeat_<typename unref_arg_c<Expr, 0>::type, Char>
     {};
 
     ///////////////////////////////////////////////////////////////////////////////

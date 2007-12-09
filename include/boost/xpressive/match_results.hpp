@@ -503,13 +503,8 @@ public:
     template<typename Arg>
     match_results<BidiIter> &let(Arg const &arg)
     {
-        typedef typename proto::result_of::left<Arg>::type left_type;
-        typedef typename proto::result_of::right<Arg>::type right_type;
-        typedef typename proto::result_of::arg<left_type>::type arg_left_type;
-        typedef typename proto::result_of::arg<right_type>::type arg_right_type;
         BOOST_MPL_ASSERT((proto::matches<Arg, detail::ActionArgBinding>));
-        BOOST_MPL_ASSERT((is_same<typename arg_left_type::type, arg_right_type>));
-        this->args_[&typeid(proto::arg(proto::left(arg)))] = &proto::arg(proto::right(arg));
+        this->let_(proto::arg(proto::left(arg)), proto::arg(proto::right(arg)));
         return *this;
     }
 
@@ -1043,6 +1038,15 @@ private:
         boost::throw_exception(regex_error(error_badmark, "invalid named back-reference"));
         // Should never get here
         return out;
+    }
+
+    /// INTERNAL ONLY
+    ///
+    template<typename Left, typename Right>
+    void let_(Left const &, Right &right)
+    {
+        BOOST_MPL_ASSERT((is_same<typename Left::type, Right>));
+        this->args_[&typeid(Left)] = &right;
     }
 
     regex_id_type regex_id_;

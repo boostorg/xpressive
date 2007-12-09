@@ -81,8 +81,16 @@ namespace boost { namespace xpressive { namespace detail
     static_compile_impl1(Xpr const &xpr, shared_ptr<regex_impl<BidiIter> > const &impl)
     {
         // use specified traits
-        typedef typename proto::result_of::arg<typename proto::result_of::left<Xpr>::type>::type::locale_type locale_type;
+        typedef
+            typename remove_reference<
+                typename proto::result_of::arg<
+                    typename proto::result_of::left<Xpr>::type
+                >::type
+            >::type::locale_type
+        locale_type;
+
         typedef typename regex_traits_type<locale_type, BidiIter>::type traits_type;
+
         static_compile_impl2(proto::right(xpr), impl, traits_type(proto::arg(proto::left(xpr)).getloc()));
     }
 

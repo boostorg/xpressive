@@ -65,8 +65,9 @@ namespace boost { namespace xpressive { namespace detail
         typedef typename child_<Expr, 1>::type right_type;
 
         typedef
-            typename proto::result_of::arg<
+            typename proto::result_of::value_at_c<
                 typename proto::result_of::arg_c<right_type, 0>::type
+              , 0
             >::type
         function_type;
 
@@ -110,7 +111,7 @@ namespace boost { namespace xpressive { namespace detail
         typedef typename child_<Expr, 1>::type right_type;
 
         typedef
-            typename proto::result_of::arg<right_type>::type
+            typename proto::result_of::value_at_c<right_type, 0>::type
         function_type;
 
         typedef typename boost::result_of<
@@ -200,7 +201,7 @@ namespace boost { namespace xpressive { namespace detail
 
         template<typename Expr>
         struct eval<Expr, proto::tag::terminal>
-          : eval_terminal<Expr, typename proto::result_of::arg<Expr>::type>
+          : eval_terminal<Expr, typename unref_arg_c<Expr, 0>::type>
         {};
 
         // Evaluate attributes like a1|42
@@ -208,12 +209,13 @@ namespace boost { namespace xpressive { namespace detail
         struct eval<Expr, attr_with_default_tag>
         {
             typedef
-                typename proto::result_of::arg<
+                typename proto::result_of::value_at_c<
                     typename proto::result_of::left<
                         typename proto::result_of::arg<
                             Expr
                         >::type
                     >::type
+                  , 0
                 >::type
             temp_type;
 
@@ -331,7 +333,7 @@ namespace boost { namespace xpressive { namespace detail
     template<typename Expr>
     struct const_reference
     {
-        typedef typename proto::result_of::arg<Expr>::type type;
+        typedef typename proto::result_of::arg<Expr const>::type type;
     };
 
     using grammar_detail::mark_number;

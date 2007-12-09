@@ -78,7 +78,7 @@ namespace boost { namespace xpressive { namespace detail
 
         template<typename Expr>
         struct eval<Expr, proto::tag::terminal>
-          : eval_terminal<Expr, typename proto::result_of::arg<Expr>::type>
+          : eval_terminal<Expr, typename unref_arg_c<Expr, 0>::type>
         {};
 
         #if BOOST_VERSION >= 103500

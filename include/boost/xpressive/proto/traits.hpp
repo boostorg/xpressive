@@ -376,6 +376,11 @@ namespace boost { namespace proto
         {};
 
         template<typename Expr, long N>
+        struct value_at_c<Expr &, N>
+          : detail::value_at_c<typename Expr::proto_args::cons_type, N>
+        {};
+
+        template<typename Expr, long N>
         struct arg_c
           : detail::arg_c<typename Expr::proto_args::cons_type, N>
         {};

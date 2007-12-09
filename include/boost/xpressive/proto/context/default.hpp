@@ -23,6 +23,24 @@
 #include <boost/xpressive/proto/traits.hpp> // for proto::arg_c()
 #include <boost/xpressive/proto/detail/indices.hpp>
 
+#define CV(T)\
+    typename add_const<T>::type
+
+#define REF(T)\
+    typename add_reference<T>::type
+
+#define CVREF(T)\
+    REF(CV(T))
+
+#define UNCV(T)\
+    typename remove_cv<T>::type
+
+#define UNREF(T)\
+    typename remove_reference<T>::type
+
+#define UNCVREF(T)\
+    UNCV(UNREF(T))
+
 // If we're generating doxygen documentation, hide all the nasty
 // Boost.Typeof gunk.
 #ifndef BOOST_PROTO_DOXYGEN_INVOKED
@@ -134,7 +152,7 @@ namespace boost { namespace proto
             typedef
                 typename proto::detail::result_of_fixup<
                     typename proto::result_of::eval<
-                        typename proto::result_of::arg_c<Expr, 0>::type
+                        typename remove_reference<typename proto::result_of::arg_c<Expr, 0>::type>::type
                       , Context
                     >::type
                 >::type
@@ -144,7 +162,7 @@ namespace boost { namespace proto
                 typename boost::result_of<
                     function_type(
                         typename proto::result_of::eval<
-                            typename proto::result_of::arg_c<Expr, Indices>::type
+                            typename remove_reference<typename proto::result_of::arg_c<Expr, Indices>::type>::type
                           , Context
                         >::type...
                     )
@@ -326,9 +344,18 @@ namespace boost { namespace proto
         template<typename Expr, typename Context>
         struct default_eval<Expr, Context, proto::tag::comma>
         {
-            typedef typename proto::result_of::eval<typename proto::result_of::arg_c<Expr, 0>::type, Context>::type proto_arg0;
-            typedef typename proto::result_of::eval<typename proto::result_of::arg_c<Expr, 1>::type, Context>::type proto_arg1;
+            typedef typename proto::result_of::eval<
+                typename remove_reference<typename proto::result_of::arg_c<Expr, 0>::type>::type
+              , Context
+            >::type proto_arg0;
+            
+            typedef typename proto::result_of::eval<
+                typename remove_reference<typename proto::result_of::arg_c<Expr, 1>::type>::type
+              , Context
+            >::type proto_arg1;
+
             typedef typename proto::detail::comma_result<proto_arg0, proto_arg1>::type result_type;
+
             result_type operator()(Expr &expr, Context &ctx) const
             {
                 return proto::eval(proto::arg_c<0>(expr), ctx), proto::eval(proto::arg_c<1>(expr), ctx);
@@ -360,5 +387,12 @@ namespace boost { namespace proto
     } // namespace context
 
 }} // namespace boost::proto
+
+#undef CV
+#undef REF
+#undef CVREF
+#undef UNCV
+#undef UNREF
+#undef UNCVREF
 
 #endif
