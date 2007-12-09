@@ -12,6 +12,24 @@
 #include <boost/xpressive/proto/proto_fwd.hpp>
 #include <boost/xpressive/proto/traits.hpp>
 
+#define CV(T)\
+    typename add_const<T>::type
+
+#define REF(T)\
+    typename add_reference<T>::type
+
+#define CVREF(T)\
+    REF(CV(T))
+
+#define UNCV(T)\
+    typename remove_cv<T>::type
+
+#define UNREF(T)\
+    typename remove_reference<T>::type
+
+#define UNCVREF(T)\
+    UNCV(UNREF(T))
+
 namespace boost { namespace proto
 {
 
@@ -26,7 +44,7 @@ namespace boost { namespace proto
             template<typename This, typename Expr, typename State, typename Visitor>
             struct result<This(Expr, State, Visitor)>
             {
-                typedef Expr type;
+                typedef CVREF(UNREF(Expr)) type;
             };
 
             template<typename Expr, typename State, typename Visitor>
@@ -83,7 +101,7 @@ namespace boost { namespace proto
 
             template<typename This, typename Expr, typename State, typename Visitor>
             struct result<This(Expr, State, Visitor)>
-              : proto::result_of::arg_c<Expr, I>
+              : proto::result_of::arg_c<CVREF(UNREF(Expr)), I>
             {};
 
             template<typename Expr, typename State, typename Visitor>
@@ -140,5 +158,12 @@ namespace boost { namespace proto
     {};
 
 }}
+
+#undef CV
+#undef REF
+#undef CVREF
+#undef UNCV
+#undef UNREF
+#undef UNCVREF
 
 #endif
