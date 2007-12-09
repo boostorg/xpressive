@@ -155,12 +155,12 @@ namespace boost { namespace xpressive
         using namespace xpressive::detail;
 
         struct MarkedSubExpr
-          : assign<terminal<mark_placeholder>, _>
+          : proto::assign<terminal<mark_placeholder>, _>
         {};
 
         struct MarkedSubExprEx
           : or_<
-                assign<terminal<mark_placeholder>, _>
+                proto::assign<terminal<mark_placeholder>, _>
               , shift_right<terminal<mark_begin_matcher>, _>
               , shift_right<
                     terminal<repeat_begin_matcher>
@@ -362,7 +362,7 @@ namespace boost { namespace xpressive
                   , mpl::next<ListSet<Char>(_left)>()
                 >
               , when<
-                    assign<terminal<set_initializer>, CharLiteral<Char> >
+                    proto::assign<terminal<set_initializer>, CharLiteral<Char> >
                   , _one()
                 >
             >
@@ -523,7 +523,7 @@ namespace boost { namespace xpressive
                 // Ignore nested actions, because attributes are scoped
                 when< subscript<_, _>,                                  _state >
               , when< terminal<_>,                                      _state >
-              , when< assign<terminal<attribute_placeholder<Nbr> >, _>, _arg(_right) >
+              , when< proto::assign<terminal<attribute_placeholder<Nbr> >, _>, _arg(_right) >
               , otherwise< fold<_, _state, FindAttr<Nbr> > >
             >
         {};
@@ -862,7 +862,7 @@ namespace boost { namespace xpressive
             struct case_<tag::assign, Dummy>
               : or_<
                     // (s1= ...)
-                    when<assign<terminal<mark_placeholder>, Gram>, as_regex(as_marker)>
+                    when<proto::assign<terminal<mark_placeholder>, Gram>, as_regex(as_marker)>
                     // (set= 'a')
                   , when<ListSet<Char>, as_matcher(_arg(_right), _visitor)>
                 >
@@ -959,7 +959,7 @@ namespace boost { namespace xpressive
                   , when<
                         or_<
                             complement<subscript<terminal<set_initializer>, terminal<_> > >
-                          , complement<assign<terminal<set_initializer>, terminal<_> > >
+                          , complement<proto::assign<terminal<set_initializer>, terminal<_> > >
                         >
                       , as_regex(_make_complement(_right(_arg)))
                     >
@@ -1024,7 +1024,7 @@ namespace boost { namespace xpressive
               : or_<
                     typename Cases<Char, Gram>::template case_<tag::assign>
                   , when<
-                        assign<terminal<attribute_placeholder<_> >, _>
+                        proto::assign<terminal<attribute_placeholder<_> >, _>
                       , as_attr_matcher
                     >
                 >
