@@ -44,7 +44,13 @@ namespace boost { namespace proto
             template<typename This, typename Expr, typename State, typename Visitor>
             struct result<This(Expr, State, Visitor)>
             {
-                typedef CVREF(UNREF(Expr)) type;
+                typedef Expr type;
+            };
+
+            template<typename This, typename Expr, typename State, typename Visitor>
+            struct result<This(Expr &, State, Visitor)>
+            {
+                typedef Expr const &type;
             };
 
             template<typename Expr, typename State, typename Visitor>
@@ -64,6 +70,12 @@ namespace boost { namespace proto
             struct result<This(Expr, State, Visitor)>
             {
                 typedef State type;
+            };
+
+            template<typename This, typename Expr, typename State, typename Visitor>
+            struct result<This(Expr, State &, Visitor)>
+            {
+                typedef State const &type;
             };
 
             template<typename Expr, typename State, typename Visitor>
@@ -101,7 +113,12 @@ namespace boost { namespace proto
 
             template<typename This, typename Expr, typename State, typename Visitor>
             struct result<This(Expr, State, Visitor)>
-              : proto::result_of::arg_c<CVREF(UNREF(Expr)), I>
+              : proto::result_of::value_at_c<Expr, I>
+            {};
+
+            template<typename This, typename Expr, typename State, typename Visitor>
+            struct result<This(Expr &, State, Visitor)>
+              : proto::result_of::arg_c<Expr const &, I>
             {};
 
             template<typename Expr, typename State, typename Visitor>
