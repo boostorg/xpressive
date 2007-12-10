@@ -61,7 +61,7 @@ namespace boost { namespace proto
 
         template<typename Sequence, typename State0, typename Fun>
         struct fold_tree
-          : transform_base
+          : callable
         {
             template<typename Sig>
             struct result;
@@ -92,7 +92,7 @@ namespace boost { namespace proto
 
         template<typename Sequence, typename State0, typename Fun>
         struct reverse_fold_tree
-          : transform_base
+          : callable
         {
             template<typename Sig>
             struct result;
@@ -123,22 +123,22 @@ namespace boost { namespace proto
     }
 
     template<typename Sequence, typename State0, typename Fun>
-    struct is_transform<transform::fold_tree<Sequence, State0, Fun> >
+    struct is_callable<transform::fold_tree<Sequence, State0, Fun> >
       : mpl::true_
     {};
 
     template<typename Grammar, typename Fun>
-    struct is_transform<transform::detail::fold_tree_<Grammar, Fun> >
+    struct is_callable<transform::detail::fold_tree_<Grammar, Fun> >
       : mpl::true_
     {};
 
     template<typename Sequence, typename State0, typename Fun>
-    struct is_transform<transform::reverse_fold_tree<Sequence, State0, Fun> >
+    struct is_callable<transform::reverse_fold_tree<Sequence, State0, Fun> >
       : mpl::true_
     {};
 
     template<typename Grammar, typename Fun>
-    struct is_transform<transform::detail::reverse_fold_tree_<Grammar, Fun> >
+    struct is_callable<transform::detail::reverse_fold_tree_<Grammar, Fun> >
       : mpl::true_
     {};
 }}

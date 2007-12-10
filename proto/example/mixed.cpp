@@ -48,7 +48,7 @@ struct iterator_wrapper
     Iter it;
 };
 
-struct begin : proto::transform_base
+struct begin : proto::callable
 {
     template<class Sig>
     struct result;

@@ -36,7 +36,7 @@ namespace boost { namespace proto
     namespace transform
     {
 
-        struct _expr : transform_base
+        struct _expr : callable
         {
             template<typename Sig>
             struct result;
@@ -61,7 +61,7 @@ namespace boost { namespace proto
             }
         };
 
-        struct _state : transform_base
+        struct _state : callable
         {
             template<typename Sig>
             struct result;
@@ -86,7 +86,7 @@ namespace boost { namespace proto
             }
         };
 
-        struct _visitor : transform_base
+        struct _visitor : callable
         {
             template<typename Sig>
             struct result;
@@ -106,7 +106,7 @@ namespace boost { namespace proto
         };
 
         template<int I>
-        struct _arg_c : transform_base
+        struct _arg_c : callable
         {
             template<typename Sig>
             struct result;
@@ -145,7 +145,7 @@ namespace boost { namespace proto
         typedef _arg1 _right;
 
         template<typename T>
-        struct always : transform_base
+        struct always : callable
         {
             template<typename Sig>
             struct result;
@@ -165,12 +165,12 @@ namespace boost { namespace proto
     }
 
     template<typename T>
-    struct is_transform<transform::always<T> >
+    struct is_callable<transform::always<T> >
       : mpl::true_
     {};
 
     template<int I>
-    struct is_transform<transform::_arg_c<I> >
+    struct is_callable<transform::_arg_c<I> >
       : mpl::true_
     {};
 

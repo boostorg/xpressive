@@ -58,7 +58,7 @@ namespace boost { namespace proto
                 Visitor &v_;
             };
 
-            struct reverse : transform_base
+            struct reverse : callable
             {
                 template<typename Sig>
                 struct result;
@@ -79,7 +79,7 @@ namespace boost { namespace proto
         } // namespace detail
 
         template<typename Sequence, typename State0, typename Fun>
-        struct fold : transform_base
+        struct fold : callable
         {
             template<typename Sig>
             struct result;
@@ -114,12 +114,12 @@ namespace boost { namespace proto
     }
 
     template<typename Sequence, typename State, typename Fun>
-    struct is_transform<transform::fold<Sequence, State, Fun> >
+    struct is_callable<transform::fold<Sequence, State, Fun> >
       : mpl::true_
     {};
 
     template<typename Sequence, typename State, typename Fun>
-    struct is_transform<transform::reverse_fold<Sequence, State, Fun> >
+    struct is_callable<transform::reverse_fold<Sequence, State, Fun> >
       : mpl::true_
     {};
 

@@ -47,7 +47,7 @@ template<typename T, typename U>
 struct pair
 {};
 
-struct make_negate : transform_base
+struct make_negate : callable
 {
     template<typename Sig> struct result;
 
@@ -65,7 +65,7 @@ struct make_negate : transform_base
     }
 };
 
-//struct make_cons : transform_base
+//struct make_cons : callable
 //{
 //    template<typename Sig> struct result;
 //

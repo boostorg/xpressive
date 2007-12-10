@@ -191,7 +191,7 @@ namespace boost { namespace proto
         }
 
         template<typename Fun, typename... Args>
-        struct call : transform_base
+        struct call : callable
         {
             template<typename Sig>
             struct result;
@@ -213,7 +213,7 @@ namespace boost { namespace proto
         };
 
         template<typename Fun>
-        struct call<Fun> : transform_base
+        struct call<Fun> : callable
         {
             template<typename Sig>
             struct result;
@@ -241,7 +241,7 @@ namespace boost { namespace proto
         };
 
         template<typename Fun, typename Arg0>
-        struct call<Fun, Arg0> : transform_base
+        struct call<Fun, Arg0> : callable
         {
             template<typename Sig>
             struct result;
@@ -269,7 +269,7 @@ namespace boost { namespace proto
         };
 
         template<typename Fun, typename Arg0, typename Arg1>
-        struct call<Fun, Arg0, Arg1> : transform_base
+        struct call<Fun, Arg0, Arg1> : callable
         {
             template<typename Sig>
             struct result;
@@ -297,7 +297,7 @@ namespace boost { namespace proto
         };
 
         template<typename Fun, typename Arg0, typename Arg1, typename Arg2>
-        struct call<Fun, Arg0, Arg1, Arg2> : transform_base
+        struct call<Fun, Arg0, Arg1, Arg2> : callable
         {
             template<typename Sig>
             struct result;
@@ -334,7 +334,7 @@ namespace boost { namespace proto
     }
 
     template<typename Fun, typename... Args>
-    struct is_transform<transform::call<Fun, Args...> >
+    struct is_callable<transform::call<Fun, Args...> >
       : mpl::true_
     {};
 

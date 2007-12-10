@@ -574,17 +574,17 @@ namespace boost { namespace proto
 
 
     template<typename Tag, typename Domain>
-    struct is_transform<functional::make_expr<Tag, Domain> >
+    struct is_callable<functional::make_expr<Tag, Domain> >
       : mpl::true_
     {};
 
     template<typename Tag, typename Domain>
-    struct is_transform<functional::unpack_expr<Tag, Domain> >
+    struct is_callable<functional::unpack_expr<Tag, Domain> >
       : mpl::true_
     {};
 
     template<typename Tag, typename Domain>
-    struct is_transform<functional::unfused_expr<Tag, Domain> >
+    struct is_callable<functional::unfused_expr<Tag, Domain> >
       : mpl::true_
     {};
 

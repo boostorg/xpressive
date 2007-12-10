@@ -135,17 +135,17 @@ namespace boost { namespace proto
     }
 
     template<>
-    struct is_transform<functional::flatten>
+    struct is_callable<functional::flatten>
       : mpl::true_
     {};
 
     template<>
-    struct is_transform<functional::pop_front>
+    struct is_callable<functional::pop_front>
       : mpl::true_
     {};
 
     template<>
-    struct is_transform<functional::reverse>
+    struct is_callable<functional::reverse>
       : mpl::true_
     {};
 

@@ -437,7 +437,7 @@ namespace boost { namespace proto
         } // namespace detail
 
         template<typename... Alts>
-        struct or_ : transform_base
+        struct or_ : callable
         {
             typedef or_ proto_base_expr;
 
@@ -469,7 +469,7 @@ namespace boost { namespace proto
 
         // if_
         template<typename If, typename Then, typename Else>
-        struct if_ : transform_base
+        struct if_ : callable
         {
             typedef if_ proto_base_expr;
 
@@ -508,7 +508,7 @@ namespace boost { namespace proto
         };
 
         template<typename Cases>
-        struct switch_ : transform_base
+        struct switch_ : callable
         {
             typedef switch_ proto_base_expr;
 
@@ -547,32 +547,32 @@ namespace boost { namespace proto
     }
 
     template<typename... Args>
-    struct is_transform<or_<Args...> >
+    struct is_callable<or_<Args...> >
       : mpl::true_
     {};
 
     template<typename... Args>
-    struct is_transform<and_<Args...> >
+    struct is_callable<and_<Args...> >
       : mpl::true_
     {};
 
     template<typename Grammar>
-    struct is_transform<not_<Grammar> >
+    struct is_callable<not_<Grammar> >
       : mpl::true_
     {};
 
     template<typename If, typename Then, typename Else>
-    struct is_transform<if_<If, Then, Else> >
+    struct is_callable<if_<If, Then, Else> >
       : mpl::true_
     {};
 
     template<typename Grammar>
-    struct is_transform<vararg<Grammar> >
+    struct is_callable<vararg<Grammar> >
       : mpl::true_
     {};
 
     template<>
-    struct is_transform<_>
+    struct is_callable<_>
       : mpl::true_
     {};
 

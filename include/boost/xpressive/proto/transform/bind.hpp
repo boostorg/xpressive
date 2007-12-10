@@ -20,7 +20,7 @@ namespace boost { namespace proto
     namespace transform
     {
         template<typename Return, typename... Args>
-        struct bind : transform_base
+        struct bind : callable
         {
             template<typename Sig>
             struct result;
@@ -54,7 +54,7 @@ namespace boost { namespace proto
     }
 
     template<typename Fun, typename... Args>
-    struct is_transform<transform::bind<Fun, Args...> >
+    struct is_callable<transform::bind<Fun, Args...> >
       : mpl::true_
     {};
 

@@ -324,16 +324,16 @@ namespace boost { namespace proto
     using control::N;
 
     template<typename T>
-    struct is_transform;
+    struct is_callable;
 
     template<typename T>
     struct is_aggregate;
 
     namespace transform
     {
-        struct transform_base
+        struct callable
         {
-            typedef void proto_is_transform_;
+            typedef void proto_is_callable_;
         };
 
         template<typename Grammar, typename Fun = Grammar>
@@ -417,7 +417,7 @@ namespace boost { namespace proto
     using transform::reverse_fold;
     using transform::fold_tree;
     using transform::reverse_fold_tree;
-    using transform::transform_base;
+    using transform::callable;
 
     namespace context
     {

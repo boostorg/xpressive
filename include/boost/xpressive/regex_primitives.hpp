@@ -52,7 +52,7 @@ namespace boost { namespace xpressive { namespace detail
         using proto::extends<basic_mark_tag, mark_tag>::operator =;
     };
 
-    struct push_back : proto::transform_base
+    struct push_back : proto::callable
     {
         typedef int result_type;
 
@@ -70,8 +70,8 @@ namespace boost { namespace xpressive { namespace detail
     // s1 or -s1
     struct SubMatch
       : proto::or_<
-            proto::when<basic_mark_tag, push_back(proto::_visitor, mark_number(proto::_arg))>
-          , proto::when<proto::negate<basic_mark_tag >, push_back(proto::_visitor, negative_one())>
+            proto::when<basic_mark_tag,                push_back(proto::_visitor, mark_number(proto::_arg)) >
+          , proto::when<proto::negate<basic_mark_tag>, push_back(proto::_visitor, negative_one())           >
         >
     {};
 

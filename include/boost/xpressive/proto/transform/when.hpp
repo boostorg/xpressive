@@ -36,7 +36,7 @@ namespace boost { namespace proto { namespace transform
     // (possibly lambda) type and constructor arguments.
     template<typename Grammar, typename Return, typename... Args>
     struct when<Grammar, Return(Args...)>
-      : transform_base
+      : callable
     {
         typedef typename Grammar::proto_base_expr proto_base_expr;
 
@@ -47,7 +47,7 @@ namespace boost { namespace proto { namespace transform
         struct result<This(Expr, State, Visitor)>
           : boost::result_of<
                 typename mpl::if_<
-                    is_transform<Return>
+                    is_callable<Return>
                   , call<Return, Args...> // "Return" is a function to call
                   , make<Return, Args...> // "Return" is an object to construct
                 >::type(Expr, State, Visitor)
@@ -59,7 +59,7 @@ namespace boost { namespace proto { namespace transform
         operator()(Expr const &expr, State const &state, Visitor &visitor) const
         {
             return typename mpl::if_<
-                is_transform<Return>
+                is_callable<Return>
               , call<Return, Args...>
               , make<Return, Args...>
             >::type()(expr, state, visitor);

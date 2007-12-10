@@ -263,7 +263,7 @@ namespace boost { namespace xpressive { namespace detail
         Actor actor_;
     };
 
-    struct get_sub_match : proto::transform_base
+    struct get_sub_match : proto::callable
     {
         template<typename Sig>
         struct result;
@@ -281,7 +281,7 @@ namespace boost { namespace xpressive { namespace detail
         }
     };
 
-    struct get_attr_slot : proto::transform_base
+    struct get_attr_slot : proto::callable
     {
         template<typename Sig>
         struct result;

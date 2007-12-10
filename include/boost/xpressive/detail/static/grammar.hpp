@@ -179,7 +179,7 @@ namespace boost { namespace xpressive
           : mpl::true_
         {};
 
-        struct as_matcher : transform_base
+        struct as_matcher : callable
         {
             template<typename Sig>
             struct result;
@@ -197,7 +197,7 @@ namespace boost { namespace xpressive
             }
         };
 
-        struct get_width : transform_base
+        struct get_width : callable
         {
             typedef std::size_t result_type;
 
@@ -208,7 +208,7 @@ namespace boost { namespace xpressive
             }
         };
 
-        struct mark_number : transform_base
+        struct mark_number : callable
         {
             typedef int result_type;
 
@@ -219,7 +219,7 @@ namespace boost { namespace xpressive
             }
         };
 
-        struct get_hidden_mark : transform_base
+        struct get_hidden_mark : callable
         {
             typedef int result_type;
 
@@ -230,7 +230,7 @@ namespace boost { namespace xpressive
             }
         };
 
-        struct traits : transform_base
+        struct traits : callable
         {
             template<typename Sig>
             struct result;
@@ -249,7 +249,7 @@ namespace boost { namespace xpressive
             }
         };
 
-        struct newline : transform_base
+        struct newline : callable
         {
             template<typename Sig>
             struct result;
@@ -268,7 +268,7 @@ namespace boost { namespace xpressive
             }
         };
 
-        struct as_posix_charset : transform_base
+        struct as_posix_charset : callable
         {
             template<typename Sig>
             struct result;
@@ -329,8 +329,7 @@ namespace boost { namespace xpressive
         // ListSet
         //  matches expressions like (set= 'a','b','c')
         //  calculates the size of the set
-        //  populates an array of characters
-        template<typename Char, typename Dummy = transform_base>
+        template<typename Char, typename Dummy = callable>
         struct ListSet
           : or_<
                 when<
@@ -344,7 +343,7 @@ namespace boost { namespace xpressive
             >
         {};
 
-        struct fill_list_set : transform_base
+        struct fill_list_set : callable
         {
             template<typename Sig>
             struct result;
@@ -384,7 +383,7 @@ namespace boost { namespace xpressive
             return const_cast<T &>(t);
         }
 
-        struct merge_charset : transform_base
+        struct merge_charset : callable
         {
             template<typename Sig>
             struct result;
@@ -434,7 +433,7 @@ namespace boost { namespace xpressive
             }
         };
 
-        struct invert : transform_base
+        struct invert : callable
         {
             template<typename Sig>
             struct result;
@@ -453,7 +452,7 @@ namespace boost { namespace xpressive
             }
         };
 
-        struct modify : transform_base
+        struct modify : callable
         {
             template<typename Sig>
             struct result;
@@ -660,7 +659,7 @@ namespace boost { namespace xpressive
                 >
             {};
 
-            template<typename Greedy, typename Tag, typename Base = transform_base>
+            template<typename Greedy, typename Tag, typename Base = callable>
             struct as_repeater
               : call<
                     _make_shift_right(
@@ -700,12 +699,12 @@ namespace boost { namespace xpressive
                 >
             {};
 
-            template<typename Greedy, typename Tag , typename Base = transform_base >
+            template<typename Greedy, typename Tag , typename Base = callable >
             struct as_default_repeat
               : as_default_repeat_impl<Greedy, Tag>
             {};
 
-            template<typename Greedy , typename Base = transform_base >
+            template<typename Greedy , typename Base = callable >
             struct as_simple_repeat
               : make<
                     simple_repeat_matcher<as_independent(_arg), Greedy>(
@@ -717,7 +716,7 @@ namespace boost { namespace xpressive
                 >
             {};
 
-            template<typename Greedy, typename Base = transform_base>
+            template<typename Greedy, typename Base = callable>
             struct as_repeat
               : if_<
                     use_simple_repeat<_arg, Char>()
@@ -726,7 +725,7 @@ namespace boost { namespace xpressive
                 >
             {};
 
-            template<typename Greedy, typename Base = transform_base>
+            template<typename Greedy, typename Base = callable>
             struct as_optional
                 // BUGBUG if_< matches<_, Foo>() ... Foo can be treated as a transform!
               : or_<

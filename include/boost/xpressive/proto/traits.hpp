@@ -705,44 +705,44 @@ namespace boost { namespace proto
         {};
 
         template<typename T, typename EnableIf = void>
-        struct is_transform2_
+        struct is_callable2_
           : mpl::false_
         {};
 
         template<typename T>
-        struct is_transform2_<T, typename T::proto_is_transform_>
+        struct is_callable2_<T, typename T::proto_is_callable_>
           : mpl::true_
         {};
 
         template<typename T>
-        struct is_transform_
-          : is_transform2_<T>
+        struct is_callable_
+          : is_callable2_<T>
         {};
 
         // TODO when gcc #33965 is fixed, change the idiom to
         // template<typename X, bool IsTransform = true> struct my_transform {...};
         template<template<typename...> class T, typename... Args>
-        struct is_transform_<T<Args...> >
-          : is_same<typename back<Args...>::type, transform_base>
+        struct is_callable_<T<Args...> >
+          : is_same<typename back<Args...>::type, callable>
         {};
 
     } // namespace detail
 
-    /// is_transform
+    /// is_callable
     ///
     template<typename T>
-    struct is_transform
-      : proto::detail::is_transform_<T>
+    struct is_callable
+      : proto::detail::is_callable_<T>
     {};
 
     // work around GCC bug
     template<typename Tag, typename Args, long N>
-    struct is_transform<expr<Tag, Args, N> >
+    struct is_callable<expr<Tag, Args, N> >
       : mpl::false_
     {};
 
     template<>
-    struct is_transform<transform_base>
+    struct is_callable<callable>
       : mpl::false_
     {};
 

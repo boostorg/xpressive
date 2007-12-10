@@ -54,7 +54,7 @@ namespace boost { namespace proto
             };
 
             template<typename R, typename Expr, typename State, typename Visitor
-                , bool IsTransform = is_transform<R>::value
+                , bool IsTransform = is_callable<R>::value
             >
             struct make_if_;
 
@@ -157,7 +157,7 @@ namespace boost { namespace proto
         }
 
         template<typename Return, typename... Args>
-        struct make : transform_base
+        struct make : callable
         {
             template<typename Sig>
             struct result;
@@ -178,7 +178,7 @@ namespace boost { namespace proto
 
         // work around gcc bug
         template<typename T, typename A, long N, typename... Args>
-        struct make<expr<T, A, N>, Args...> : transform_base
+        struct make<expr<T, A, N>, Args...> : callable
         {
             template<typename Sig>
             struct result
@@ -201,7 +201,7 @@ namespace boost { namespace proto
     }
 
     template<typename Fun, typename... Args>
-    struct is_transform<transform::make<Fun, Args...> >
+    struct is_callable<transform::make<Fun, Args...> >
       : mpl::true_
     {};
 
