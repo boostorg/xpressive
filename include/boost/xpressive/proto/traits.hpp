@@ -415,8 +415,8 @@ namespace boost { namespace proto
         struct as_expr
         {
             typedef typename mpl::if_<
-                mpl::or_<is_array<UNCVREF(T)>, is_function<UNCVREF(T)> >
-              , REF(T)
+                is_function<UNREF(T)>
+              , T
               , UNCVREF(T)
             >::type value_type;
 
@@ -456,6 +456,7 @@ namespace boost { namespace proto
         {
             typedef expr<tag::terminal, term<CVREF(T) > > expr_type;
             typedef typename Domain::template apply<expr_type>::type type;
+
             static type call(CVREF(T) t)
             {
                 return Domain::make(expr_type::make(t));
@@ -466,6 +467,7 @@ namespace boost { namespace proto
         struct as_arg<T, Domain, typename T::proto_is_expr_>
         {
             typedef T const &type;
+
             static T const &call(T const &t)
             {
                 return t;
@@ -476,13 +478,14 @@ namespace boost { namespace proto
         struct as_arg<T &, Domain, typename T::proto_is_expr_>
         {
             typedef T &type;
+
             static T &call(T &t)
             {
                 return t;
             }
         };
 
-        template<typename T, typename _>
+        template<typename T, typename EnableIf>
         struct is_expr
           : mpl::false_
         {};
@@ -503,25 +506,6 @@ namespace boost { namespace proto
     {
 
         template<typename Domain>
-        struct as_expr
-        {
-            template<typename Sig>
-            struct result {};
-
-            template<typename This, typename T>
-            struct result<This(T)>
-              : result_of::as_expr<T, Domain>
-            {};
-
-            template<typename T>
-            typename result_of::as_expr<T, Domain>::type
-            operator ()(T &&t) const
-            {
-                return result_of::as_expr<T, Domain>::call(t);
-            }
-        };
-
-        template<typename Domain>
         struct as_arg
         {
             template<typename Sig>
@@ -537,6 +521,25 @@ namespace boost { namespace proto
             operator ()(T &&t) const
             {
                 return result_of::as_arg<T, Domain>::call(t);
+            }
+        };
+
+        template<typename Domain>
+        struct as_expr
+        {
+            template<typename Sig>
+            struct result {};
+
+            template<typename This, typename T>
+            struct result<This(T)>
+              : result_of::as_expr<T, Domain>
+            {};
+
+            template<typename T>
+            typename result_of::as_expr<T, Domain>::type
+            operator ()(T &&t) const
+            {
+                return result_of::as_expr<T, Domain>::call(t);
             }
         };
 
@@ -566,34 +569,17 @@ namespace boost { namespace proto
             }
         };
 
-        //template<typename N>
-        //struct arg
-        //{
-        //    template<typename Sig>
-        //    struct result {};
-
-        //    template<typename This, typename Expr>
-        //    struct result<This(Expr)>
-        //      : result_of::arg<typename detail::remove_cv_ref<Expr>::type, N>
-        //    {};
-
-        //    template<typename Expr>
-        //    typename result_of::arg<Expr, N>::reference operator ()(Expr &expr) const
-        //    {
-        //        return result_of::arg<Expr, N>::call(expr);
-        //    }
-
-        //    template<typename Expr>
-        //    typename result_of::arg<Expr, N>::const_reference operator ()(Expr const &expr) const
-        //    {
-        //        return result_of::arg<Expr, N>::call(expr);
-        //    }
-        //};
-
-        struct left : arg_c<0>
+        template<typename N>
+        struct arg
+          : arg_c<N::value>
         {};
 
-        struct right : arg_c<1>
+        struct left
+          : arg_c<0>
+        {};
+
+        struct right
+          : arg_c<1>
         {};
 
     }

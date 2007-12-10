@@ -156,11 +156,19 @@ void test_matches()
 
     assert_matches< terminal<char const (&)[6]> >( lit("hello") );
     assert_matches< terminal<char const (&)[6]> >( as_arg("hello") );
-    assert_matches< terminal<char const (&)[6]> >( as_expr("hello") );
+    assert_not_matches< terminal<char const (&)[6]> >( as_expr("hello") );
+
+    assert_matches< terminal<char [6]> >( lit("hello") );
+    assert_matches< terminal<char [6]> >( as_arg("hello") );
+    assert_matches< terminal<char [6]> >( as_expr("hello") );
 
     assert_matches< terminal<char const (&)[N]> >( lit("hello") );
     assert_matches< terminal<char const (&)[N]> >( as_arg("hello") );
-    assert_matches< terminal<char const (&)[N]> >( as_expr("hello") );
+    assert_not_matches< terminal<char const (&)[N]> >( as_expr("hello") );
+
+    assert_matches< terminal<char [N]> >( lit("hello") );
+    assert_matches< terminal<char [N]> >( as_arg("hello") );
+    assert_matches< terminal<char [N]> >( as_expr("hello") );
 
     assert_matches< terminal<std::string> >( lit(std::string("hello")) );
     assert_matches< terminal<std::string> >( as_arg(std::string("hello")) );

@@ -79,6 +79,26 @@ namespace boost { namespace proto
               : Head
             {};
 
+            template<typename T, typename U>
+            struct array_matches
+              : mpl::false_
+            {};
+
+            template<typename T, std::size_t M>
+            struct array_matches<T[M], T *>
+              : mpl::true_
+            {};
+
+            template<typename T, std::size_t M>
+            struct array_matches<T[M], T const *>
+              : mpl::true_
+            {};
+
+            template<typename T, std::size_t M>
+            struct array_matches<T[M], T[proto::N]>
+              : mpl::true_
+            {};
+
             template<typename T, typename U
                 BOOST_MPL_AUX_LAMBDA_ARITY_PARAM(long Arity = mpl::aux::template_arity<U>::value)
             >
@@ -121,6 +141,11 @@ namespace boost { namespace proto
               : mpl::true_
             {};
 
+            template<typename T, std::size_t M, typename U>
+            struct lambda_matches<T[M], U BOOST_MPL_AUX_LAMBDA_ARITY_PARAM(-1)>
+              : array_matches<T[M], U>
+            {};
+
             // How terminal_matches<> handles references and cv-qualifiers.
             // The cv and ref matter *only* if the grammar has a top-level ref.
             //
@@ -158,16 +183,6 @@ namespace boost { namespace proto
                     is_cv_ref_compatible<T, U>::value
                   , lambda_matches<UNCVREF(T), UNCVREF(U)>
                 >
-            {};
-
-            template<typename T, std::size_t M>
-            struct terminal_matches<T(&)[M], T(&)[proto::N]>
-              : mpl::true_
-            {};
-
-            template<typename T, std::size_t M>
-            struct terminal_matches<T(&)[M], T *>
-              : mpl::true_
             {};
 
             template<typename T>
