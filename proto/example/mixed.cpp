@@ -232,28 +232,36 @@ namespace VectorOps
         }
     };
 
-    //struct sin_
-    //{
-    //    template<typename Sig> struct result {};
-    //    template<typename This, typename Arg>
-    //    struct result<This(Arg)>
-    //      : remove_const<typename remove_reference<Arg>::type>
-    //    {};
+    struct sin_
+    {
+        template<typename Sig> struct result {};
+        template<typename This, typename Arg>
+        struct result<This(Arg)>
+          : remove_const<typename remove_reference<Arg>::type>
+        {};
 
-    //    template<typename Arg>
-    //    Arg operator()(Arg const &arg) const
-    //    {
-    //        return std::sin(arg);
-    //    }
-    //};
+        template<typename Arg>
+        Arg operator()(Arg const &arg) const
+        {
+            return std::sin(arg);
+        }
+    };
 
-    //BOOST_PROTO_DEFINE_FUNCTION_TEMPLATE(
-    //    1
-    //  , sin
-    //  , MixedDomain
-    //  , (boost::proto::tag::function)
-    //  , ((sin_))
-    //)
+    template<typename A>
+    typename proto::result_of::make_expr<
+        proto::tag::function
+      , MixedDomain
+      , sin_ const
+      , A
+    >::type sin(A &&a)
+    {
+        return proto::result_of::make_expr<
+            proto::tag::function
+          , MixedDomain
+          , sin_ const
+          , A
+        >::call(sin_(), a);
+    }
 
     template<typename FwdIter, typename Expr, typename Op>
     void evaluate(FwdIter begin, FwdIter end, Expr const &expr, Op op)
@@ -345,7 +353,7 @@ int main()
     VectorOps::assign(e, c);
     e += e - 4 / (c + 1);
 
-    //f -= sin(0.1 * e * std::complex<double>(0.2, 1.2));
+    f -= sin(0.1 * e * std::complex<double>(0.2, 1.2));
 
     std::list<double>::const_iterator ei = e.begin();
     std::list<std::complex<double> >::const_iterator fi = f.begin();

@@ -55,6 +55,7 @@ namespace boost { namespace proto
         template<typename Expr, typename T>
         struct deep_copy_impl<Expr, term<T> >
         {
+            // TODO don't unref reference to function!
             typedef typename terminal<UNCVREF(T)>::type expr_type;
             typedef typename Expr::proto_domain::template apply<expr_type>::type type;
 

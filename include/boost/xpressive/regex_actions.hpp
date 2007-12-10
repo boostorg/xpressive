@@ -686,6 +686,8 @@ namespace boost { namespace xpressive
         }
     };
 
+    /// as (a.k.a., lexical_cast)
+    ///
     template<typename T, typename A>
     typename proto::result_of::make_expr<
         proto::tag::function
@@ -702,45 +704,59 @@ namespace boost { namespace xpressive
         >::call(op::as<T>(), a);
     }
 
-    ///// as (a.k.a., lexical_cast)
-    /////
-    //BOOST_PROTO_DEFINE_FUNCTION_TEMPLATE(
-    //    1
-    //  , as
-    //  , boost::proto::default_domain
-    //  , (boost::proto::tag::function)
-    //  , ((op::as)(typename))
-    //)
+    /// static_cast_
+    ///
+    template<typename T, typename A>
+    typename proto::result_of::make_expr<
+        proto::tag::function
+      , proto::default_domain
+      , op::static_cast_<T> const
+      , A
+    >::type static_cast_(A &&a)
+    {
+        return proto::result_of::make_expr<
+            proto::tag::function
+          , proto::default_domain
+          , op::static_cast_<T> const
+          , A
+        >::call(op::static_cast_<T>(), a);
+    }
 
-    ///// static_cast_
-    /////
-    //BOOST_PROTO_DEFINE_FUNCTION_TEMPLATE(
-    //    1
-    //  , static_cast_
-    //  , boost::proto::default_domain
-    //  , (boost::proto::tag::function)
-    //  , ((op::static_cast_)(typename))
-    //)
+    /// dynamimc_cast_
+    ///
+    template<typename T, typename A>
+    typename proto::result_of::make_expr<
+        proto::tag::function
+      , proto::default_domain
+      , op::dynamic_cast_<T> const
+      , A
+    >::type dynamic_cast_(A &&a)
+    {
+        return proto::result_of::make_expr<
+            proto::tag::function
+          , proto::default_domain
+          , op::dynamic_cast_<T> const
+          , A
+        >::call(op::dynamic_cast_<T>(), a);
+    }
 
-    ///// dynamic_cast_
-    /////
-    //BOOST_PROTO_DEFINE_FUNCTION_TEMPLATE(
-    //    1
-    //  , dynamic_cast_
-    //  , boost::proto::default_domain
-    //  , (boost::proto::tag::function)
-    //  , ((op::dynamic_cast_)(typename))
-    //)
-
-    ///// const_cast_
-    /////
-    //BOOST_PROTO_DEFINE_FUNCTION_TEMPLATE(
-    //    1
-    //  , const_cast_
-    //  , boost::proto::default_domain
-    //  , (boost::proto::tag::function)
-    //  , ((op::const_cast_)(typename))
-    //)
+    /// const_cast_
+    ///
+    template<typename T, typename A>
+    typename proto::result_of::make_expr<
+        proto::tag::function
+      , proto::default_domain
+      , op::const_cast_<T> const
+      , A
+    >::type const_cast_(A &&a)
+    {
+        return proto::result_of::make_expr<
+            proto::tag::function
+          , proto::default_domain
+          , op::const_cast_<T> const
+          , A
+        >::call(op::const_cast_<T>(), a);
+    }
 
     /// val()
     ///
@@ -789,23 +805,41 @@ namespace boost { namespace xpressive
         BOOST_PROTO_EXTENDS_FUNCTION(action_arg_type, this_type, proto::default_domain)
     };
 
-    ///// Usage: construct\<Type\>(arg1, arg2)
-    /////
-    //BOOST_PROTO_DEFINE_VARARG_FUNCTION_TEMPLATE(
-    //    construct
-    //  , boost::proto::default_domain
-    //  , (boost::proto::tag::function)
-    //  , ((op::construct)(typename))
-    //)
+    /// Usage: construct\<Type\>(arg1, arg2)
+    ///
+    template<typename T, typename... A>
+    typename proto::result_of::make_expr<
+        proto::tag::function
+      , proto::default_domain
+      , op::construct<T> const
+      , A...
+    >::type construct(A &&... a)
+    {
+        return proto::result_of::make_expr<
+            proto::tag::function
+          , proto::default_domain
+          , op::construct<T> const
+          , A...
+        >::call(op::construct<T>(), a...);
+    }
 
-    ///// Usage: throw_\<Exception\>(arg1, arg2)
-    /////
-    //BOOST_PROTO_DEFINE_VARARG_FUNCTION_TEMPLATE(
-    //    throw_
-    //  , boost::proto::default_domain
-    //  , (boost::proto::tag::function)
-    //  , ((op::throw_)(typename))
-    //)
+    /// Usage: throw_\<Exception\>(arg1, arg2)
+    ///
+    template<typename T, typename... A>
+    typename proto::result_of::make_expr<
+        proto::tag::function
+      , proto::default_domain
+      , op::throw_<T> const
+      , A...
+    >::type throw_(A &&... a)
+    {
+        return proto::result_of::make_expr<
+            proto::tag::function
+          , proto::default_domain
+          , op::throw_<T> const
+          , A...
+        >::call(op::throw_<T>(), a...);
+    }
 
     namespace detail
     {

@@ -60,7 +60,7 @@ int main()
     // Displays "6"
     std::cout << evaluate( _1 * _2, 3.0, 2.0 ) << std::endl;
 
-    // Displays "1.5"
+    // Displays "0.5"
     std::cout << evaluate( (_1 - _2) / _2, 3.0, 2.0 ) << std::endl;
 
     return 0;

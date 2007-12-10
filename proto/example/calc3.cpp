@@ -147,7 +147,7 @@ int main()
     // Displays "6"
     std::cout << ( _1 * _2 )( 3.0, 2.0 ) << std::endl;
 
-    // Displays "1.5"
+    // Displays "0.5"
     std::cout << ( (_1 - _2) / _2 )( 3.0, 2.0 ) << std::endl;
 
     // This won't compile because the arity of the
