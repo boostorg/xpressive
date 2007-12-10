@@ -299,37 +299,13 @@ namespace boost { namespace xpressive
 
         // Place a head and a tail in sequence, if it's not
         // already in sequence.
-        struct in_sequence : transform_base
-        {
-            template<typename Sig>
-            struct result;
-
-            template<typename This, typename Matcher, typename Next>
-            struct result<This(Matcher, Next)>
-            {
-                typedef static_xpression<UNCVREF(Matcher), UNCVREF(Next)> type;
-            };
-
-            template<typename This, typename Matcher, typename Next, typename Next2>
-            struct result<This(static_xpression<Matcher, Next>, Next2)>
-            {
-                typedef static_xpression<Matcher, Next> type;
-            };
-
-            template<typename Matcher, typename Next>
-            static_xpression<Matcher, Next>
-            operator()(Matcher const &matcher, Next const &next) const
-            {
-                return static_xpression<Matcher, Next>(matcher, next);
-            }
-
-            template<typename Matcher, typename Next, typename Next2>
-            static_xpression<Matcher, Next>
-            operator()(static_xpression<Matcher, Next> const &xpr, Next2 const &) const
-            {
-                return xpr;
-            }
-        };
+        struct in_sequence
+          : if_<
+                is_static_xpression<_>()
+              , _
+              , static_xpression<_, _state>(_, _state)
+            >
+        {};
 
         ///////////////////////////////////////////////////////////////////////////
         // CharLiteral
@@ -596,7 +572,7 @@ namespace boost { namespace xpressive
         struct add_attrs
           : call<
                 _make_shift_right(
-                    attr_begin_matcher<MaxAttr(_, _zero(), int())>()
+                    attr_begin_matcher<MaxAttr>()
                   , _make_shift_right(
                         _
                       , attr_end_matcher()
@@ -608,7 +584,7 @@ namespace boost { namespace xpressive
         ///////////////////////////////////////////////////////////////////////////////
         // add_attrs_if
         struct add_attrs_if
-          : if_<MaxAttr(_, _zero(), int()), add_attrs, _>
+          : if_<MaxAttr, add_attrs, _>
         {};
 
         ///////////////////////////////////////////////////////////////////////////////
@@ -632,14 +608,14 @@ namespace boost { namespace xpressive
                             or_<
                                 when<
                                     subscript<_, CheckAssertion>
-                                  , predicate_matcher<DeepCopy(_right, _left, int())>(
-                                        DeepCopy(_right, _left, int())
+                                  , predicate_matcher<DeepCopy(_right, _left)>(
+                                        DeepCopy(_right, _left)
                                       , mark_number(_arg(_left(_left)))
                                     )
                                 >
                               , otherwise<
-                                    action_matcher<DeepCopy(_right, _left, int())>(
-                                        DeepCopy(_right, _left, int())
+                                    action_matcher<DeepCopy(_right, _left)>(
+                                        DeepCopy(_right, _left)
                                       , mark_number(_arg(_left(_left)))
                                     )
                                 >
@@ -807,7 +783,7 @@ namespace boost { namespace xpressive
               : when<
                     // _ >> 'a'
                     shift_right<Gram, Gram>
-                  , reverse_fold_tree<_, _state, in_sequence(as_regex, _state)>
+                  , reverse_fold_tree<_, _state, in_sequence(as_regex)>
                 >
             {};
 
