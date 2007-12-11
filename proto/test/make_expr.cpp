@@ -30,6 +30,8 @@ template<typename E> struct ewrap
 void test_make_expr()
 {
     int i = 42;
+    terminal<int>::type t1 = make_expr<tag::terminal>(1);
+    terminal<int>::type t2 = make_expr<tag::terminal>(i);
     posit<terminal<int>::type>::type p1 = make_expr<tag::posit>(1);
     posit<terminal<int>::type>::type p2 = make_expr<tag::posit>(i);
     BOOST_CHECK_EQUAL(arg(arg(p2)), 42);
@@ -49,6 +51,8 @@ void test_unpack_expr()
     int i = 42;
     fusion::vector<int> v1(1);
     fusion::vector<int&> v2(i);
+    terminal<int>::type t1 = unpack_expr<tag::terminal>(v1);
+    terminal<int>::type t2 = unpack_expr<tag::terminal>(v2);
     posit<terminal<int>::type>::type p1 = unpack_expr<tag::posit>(v1);
     posit<terminal<int>::type>::type p2 = unpack_expr<tag::posit>(v2);
     BOOST_CHECK_EQUAL(arg(arg(p2)), 42);

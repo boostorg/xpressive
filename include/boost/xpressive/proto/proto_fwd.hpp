@@ -12,6 +12,7 @@
 #include <climits> // for INT_MAX
 #include <boost/type_traits.hpp>
 #include <boost/mpl/bool.hpp>
+#include <boost/mpl/long.hpp>
 #include <boost/mpl/aux_/template_arity.hpp>
 #include <boost/mpl/aux_/lambda_arity_param.hpp>
 
@@ -200,6 +201,12 @@ namespace boost { namespace proto
         struct domain_of;
 
         template<typename Tag, typename... Args>
+        struct make_arg;
+
+        template<typename Tag, typename DomainOrSequence, typename SequenceOrVoid = void, typename _ = void>
+        struct unpack_arg;
+
+        template<typename Tag, typename... Args>
         struct make_expr;
 
         template<typename Tag, typename DomainOrSequence, typename SequenceOrVoid = void, typename _ = void>
@@ -331,9 +338,11 @@ namespace boost { namespace proto
 
     namespace transform
     {
+        #define BOOST_PROTO_CALLABLE() typedef void proto_is_callable_;
+
         struct callable
         {
-            typedef void proto_is_callable_;
+            BOOST_PROTO_CALLABLE()
         };
 
         template<typename Grammar, typename Fun = Grammar>
@@ -461,11 +470,23 @@ namespace boost { namespace proto
         template<typename Domain = default_domain>
         struct as_arg;
 
-        //template<typename N = mpl::long_<0> >
-        //struct arg;
+        template<typename N = mpl::long_<0> >
+        struct arg;
 
         template<long N>
         struct arg_c;
+
+        template<typename Tag, typename Domain = deduce_domain>
+        struct make_arg;
+
+        template<typename Tag, typename Domain = deduce_domain>
+        struct unpack_arg;
+
+        template<typename Tag, typename Domain = deduce_domain>
+        struct unfused_arg_fun;
+
+        template<typename Tag, typename Domain = deduce_domain>
+        struct unfused_arg;
 
         template<typename Tag, typename Domain = deduce_domain>
         struct make_expr;
@@ -479,14 +500,106 @@ namespace boost { namespace proto
         template<typename Tag, typename Domain = deduce_domain>
         struct unfused_expr;
 
+        typedef make_expr<tag::terminal>            make_terminal;
+        typedef make_expr<tag::posit>               make_posit;
+        typedef make_expr<tag::negate>              make_negate;
+        typedef make_expr<tag::dereference>         make_dereference;
+        typedef make_expr<tag::complement>          make_complement;
+        typedef make_expr<tag::address_of>          make_address_of;
+        typedef make_expr<tag::logical_not>         make_logical_not;
+        typedef make_expr<tag::pre_inc>             make_pre_inc;
+        typedef make_expr<tag::pre_dec>             make_pre_dec;
+        typedef make_expr<tag::post_inc>            make_post_inc;
+        typedef make_expr<tag::post_dec>            make_post_dec;
+        typedef make_expr<tag::shift_left>          make_shift_left;
+        typedef make_expr<tag::shift_right>         make_shift_right;
+        typedef make_expr<tag::multiplies>          make_multiplies;
+        typedef make_expr<tag::divides>             make_divides;
+        typedef make_expr<tag::modulus>             make_modulus;
+        typedef make_expr<tag::plus>                make_plus;
+        typedef make_expr<tag::minus>               make_minus;
+        typedef make_expr<tag::less>                make_less;
+        typedef make_expr<tag::greater>             make_greater;
+        typedef make_expr<tag::less_equal>          make_less_equal;
+        typedef make_expr<tag::greater_equal>       make_greater_equal;
+        typedef make_expr<tag::equal_to>            make_equal_to;
+        typedef make_expr<tag::not_equal_to>        make_not_equal_to;
+        typedef make_expr<tag::logical_or>          make_logical_or;
+        typedef make_expr<tag::logical_and>         make_logical_and;
+        typedef make_expr<tag::bitwise_and>         make_bitwise_and;
+        typedef make_expr<tag::bitwise_or>          make_bitwise_or;
+        typedef make_expr<tag::bitwise_xor>         make_bitwise_xor;
+        typedef make_expr<tag::comma>               make_comma;
+        typedef make_expr<tag::mem_ptr>             make_mem_ptr;
+        typedef make_expr<tag::assign>              make_assign;
+        typedef make_expr<tag::shift_left_assign>   make_shift_left_assign;
+        typedef make_expr<tag::shift_right_assign>  make_shift_right_assign;
+        typedef make_expr<tag::multiplies_assign>   make_multiplies_assign;
+        typedef make_expr<tag::divides_assign>      make_divides_assign;
+        typedef make_expr<tag::modulus_assign>      make_modulus_assign;
+        typedef make_expr<tag::plus_assign>         make_plus_assign;
+        typedef make_expr<tag::minus_assign>        make_minus_assign;
+        typedef make_expr<tag::bitwise_and_assign>  make_bitwise_and_assign;
+        typedef make_expr<tag::bitwise_or_assign>   make_bitwise_or_assign;
+        typedef make_expr<tag::bitwise_xor_assign>  make_bitwise_xor_assign;
+        typedef make_expr<tag::subscript>           make_subscript;
+        typedef make_expr<tag::if_else_>            make_if_else;
+        typedef make_expr<tag::function>            make_function;
+
         struct flatten;
         struct pop_front;
         struct reverse;
     }
 
-    typedef functional::flatten _flatten;
-    typedef functional::pop_front _pop_front;
-    typedef functional::pop_front _reverse;
+    typedef functional::make_terminal               _make_terminal;
+    typedef functional::make_posit                  _make_posit;
+    typedef functional::make_negate                 _make_negate;
+    typedef functional::make_dereference            _make_dereference;
+    typedef functional::make_complement             _make_complement;
+    typedef functional::make_address_of             _make_address_of;
+    typedef functional::make_logical_not            _make_logical_not;
+    typedef functional::make_pre_inc                _make_pre_inc;
+    typedef functional::make_pre_dec                _make_pre_dec;
+    typedef functional::make_post_inc               _make_post_inc;
+    typedef functional::make_post_dec               _make_post_dec;
+    typedef functional::make_shift_left             _make_shift_left;
+    typedef functional::make_shift_right            _make_shift_right;
+    typedef functional::make_multiplies             _make_multiplies;
+    typedef functional::make_divides                _make_divides;
+    typedef functional::make_modulus                _make_modulus;
+    typedef functional::make_plus                   _make_plus;
+    typedef functional::make_minus                  _make_minus;
+    typedef functional::make_less                   _make_less;
+    typedef functional::make_greater                _make_greater;
+    typedef functional::make_less_equal             _make_less_equal;
+    typedef functional::make_greater_equal          _make_greater_equal;
+    typedef functional::make_equal_to               _make_equal_to;
+    typedef functional::make_not_equal_to           _make_not_equal_to;
+    typedef functional::make_logical_or             _make_logical_or;
+    typedef functional::make_logical_and            _make_logical_and;
+    typedef functional::make_bitwise_and            _make_bitwise_and;
+    typedef functional::make_bitwise_or             _make_bitwise_or;
+    typedef functional::make_bitwise_xor            _make_bitwise_xor;
+    typedef functional::make_comma                  _make_comma;
+    typedef functional::make_mem_ptr                _make_mem_ptr;
+    typedef functional::make_assign                 _make_assign;
+    typedef functional::make_shift_left_assign      _make_shift_left_assign;
+    typedef functional::make_shift_right_assign     _make_shift_right_assign;
+    typedef functional::make_multiplies_assign      _make_multiplies_assign;
+    typedef functional::make_divides_assign         _make_divides_assign;
+    typedef functional::make_modulus_assign         _make_modulus_assign;
+    typedef functional::make_plus_assign            _make_plus_assign;
+    typedef functional::make_minus_assign           _make_minus_assign;
+    typedef functional::make_bitwise_and_assign     _make_bitwise_and_assign;
+    typedef functional::make_bitwise_or_assign      _make_bitwise_or_assign;
+    typedef functional::make_bitwise_xor_assign     _make_bitwise_xor_assign;
+    typedef functional::make_subscript              _make_subscript;
+    typedef functional::make_if_else                _make_if_else;
+    typedef functional::make_function               _make_function;
+
+    typedef functional::flatten     _flatten;
+    typedef functional::pop_front   _pop_front;
+    typedef functional::pop_front   _reverse;
 
     template<typename T>
     struct is_extension;

@@ -25,6 +25,7 @@
 #include <boost/fusion/include/value_at.hpp>
 #include <boost/fusion/include/size.hpp>
 #include <boost/fusion/include/fold.hpp>
+#include <boost/fusion/include/front.hpp>
 #include <boost/fusion/include/transform_view.hpp>
 #include <boost/fusion/include/invoke_function_object.hpp>
 
@@ -186,7 +187,7 @@
             )                                                                                   \
         )                                                                                       \
         BOOST_PP_ENUM_TRAILING_PARAMS(N, const A)                                               \
-    >::type const                                                                               \
+    >::type                                                                                     \
     BOOST_PP_TUPLE_ELEM(4, 0, DATA)(BOOST_PP_ENUM_BINARY_PARAMS_Z(Z, N, const A, &a))           \
     {                                                                                           \
         return boost::proto::result_of::make_expr<                                              \
@@ -315,28 +316,28 @@ namespace boost { namespace proto
             };
         };
 
-        template<typename Tag, typename Domain, typename Sequence, std::size_t Size>
-        struct unpack_expr_
+        template<
+            typename Tag
+          , typename Domain
+          , template<typename> class AsExpr
+          , typename Sequence
+          , std::size_t Size
+        >
+        struct unpack_
         {
             typedef expr<
                 Tag
               , typename fusion::result_of::invoke_function_object<
                     make_args_fun
-                  , fusion::transform_view<
-                        Sequence const
-                      , functional::/*as_arg*/ as_expr<Domain>
-                    >
+                  , fusion::transform_view<Sequence const, AsExpr<Domain> >
                 >::type
             > expr_type;
 
             typedef typename Domain::template apply<expr_type>::type type;
 
-            static type const call(Sequence const &sequence)
+            static type call(CVREF(Sequence) sequence)
             {
-                fusion::transform_view<
-                    Sequence const
-                  , functional::/*as_arg*/ as_expr<Domain>
-                > seq(sequence, functional::/*as_arg*/ as_expr<Domain>());
+                fusion::transform_view<Sequence const, AsExpr<Domain> > seq(sequence, AsExpr<Domain>());
 
                 expr_type that = {
                     fusion::invoke_function_object(argsns_::make_cons_fun(), seq)
@@ -346,76 +347,82 @@ namespace boost { namespace proto
             }
         };
 
-        template<typename Tag, typename Sequence, std::size_t N>
-        struct unpack_expr_<Tag, deduce_domain, Sequence, N>
-          : unpack_expr_<
+        template<
+            typename Domain
+          , template<typename> class AsExpr
+          , typename Sequence
+        >
+        struct unpack_<tag::terminal, Domain, AsExpr, Sequence, 1u>
+        {
+            typedef
+                typename fusion::result_of::value_of<
+                    typename fusion::result_of::begin<Sequence>::type
+                >::type
+            value_type;
+
+            typedef typename boost::result_of<AsExpr<Domain>(value_type)>::type type;
+
+            static type call(CVREF(Sequence) sequence)
+            {
+                return AsExpr<Domain>()(fusion::front(sequence));
+            }
+        };
+
+        template<
+            typename Tag
+          , template<typename> class AsExpr
+          , typename Sequence
+          , std::size_t N
+        >
+        struct unpack_<Tag, deduce_domain, AsExpr, Sequence, N>
+          : unpack_<
                 Tag
               , typename fusion::result_of::fold<
                     fusion::transform_view<Sequence, proto::detail::domain_of_>
                   , default_domain
                   , proto::detail::fold_domain_
                 >::type
+              , AsExpr
               , Sequence
               , N
             >
         {};
 
-        template<typename Domain, typename Sequence>
-        struct unpack_expr_<tag::terminal, Domain, Sequence, 1u>
-        {
-            typedef expr<
-                tag::terminal
-              , term<typename fusion::result_of::value_at_c<Sequence, 0>::type>
-            > expr_type;
-
-            typedef typename Domain::template apply<expr_type>::type type;
-
-            static type const call(Sequence const &sequence)
-            {
-                expr_type that = {fusion::at_c<0>(sequence)};
-                return Domain::make(that);
-            }
-        };
-
-        template<typename Sequence>
-        struct unpack_expr_<tag::terminal, deduce_domain, Sequence, 1u>
-          : unpack_expr_<tag::terminal, default_domain, Sequence, 1u>
+        template<
+            template<typename> class AsExpr
+          , typename Sequence
+        >
+        struct unpack_<tag::terminal, deduce_domain, AsExpr, Sequence, 1u>
+          : unpack_<tag::terminal, default_domain, AsExpr, Sequence, 1u>
         {};
 
-        template<typename Tag, typename Domain, typename... Args>
-        struct make_expr_
+
+        template<typename Tag, typename Domain, template<typename> class AsExpr, typename... Args>
+        struct make_
         {
-            typedef expr<Tag, args<typename proto::result_of::/*as_arg*/ as_expr<Args, Domain>::type...> > expr_type;
+            typedef
+                expr<
+                    Tag
+                  , args<typename boost::result_of<AsExpr<Domain>(Args)>::type...>
+                >
+            expr_type;
+
             typedef typename Domain::template apply<expr_type>::type type;
 
-            static type call(Args &... args)
+            static type call(CVREF(Args)... args)
             {
-                expr_type that = {
-                    argsns_::make_cons(proto::result_of::/*as_arg*/ as_expr<Args, Domain>::call(args)...)
-                };
-                return Domain::make(that);
+                return Domain::make(expr_type::make(AsExpr<Domain>()(args)...));
             }
         };
 
-        template<typename Domain, typename A>
-        struct make_expr_<tag::terminal, Domain, A>
+        template<typename Domain, template<typename> class AsExpr, typename A>
+        struct make_<tag::terminal, Domain, AsExpr, A>
         {
-            //typedef typename add_reference<A>::type reference;
-            //typedef expr<tag::terminal, term<reference> > expr_type;
-            //typedef typename Domain::template apply<expr_type>::type type;
+            typedef typename boost::result_of<AsExpr<Domain>(A)>::type type;
 
-            //static type const call(reference a)
-            //{
-            //    expr_type that = {{a}};
-            //    return Domain::make(that);
-            //}
-
-            typedef expr<tag::terminal, term<UNCVREF(A)> > expr_type;
-            typedef typename Domain::template apply<expr_type>::type type;
-
-            static type call(A const &a)
+            static type call(CVREF(A) a)
             {
-                return Domain::make(expr_type::make(a));
+                return AsExpr<Domain>()(a);
             }
         };
 
@@ -424,10 +431,56 @@ namespace boost { namespace proto
     namespace result_of
     {
         template<typename Tag, typename Sequence, typename, typename>
-        struct unpack_expr
-          : proto::detail::unpack_expr_<
+        struct unpack_arg
+          : proto::detail::unpack_<
                 Tag
               , deduce_domain
+              , functional::as_arg
+              , Sequence
+              , fusion::result_of::size<Sequence>::type::value
+            >
+        {};
+
+        template<typename Tag, typename Domain, typename Sequence>
+        struct unpack_arg<Tag, Domain, Sequence, typename Domain::proto_is_domain_>
+          : proto::detail::unpack_<
+                Tag
+              , Domain
+              , functional::as_arg
+              , Sequence
+              , fusion::result_of::size<Sequence>::type::value
+            >
+        {};
+
+        template<typename Tag, typename Head, typename... Tail>
+        struct make_arg<Tag, Head, Tail...>
+          : mpl::if_<
+                is_domain<Head>
+              , proto::detail::make_<Tag, Head, functional::as_arg, Tail...>
+              , make_arg<Tag, deduce_domain, Head, Tail...>
+            >::type
+        {};
+
+        template<typename Tag, typename Head, typename... Tail>
+        struct make_arg<Tag, deduce_domain, Head, Tail...>
+          : proto::detail::make_<
+                Tag
+              , typename proto::detail::deduce_domain_<
+                    typename domain_of<Head>::type
+                  , Tail...
+                >::type
+              , functional::as_arg
+              , Head
+              , Tail...
+            >
+        {};
+
+        template<typename Tag, typename Sequence, typename, typename>
+        struct unpack_expr
+          : proto::detail::unpack_<
+                Tag
+              , deduce_domain
+              , functional::as_expr
               , Sequence
               , fusion::result_of::size<Sequence>::type::value
             >
@@ -435,9 +488,10 @@ namespace boost { namespace proto
 
         template<typename Tag, typename Domain, typename Sequence>
         struct unpack_expr<Tag, Domain, Sequence, typename Domain::proto_is_domain_>
-          : proto::detail::unpack_expr_<
+          : proto::detail::unpack_<
                 Tag
               , Domain
+              , functional::as_expr
               , Sequence
               , fusion::result_of::size<Sequence>::type::value
             >
@@ -447,19 +501,20 @@ namespace boost { namespace proto
         struct make_expr<Tag, Head, Tail...>
           : mpl::if_<
                 is_domain<Head>
-              , proto::detail::make_expr_<Tag, Head, Tail...>
+              , proto::detail::make_<Tag, Head, functional::as_expr, Tail...>
               , make_expr<Tag, deduce_domain, Head, Tail...>
             >::type
         {};
 
         template<typename Tag, typename Head, typename... Tail>
         struct make_expr<Tag, deduce_domain, Head, Tail...>
-          : proto::detail::make_expr_<
+          : proto::detail::make_<
                 Tag
               , typename proto::detail::deduce_domain_<
                     typename domain_of<Head>::type
                   , Tail...
                 >::type
+              , functional::as_expr
               , Head
               , Tail...
             >
@@ -469,8 +524,79 @@ namespace boost { namespace proto
     namespace functional
     {
         template<typename Tag, typename Domain>
+        struct make_arg
+        {
+            BOOST_PROTO_CALLABLE()
+
+            template<typename Sig>
+            struct result
+            {};
+
+            template<typename This, typename... A>
+            struct result<This(A...)>
+              : result_of::make_arg<Tag, Domain, A...>
+            {};
+
+            template<typename... A>
+            typename result_of::make_arg<Tag, Domain, A...>::type
+            operator ()(A &&...a) const
+            {
+                return result_of::make_arg<Tag, Domain, A...>::call(a...);
+            }
+        };
+
+        template<typename Tag, typename Domain>
+        struct unpack_arg
+        {
+            BOOST_PROTO_CALLABLE()
+
+            template<typename Sig>
+            struct result
+            {};
+
+            template<typename This, typename Sequence>
+            struct result<This(Sequence)>
+              : result_of::unpack_arg<Tag, Domain, UNCVREF(Sequence)>
+            {};
+
+            template<typename Sequence>
+            typename result_of::unpack_arg<Tag, Domain, Sequence>::type
+            operator ()(Sequence const &sequence) const
+            {
+                return result_of::unpack_arg<Tag, Domain, Sequence>::call(sequence);
+            }
+        };
+
+        template<typename Tag, typename Domain>
+        struct unfused_arg_fun
+        {
+            BOOST_PROTO_CALLABLE()
+
+            template<typename Sequence>
+            struct result
+              : result_of::unpack_arg<Tag, Domain, Sequence>
+            {};
+
+            template<typename Sequence>
+            typename proto::result_of::unpack_arg<Tag, Domain, Sequence>::type
+            operator ()(Sequence const &sequence) const
+            {
+                return result_of::unpack_arg<Tag, Domain, Sequence>::call(sequence);
+            }
+        };
+
+        template<typename Tag, typename Domain>
+        struct unfused_arg
+          : fusion::unfused_generic<unfused_arg_fun<Tag, Domain> >
+        {
+            BOOST_PROTO_CALLABLE()
+        };
+
+        template<typename Tag, typename Domain>
         struct make_expr
         {
+            BOOST_PROTO_CALLABLE()
+
             template<typename Sig>
             struct result
             {};
@@ -491,6 +617,8 @@ namespace boost { namespace proto
         template<typename Tag, typename Domain>
         struct unpack_expr
         {
+            BOOST_PROTO_CALLABLE()
+
             template<typename Sig>
             struct result
             {};
@@ -511,6 +639,8 @@ namespace boost { namespace proto
         template<typename Tag, typename Domain>
         struct unfused_expr_fun
         {
+            BOOST_PROTO_CALLABLE()
+
             template<typename Sequence>
             struct result
               : result_of::unpack_expr<Tag, Domain, Sequence>
@@ -527,7 +657,51 @@ namespace boost { namespace proto
         template<typename Tag, typename Domain>
         struct unfused_expr
           : fusion::unfused_generic<unfused_expr_fun<Tag, Domain> >
-        {};
+        {
+            BOOST_PROTO_CALLABLE()
+        };
+    }
+
+    /// unpack_arg
+    ///
+    template<typename Tag, typename Sequence>
+    typename lazy_disable_if<
+        is_domain<Sequence>
+      , result_of::unpack_arg<Tag, Sequence>
+    >::type
+    unpack_arg(Sequence const &sequence)
+    {
+        return result_of::unpack_arg<Tag, Sequence>::call(sequence);
+    }
+
+    /// \overload
+    ///
+    template<typename Tag, typename Domain, typename Sequence2>
+    typename result_of::unpack_arg<Tag, Domain, Sequence2>::type
+    unpack_arg(Sequence2 const &sequence2)
+    {
+        return result_of::unpack_arg<Tag, Domain, Sequence2>::call(sequence2);
+    }
+
+    /// make_arg
+    ///
+    template<typename Tag, typename Head, typename... Tail>
+    typename lazy_disable_if<
+        is_domain<Head>
+      , result_of::make_arg<Tag, Head, Tail...>
+    >::type
+    make_arg(Head &&head, Tail &&... tail)
+    {
+        return result_of::make_arg<Tag, Head, Tail...>::call(head, tail...);
+    }
+
+    /// \overload
+    ///
+    template<typename Tag, typename Domain, typename Head, typename... Tail>
+    typename result_of::make_arg<Tag, Domain, Head, Tail...>::type
+    make_arg(Head &&head, Tail &&... tail)
+    {
+        return result_of::make_arg<Tag, Domain, Head, Tail...>::call(head, tail...);
     }
 
     /// unpack_expr
@@ -536,7 +710,7 @@ namespace boost { namespace proto
     typename lazy_disable_if<
         is_domain<Sequence>
       , result_of::unpack_expr<Tag, Sequence>
-    >::type const
+    >::type
     unpack_expr(Sequence const &sequence)
     {
         return result_of::unpack_expr<Tag, Sequence>::call(sequence);
@@ -545,7 +719,7 @@ namespace boost { namespace proto
     /// \overload
     ///
     template<typename Tag, typename Domain, typename Sequence2>
-    typename result_of::unpack_expr<Tag, Domain, Sequence2>::type const
+    typename result_of::unpack_expr<Tag, Domain, Sequence2>::type
     unpack_expr(Sequence2 const &sequence2)
     {
         return result_of::unpack_expr<Tag, Domain, Sequence2>::call(sequence2);
@@ -574,6 +748,21 @@ namespace boost { namespace proto
 
 
     template<typename Tag, typename Domain>
+    struct is_callable<functional::make_arg<Tag, Domain> >
+      : mpl::true_
+    {};
+
+    template<typename Tag, typename Domain>
+    struct is_callable<functional::unpack_arg<Tag, Domain> >
+      : mpl::true_
+    {};
+
+    template<typename Tag, typename Domain>
+    struct is_callable<functional::unfused_arg<Tag, Domain> >
+      : mpl::true_
+    {};
+
+    template<typename Tag, typename Domain>
     struct is_callable<functional::make_expr<Tag, Domain> >
       : mpl::true_
     {};
@@ -587,17 +776,6 @@ namespace boost { namespace proto
     struct is_callable<functional::unfused_expr<Tag, Domain> >
       : mpl::true_
     {};
-
-
-
-    // TODO make_expr uses as_expr, not as_arg. Is that right?
-    typedef functional::make_expr<tag::assign>      _make_assign;
-    typedef functional::make_expr<tag::negate>      _make_negate;
-    typedef functional::make_expr<tag::terminal>    _make_terminal;
-    typedef functional::make_expr<tag::subscript>   _make_subscript;
-    typedef functional::make_expr<tag::complement>  _make_complement;
-    typedef functional::make_expr<tag::logical_not> _make_logical_not;
-    typedef functional::make_expr<tag::shift_right> _make_shift_right;
 
 
 }}

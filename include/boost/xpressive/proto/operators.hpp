@@ -242,10 +242,10 @@ namespace boost { namespace proto
     #undef BOOST_PROTO_DEFINE_BINARY_OPERATOR
 
         template<typename A, typename B, typename C>
-        typename result_of::make_expr<tag::if_else_, A, B, C>::type
+        typename result_of::make_arg<tag::if_else_, A, B, C>::type
         if_else(A &&a, B &&b, C &&c)
         {
-            return result_of::make_expr<tag::if_else_, A, B, C>::call(a, b, c);
+            return result_of::make_arg<tag::if_else_, A, B, C>::call(a, b, c);
         }
     }
 
@@ -256,11 +256,11 @@ namespace boost { namespace proto
     typename boost::proto::exprns_::detail::enable_unary<                                           \
         DOMAIN                                                                                      \
       , TRAIT<BOOST_PROTO_UNCVREF(Arg)>, Arg                                                        \
-      , typename boost::proto::result_of::make_expr<TAG, DOMAIN, Arg>::type                         \
+      , typename boost::proto::result_of::make_arg<TAG, DOMAIN, Arg>::type                          \
     >::type                                                                                         \
     operator OP(Arg &&arg BOOST_PROTO_UNARY_OP_IS_POSTFIX_ ## POST)                                 \
     {                                                                                               \
-        return boost::proto::result_of::make_expr<TAG, DOMAIN, Arg>::call(arg);                     \
+        return boost::proto::result_of::make_arg<TAG, DOMAIN, Arg>::call(arg);                      \
     }                                                                                               \
     /**/
 
@@ -270,11 +270,11 @@ namespace boost { namespace proto
         DOMAIN                                                                                      \
       , TRAIT<BOOST_PROTO_UNCVREF(Left)>, Left                                                      \
       , TRAIT<BOOST_PROTO_UNCVREF(Right)>, Right                                                    \
-      , typename boost::proto::result_of::make_expr<TAG, DOMAIN, Left, Right>::type                 \
+      , typename boost::proto::result_of::make_arg<TAG, DOMAIN, Left, Right>::type                  \
     >::type const                                                                                   \
     operator OP(Left &&left, Right &&right)                                                         \
     {                                                                                               \
-        return boost::proto::result_of::make_expr<TAG, DOMAIN, Left, Right>                         \
+        return boost::proto::result_of::make_arg<TAG, DOMAIN, Left, Right>                          \
             ::call(left, right);                                                                    \
     }                                                                                               \
     /**/

@@ -68,7 +68,7 @@ struct iplus : std::plus<int>, callable {};
 // It demonstrates the use of the std::plus<> function object
 // with the fold transform. With minor modifications, this
 // transform could be used to calculate the leaf count at compile
-// time, rather at runtime.
+// time, rather than at runtime.
 struct CountLeaves
   : or_<
         // match a Vec3 terminal, return 1
@@ -77,7 +77,7 @@ struct CountLeaves
       , when<terminal<_>, int() >
         // fold everything else, using std::plus<> to add
         // the leaf count of each child to the accumulated state.
-      , when< nary_expr<_, vararg<_> >, fold<_, int(), iplus(CountLeaves, _state) > >
+      , otherwise< fold<_, int(), iplus(CountLeaves, _state) > >
     >
 {};
 
