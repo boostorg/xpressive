@@ -22,24 +22,7 @@
 #include <boost/xpressive/proto/eval.hpp>
 #include <boost/xpressive/proto/traits.hpp> // for proto::arg_c()
 #include <boost/xpressive/proto/detail/indices.hpp>
-
-#define CV(T)\
-    typename add_const<T>::type
-
-#define REF(T)\
-    typename add_reference<T>::type
-
-#define CVREF(T)\
-    REF(CV(T))
-
-#define UNCV(T)\
-    typename remove_cv<T>::type
-
-#define UNREF(T)\
-    typename remove_reference<T>::type
-
-#define UNCVREF(T)\
-    UNCV(UNREF(T))
+#include <boost/xpressive/proto/detail/define.hpp>
 
 // If we're generating doxygen documentation, hide all the nasty
 // Boost.Typeof gunk.
@@ -388,11 +371,6 @@ namespace boost { namespace proto
 
 }} // namespace boost::proto
 
-#undef CV
-#undef REF
-#undef CVREF
-#undef UNCV
-#undef UNREF
-#undef UNCVREF
+#include <boost/xpressive/proto/detail/undef.hpp>
 
 #endif

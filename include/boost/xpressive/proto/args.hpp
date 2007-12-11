@@ -13,15 +13,7 @@
 #include <boost/type_traits.hpp>
 #include <boost/utility/result_of.hpp>
 #include <boost/xpressive/proto/proto_fwd.hpp>
-
-#define UNCV(X)                                                                 \
-    typename remove_cv<X>::type
-
-#define UNREF(X)                                                                \
-    typename remove_reference<X>::type
-
-#define UNCVREF(X)                                                              \
-    UNCV(UNREF(X))
+#include <boost/xpressive/proto/detail/define.hpp>
 
 namespace boost { namespace proto
 {
@@ -167,8 +159,6 @@ namespace boost { namespace proto
 
 }}
 
-#undef UNCV
-#undef UNREF
-#undef UNCVREF
+#include <boost/xpressive/proto/detail/undef.hpp>
 
 #endif

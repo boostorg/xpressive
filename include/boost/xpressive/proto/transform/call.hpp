@@ -12,24 +12,7 @@
 #include <boost/utility/result_of.hpp>
 #include <boost/xpressive/proto/proto_fwd.hpp>
 #include <boost/xpressive/proto/traits.hpp>
-
-#define CV(T)\
-    typename add_const<T>::type
-
-#define REF(T)\
-    typename add_reference<T>::type
-
-#define CVREF(T)\
-    REF(CV(T))
-
-#define UNCV(T)\
-    typename remove_cv<T>::type
-
-#define UNREF(T)\
-    typename remove_reference<T>::type
-
-#define UNCVREF(T)\
-    UNCV(UNREF(T))
+#include <boost/xpressive/proto/detail/define.hpp>
 
 namespace boost { namespace proto
 {
@@ -340,11 +323,6 @@ namespace boost { namespace proto
 
 }}
 
-#undef CV
-#undef REF
-#undef CVREF
-#undef UNCV
-#undef UNREF
-#undef UNCVREF
+#include <boost/xpressive/proto/detail/undef.hpp>
 
 #endif

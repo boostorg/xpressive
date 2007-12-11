@@ -24,11 +24,7 @@
 #include <boost/mpl/aux_/template_arity.hpp>
 #include <boost/mpl/aux_/lambda_arity_param.hpp>
 
-#define UNREF(X)                                                                \
-    typename remove_reference<X>::type
-
-#define UNCVREF(X)                                                              \
-    typename remove_cv<UNREF(X)>::type
+#include <boost/xpressive/proto/detail/define.hpp>
 
 namespace boost { namespace proto
 {
@@ -593,7 +589,6 @@ namespace boost { namespace proto
 
 }}
 
-#undef UNREF
-#undef UNCVREF
+#include <boost/xpressive/proto/detail/undef.hpp>
 
 #endif

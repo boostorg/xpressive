@@ -10,8 +10,7 @@
 #define BOOST_PROTO_EVAL_HPP_EAN_03_29_2007
 
 #include <boost/type_traits.hpp>
-
-#define UNREF(X) typename remove_reference<X>::type
+#include <boost/xpressive/proto/detail/define.hpp>
 
 namespace boost { namespace proto
 {
@@ -49,6 +48,6 @@ namespace boost { namespace proto
     functional::eval const eval = {};
 }}
 
-#undef UNREF
+#include <boost/xpressive/proto/detail/undef.hpp>
 
 #endif

@@ -27,15 +27,7 @@
 #include <boost/fusion/view/ext_/segmented_iterator.hpp>
 #include <boost/xpressive/proto/proto_fwd.hpp>
 #include <boost/xpressive/proto/traits.hpp>
-
-#define UNCV(x)\
-    typename remove_cv<x>::type
-
-#define UNREF(x)\
-    typename remove_reference<x>::type
-
-#define UNCVREF(x)\
-    UNCV(UNREF(x))
+#include <boost/xpressive/proto/detail/define.hpp>
 
 namespace boost { namespace proto
 {
@@ -497,8 +489,6 @@ namespace boost { namespace fusion
 
 }}
 
-#undef UNCV
-#undef UNREF
-#undef UNCVREF
+#include <boost/xpressive/proto/detail/undef.hpp>
 
 #endif

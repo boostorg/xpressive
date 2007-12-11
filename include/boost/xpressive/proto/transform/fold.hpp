@@ -14,12 +14,7 @@
 #include <boost/xpressive/proto/proto_fwd.hpp>
 #include <boost/xpressive/proto/fusion.hpp>
 #include <boost/xpressive/proto/traits.hpp>
-
-#define UNREF(T)\
-    typename remove_reference<T>::type
-
-#define UNCVREF(T)\
-    typename remove_cv<UNREF(T)>::type
+#include <boost/xpressive/proto/detail/define.hpp>
 
 namespace boost { namespace proto
 {
@@ -125,7 +120,6 @@ namespace boost { namespace proto
 
 }}
 
-#undef UNREF
-#undef UNCVREF
+#include <boost/xpressive/proto/detail/undef.hpp>
 
 #endif

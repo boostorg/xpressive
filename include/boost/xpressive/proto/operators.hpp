@@ -14,8 +14,7 @@
 #include <boost/preprocessor/punctuation/comma.hpp>
 #include <boost/xpressive/proto/proto_fwd.hpp>
 #include <boost/xpressive/proto/make_expr.hpp>
-
-#define UNREF(X) typename remove_reference<X>::type
+#include <boost/xpressive/proto/detail/define.hpp>
 
 namespace boost { namespace proto
 {
@@ -335,6 +334,6 @@ namespace boost { namespace proto
 
 }}
 
-#undef UNREF
+#include <boost/xpressive/proto/detail/undef.hpp>
 
 #endif
