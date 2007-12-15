@@ -151,47 +151,47 @@ namespace boost { namespace proto
     #define BOOST_PROTO_UNARY_OP_IS_POSTFIX_0
     #define BOOST_PROTO_UNARY_OP_IS_POSTFIX_1 , int
 
-    #define BOOST_PROTO_DEFINE_UNARY_OPERATOR(OP, TAG, POST)                        \
-        template<typename A>                                                        \
-        typename detail::generate_if<                                               \
-            true                                                                    \
-          , UNREF(A)::proto_domain                                                  \
-          , expr<TAG, args<                                                         \
-                typename result_of::as_arg<A, UNREF(A)::proto_domain>::type         \
-            > >                                                                     \
-        >::type                                                                     \
-        operator OP(A &&a BOOST_PROTO_UNARY_OP_IS_POSTFIX_ ## POST)                 \
-        {                                                                           \
-            typedef UNREF(A)::proto_domain D;                                       \
-            expr<TAG, args<                                                         \
-                typename result_of::as_arg<A, D>::type                              \
-            > > that = {{result_of::as_arg<A, D>::call(a)}};                        \
-            return D::make(that);                                                   \
-        }                                                                           \
+    #define BOOST_PROTO_DEFINE_UNARY_OPERATOR(OP, TAG, POST)                                        \
+        template<typename A>                                                                        \
+        typename detail::generate_if<                                                               \
+            true                                                                                    \
+          , UNREF(A)::proto_domain                                                                  \
+          , expr<TAG, args<                                                                         \
+                typename result_of::as_arg<A, UNREF(A)::proto_domain>::type                         \
+            > >                                                                                     \
+        >::type                                                                                     \
+        operator OP(A &&a BOOST_PROTO_UNARY_OP_IS_POSTFIX_ ## POST)                                 \
+        {                                                                                           \
+            typedef UNREF(A)::proto_domain D;                                                       \
+            expr<TAG, args<                                                                         \
+                typename result_of::as_arg<A, D>::type                                              \
+            > > that = {{result_of::as_arg<A, D>::call(a)}};                                        \
+            return D::make(that);                                                                   \
+        }                                                                                           \
         /**/
 
-    #define BOOST_PROTO_DEFINE_BINARY_OPERATOR(OP, TAG)                             \
-        template<typename A, typename B>                                            \
-        typename detail::generate_if<                                               \
-            result_of::is_expr<A>::value || result_of::is_expr<B>::value            \
-          , typename detail::unify_domain<A, B>::type                               \
-          , expr<TAG, args<                                                         \
-                typename result_of::as_arg<A, typename detail::unify_domain<A, B>::type>::type\
-              , typename result_of::as_arg<B, typename detail::unify_domain<A, B>::type>::type\
-            > >                                                                     \
-        >::type                                                                     \
-        operator OP(A &&a, B &&b)                                                   \
-        {                                                                           \
-            typedef typename detail::unify_domain<A, B>::type D;                    \
-            expr<TAG, args<                                                         \
-                typename result_of::as_arg<A, D>::type                              \
-              , typename result_of::as_arg<B, D>::type                              \
-            > > that = {{                                                           \
-                result_of::as_arg<A, D>::call(a)                                    \
-              , {result_of::as_arg<B, D>::call(b)}                                  \
-            }};                                                                     \
-            return D::make(that);                                                   \
-        }                                                                           \
+    #define BOOST_PROTO_DEFINE_BINARY_OPERATOR(OP, TAG)                                             \
+        template<typename A, typename B>                                                            \
+        typename detail::generate_if<                                                               \
+            result_of::is_expr<A>::value || result_of::is_expr<B>::value                            \
+          , typename detail::unify_domain<A, B>::type                                               \
+          , expr<TAG, args<                                                                         \
+                typename result_of::as_arg<A, typename detail::unify_domain<A, B>::type>::type      \
+              , typename result_of::as_arg<B, typename detail::unify_domain<A, B>::type>::type      \
+            > >                                                                                     \
+        >::type                                                                                     \
+        operator OP(A &&a, B &&b)                                                                   \
+        {                                                                                           \
+            typedef typename detail::unify_domain<A, B>::type D;                                    \
+            expr<TAG, args<                                                                         \
+                typename result_of::as_arg<A, D>::type                                              \
+              , typename result_of::as_arg<B, D>::type                                              \
+            > > that = {                                                                            \
+                {result_of::as_arg<A, D>::call(a)                                                   \
+              , {result_of::as_arg<B, D>::call(b)}}                                                 \
+            };                                                                                      \
+            return D::make(that);                                                                   \
+        }                                                                                           \
         /**/
 
         BOOST_PROTO_DEFINE_UNARY_OPERATOR(+, tag::posit, 0)

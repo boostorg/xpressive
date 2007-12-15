@@ -12,6 +12,7 @@
 #include <boost/utility/result_of.hpp>
 #include <boost/xpressive/proto/proto_fwd.hpp>
 #include <boost/xpressive/proto/traits.hpp>
+#include <boost/xpressive/proto/detail/dont_care.hpp>
 #include <boost/xpressive/proto/detail/define.hpp>
 
 namespace boost { namespace proto
@@ -27,8 +28,7 @@ namespace boost { namespace proto
                 return const_cast<T &>(t);
             }
 
-            struct dont_care { dont_care(...); };
-
+            using proto::detail::dont_care;
             typedef char (&yes_type)[2];
             typedef char no_type;
 

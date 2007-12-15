@@ -143,9 +143,9 @@ namespace boost { namespace proto
             typename result<unary_expr(Expr const &, State const &, Visitor &)>::type
             operator()(Expr const &expr, State const &state, Visitor &visitor) const
             {
-                typename result<unary_expr(Expr const &, State const &, Visitor &)>::type that = {{
-                    T()(proto::arg_c<0>(expr), state, visitor)
-                }};
+                typename result<unary_expr(Expr const &, State const &, Visitor &)>::type that = {
+                    {T()(proto::arg_c<0>(expr), state, visitor)}
+                };
                 return that;
             }
         };
@@ -172,10 +172,10 @@ namespace boost { namespace proto
             typename result<binary_expr(Expr const &, State const &, Visitor &)>::type
             operator()(Expr const &expr, State const &state, Visitor &visitor) const
             {
-                typename result<binary_expr(Expr const &, State const &, Visitor &)>::type that = {{
-                    T()(proto::arg_c<0>(expr), state, visitor)
-                  , {U()(proto::arg_c<1>(expr), state, visitor)}
-                }};
+                typename result<binary_expr(Expr const &, State const &, Visitor &)>::type that = {
+                    {T()(proto::arg_c<0>(expr), state, visitor)
+                  , {U()(proto::arg_c<1>(expr), state, visitor)}}
+                };
                 return that;
             }
         };

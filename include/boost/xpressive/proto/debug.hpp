@@ -154,8 +154,8 @@ namespace boost { namespace proto
             static void call_(display_expr &, argsns_::cons<> const &)
             {}
 
-            template<typename... Args>
-            static void call_(display_expr &display, argsns_::cons<Args...> const &args)
+            template<typename Cons>
+            static void call_(display_expr &display, Cons const &args)
             {
                 display(args.car);
                 call_(display, args.cdr);
