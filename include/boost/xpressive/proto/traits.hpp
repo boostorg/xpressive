@@ -392,12 +392,28 @@ namespace boost { namespace proto
               : result_of::as_arg<T, Domain>
             {};
 
+        #ifdef BOOST_HAS_RVALUE_REFS
             template<typename T>
             typename result_of::as_arg<T, Domain>::type
             operator ()(T &&t) const
             {
                 return result_of::as_arg<T, Domain>::call(t);
             }
+        #else
+            template<typename T>
+            typename result_of::as_arg<T &, Domain>::type
+            operator ()(T &t) const
+            {
+                return result_of::as_arg<T &, Domain>::call(t);
+            }
+
+            template<typename T>
+            typename result_of::as_arg<T const &, Domain>::type
+            operator ()(T const &t) const
+            {
+                return result_of::as_arg<T const &, Domain>::call(t);
+            }
+        #endif
         };
 
         template<typename Domain>
@@ -411,12 +427,28 @@ namespace boost { namespace proto
               : result_of::as_expr<T, Domain>
             {};
 
+        #ifdef BOOST_HAS_RVALUE_REFS
             template<typename T>
             typename result_of::as_expr<T, Domain>::type
             operator ()(T &&t) const
             {
                 return result_of::as_expr<T, Domain>::call(t);
             }
+        #else
+            template<typename T>
+            typename result_of::as_expr<T &, Domain>::type
+            operator ()(T &t) const
+            {
+                return result_of::as_expr<T &, Domain>::call(t);
+            }
+
+            template<typename T>
+            typename result_of::as_expr<T const &, Domain>::type
+            operator ()(T const &t) const
+            {
+                return result_of::as_expr<T const &, Domain>::call(t);
+            }
+        #endif
         };
 
         template<long N>
@@ -508,6 +540,7 @@ namespace boost { namespace proto
         return result_of::arg_c<Expr const, N>::call(expr.proto_base().proto_args_);
     }
 
+#ifdef BOOST_HAS_RVALUE_REFS
     template<typename T>
     typename result_of::as_expr<T>::type as_expr(T &&t)
     {
@@ -531,6 +564,55 @@ namespace boost { namespace proto
     {
         return result_of::as_arg<T, Domain>::call(t);
     }
+#else
+    template<typename T>
+    typename result_of::as_expr<T &>::type as_expr(T &t)
+    {
+        return result_of::as_expr<T &>::call(t);
+    }
+
+    template<typename Domain, typename T>
+    typename result_of::as_expr<T &, Domain>::type as_expr(T &t)
+    {
+        return result_of::as_expr<T &, Domain>::call(t);
+    }
+
+    template<typename T>
+    typename result_of::as_expr<T const &>::type as_expr(T const &t)
+    {
+        return result_of::as_expr<T const &>::call(t);
+    }
+
+    template<typename Domain, typename T>
+    typename result_of::as_expr<T const &, Domain>::type as_expr(T const &t)
+    {
+        return result_of::as_expr<T const &, Domain>::call(t);
+    }
+
+    template<typename T>
+    typename result_of::as_arg<T &>::type as_arg(T &t)
+    {
+        return result_of::as_arg<T &>::call(t);
+    }
+
+    template<typename Domain, typename T>
+    typename result_of::as_arg<T &, Domain>::type as_arg(T &t)
+    {
+        return result_of::as_arg<T &, Domain>::call(t);
+    }
+
+    template<typename T>
+    typename result_of::as_arg<T const &>::type as_arg(T const &t)
+    {
+        return result_of::as_arg<T const &>::call(t);
+    }
+
+    template<typename Domain, typename T>
+    typename result_of::as_arg<T const &, Domain>::type as_arg(T const &t)
+    {
+        return result_of::as_arg<T const &, Domain>::call(t);
+    }
+#endif
 
     /// is_callable
     ///

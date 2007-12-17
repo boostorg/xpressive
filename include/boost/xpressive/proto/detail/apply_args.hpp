@@ -11,6 +11,7 @@
     #define BOOST_PROTO_DETAIL_APPLY_ARGS_HPP_EAN_11_07_2007
 
     #include <boost/xpressive/proto/proto_fwd.hpp>
+    #include <boost/xpressive/proto/detail/cat_args.hpp>
     #include <boost/xpressive/proto/detail/define.hpp>
 
     namespace boost { namespace proto { namespace op
@@ -22,15 +23,6 @@
             struct apply_args;
 
         #if defined(BOOST_HAS_VARIADIC_TMPL) && defined(BOOST_HAS_RVALUE_REFS)
-            template<typename A0, typename A1>
-            struct cat_args;
-
-            template<typename... A0, typename... A1>
-            struct cat_args<args<A0...>, args<A1...> >
-            {
-                typedef args<A0..., A1...> type;
-            };
-
             template<typename... G>
             struct pad_args
             {
@@ -56,7 +48,7 @@
             >
             {
                 #define TMP(Z, N, DATA) typename boost::result_of<G##N(E##N, S, V)>::type
-                typedef typename cat_args<
+                typedef typename proto::detail::cat_args<
                     args<BOOST_PP_ENUM(BOOST_PROTO_MAX_ARITY, TMP, ~) >
                   , typename apply_args<args<ERest...>, S, V, typename pad_args<GRest...>::type>::type
                 >::type type;

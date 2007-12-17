@@ -249,6 +249,9 @@ namespace boost { namespace proto
         >
         struct make_expr;
         #endif
+
+        template<typename Expr>
+        struct deep_copy;
     }
 
     using result_of::matches;

@@ -26,4 +26,5 @@ test-suite "proto"
         [ run matches.cpp ]
         [ run make_expr.cpp ]
         [ run examples.cpp ]
+        [ run deep_copy.cpp ]
     ;

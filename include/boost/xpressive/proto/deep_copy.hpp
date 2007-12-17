@@ -14,77 +14,27 @@
 #include <boost/xpressive/proto/expr.hpp>
 #include <boost/xpressive/proto/traits.hpp>
 #include <boost/xpressive/proto/generate.hpp>
+#include <boost/xpressive/proto/detail/deep_copy.hpp>
 #include <boost/xpressive/proto/detail/define.hpp>
 
 namespace boost { namespace proto
 {
-    namespace detail
-    {
-        template<typename Expr, typename Args = typename Expr::proto_args>
-        struct deep_copy_impl;
-
-        struct deep_copy_cons
-        {
-            template<typename Sig>
-            struct result;
-
-            template<typename This, typename... Args>
-            struct result<This(Args...)>
-            {
-                typedef argsns_::cons<typename deep_copy_impl<UNCVREF(Args)>::type...> type;
-            };
-
-            template<typename... Args>
-            typename result<deep_copy_cons(Args...)>::type
-            operator()(Args const &... args) const
-            {
-                return result<deep_copy_cons(Args...)>::type::make(
-                    deep_copy_impl<Args>::call(args)...
-                );
-            }
-        };
-
-        template<typename Expr, typename T>
-        struct deep_copy_impl<Expr, term<T> >
-        {
-            // TODO don't unref reference to function!
-            typedef typename terminal<UNCVREF(T)>::type expr_type;
-            typedef typename Expr::proto_domain::template apply<expr_type>::type type;
-
-            static type call(Expr const &expr)
-            {
-                return Expr::proto_domain::make(expr_type::make(proto::arg(expr)));
-            }
-        };
-
-        template<typename Expr, typename... Args>
-        struct deep_copy_impl<Expr, args<Args...> >
-        {
-            typedef expr<typename Expr::proto_tag, args<
-                typename deep_copy_impl<UNCVREF(Args)>::type...
-            > > expr_type;
-            typedef typename Expr::proto_domain::template apply<expr_type>::type type;
-
-            static type call(Expr const &expr)
-            {
-                expr_type that = {
-                    argsns_::fanout_args(
-                        proto::detail::deep_copy_cons()
-                      , expr.proto_base().proto_args_
-                    )
-                };
-                return Expr::proto_domain::make(that);
-            }
-        };
-
-    }
 
     namespace result_of
     {
         template<typename Expr>
         struct deep_copy
-          : proto::detail::deep_copy_impl<Expr>
-        {};
+        {
+            typedef typename proto::detail::deep_copy_<typename Expr::proto_args>::type args_type;
+            typedef expr<typename Expr::proto_tag, args_type> expr_type;
+            typedef typename Expr::proto_domain::template apply<expr_type>::type type;
+
+            static type call(Expr const &expr)
+            {
+                expr_type that = {proto::detail::deep_copy_<typename Expr::proto_args>::call(expr.proto_base().proto_args_)};
+                return Expr::proto_domain::make(that);
+            }
+        };
     }
 
     namespace functional
@@ -112,6 +62,6 @@ namespace boost { namespace proto
 
 }}
 
-#include <boost/xpressive/proto/detail/define.hpp>
+#include <boost/xpressive/proto/detail/undef.hpp>
 
 #endif // BOOST_PROTO_DEEP_COPY_HPP_EAN_11_21_2006
