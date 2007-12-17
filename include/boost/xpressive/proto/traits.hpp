@@ -14,6 +14,7 @@
 #include <boost/xpressive/proto/proto_fwd.hpp>
 #include <boost/xpressive/proto/args.hpp>
 #include <boost/xpressive/proto/detail/apply_args.hpp>
+#include <boost/xpressive/proto/detail/nary_expr.hpp>
 #include <boost/xpressive/proto/detail/is_callable.hpp>
 #include <boost/xpressive/proto/detail/define.hpp>
 
@@ -149,40 +150,6 @@ namespace boost { namespace proto
         template<typename T, typename U> struct bitwise_or_assign : binary_expr<tag::bitwise_or_assign, T, U> {};
         template<typename T, typename U> struct bitwise_xor_assign : binary_expr<tag::bitwise_xor_assign, T, U> {};
         template<typename T, typename U> struct subscript : binary_expr<tag::subscript, T, U> {};
-
-        template<typename Tag, typename... Args>
-        struct nary_expr
-        {
-            typedef expr<Tag, args<Args...> > type;
-            typedef type proto_base_expr;
-
-            template<typename Sig>
-            struct result;
-
-            template<typename This, typename Expr, typename State, typename Visitor>
-            struct result<This(Expr, State, Visitor)>
-            {
-                typedef typename detail::pad_args<Args...>::type padded_args;
-                typedef detail::apply_args<UNREF(Expr)::proto_args, State, Visitor, padded_args> apply_;
-                typedef expr<UNREF(Expr)::proto_tag, typename apply_::type> type;
-            };
-
-            template<typename Expr, typename State, typename Visitor>
-            typename result<nary_expr(Expr const &, State const &, Visitor &)>::type
-            operator()(Expr const &expr, State const &state, Visitor &visitor) const
-            {
-                typedef result<nary_expr(Expr const &, State const &, Visitor &)> result_;
-                typename result_::type that = {
-                    result_::apply_::call(expr.proto_base().proto_args_, state, visitor)
-                };
-                return that;
-            }
-        };
-
-        template<typename... Args>
-        struct function
-          : nary_expr<tag::function, Args...>
-        {};
 
     }
 
