@@ -73,7 +73,7 @@ namespace boost { namespace proto
             template<typename... A>
             static expr make(A &&... a)
             {
-                expr that = {Args::cons_type::make(a...)};
+                expr that = {argsns_::make_cons_<typename Args::cons_type>(a...)};
                 return that;
             }
 

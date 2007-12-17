@@ -239,7 +239,7 @@ namespace boost { namespace proto
             template<
                 typename Args1
               , typename Args2
-              , bool IsVararg = control::detail::is_vararg<typename back<Args2>::type>::value
+              , bool IsVararg = control::detail::is_vararg<typename Args2::back_>::value
             >
             struct vararg_matches
               : mpl::false_
@@ -473,7 +473,7 @@ namespace boost { namespace proto
         };
 
         template<typename... Alts>
-        struct and_ : back<args<Alts...> >::type
+        struct and_ : args<Alts...>::back_
         {
             typedef and_ proto_base_expr;
         };

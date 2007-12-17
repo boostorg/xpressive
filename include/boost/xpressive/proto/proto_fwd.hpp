@@ -10,21 +10,33 @@
 #define BOOST_PROTO_PROTO_FWD_EAN_10_28_2007
 
 #include <climits> // for INT_MAX
+#include <boost/config.hpp>
+#include <boost/preprocessor.hpp>
 #include <boost/type_traits.hpp>
 #include <boost/mpl/bool.hpp>
 #include <boost/mpl/long.hpp>
 #include <boost/mpl/aux_/template_arity.hpp>
 #include <boost/mpl/aux_/lambda_arity_param.hpp>
 
+#ifndef BOOST_PROTO_MAX_ARITY
+# define BOOST_PROTO_MAX_ARITY 5
+#endif
+
+#ifndef BOOST_PROTO_MAX_LOGICAL_ARITY
+# define BOOST_PROTO_MAX_LOGICAL_ARITY 8
+#endif
+
 namespace boost { namespace proto
 {
     namespace detail
     {
+        #if defined(BOOST_HAS_VARIADIC_TMPL) && defined(BOOST_HAS_RVALUE_REFS)
         template<int... I>
         struct indices;
 
         template<int N, typename T = indices<> >
         struct make_indices;
+        #endif
     }
 
     namespace wildns_
@@ -69,22 +81,26 @@ namespace boost { namespace proto
 
     namespace argsns_
     {
+        #if defined(BOOST_HAS_VARIADIC_TMPL) && defined(BOOST_HAS_RVALUE_REFS)
         template<typename... Args>
         struct cons;
 
         template<typename... Args>
         struct args;
+        #else
+        template<BOOST_PP_ENUM_PARAMS_WITH_A_DEFAULT(BOOST_PROTO_MAX_ARITY, typename A, void), typename Dummy = void>
+        struct cons;
+
+        template<BOOST_PP_ENUM_PARAMS_WITH_A_DEFAULT(BOOST_PROTO_MAX_ARITY, typename A, void), typename Dummy = void>
+        struct args;
+        #endif
 
         template<typename Arg>
         struct term;
-
-        template<typename Args>
-        struct back;
     }
 
     using argsns_::args;
     using argsns_::term;
-    using argsns_::back;
 
     namespace exprns_
     {
@@ -200,17 +216,39 @@ namespace boost { namespace proto
         template<typename T, typename EnableIf = void>
         struct domain_of;
 
+        template<typename Tag, typename DomainOrSequence, typename SequenceOrVoid = void, typename EnableIf = void>
+        struct unpack_arg;
+
+        template<typename Tag, typename DomainOrSequence, typename SequenceOrVoid = void, typename EnableIf = void>
+        struct unpack_expr;
+
+        #if defined(BOOST_HAS_VARIADIC_TMPL) && defined(BOOST_HAS_RVALUE_REFS)
         template<typename Tag, typename... Args>
         struct make_arg;
 
-        template<typename Tag, typename DomainOrSequence, typename SequenceOrVoid = void, typename _ = void>
-        struct unpack_arg;
-
         template<typename Tag, typename... Args>
         struct make_expr;
+        #else
+        template<
+            typename Tag
+            BOOST_PP_ENUM_TRAILING_BINARY_PARAMS(
+                BOOST_PROTO_MAX_ARITY
+              , typename A
+              , = void BOOST_PP_INTERCEPT
+            )
+        >
+        struct make_arg;
 
-        template<typename Tag, typename DomainOrSequence, typename SequenceOrVoid = void, typename _ = void>
-        struct unpack_expr;
+        template<
+            typename Tag
+            BOOST_PP_ENUM_TRAILING_BINARY_PARAMS(
+                BOOST_PROTO_MAX_ARITY
+              , typename A
+              , = void BOOST_PP_INTERCEPT
+            )
+        >
+        struct make_expr;
+        #endif
     }
 
     using result_of::matches;
@@ -227,9 +265,19 @@ namespace boost { namespace proto
     typename result_of::arg_c<Expr const, N>::type
     arg_c(Expr const &expr);
 
+    #if defined(BOOST_HAS_VARIADIC_TMPL) && defined(BOOST_HAS_RVALUE_REFS)
     template<typename T>
     typename result_of::as_arg<T>::type
     as_arg(T &&t);
+    #else
+    template<typename T>
+    typename result_of::as_arg<T &>::type
+    as_arg(T &t);
+
+    template<typename T>
+    typename result_of::as_arg<T const &>::type
+    as_arg(T const &t);
+    #endif
 
     namespace op
     {
@@ -277,10 +325,30 @@ namespace boost { namespace proto
         template<typename T, typename U> struct bitwise_xor_assign;
         template<typename T, typename U> struct subscript;
         template<typename T, typename U, typename V> struct if_else_;
-        template<typename... Args> struct function;
         template<typename Tag, typename T> struct unary_expr;
         template<typename Tag, typename T, typename U> struct binary_expr;
+
+        #if defined(BOOST_HAS_VARIADIC_TMPL) && defined(BOOST_HAS_RVALUE_REFS)
+        template<typename... Args> struct function;
         template<typename Tag, typename... Args> struct nary_expr;
+        #else
+        template<
+            BOOST_PP_ENUM_PARAMS_WITH_A_DEFAULT(BOOST_PROTO_MAX_ARITY, typename A, void)
+          , typename Dummy = void
+        >
+        struct function;
+
+        template<
+            typename Tag
+            BOOST_PP_ENUM_TRAILING_BINARY_PARAMS(
+                BOOST_PROTO_MAX_ARITY
+              , typename A
+              , = void BOOST_PP_INTERCEPT
+            )
+          , typename Dummy = void
+        >
+        struct nary_expr;
+        #endif
     }
 
     using namespace op;
@@ -293,11 +361,35 @@ namespace boost { namespace proto
             struct is_vararg;
         }
 
+        #if defined(BOOST_HAS_VARIADIC_TMPL) && defined(BOOST_HAS_RVALUE_REFS)
         template<typename... Alts>
         struct or_;
 
         template<typename... Alts>
         struct and_;
+        #else
+        template<
+            typename Grammar0
+          , typename Grammar1
+            BOOST_PP_ENUM_TRAILING_BINARY_PARAMS(
+                BOOST_PP_SUB(BOOST_PROTO_MAX_LOGICAL_ARITY,2)
+              , typename G
+              , = void BOOST_PP_INTERCEPT
+            )
+        >
+        struct or_;
+
+        template<
+            typename Grammar0
+          , typename Grammar1
+            BOOST_PP_ENUM_TRAILING_BINARY_PARAMS(
+                BOOST_PP_SUB(BOOST_PROTO_MAX_LOGICAL_ARITY,2)
+              , typename G
+              , = void BOOST_PP_INTERCEPT
+            )
+        >
+        struct and_;
+        #endif
 
         template<typename Grammar>
         struct not_;
@@ -351,6 +443,7 @@ namespace boost { namespace proto
         template<typename Fun>
         struct otherwise;
 
+        #if defined(BOOST_HAS_VARIADIC_TMPL) && defined(BOOST_HAS_RVALUE_REFS)
         template<typename Fun, typename... Args>
         struct call;
 
@@ -359,6 +452,37 @@ namespace boost { namespace proto
 
         template<typename Fun, typename... Args>
         struct bind;
+        #else
+        template<
+            typename Fun
+            BOOST_PP_ENUM_TRAILING_BINARY_PARAMS(
+                BOOST_PROTO_MAX_ARITY
+              , typename A
+              , = void BOOST_PP_INTERCEPT
+            )
+        >
+        struct call;
+
+        template<
+            typename Fun
+            BOOST_PP_ENUM_TRAILING_BINARY_PARAMS(
+                BOOST_PROTO_MAX_ARITY
+              , typename A
+              , = void BOOST_PP_INTERCEPT
+            )
+        >
+        struct make;
+
+        template<
+            typename Fun
+            BOOST_PP_ENUM_TRAILING_BINARY_PARAMS(
+                BOOST_PROTO_MAX_ARITY
+              , typename A
+              , = void BOOST_PP_INTERCEPT
+            )
+        >
+        struct bind;
+        #endif
 
         template<typename Sequence, typename State, typename Fun>
         struct fold;
@@ -443,10 +567,12 @@ namespace boost { namespace proto
         template<typename Derived, typename DefaultCtx = default_context>
         struct callable_context;
 
-        template<typename Expr, typename Context,
-            typename Indices = typename proto::detail::make_indices<
+        template<typename Expr, typename Context
+            #if defined(BOOST_HAS_VARIADIC_TMPL) && defined(BOOST_HAS_RVALUE_REFS)
+          , typename Indices = typename proto::detail::make_indices<
                 Expr::proto_arity == 0 ? 1 : Expr::proto_arity
             >::type
+            #endif
         >
         struct callable_eval;
     }

@@ -13,6 +13,7 @@
 #include <boost/mpl/logical.hpp>
 #include <boost/xpressive/proto/proto_fwd.hpp>
 #include <boost/xpressive/proto/args.hpp>
+#include <boost/xpressive/proto/detail/apply_args.hpp>
 #include <boost/xpressive/proto/detail/define.hpp>
 
 namespace boost { namespace proto
@@ -20,83 +21,6 @@ namespace boost { namespace proto
 
     namespace op
     {
-
-        namespace detail
-        {
-            using argsns_::cons;
-
-            template<typename G, typename E, typename S, typename V>
-            struct apply_args;
-
-            template<typename G, typename E, typename S, typename V>
-            struct apply_args<args<G>, args<E>, S, V>
-            {
-                typedef args<
-                    typename boost::result_of<G(UNCVREF(E), S, V)>::type
-                > type;
-
-                static typename type::cons_type
-                call(cons<E> const &a, S const &s, V &v)
-                {
-                    typename type::cons_type that = {G()(a.car, s, v)};
-                    return that;
-                }
-            };
-
-            template<typename G1, typename... G2, typename E1, typename... E2, typename S, typename V>
-            struct apply_args<args<G1, G2...>, args<E1, E2...>, S, V>
-            {
-                typedef args<
-                    typename boost::result_of<G1(UNCVREF(E1), S, V)>::type
-                  , typename boost::result_of<G2(UNCVREF(E2), S, V)>::type...
-                > type;
-
-                static typename type::cons_type
-                call(cons<E1, E2...> const &a, S const &s, V &v)
-                {
-                    typename type::cons_type that = {
-                        G1()(a.car, s, v)
-                      , apply_args<args<G2...>, args<E2...>, S, V>::call(a.cdr, s, v)
-                    };
-                    return that;
-                }
-            };
-
-            template<typename G, typename E1, typename... E2, typename S, typename V>
-            struct apply_args<args<G>, args<E1, E2...>, S, V>
-            {
-                typedef args<
-                    typename boost::result_of<G(UNCVREF(E1), S, V)>::type
-                  , typename boost::result_of<G(UNCVREF(E2), S, V)>::type...
-                > type;
-
-                static typename type::cons_type
-                call(cons<E1, E2...> const &a, S const &s, V &v)
-                {
-                    typename type::cons_type that = {
-                        G()(a.car, s, v)
-                      , apply_args<args<G>, args<E2...>, S, V>::call(a.cdr, s, v)
-                    };
-                    return that;
-                }
-            };
-
-            template<typename G1, typename... G2, typename E, typename S, typename V>
-            struct apply_args<args<G1, G2...>, args<E>, S, V>
-            {
-                typedef args<
-                    typename boost::result_of<G1(UNCVREF(E), S, V)>::type
-                > type;
-
-                static typename type::cons_type
-                call(cons<E> const &a, S const &s, V &v)
-                {
-                    typename type::cons_type that = {G1()(a.car, s, v)};
-                    return that;
-                }
-            };
-        }
-
         template<typename T>
         struct terminal
         {
@@ -237,7 +161,8 @@ namespace boost { namespace proto
             template<typename This, typename Expr, typename State, typename Visitor>
             struct result<This(Expr, State, Visitor)>
             {
-                typedef detail::apply_args<args<Args...>, UNREF(Expr)::proto_args, State, Visitor> apply_;
+                typedef typename detail::pad_args<Args...>::type padded_args;
+                typedef detail::apply_args<UNREF(Expr)::proto_args, State, Visitor, padded_args> apply_;
                 typedef expr<UNREF(Expr)::proto_tag, typename apply_::type> type;
             };
 
