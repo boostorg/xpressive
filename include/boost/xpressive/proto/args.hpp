@@ -49,41 +49,6 @@
                 typedef void cdr_type;
             };
 
-            struct fanout_args_fun
-            {
-                template<typename Sig>
-                struct result;
-
-                template<typename This, typename Fun, typename... Args>
-                struct result<This(Fun, cons<Args...>)>
-                  : boost::result_of<UNCVREF(Fun)(UNCVREF(Args)...)>
-                {};
-
-                template<typename Fun, typename... Args>
-                typename boost::result_of<Fun(Args...)>::type
-                operator()(Fun const &fun, cons<Args...> const &cons) const
-                {
-                    typedef typename boost::result_of<Fun(Args...)>::type type;
-                    return this->call_<type>(fun, cons.cdr, cons.car);
-                }
-
-            private:
-
-                template<typename Ret, typename Fun, typename Tail, typename... Head>
-                static Ret call_(Fun const &fun, Tail const &cons, Head const &...head)
-                {
-                    return call_<Ret>(fun, cons.cdr, head..., cons.car);
-                }
-
-                template<typename Ret, typename Fun, typename... Head>
-                static Ret call_(Fun const &fun, cons<> const &, Head const &... head)
-                {
-                    return fun(head...);
-                }
-            };
-
-            fanout_args_fun const fanout_args = {};
-
         #define LBRACE(Z, N, DATA) {
         #define RBRACE(Z, N, DATA) }
         #define CDR_TYPE(Z, N, DATA) ::cdr_type

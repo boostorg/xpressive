@@ -14,61 +14,11 @@
 #include <boost/utility/enable_if.hpp>
 #include <boost/xpressive/proto/proto_fwd.hpp>
 #include <boost/xpressive/proto/matches.hpp>
+#include <boost/xpressive/proto/detail/by_value_generator.hpp>
 #include <boost/xpressive/proto/detail/define.hpp>
 
 namespace boost { namespace proto
 {
-
-    namespace detail
-    {
-        struct by_value_cons
-        {
-            template<typename Sig>
-            struct result;
-
-            template<typename This, typename... Args>
-            struct result<This(Args...)>
-            {
-                typedef argsns_::cons<UNCVREF(Args)...> type;
-            };
-
-            template<typename... Args>
-            argsns_::cons<Args...> operator()(Args const &... args) const
-            {
-                return argsns_::make_cons(std::move(args)...);
-            }
-        };
-
-        template<typename Expr>
-        struct by_value_generator_;
-
-        template<typename Tag, typename... Args>
-        struct by_value_generator_<expr<Tag, args<Args...> > >
-        {
-            typedef expr<Tag, args<UNCVREF(Args)...> > type;
-
-            static type make(expr<Tag, args<Args...> > const &expr)
-            {
-                type that = {
-                    argsns_::fanout_args(by_value_cons(), expr.proto_base().proto_args_)
-                };
-                return that;
-            }
-        };
-
-        template<typename T>
-        struct by_value_generator_<expr<tag::terminal, term<T>, 0> >
-        {
-            typedef expr<tag::terminal, term<UNCVREF(T)> > type;
-
-            static type make(expr<tag::terminal, term<T>, 0> const &expr)
-            {
-                type that = {{expr.proto_base().proto_args_.car}};
-                return that;
-            }
-        };
-
-    }
 
     namespace generatorns_
     {
@@ -125,15 +75,19 @@ namespace boost { namespace proto
         {
             template<typename Expr>
             struct apply
-              : Generator::template apply<
-                    typename proto::detail::by_value_generator_<Expr>::type
-                >
-            {};
+            {
+                typedef typename proto::detail::by_value_generator_<typename Expr::proto_args>::type args_type;
+                typedef expr<typename Expr::proto_tag, args_type> expr_type;
+                typedef typename Generator::template apply<expr_type>::type type;
+            };
 
             template<typename Expr>
             static typename apply<Expr>::type make(Expr const &expr)
             {
-                return Generator::make(proto::detail::by_value_generator_<Expr>::make(expr));
+                typename apply<Expr>::expr_type that = {
+                    proto::detail::by_value_generator_<typename Expr::proto_args>::call(expr.proto_base().proto_args_)
+                };
+                return Generator::make(that);
             }
         };
 
