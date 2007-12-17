@@ -55,7 +55,7 @@
                 >
             >
             {
-                #define TMP(Z, N, DATA) typename boost::result_of<G##N(UNCVREF(E##N), S, V)>::type
+                #define TMP(Z, N, DATA) typename boost::result_of<G##N(E##N, S, V)>::type
                 typedef typename cat_args<
                     args<BOOST_PP_ENUM(BOOST_PROTO_MAX_ARITY, TMP, ~) >
                   , typename apply_args<args<ERest...>, S, V, typename pad_args<GRest...>::type>::type
@@ -73,10 +73,10 @@
                       , apply_args<args<ERest...>, S, V, typename pad_args<GRest...>::type>
                             ::call(a BOOST_PP_REPEAT(BOOST_PROTO_MAX_ARITY, TMP0, ~), s, v)
                         BOOST_PP_REPEAT(BOOST_PROTO_MAX_ARITY, TMP2, ~);
+                    return that;
                     #undef TMP0
                     #undef TMP1
                     #undef TMP2
-                    return that;
                 }
             };
 
@@ -127,7 +127,7 @@
             >
         >
         {
-            #define TMP(Z, N, DATA) typename boost::result_of<G##N(UNCVREF(E##N), S, V)>::type
+            #define TMP(Z, N, DATA) typename boost::result_of<G##N(E##N, S, V)>::type
             typedef args<BOOST_PP_ENUM(BOOST_PP_ITERATION(), TMP, ~)> type;
             #undef TMP
 

@@ -14,6 +14,7 @@
 #include <boost/xpressive/proto/proto_fwd.hpp>
 #include <boost/xpressive/proto/args.hpp>
 #include <boost/xpressive/proto/detail/apply_args.hpp>
+#include <boost/xpressive/proto/detail/is_callable.hpp>
 #include <boost/xpressive/proto/detail/define.hpp>
 
 namespace boost { namespace proto
@@ -563,64 +564,6 @@ namespace boost { namespace proto
     {
         return result_of::as_arg<T, Domain>::call(t);
     }
-
-    namespace detail
-    {
-        template<typename... Args>
-        struct back;
-
-        template<typename A0>
-        struct back<A0>
-        {
-            typedef A0 type;
-        };
-
-        template<typename A0, typename A1>
-        struct back<A0, A1>
-        {
-            typedef A1 type;
-        };
-
-        template<typename A0, typename A1, typename A2>
-        struct back<A0, A1, A2>
-        {
-            typedef A2 type;
-        };
-
-        template<typename A0, typename A1, typename A2, typename A3>
-        struct back<A0, A1, A2, A3>
-        {
-            typedef A3 type;
-        };
-
-        template<typename A0, typename A1, typename A2, typename A3, typename... Rest>
-        struct back<A0, A1, A2, A3, Rest...>
-          : back<Rest...>
-        {};
-
-        template<typename T, typename EnableIf = void>
-        struct is_callable2_
-          : mpl::false_
-        {};
-
-        template<typename T>
-        struct is_callable2_<T, typename T::proto_is_callable_>
-          : mpl::true_
-        {};
-
-        template<typename T>
-        struct is_callable_
-          : is_callable2_<T>
-        {};
-
-        // TODO when gcc #33965 is fixed, change the idiom to
-        // template<typename X, bool IsTransform = true> struct my_transform {...};
-        template<template<typename...> class T, typename... Args>
-        struct is_callable_<T<Args...> >
-          : is_same<typename back<Args...>::type, callable>
-        {};
-
-    } // namespace detail
 
     /// is_callable
     ///
