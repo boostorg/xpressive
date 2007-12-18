@@ -118,9 +118,7 @@ namespace boost { namespace proto
             operator=(A &&a)
             {
                 expr<tag::assign, args<expr &, typename result_of::as_arg<A>::type> > that =
-                    //{{*this, {proto::as_arg(std::forward<A>(a))}}};
                     {{*this, {result_of::as_arg<A>::call(a)}}};
-                    //{{*this, {a}}};
                 return that;
             }
 
@@ -129,9 +127,7 @@ namespace boost { namespace proto
             operator=(A &&a) const
             {
                 expr<tag::assign, args<expr const &, typename result_of::as_arg<A>::type> > that =
-                    //{{*this, {proto::as_arg(std::forward<A>(a))}}};
                     {{*this, {result_of::as_arg<A>::call(a)}}};
-                    //{{*this, {a}}};
                 return that;
             }
 
@@ -140,9 +136,7 @@ namespace boost { namespace proto
             operator[](A &&a)
             {
                 expr<tag::subscript, args<expr &, typename result_of::as_arg<A>::type> > that =
-                    //{{*this, {proto::as_arg(std::forward<A>(a))}}};
                     {{*this, {result_of::as_arg<A>::call(a)}}};
-                    //{{*this, {a}}};
                 return that;
             }
 
@@ -151,9 +145,7 @@ namespace boost { namespace proto
             operator[](A &&a) const
             {
                 expr<tag::subscript, args<expr const &, typename result_of::as_arg<A>::type> > that =
-                    //{{*this, {proto::as_arg(std::forward<A>(a))}}};
                     {{*this, {result_of::as_arg<A>::call(a)}}};
-                    //{{*this, {a}}};
                 return that;
             }
 
@@ -161,10 +153,9 @@ namespace boost { namespace proto
             expr<tag::function, args<expr &, typename result_of::as_arg<A>::type...> >
             operator()(A &&... a)
             {
-                expr<tag::function, args<expr &, typename result_of::as_arg<A>::type...> > that =
-                    //{argsns_::make_cons(*this, proto::as_arg(std::forward<A>(a))...)};
-                    {argsns_::make_cons(*this, result_of::as_arg<A>::call(a)...)};
-                    //{{*this, a...}};
+                typedef args<expr &, typename result_of::as_arg<A>::type...> args_type;
+                expr<tag::function, args_type> that =
+                    {argsns_::make_cons_<typename args_type::cons_type>(*this, result_of::as_arg<A>::call(a)...)};
                 return that;
             }
 
@@ -172,10 +163,9 @@ namespace boost { namespace proto
             expr<tag::function, args<expr const &, typename result_of::as_arg<A>::type...> >
             operator()(A &&... a) const
             {
-                expr<tag::function, args<expr const &, typename result_of::as_arg<A>::type...> > that =
-                    //{argsns_::make_cons(*this, proto::as_arg(std::forward<A>(a))...)};
-                    {argsns_::make_cons(*this, result_of::as_arg<A>::call(a)...)};
-                    //{{*this, a...}};
+                typedef args<expr const &, typename result_of::as_arg<A>::type...> args_type;
+                expr<tag::function, args_type> that =
+                    {argsns_::make_cons_<typename args_type::cons_type>(*this, result_of::as_arg<A>::call(a)...)};
                 return that;
             }
         };

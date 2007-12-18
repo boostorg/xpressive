@@ -299,7 +299,7 @@ namespace boost { namespace proto
             typedef expr<tag::terminal, term<value_type> > expr_type;
             typedef typename Domain::template apply<expr_type>::type type;
 
-            static type call(CVREF(T) t)
+            static type const call(CVREF(T) t)
             {
                 return Domain::make(expr_type::make(t));
             }
@@ -310,7 +310,7 @@ namespace boost { namespace proto
         {
             typedef typename T::proto_derived_expr type;  // strips the cv-qualification
 
-            static type call(T const &t)
+            static type const call(T const &t)
             {
                 return t;
             }
@@ -321,7 +321,7 @@ namespace boost { namespace proto
         {
             typedef typename T::proto_derived_expr type; // strips the cv-qualification
 
-            static type call(T &t)
+            static type const call(T &t)
             {
                 return t;
             }
@@ -333,7 +333,7 @@ namespace boost { namespace proto
             typedef expr<tag::terminal, term<CVREF(T) > > expr_type;
             typedef typename Domain::template apply<expr_type>::type type;
 
-            static type call(CVREF(T) t)
+            static type const call(CVREF(T) t)
             {
                 return Domain::make(expr_type::make(t));
             }
@@ -394,21 +394,21 @@ namespace boost { namespace proto
 
         #ifdef BOOST_HAS_RVALUE_REFS
             template<typename T>
-            typename result_of::as_arg<T, Domain>::type
+            typename result_of::as_arg<T, Domain>::type const
             operator ()(T &&t) const
             {
                 return result_of::as_arg<T, Domain>::call(t);
             }
         #else
             template<typename T>
-            typename result_of::as_arg<T &, Domain>::type
+            typename result_of::as_arg<T &, Domain>::type const
             operator ()(T &t) const
             {
                 return result_of::as_arg<T &, Domain>::call(t);
             }
 
             template<typename T>
-            typename result_of::as_arg<T const &, Domain>::type
+            typename result_of::as_arg<T const &, Domain>::type const
             operator ()(T const &t) const
             {
                 return result_of::as_arg<T const &, Domain>::call(t);
@@ -429,21 +429,21 @@ namespace boost { namespace proto
 
         #ifdef BOOST_HAS_RVALUE_REFS
             template<typename T>
-            typename result_of::as_expr<T, Domain>::type
+            typename result_of::as_expr<T, Domain>::type const
             operator ()(T &&t) const
             {
                 return result_of::as_expr<T, Domain>::call(t);
             }
         #else
             template<typename T>
-            typename result_of::as_expr<T &, Domain>::type
+            typename result_of::as_expr<T &, Domain>::type const
             operator ()(T &t) const
             {
                 return result_of::as_expr<T &, Domain>::call(t);
             }
 
             template<typename T>
-            typename result_of::as_expr<T const &, Domain>::type
+            typename result_of::as_expr<T const &, Domain>::type const
             operator ()(T const &t) const
             {
                 return result_of::as_expr<T const &, Domain>::call(t);

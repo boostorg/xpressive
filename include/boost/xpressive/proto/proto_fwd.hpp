@@ -231,21 +231,25 @@ namespace boost { namespace proto
         #else
         template<
             typename Tag
+          , typename DomainOrArg
             BOOST_PP_ENUM_TRAILING_BINARY_PARAMS(
                 BOOST_PROTO_MAX_ARITY
               , typename A
               , = void BOOST_PP_INTERCEPT
             )
+          , typename Dummy = void
         >
         struct make_arg;
 
         template<
             typename Tag
+          , typename DomainOrArg
             BOOST_PP_ENUM_TRAILING_BINARY_PARAMS(
                 BOOST_PROTO_MAX_ARITY
               , typename A
               , = void BOOST_PP_INTERCEPT
             )
+          , typename Dummy = void
         >
         struct make_expr;
         #endif

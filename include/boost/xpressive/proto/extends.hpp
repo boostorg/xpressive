@@ -160,17 +160,20 @@ namespace boost { namespace proto
         >::type                                                                                     \
         operator ()(A &&... a) BOOST_PROTO_CONST ## Const                                           \
         {                                                                                           \
+           typedef                                                                                  \
+                boost::proto::args<                                                                 \
+                    Derived BOOST_PROTO_CONST ## Const &                                            \
+                  , typename boost::proto::result_of::as_arg<A, Domain>::type...                    \
+                >                                                                                   \
+            args_type;                                                                              \
             typedef                                                                                 \
                 boost::proto::expr<                                                                 \
                     boost::proto::tag::function                                                     \
-                  , boost::proto::args<                                                             \
-                        Derived BOOST_PROTO_CONST ## Const &                                        \
-                      , typename boost::proto::result_of::as_arg<A, Domain>::type...                \
-                    >                                                                               \
+                  , args_type                                                                       \
                 >                                                                                   \
             that_type;                                                                              \
             that_type that = {                                                                      \
-                boost::proto::argsns_::make_cons(                                                   \
+                boost::proto::argsns_::make_cons_<typename args_type::cons_type>(                   \
                     *static_cast<Derived BOOST_PROTO_CONST ## Const *>(this)                        \
                   , boost::proto::result_of::as_arg<A, Domain>::call(a)...                          \
                 )                                                                                   \

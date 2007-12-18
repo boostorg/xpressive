@@ -99,27 +99,6 @@
         #undef CAR
         #undef CDR
 
-            struct make_cons_fun
-            {
-                template<typename Sig>
-                struct result;
-
-                template<typename This, typename... Args>
-                struct result<This(Args...)>
-                {
-                    typedef cons<UNCV(Args)...> type;
-                };
-
-                template<typename... Args>
-                cons<UNCV(Args)...> operator()(Args &&... args) const
-                {
-                    typedef cons<UNCV(Args)...> cons_type;
-                    return argsns_::make_cons_<cons_type>(args...);
-                }
-            };
-
-            make_cons_fun const make_cons = {};
-
         }
 
     }}
