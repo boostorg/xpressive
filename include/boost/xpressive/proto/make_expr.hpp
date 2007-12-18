@@ -360,6 +360,7 @@ namespace boost { namespace proto
             };
         };
 
+        // TODO use PP to loop-unroll for BOOST_PROTO_MAX_ARITY
         template<
             typename Tag
           , typename Domain
@@ -701,6 +702,7 @@ namespace boost { namespace proto
             }
         };
 
+        // BUGBUG this is not POD :-(
         template<typename Tag, typename Domain>
         struct make_arg
           : fusion::unfused_generic<unfused_arg_fun<Tag, Domain> >
@@ -735,6 +737,7 @@ namespace boost { namespace proto
             }
         };
 
+        // BUGBUG this is not POD :-(
         template<typename Tag, typename Domain>
         struct make_expr
           : fusion::unfused_generic<unfused_expr_fun<Tag, Domain> >
@@ -845,22 +848,12 @@ namespace boost { namespace proto
     {};
 
     template<typename Tag, typename Domain>
-    struct is_callable<functional::unfused_arg<Tag, Domain> >
-      : mpl::true_
-    {};
-
-    template<typename Tag, typename Domain>
     struct is_callable<functional::make_expr<Tag, Domain> >
       : mpl::true_
     {};
 
     template<typename Tag, typename Domain>
     struct is_callable<functional::unpack_expr<Tag, Domain> >
-      : mpl::true_
-    {};
-
-    template<typename Tag, typename Domain>
-    struct is_callable<functional::unfused_expr<Tag, Domain> >
       : mpl::true_
     {};
 

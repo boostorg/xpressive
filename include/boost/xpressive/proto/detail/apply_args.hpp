@@ -23,10 +23,16 @@
             struct apply_args;
 
         #if defined(BOOST_HAS_VARIADIC_TMPL) && defined(BOOST_HAS_RVALUE_REFS)
-            template<typename... G>
+            template<typename Prev, typename... G>
             struct pad_args
             {
                 typedef args<G...> type;
+            };
+
+            template<typename Prev>
+            struct pad_args<Prev>
+            {
+                typedef args<BOOST_PP_ENUM_PARAMS(BOOST_PROTO_MAX_ARITY, Prev BOOST_PP_INTERCEPT)> type;
             };
 
             template<
@@ -41,16 +47,15 @@
                 args<BOOST_PP_ENUM_PARAMS(BOOST_PROTO_MAX_ARITY, E), ERest...>
               , S
               , V 
-              , args<
-                    BOOST_PP_ENUM_PARAMS(BOOST_PROTO_MAX_ARITY, G)
-                  , GRest...
-                >
+              , args<BOOST_PP_ENUM_PARAMS(BOOST_PROTO_MAX_ARITY, G), GRest...>
             >
             {
+                typedef BOOST_PP_CAT(G, BOOST_PP_DEC(BOOST_PROTO_MAX_ARITY)) prev_type;
+                typedef apply_args<args<ERest...>, S, V, typename pad_args<prev_type, GRest...>::type> rest_args;
                 #define TMP(Z, N, DATA) typename boost::result_of<G##N(E##N, S, V)>::type
                 typedef typename proto::detail::cat_args<
                     args<BOOST_PP_ENUM(BOOST_PROTO_MAX_ARITY, TMP, ~) >
-                  , typename apply_args<args<ERest...>, S, V, typename pad_args<GRest...>::type>::type
+                  , typename rest_args::type
                 >::type type;
                 #undef TMP
 
@@ -62,8 +67,7 @@
                     #define TMP2(Z, N, DATA) }
                     typename type::cons_type that =
                         BOOST_PP_ENUM(BOOST_PROTO_MAX_ARITY, TMP1, ~)
-                      , apply_args<args<ERest...>, S, V, typename pad_args<GRest...>::type>
-                            ::call(a BOOST_PP_REPEAT(BOOST_PROTO_MAX_ARITY, TMP0, ~), s, v)
+                      , rest_args::call(a BOOST_PP_REPEAT(BOOST_PROTO_MAX_ARITY, TMP0, ~), s, v)
                         BOOST_PP_REPEAT(BOOST_PROTO_MAX_ARITY, TMP2, ~);
                     return that;
                     #undef TMP0
@@ -86,8 +90,8 @@
 #else
 
         #if defined(BOOST_HAS_VARIADIC_TMPL) && defined(BOOST_HAS_RVALUE_REFS)
-        template<BOOST_PP_ENUM_PARAMS(BOOST_PP_ITERATION(), typename G)>
-        struct pad_args<BOOST_PP_ENUM_PARAMS(BOOST_PP_ITERATION(), G)>
+        template<typename Prev BOOST_PP_ENUM_TRAILING_PARAMS(BOOST_PP_ITERATION(), typename G)>
+        struct pad_args<Prev BOOST_PP_ENUM_TRAILING_PARAMS(BOOST_PP_ITERATION(), G)>
         {
             #define TMP(Z, N, DATA) , BOOST_PP_CAT(G, BOOST_PP_DEC(BOOST_PP_ITERATION()))
             typedef args<

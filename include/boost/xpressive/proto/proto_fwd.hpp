@@ -616,22 +616,10 @@ namespace boost { namespace proto
         struct unpack_arg;
 
         template<typename Tag, typename Domain = deduce_domain>
-        struct unfused_arg_fun;
-
-        template<typename Tag, typename Domain = deduce_domain>
-        struct unfused_arg;
-
-        template<typename Tag, typename Domain = deduce_domain>
         struct make_expr;
 
         template<typename Tag, typename Domain = deduce_domain>
         struct unpack_expr;
-
-        template<typename Tag, typename Domain = deduce_domain>
-        struct unfused_expr_fun;
-
-        template<typename Tag, typename Domain = deduce_domain>
-        struct unfused_expr;
 
         typedef make_expr<tag::terminal>            make_terminal;
         typedef make_expr<tag::posit>               make_posit;
