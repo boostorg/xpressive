@@ -72,6 +72,7 @@
 	#undef M2
 	#undef M3
 	#undef M4
+	#undef M5
 
 #else
 

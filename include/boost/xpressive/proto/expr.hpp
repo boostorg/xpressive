@@ -70,6 +70,28 @@ namespace boost { namespace proto
 
             typename Args::cons_type proto_args_;
 
+            expr &proto_base()
+            {
+                return *this;
+            }
+
+            expr const &proto_base() const
+            {
+                return *this;
+            }
+
+            typedef
+                typename
+                    exprns_::detail::address_of_hack<Tag, typename Args::cons_type::car_type>
+                ::type
+            address_of_hack_type_;
+
+            operator address_of_hack_type_() const
+            {
+                return boost::addressof(this->proto_args_.car);
+            }
+
+            // TODO make this a free function
             template<typename... A>
             static expr make(A &&... a)
             {
@@ -92,26 +114,7 @@ namespace boost { namespace proto
                 return that;
             }
 
-            expr &proto_base()
-            {
-                return *this;
-            }
-
-            expr const &proto_base() const
-            {
-                return *this;
-            }
-
-            typedef
-                typename
-                    exprns_::detail::address_of_hack<Tag, typename Args::cons_type::car_type>
-                ::type
-            address_of_hack_type_;
-
-            operator address_of_hack_type_() const
-            {
-                return boost::addressof(this->proto_args_.car);
-            }
+        #if defined(BOOST_HAS_VARIADIC_TMPL) && defined(BOOST_HAS_RVALUE_REFS)
 
             template<typename A>
             expr<tag::assign, args<expr &, typename result_of::as_arg<A>::type> >
@@ -168,6 +171,99 @@ namespace boost { namespace proto
                     {argsns_::make_cons_<typename args_type::cons_type>(*this, result_of::as_arg<A>::call(a)...)};
                 return that;
             }
+
+        #else
+
+            template<typename A>
+            expr<tag::assign, args<expr &, typename result_of::as_arg<A &>::type> >
+            operator=(A &a)
+            {
+                expr<tag::assign, args<expr &, typename result_of::as_arg<A &>::type> > that =
+                    {{*this, {result_of::as_arg<A &>::call(a)}}};
+                return that;
+            }
+
+            template<typename A>
+            expr<tag::assign, args<expr const &, typename result_of::as_arg<A &>::type> >
+            operator=(A &a) const
+            {
+                expr<tag::assign, args<expr const &, typename result_of::as_arg<A &>::type> > that =
+                    {{*this, {result_of::as_arg<A &>::call(a)}}};
+                return that;
+            }
+
+            template<typename A>
+            expr<tag::assign, args<expr &, typename result_of::as_arg<A const &>::type> >
+            operator=(A const &a)
+            {
+                expr<tag::assign, args<expr &, typename result_of::as_arg<A const &>::type> > that =
+                    {{*this, {result_of::as_arg<A const &>::call(a)}}};
+                return that;
+            }
+
+            template<typename A>
+            expr<tag::assign, args<expr const &, typename result_of::as_arg<A const &>::type> >
+            operator=(A const &a) const
+            {
+                expr<tag::assign, args<expr const &, typename result_of::as_arg<A const &>::type> > that =
+                    {{*this, {result_of::as_arg<A const &>::call(a)}}};
+                return that;
+            }
+
+            template<typename A>
+            expr<tag::subscript, args<expr &, typename result_of::as_arg<A &>::type> >
+            operator[](A &a)
+            {
+                expr<tag::subscript, args<expr &, typename result_of::as_arg<A &>::type> > that =
+                    {{*this, {result_of::as_arg<A &>::call(a)}}};
+                return that;
+            }
+
+            template<typename A>
+            expr<tag::subscript, args<expr const &, typename result_of::as_arg<A &>::type> >
+            operator[](A &a) const
+            {
+                expr<tag::subscript, args<expr const &, typename result_of::as_arg<A &>::type> > that =
+                    {{*this, {result_of::as_arg<A &>::call(a)}}};
+                return that;
+            }
+
+            template<typename A>
+            expr<tag::subscript, args<expr &, typename result_of::as_arg<A const &>::type> >
+            operator[](A const &a)
+            {
+                expr<tag::subscript, args<expr &, typename result_of::as_arg<A const &>::type> > that =
+                    {{*this, {result_of::as_arg<A const &>::call(a)}}};
+                return that;
+            }
+
+            template<typename A>
+            expr<tag::subscript, args<expr const &, typename result_of::as_arg<A const &>::type> >
+            operator[](A const &a) const
+            {
+                expr<tag::subscript, args<expr const &, typename result_of::as_arg<A const &>::type> > that =
+                    {{*this, {result_of::as_arg<A const &>::call(a)}}};
+                return that;
+            }
+
+            expr<tag::function, args<expr &> >
+            operator()()
+            {
+                expr<tag::function, args<expr &> > that = {{*this}};
+                return that;
+            }
+
+            expr<tag::function, args<expr const &> >
+            operator()() const
+            {
+                expr<tag::function, args<expr const &> > that = {{*this}};
+                return that;
+            }
+
+            #include <boost/xpressive/proto/detail/fun_call_ex.hpp>
+
+        #endif
+
         };
 
     }

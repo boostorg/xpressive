@@ -30,6 +30,7 @@
                 template<typename Cons>
                 static typename type::cons_type call(Cons const &a)
                 {
+                    // BUGBUG doesn't handle arrays and function references
                     typename type::cons_type that = {a.car};
                     return that;
                 }
