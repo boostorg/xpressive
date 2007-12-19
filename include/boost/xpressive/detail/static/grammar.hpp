@@ -322,9 +322,6 @@ namespace boost { namespace xpressive
           : proto::terminal<char>
         {};
 
-        struct _zero : mpl::int_<0> {};
-        struct _one  : mpl::int_<1> {};
-
         ///////////////////////////////////////////////////////////////////////////
         // ListSet
         //  matches expressions like (set= 'a','b','c')
@@ -338,7 +335,7 @@ namespace boost { namespace xpressive
                 >
               , when<
                     proto::assign<terminal<set_initializer>, CharLiteral<Char> >
-                  , _one()
+                  , mpl::int_<1>()
                 >
             >
         {};
@@ -550,10 +547,10 @@ namespace boost { namespace xpressive
         struct MaxAttr
           : or_<
                 when< terminal<attribute_placeholder<_> >,  attr_number<_arg>() >
-              , when< terminal<_>,                          _zero()             >
+              , when< terminal<_>,                          mpl::int_<0>()             >
                 // Ignore nested actions, because attributes are scoped:
-              , when< subscript<_, _>,                      _zero()             >
-              , otherwise< fold<_, _zero(), mpl::max<MaxAttr, _state>() >       >
+              , when< subscript<_, _>,                      mpl::int_<0>()             >
+              , otherwise< fold<_, mpl::int_<0>(), mpl::max<MaxAttr, _state>() >       >
             >
         {};
 
@@ -668,8 +665,8 @@ namespace boost { namespace xpressive
                             _
                           , repeat_end_matcher<Greedy>(
                                 mark_number(_arg(_left))
-                              , always<min_type<Tag> > // min_type<Tag>()
-                              , always<max_type<Tag> > // max_type<Tag>()
+                              , min_type<Tag>()
+                              , max_type<Tag>()
                             )
                         )
                     )

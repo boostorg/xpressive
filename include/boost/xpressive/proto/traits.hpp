@@ -621,12 +621,6 @@ namespace boost { namespace proto
       : proto::detail::is_callable_<T>
     {};
 
-    // work around GCC bug
-    template<typename Tag, typename Args, long N>
-    struct is_callable<expr<Tag, Args, N> >
-      : mpl::false_
-    {};
-
     template<>
     struct is_callable<callable>
       : mpl::false_

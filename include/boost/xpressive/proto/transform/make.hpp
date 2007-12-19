@@ -99,13 +99,13 @@ namespace boost { namespace proto
                 >::type>
             {};
 
-            // work around GCC bug
-            template<typename Tag, typename Args, long N, typename Expr, typename State, typename Visitor>
-            struct make_if_<expr<Tag, Args, N>, Expr, State, Visitor, false>
-            {
-                typedef expr<Tag, Args, N> type;
-                typedef void not_applied_;
-            };
+            //// work around GCC bug
+            //template<typename Tag, typename Args, long N, typename Expr, typename State, typename Visitor>
+            //struct make_if_<expr<Tag, Args, N>, Expr, State, Visitor, false>
+            //{
+            //    typedef expr<Tag, Args, N> type;
+            //    typedef void not_applied_;
+            //};
 
             template<typename Type, bool IsAggregate = is_aggregate<Type>::value>
             struct construct_
@@ -176,22 +176,22 @@ namespace boost { namespace proto
             }
         };
 
-        // work around gcc bug
-        template<typename T, typename A, long N, typename... Args>
-        struct make<expr<T, A, N>, Args...> : callable
-        {
-            template<typename Sig>
-            struct result
-            {
-                typedef expr<T, A, N> type;
-            };
+        //// work around gcc bug
+        //template<typename T, typename A, long N, typename... Args>
+        //struct make<expr<T, A, N>, Args...> : callable
+        //{
+        //    template<typename Sig>
+        //    struct result
+        //    {
+        //        typedef expr<T, A, N> type;
+        //    };
 
-            template<typename Expr, typename State, typename Visitor>
-            expr<T, A, N> operator()(Expr const &expr, State const &state, Visitor &visitor) const
-            {
-                return proto::expr<T, A, N>::make(when<_, Args>()(expr, state, visitor)...);
-            }
-        };
+        //    template<typename Expr, typename State, typename Visitor>
+        //    expr<T, A, N> operator()(Expr const &expr, State const &state, Visitor &visitor) const
+        //    {
+        //        return proto::expr<T, A, N>::make(when<_, Args>()(expr, state, visitor)...);
+        //    }
+        //};
 
         template<typename Fun, typename... Args>
         struct make<Fun(Args...)>

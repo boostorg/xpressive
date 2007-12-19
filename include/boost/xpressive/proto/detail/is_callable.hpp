@@ -43,8 +43,6 @@
               : back<Rest...>
             {};
 
-            // TODO when gcc #33965 is fixed, change the idiom to
-            // template<typename X, bool IsTransform = true> struct my_transform {...};
             template<
                 template<BOOST_PP_ENUM_PARAMS(BOOST_PROTO_MAX_ARITY, typename BOOST_PP_INTERCEPT), typename...> class T
               , BOOST_PP_ENUM_PARAMS(BOOST_PROTO_MAX_ARITY, typename A)

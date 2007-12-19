@@ -99,11 +99,8 @@ template<typename Int>
 struct placeholder : Int
 {};
 
-struct zero : mpl::int_<0> {};
-struct one  : mpl::int_<1> {};
-struct two  : mpl::int_<2> {};
-terminal<placeholder<one> >::type const _1 = {};
-terminal<placeholder<two> >::type const _2 = {};
+terminal<placeholder<mpl::int_<1> > >::type const _1 = {};
+terminal<placeholder<mpl::int_<2> > >::type const _2 = {};
 
 struct Arity
   : or_<
@@ -111,10 +108,10 @@ struct Arity
              , _arg
         >
       , when< terminal<_>
-             , zero()
+             , mpl::int_<0>()
         >
       , when< nary_expr<_, vararg<Arity> >
-             , fold<_, zero(), mpl::max<Arity, _state>() >
+             , fold<_, mpl::int_<0>(), mpl::max<Arity, _state>() >
         >
     >
 {};

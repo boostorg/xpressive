@@ -64,14 +64,13 @@ namespace boost { namespace xpressive { namespace detail
         }
     };
 
-    struct negative_one : mpl::int_<-1> {};
     using grammar_detail::mark_number;
 
     // s1 or -s1
     struct SubMatch
       : proto::or_<
             proto::when<basic_mark_tag,                push_back(proto::_visitor, mark_number(proto::_arg)) >
-          , proto::when<proto::negate<basic_mark_tag>, push_back(proto::_visitor, negative_one())           >
+          , proto::when<proto::negate<basic_mark_tag>, push_back(proto::_visitor, mpl::int_<-1>())          >
         >
     {};
 

@@ -53,8 +53,6 @@ struct placeholder_arity
     typedef typename T::arity type;
 };
 
-struct zero : mpl::int_<0> {};
-
 namespace grammar
 {
     using namespace proto;
@@ -64,8 +62,8 @@ namespace grammar
     struct Lambda
       : or_<
             when< terminal< placeholder<_> >,  mpl::next<placeholder_arity<_arg> >() >
-          , when< terminal<_>,                 zero() >
-          , when< nary_expr<_, vararg<_> >,    fold<_, zero(), mpl::max<Lambda,_state>()> >
+          , when< terminal<_>,                 mpl::int_<0>() >
+          , when< nary_expr<_, vararg<_> >,    fold<_, mpl::int_<0>(), mpl::max<Lambda,_state>()> >
         >
     {};
 }

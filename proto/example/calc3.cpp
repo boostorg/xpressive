@@ -21,9 +21,6 @@ using namespace boost;
 // Will be used to define the placeholders _1 and _2
 template<typename I> struct arg : I {};
 
-// needed only to work around a gcc bug.
-struct zero : mpl::int_<0> {};
-
 using proto::_;
 using namespace proto::transform;
 
@@ -40,12 +37,12 @@ struct CalculatorGrammar
         when< proto::terminal< arg<_> >, _arg >
 
         // Any other terminals have arity 0 ...
-      , when< proto::terminal<_>, zero() >
+      , when< proto::terminal<_>, mpl::int_<0>() >
 
         // For any non-terminals, find the arity of the children and
         // take the maximum. This is recursive.
       , when< proto::nary_expr<_, proto::vararg<_> >
-             , fold<_, zero(), mpl::max<CalculatorGrammar, _state>() > >
+             , fold<_, mpl::int_<0>(), mpl::max<CalculatorGrammar, _state>() > >
 
     >
 {};
@@ -55,7 +52,7 @@ struct CalculatorGrammar
 // is not used, is mpl::void_.
 template<typename Expr>
 struct calculator_arity
-  : boost::result_of<CalculatorGrammar(Expr, zero, mpl::void_)>
+  : boost::result_of<CalculatorGrammar(Expr, mpl::int_<0>, mpl::void_)>
 {};
 
 // For expressions in the calculator domain, operator()

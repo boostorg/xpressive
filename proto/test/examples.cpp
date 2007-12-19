@@ -94,7 +94,7 @@ struct unary_arity
 
 // A custom transform that returns the arity of a binary
 // calculator expression by finding the maximum of the
-// arities of the two children expressions.
+// arities of the mpl::int_<2> children expressions.
 struct binary_arity
   /*<< All custom transforms should inherit from
   callable. In some cases, (e.g., when the transform
@@ -134,19 +134,15 @@ struct binary_arity
 };
 //]
 
-struct zero : mpl::int_<0> {};
-struct one  : mpl::int_<1> {};
-struct two  : mpl::int_<2> {};
-
 terminal< placeholder1 >::type const _1 = {{}};
 terminal< placeholder2 >::type const _2 = {{}};
 
 //[ CalculatorArityGrammar
 struct CalculatorArity
   : or_<
-        when< terminal< placeholder1 >,    one() >
-      , when< terminal< placeholder2 >,    two() >
-      , when< terminal<_>,                 zero() >
+        when< terminal< placeholder1 >,    mpl::int_<1>() >
+      , when< terminal< placeholder2 >,    mpl::int_<2>() >
+      , when< terminal<_>,                 mpl::int_<0>() >
       , when< unary_expr<_, _>,            unary_arity >
       , when< binary_expr<_, _, _>,        binary_arity >
     >
@@ -156,9 +152,9 @@ struct CalculatorArity
 //[ CalculatorArityGrammar2
 struct CalcArity2
   : or_<
-        when< terminal< placeholder1 >,                one()               >
-      , when< terminal< placeholder2 >,                two()               >
-      , when< terminal<_>,                             zero()              >
+        when< terminal< placeholder1 >,                mpl::int_<1>()      >
+      , when< terminal< placeholder2 >,                mpl::int_<2>()      >
+      , when< terminal<_>,                             mpl::int_<0>()      >
       , when< unary_expr<_, CalcArity2>,               CalcArity2(_arg)    >
       , when< binary_expr<_, CalcArity2, CalcArity2>,  mpl::max<CalcArity2(_left), CalcArity2(_right)>()   >
     >

@@ -61,7 +61,6 @@ struct CountLeavesCtx
       int count;
 };
 
-struct one : mpl::int_<1> {};
 struct iplus : std::plus<int>, callable {};
 
 // Here is a transform that does the same thing as the above context.
@@ -72,7 +71,7 @@ struct iplus : std::plus<int>, callable {};
 struct CountLeaves
   : or_<
         // match a Vec3 terminal, return 1
-        when<terminal<int[3]>, one() >
+        when<terminal<int[3]>, mpl::int_<1>() >
         // match a terminal, return int() (which is 0)
       , when<terminal<_>, int() >
         // fold everything else, using std::plus<> to add
