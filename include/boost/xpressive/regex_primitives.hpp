@@ -470,7 +470,7 @@ inline typename proto::terminal<reference_wrapper<basic_regex<BidiIter> const> >
 by_ref(basic_regex<BidiIter> const &rex)
 {
     reference_wrapper<basic_regex<BidiIter> const> ref(rex);
-    return proto::terminal<reference_wrapper<basic_regex<BidiIter> const> >::type::make(ref);
+    return proto::construct<typename proto::terminal<reference_wrapper<basic_regex<BidiIter> const> >::type>(ref);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -485,7 +485,7 @@ inline typename proto::terminal<detail::range_placeholder<Char> >::type const
 range(Char ch_min, Char ch_max)
 {
     detail::range_placeholder<Char> that = {ch_min, ch_max};
-    return proto::terminal<detail::range_placeholder<Char> >::type::make(that);
+    return proto::construct<typename proto::terminal<detail::range_placeholder<Char> >::type>(that);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

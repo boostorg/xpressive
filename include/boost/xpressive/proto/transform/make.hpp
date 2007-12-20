@@ -145,7 +145,7 @@ namespace boost { namespace proto
                 template<typename... Args>
                 result_type operator()(Args &&... args) const
                 {
-                    return result_type::make(args...);
+                    return proto::construct<result_type>(args...);
                 }
             };
 

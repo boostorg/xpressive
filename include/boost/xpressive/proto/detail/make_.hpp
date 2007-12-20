@@ -55,7 +55,7 @@
         #define TMP1(Z, N, DATA) AsExpr<Domain>()(a##N)
         static type call(BOOST_PP_ENUM(BOOST_PP_ITERATION(), TMP0, ~))
         {
-            return Domain::make(expr_type::make(BOOST_PP_ENUM(BOOST_PP_ITERATION(), TMP1, ~)));
+            return Domain::make(proto::construct<expr_type>(BOOST_PP_ENUM(BOOST_PP_ITERATION(), TMP1, ~)));
         }
         #undef TMP0
         #undef TMP1

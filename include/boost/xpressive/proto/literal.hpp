@@ -28,17 +28,17 @@ namespace boost { namespace proto
 
             template<typename U>
             literal(U &u)
-              : base_type(terminal_type::make(u))
+              : base_type(proto::construct<terminal_type>(u))
             {}
 
             template<typename U>
             literal(U const &u)
-              : base_type(terminal_type::make(u))
+              : base_type(proto::construct<terminal_type>(u))
             {}
 
             template<typename U>
             literal(literal<U, Domain> const &u)
-              : base_type(terminal_type::make(proto::arg(u)))
+              : base_type(proto::construct<terminal_type>(proto::arg(u)))
             {}
 
             using base_type::operator =;

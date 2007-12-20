@@ -97,7 +97,7 @@ struct lazy_vector
     typedef typename proto::terminal< std::vector<T> >::type expr_type;
 
     lazy_vector( std::size_t size = 0, T const & value = T() )
-      : lazy_vector_expr<expr_type>( expr_type::make( std::vector<T>( size, value ) ) )
+      : lazy_vector_expr<expr_type>( proto::construct<expr_type>( std::vector<T>( size, value ) ) )
     {}
 
     // Here we define a += operator for lazy vector terminals that

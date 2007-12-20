@@ -301,7 +301,7 @@ namespace boost { namespace proto
 
             static type const call(CVREF(T) t)
             {
-                return Domain::make(expr_type::make(t));
+                return Domain::make(proto::construct<expr_type>(t));
             }
         };
 
@@ -335,7 +335,7 @@ namespace boost { namespace proto
 
             static type const call(CVREF(T) t)
             {
-                return Domain::make(expr_type::make(t));
+                return Domain::make(proto::construct<expr_type>(t));
             }
         };
 

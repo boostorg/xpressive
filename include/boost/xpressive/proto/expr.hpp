@@ -72,14 +72,6 @@ namespace boost { namespace proto
                 return boost::addressof(this->proto_args_.car);
             }
 
-            // TODO make this a free function
-            template<typename... A>
-            static expr make(A &&... a)
-            {
-                expr that = {argsns_::make_cons_<typename Args::cons_type>(a...)};
-                return that;
-            }
-
         #if defined(BOOST_HAS_VARIADIC_TMPL) && defined(BOOST_HAS_RVALUE_REFS)
 
             template<typename A>
@@ -232,7 +224,41 @@ namespace boost { namespace proto
 
         };
 
+        /// construct
+        ///
+        template<typename Expr, typename A>
+        inline Expr construct(A &a)
+        {
+            typedef typename Expr::proto_args::cons_type cons_type;
+            Expr that = {proto::argsns_::make_cons_<cons_type>(a)};
+            return that;
+        }
+
+    #ifdef BOOST_HAS_VARIADIC_TMPL
+        /// \overload
+        ///
+        template<typename Expr, typename... A>
+        inline Expr construct(A const &... a)
+        {
+            typedef typename Expr::proto_args::cons_type cons_type;
+            Expr that = {proto::argsns_::make_cons_<cons_type>(a...)};
+            return that;
+        }
+    #else
+    #define TMP(Z, N, DATA)                                                                         \
+        template<typename Expr BOOST_PP_ENUM_TRAILING_PARAMS_Z(Z, N, typename A)>                   \
+        inline Expr construct(BOOST_PP_ENUM_BINARY_PARAMS_Z(Z, N, A, const &a))                     \
+        {                                                                                           \
+            typedef typename Expr::proto_args::cons_type cons_type;                                 \
+            Expr that = {proto::argsns_::make_cons_<cons_type>(BOOST_PP_ENUM_PARAMS_Z(Z, N, a))};   \
+            return that;                                                                            \
+        }                                                                                           \
+        /**/
+        BOOST_PP_REPEAT_FROM_TO(1, BOOST_PP_INC(BOOST_PROTO_MAX_ARITY), TMP, ~)
+    #undef TMP
+    #endif
     }
+
 
 }}
 

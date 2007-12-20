@@ -454,7 +454,7 @@ namespace boost { namespace proto
 
             static type call(CVREF(Args)... args)
             {
-                return Domain::make(expr_type::make(AsExpr<Domain>()(args)...));
+                return Domain::make(proto::construct<expr_type>(AsExpr<Domain>()(args)...));
             }
         };
 
