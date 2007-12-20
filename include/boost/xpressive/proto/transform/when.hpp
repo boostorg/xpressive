@@ -17,10 +17,25 @@
 
 namespace boost { namespace proto { namespace transform
 {
+    namespace detail
+    {
+        // so that when< vararg<...>, ...> looks like a vararg grammar.
+        template<typename Grammar, typename EnableIf = void>
+        struct vararg_if
+        {};
+
+        template<typename Grammar>
+        struct vararg_if<Grammar, typename Grammar::proto_is_vararg_>
+        {
+            typedef void proto_is_vararg_;
+        };
+    }
+
     // Simple transform, takes a raw transform and
     // applies it directly.
     template<typename Grammar, typename Fun>
-    struct when : Fun
+    struct when 
+      : Fun, detail::vararg_if<Grammar>
     {
         typedef typename Grammar::proto_base_expr proto_base_expr;
     };
@@ -36,7 +51,7 @@ namespace boost { namespace proto { namespace transform
     // (possibly lambda) type and constructor arguments.
     template<typename Grammar, typename Return, typename... Args>
     struct when<Grammar, Return(Args...)>
-      : callable
+      : callable, detail::vararg_if<Grammar>
     {
         typedef typename Grammar::proto_base_expr proto_base_expr;
 

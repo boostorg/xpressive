@@ -219,7 +219,7 @@ namespace boost { namespace proto
         struct as_expr;
 
         template<typename T, typename Domain = default_domain, typename EnableIf = void>
-        struct as_arg;
+        struct as_expr_ref;
 
         template<typename T, typename EnableIf = void>
         struct is_expr;
@@ -234,14 +234,14 @@ namespace boost { namespace proto
         struct domain_of;
 
         template<typename Tag, typename DomainOrSequence, typename SequenceOrVoid = void, typename EnableIf = void>
-        struct unpack_arg;
+        struct unpack_expr_ref;
 
         template<typename Tag, typename DomainOrSequence, typename SequenceOrVoid = void, typename EnableIf = void>
         struct unpack_expr;
 
         #if defined(BOOST_HAS_VARIADIC_TMPL) && defined(BOOST_HAS_RVALUE_REFS)
         template<typename Tag, typename... Args>
-        struct make_arg;
+        struct make_expr_ref;
 
         template<typename Tag, typename... Args>
         struct make_expr;
@@ -256,7 +256,7 @@ namespace boost { namespace proto
             )
           , typename Dummy = void
         >
-        struct make_arg;
+        struct make_expr_ref;
 
         template<
             typename Tag
@@ -291,16 +291,16 @@ namespace boost { namespace proto
 
     #if defined(BOOST_HAS_VARIADIC_TMPL) && defined(BOOST_HAS_RVALUE_REFS)
     template<typename T>
-    typename result_of::as_arg<T>::type
-    as_arg(T &&t);
+    typename result_of::as_expr_ref<T>::type
+    as_expr_ref(T &&t);
     #else
     template<typename T>
-    typename result_of::as_arg<T &>::type
-    as_arg(T &t);
+    typename result_of::as_expr_ref<T &>::type
+    as_expr_ref(T &t);
 
     template<typename T>
-    typename result_of::as_arg<T const &>::type
-    as_arg(T const &t);
+    typename result_of::as_expr_ref<T const &>::type
+    as_expr_ref(T const &t);
     #endif
 
     namespace op
@@ -618,7 +618,7 @@ namespace boost { namespace proto
         struct as_expr;
 
         template<typename Domain = default_domain>
-        struct as_arg;
+        struct as_expr_ref;
 
         template<typename N = mpl::long_<0> >
         struct arg;
@@ -627,10 +627,10 @@ namespace boost { namespace proto
         struct arg_c;
 
         template<typename Tag, typename Domain = deduce_domain>
-        struct make_arg;
+        struct make_expr_ref;
 
         template<typename Tag, typename Domain = deduce_domain>
-        struct unpack_arg;
+        struct unpack_expr_ref;
 
         template<typename Tag, typename Domain = deduce_domain>
         struct make_expr;
@@ -684,6 +684,52 @@ namespace boost { namespace proto
         typedef make_expr<tag::if_else_>            make_if_else;
         typedef make_expr<tag::function>            make_function;
 
+        typedef make_expr_ref<tag::terminal>            make_terminal_ref;
+        typedef make_expr_ref<tag::posit>               make_posit_ref;
+        typedef make_expr_ref<tag::negate>              make_negate_ref;
+        typedef make_expr_ref<tag::dereference>         make_dereference_ref;
+        typedef make_expr_ref<tag::complement>          make_complement_ref;
+        typedef make_expr_ref<tag::address_of>          make_address_of_ref;
+        typedef make_expr_ref<tag::logical_not>         make_logical_not_ref;
+        typedef make_expr_ref<tag::pre_inc>             make_pre_inc_ref;
+        typedef make_expr_ref<tag::pre_dec>             make_pre_dec_ref;
+        typedef make_expr_ref<tag::post_inc>            make_post_inc_ref;
+        typedef make_expr_ref<tag::post_dec>            make_post_dec_ref;
+        typedef make_expr_ref<tag::shift_left>          make_shift_left_ref;
+        typedef make_expr_ref<tag::shift_right>         make_shift_right_ref;
+        typedef make_expr_ref<tag::multiplies>          make_multiplies_ref;
+        typedef make_expr_ref<tag::divides>             make_divides_ref;
+        typedef make_expr_ref<tag::modulus>             make_modulus_ref;
+        typedef make_expr_ref<tag::plus>                make_plus_ref;
+        typedef make_expr_ref<tag::minus>               make_minus_ref;
+        typedef make_expr_ref<tag::less>                make_less_ref;
+        typedef make_expr_ref<tag::greater>             make_greater_ref;
+        typedef make_expr_ref<tag::less_equal>          make_less_equal_ref;
+        typedef make_expr_ref<tag::greater_equal>       make_greater_equal_ref;
+        typedef make_expr_ref<tag::equal_to>            make_equal_to_ref;
+        typedef make_expr_ref<tag::not_equal_to>        make_not_equal_to_ref;
+        typedef make_expr_ref<tag::logical_or>          make_logical_or_ref;
+        typedef make_expr_ref<tag::logical_and>         make_logical_and_ref;
+        typedef make_expr_ref<tag::bitwise_and>         make_bitwise_and_ref;
+        typedef make_expr_ref<tag::bitwise_or>          make_bitwise_or_ref;
+        typedef make_expr_ref<tag::bitwise_xor>         make_bitwise_xor_ref;
+        typedef make_expr_ref<tag::comma>               make_comma_ref;
+        typedef make_expr_ref<tag::mem_ptr>             make_mem_ptr_ref;
+        typedef make_expr_ref<tag::assign>              make_assign_ref;
+        typedef make_expr_ref<tag::shift_left_assign>   make_shift_left_assign_ref;
+        typedef make_expr_ref<tag::shift_right_assign>  make_shift_right_assign_ref;
+        typedef make_expr_ref<tag::multiplies_assign>   make_multiplies_assign_ref;
+        typedef make_expr_ref<tag::divides_assign>      make_divides_assign_ref;
+        typedef make_expr_ref<tag::modulus_assign>      make_modulus_assign_ref;
+        typedef make_expr_ref<tag::plus_assign>         make_plus_assign_ref;
+        typedef make_expr_ref<tag::minus_assign>        make_minus_assign_ref;
+        typedef make_expr_ref<tag::bitwise_and_assign>  make_bitwise_and_assign_ref;
+        typedef make_expr_ref<tag::bitwise_or_assign>   make_bitwise_or_assign_ref;
+        typedef make_expr_ref<tag::bitwise_xor_assign>  make_bitwise_xor_assign_ref;
+        typedef make_expr_ref<tag::subscript>           make_subscript_ref;
+        typedef make_expr_ref<tag::if_else_>            make_if_else_ref;
+        typedef make_expr_ref<tag::function>            make_function_ref;
+
         struct flatten;
         struct pop_front;
         struct reverse;
@@ -735,9 +781,55 @@ namespace boost { namespace proto
     typedef functional::make_if_else                _make_if_else;
     typedef functional::make_function               _make_function;
 
+    typedef functional::make_terminal_ref               _make_terminal_ref;
+    typedef functional::make_posit_ref                  _make_posit_ref;
+    typedef functional::make_negate_ref                 _make_negate_ref;
+    typedef functional::make_dereference_ref            _make_dereference_ref;
+    typedef functional::make_complement_ref             _make_complement_ref;
+    typedef functional::make_address_of_ref             _make_address_of_ref;
+    typedef functional::make_logical_not_ref            _make_logical_not_ref;
+    typedef functional::make_pre_inc_ref                _make_pre_inc_ref;
+    typedef functional::make_pre_dec_ref                _make_pre_dec_ref;
+    typedef functional::make_post_inc_ref               _make_post_inc_ref;
+    typedef functional::make_post_dec_ref               _make_post_dec_ref;
+    typedef functional::make_shift_left_ref             _make_shift_left_ref;
+    typedef functional::make_shift_right_ref            _make_shift_right_ref;
+    typedef functional::make_multiplies_ref             _make_multiplies_ref;
+    typedef functional::make_divides_ref                _make_divides_ref;
+    typedef functional::make_modulus_ref                _make_modulus_ref;
+    typedef functional::make_plus_ref                   _make_plus_ref;
+    typedef functional::make_minus_ref                  _make_minus_ref;
+    typedef functional::make_less_ref                   _make_less_ref;
+    typedef functional::make_greater_ref                _make_greater_ref;
+    typedef functional::make_less_equal_ref             _make_less_equal_ref;
+    typedef functional::make_greater_equal_ref          _make_greater_equal_ref;
+    typedef functional::make_equal_to_ref               _make_equal_to_ref;
+    typedef functional::make_not_equal_to_ref           _make_not_equal_to_ref;
+    typedef functional::make_logical_or_ref             _make_logical_or_ref;
+    typedef functional::make_logical_and_ref            _make_logical_and_ref;
+    typedef functional::make_bitwise_and_ref            _make_bitwise_and_ref;
+    typedef functional::make_bitwise_or_ref             _make_bitwise_or_ref;
+    typedef functional::make_bitwise_xor_ref            _make_bitwise_xor_ref;
+    typedef functional::make_comma_ref                  _make_comma_ref;
+    typedef functional::make_mem_ptr_ref                _make_mem_ptr_ref;
+    typedef functional::make_assign_ref                 _make_assign_ref;
+    typedef functional::make_shift_left_assign_ref      _make_shift_left_assign_ref;
+    typedef functional::make_shift_right_assign_ref     _make_shift_right_assign_ref;
+    typedef functional::make_multiplies_assign_ref      _make_multiplies_assign_ref;
+    typedef functional::make_divides_assign_ref         _make_divides_assign_ref;
+    typedef functional::make_modulus_assign_ref         _make_modulus_assign_ref;
+    typedef functional::make_plus_assign_ref            _make_plus_assign_ref;
+    typedef functional::make_minus_assign_ref           _make_minus_assign_ref;
+    typedef functional::make_bitwise_and_assign_ref     _make_bitwise_and_assign_ref;
+    typedef functional::make_bitwise_or_assign_ref      _make_bitwise_or_assign_ref;
+    typedef functional::make_bitwise_xor_assign_ref     _make_bitwise_xor_assign_ref;
+    typedef functional::make_subscript_ref              _make_subscript_ref;
+    typedef functional::make_if_else_ref                _make_if_else_ref;
+    typedef functional::make_function_ref               _make_function_ref;
+
     typedef functional::flatten     _flatten;
     typedef functional::pop_front   _pop_front;
-    typedef functional::pop_front   _reverse;
+    typedef functional::reverse     _reverse;
 
     template<typename T>
     struct is_extension;

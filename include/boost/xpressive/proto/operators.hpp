@@ -157,15 +157,15 @@ namespace boost { namespace proto
             true                                                                                    \
           , UNREF(A)::proto_domain                                                                  \
           , expr<TAG, args<                                                                         \
-                typename result_of::as_arg<A, UNREF(A)::proto_domain>::type                         \
+                typename result_of::as_expr_ref<A, UNREF(A)::proto_domain>::type                         \
             > >                                                                                     \
         >::type                                                                                     \
         operator OP(A &&a BOOST_PROTO_UNARY_OP_IS_POSTFIX_ ## POST)                                 \
         {                                                                                           \
             typedef UNREF(A)::proto_domain D;                                                       \
             expr<TAG, args<                                                                         \
-                typename result_of::as_arg<A, D>::type                                              \
-            > > that = {{result_of::as_arg<A, D>::call(a)}};                                        \
+                typename result_of::as_expr_ref<A, D>::type                                              \
+            > > that = {{result_of::as_expr_ref<A, D>::call(a)}};                                        \
             return D::make(that);                                                                   \
         }                                                                                           \
         /**/
@@ -176,19 +176,19 @@ namespace boost { namespace proto
             result_of::is_expr<A>::value || result_of::is_expr<B>::value                            \
           , typename detail::unify_domain<A, B>::type                                               \
           , expr<TAG, args<                                                                         \
-                typename result_of::as_arg<A, typename detail::unify_domain<A, B>::type>::type      \
-              , typename result_of::as_arg<B, typename detail::unify_domain<A, B>::type>::type      \
+                typename result_of::as_expr_ref<A, typename detail::unify_domain<A, B>::type>::type      \
+              , typename result_of::as_expr_ref<B, typename detail::unify_domain<A, B>::type>::type      \
             > >                                                                                     \
         >::type                                                                                     \
         operator OP(A &&a, B &&b)                                                                   \
         {                                                                                           \
             typedef typename detail::unify_domain<A, B>::type D;                                    \
             expr<TAG, args<                                                                         \
-                typename result_of::as_arg<A, D>::type                                              \
-              , typename result_of::as_arg<B, D>::type                                              \
+                typename result_of::as_expr_ref<A, D>::type                                              \
+              , typename result_of::as_expr_ref<B, D>::type                                              \
             > > that = {                                                                            \
-                {result_of::as_arg<A, D>::call(a)                                                   \
-              , {result_of::as_arg<B, D>::call(b)}}                                                 \
+                {result_of::as_expr_ref<A, D>::call(a)                                                   \
+              , {result_of::as_expr_ref<B, D>::call(b)}}                                                 \
             };                                                                                      \
             return D::make(that);                                                                   \
         }                                                                                           \
@@ -241,10 +241,10 @@ namespace boost { namespace proto
     #undef BOOST_PROTO_DEFINE_BINARY_OPERATOR
 
         template<typename A, typename B, typename C>
-        typename result_of::make_arg<tag::if_else_, A, B, C>::type
+        typename result_of::make_expr_ref<tag::if_else_, A, B, C>::type
         if_else(A &&a, B &&b, C &&c)
         {
-            return result_of::make_arg<tag::if_else_, A, B, C>::call(a, b, c);
+            return result_of::make_expr_ref<tag::if_else_, A, B, C>::call(a, b, c);
         }
     }
 
@@ -255,11 +255,11 @@ namespace boost { namespace proto
     typename boost::proto::exprns_::detail::enable_unary<                                           \
         DOMAIN                                                                                      \
       , TRAIT<BOOST_PROTO_UNCVREF(Arg)>, Arg                                                        \
-      , typename boost::proto::result_of::make_arg<TAG, DOMAIN, Arg>::type                          \
+      , typename boost::proto::result_of::make_expr_ref<TAG, DOMAIN, Arg>::type                          \
     >::type                                                                                         \
     operator OP(Arg &&arg BOOST_PROTO_UNARY_OP_IS_POSTFIX_ ## POST)                                 \
     {                                                                                               \
-        return boost::proto::result_of::make_arg<TAG, DOMAIN, Arg>::call(arg);                      \
+        return boost::proto::result_of::make_expr_ref<TAG, DOMAIN, Arg>::call(arg);                      \
     }                                                                                               \
     /**/
 
@@ -269,11 +269,11 @@ namespace boost { namespace proto
         DOMAIN                                                                                      \
       , TRAIT<BOOST_PROTO_UNCVREF(Left)>, Left                                                      \
       , TRAIT<BOOST_PROTO_UNCVREF(Right)>, Right                                                    \
-      , typename boost::proto::result_of::make_arg<TAG, DOMAIN, Left, Right>::type                  \
+      , typename boost::proto::result_of::make_expr_ref<TAG, DOMAIN, Left, Right>::type                  \
     >::type const                                                                                   \
     operator OP(Left &&left, Right &&right)                                                         \
     {                                                                                               \
-        return boost::proto::result_of::make_arg<TAG, DOMAIN, Left, Right>                          \
+        return boost::proto::result_of::make_expr_ref<TAG, DOMAIN, Left, Right>                          \
             ::call(left, right);                                                                    \
     }                                                                                               \
     /**/

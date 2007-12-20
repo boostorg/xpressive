@@ -495,7 +495,7 @@ range(Char ch_min, Char ch_max)
 #ifdef BOOST_XPRESSIVE_DOXYGEN_INVOKED
 template<typename Expr> detail::unspecified optional(Expr const &expr) { return 0; }
 #else
-proto::functional::make_arg<proto::tag::logical_not, proto::default_domain> const optional = {};
+proto::functional::make_expr_ref<proto::tag::logical_not, proto::default_domain> const optional = {};
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -510,19 +510,19 @@ proto::functional::make_arg<proto::tag::logical_not, proto::default_domain> cons
 ///
 /// \param expr The sub-expression to repeat.
 template<unsigned int Min, unsigned int Max, typename Expr>
-typename proto::result_of::make_arg<detail::generic_quant_tag<Min, Max>, proto::default_domain, Expr const>::type const
+typename proto::result_of::make_expr_ref<detail::generic_quant_tag<Min, Max>, proto::default_domain, Expr const>::type const
 repeat(Expr const &expr)
 {
-    return proto::make_arg<detail::generic_quant_tag<Min, Max>, proto::default_domain>(expr);
+    return proto::make_expr_ref<detail::generic_quant_tag<Min, Max>, proto::default_domain>(expr);
 }
 
 /// \overload
 ///
 template<unsigned int Count, typename Expr2>
-typename proto::result_of::make_arg<detail::generic_quant_tag<Count, Count>, proto::default_domain, Expr2 const>::type const
+typename proto::result_of::make_expr_ref<detail::generic_quant_tag<Count, Count>, proto::default_domain, Expr2 const>::type const
 repeat(Expr2 const &expr2)
 {
-    return proto::make_arg<detail::generic_quant_tag<Count, Count>, proto::default_domain>(expr2);
+    return proto::make_expr_ref<detail::generic_quant_tag<Count, Count>, proto::default_domain>(expr2);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -538,7 +538,7 @@ repeat(Expr2 const &expr2)
 #ifdef BOOST_XPRESSIVE_DOXYGEN_INVOKED
 template<typename Expr> detail::unspecified keep(Expr const &expr) { return 0; }
 #else
-proto::functional::make_arg<detail::keeper_tag, proto::default_domain> const keep = {};
+proto::functional::make_expr_ref<detail::keeper_tag, proto::default_domain> const keep = {};
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -557,7 +557,7 @@ proto::functional::make_arg<detail::keeper_tag, proto::default_domain> const kee
 #ifdef BOOST_XPRESSIVE_DOXYGEN_INVOKED
 template<typename Expr> detail::unspecified before(Expr const &expr) { return 0; }
 #else
-proto::functional::make_arg<detail::lookahead_tag, proto::default_domain> const before = {};
+proto::functional::make_expr_ref<detail::lookahead_tag, proto::default_domain> const before = {};
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -578,7 +578,7 @@ proto::functional::make_arg<detail::lookahead_tag, proto::default_domain> const 
 #ifdef BOOST_XPRESSIVE_DOXYGEN_INVOKED
 template<typename Expr> detail::unspecified after(Expr const &expr) { return 0; }
 #else
-proto::functional::make_arg<detail::lookbehind_tag, proto::default_domain> const after = {};
+proto::functional::make_expr_ref<detail::lookbehind_tag, proto::default_domain> const after = {};
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -66,7 +66,7 @@ namespace boost { namespace proto
                 boost::proto::tag::assign                                                           \
               , boost::proto::args<                                                                 \
                     Derived BOOST_PROTO_CONST ## Const &                                            \
-                  , typename boost::proto::result_of::as_arg<A, Domain>::type                       \
+                  , typename boost::proto::result_of::as_expr_ref<A, Domain>::type                       \
                 >                                                                                   \
             >                                                                                       \
         >::type                                                                                     \
@@ -77,13 +77,13 @@ namespace boost { namespace proto
                     boost::proto::tag::assign                                                       \
                   , boost::proto::args<                                                             \
                         Derived BOOST_PROTO_CONST ## Const &                                        \
-                      , typename boost::proto::result_of::as_arg<A, Domain>::type                   \
+                      , typename boost::proto::result_of::as_expr_ref<A, Domain>::type                   \
                     >                                                                               \
                 >                                                                                   \
             that_type;                                                                              \
             that_type that = {                                                                      \
                 {*static_cast<Derived BOOST_PROTO_CONST ## Const *>(this)                           \
-              , {boost::proto::result_of::as_arg<A, Domain>::call(a)}}                              \
+              , {boost::proto::result_of::as_expr_ref<A, Domain>::call(a)}}                              \
             };                                                                                      \
             return Domain::make(that);                                                              \
         }                                                                                           \
@@ -110,7 +110,7 @@ namespace boost { namespace proto
                 boost::proto::tag::subscript                                                        \
               , boost::proto::args<                                                                 \
                     Derived BOOST_PROTO_CONST ## Const &                                            \
-                  , typename boost::proto::result_of::as_arg<A, Domain>::type                       \
+                  , typename boost::proto::result_of::as_expr_ref<A, Domain>::type                       \
               >                                                                                     \
             >                                                                                       \
         >::type                                                                                     \
@@ -121,13 +121,13 @@ namespace boost { namespace proto
                     boost::proto::tag::subscript                                                    \
                   , boost::proto::args<                                                             \
                         Derived BOOST_PROTO_CONST ## Const &                                        \
-                      , typename boost::proto::result_of::as_arg<A, Domain>::type                   \
+                      , typename boost::proto::result_of::as_expr_ref<A, Domain>::type                   \
                     >                                                                               \
                 >                                                                                   \
             that_type;                                                                              \
             that_type that = {                                                                      \
                 {*static_cast<Derived BOOST_PROTO_CONST ## Const *>(this)                           \
-              , {boost::proto::result_of::as_arg<A, Domain>::call(a)}}                              \
+              , {boost::proto::result_of::as_expr_ref<A, Domain>::call(a)}}                              \
             };                                                                                      \
             return Domain::make(that);                                                              \
         }                                                                                           \
@@ -154,7 +154,7 @@ namespace boost { namespace proto
                 boost::proto::tag::function                                                         \
               , boost::proto::args<                                                                 \
                     Derived BOOST_PROTO_CONST ## Const &                                            \
-                  , typename boost::proto::result_of::as_arg<A, Domain>::type...                    \
+                  , typename boost::proto::result_of::as_expr_ref<A, Domain>::type...                    \
                 >                                                                                   \
             >                                                                                       \
         >::type                                                                                     \
@@ -163,7 +163,7 @@ namespace boost { namespace proto
            typedef                                                                                  \
                 boost::proto::args<                                                                 \
                     Derived BOOST_PROTO_CONST ## Const &                                            \
-                  , typename boost::proto::result_of::as_arg<A, Domain>::type...                    \
+                  , typename boost::proto::result_of::as_expr_ref<A, Domain>::type...                    \
                 >                                                                                   \
             args_type;                                                                              \
             typedef                                                                                 \
@@ -175,7 +175,7 @@ namespace boost { namespace proto
             that_type that = {                                                                      \
                 boost::proto::argsns_::make_cons_<typename args_type::cons_type>(                   \
                     *static_cast<Derived BOOST_PROTO_CONST ## Const *>(this)                        \
-                  , boost::proto::result_of::as_arg<A, Domain>::call(a)...                          \
+                  , boost::proto::result_of::as_expr_ref<A, Domain>::call(a)...                          \
                 )                                                                                   \
             };                                                                                      \
             return Domain::make(that);                                                              \

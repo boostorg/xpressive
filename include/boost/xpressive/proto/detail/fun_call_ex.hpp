@@ -1,7 +1,7 @@
 #ifndef BOOST_PP_IS_ITERATING
     ///////////////////////////////////////////////////////////////////////////////
     /// \file make_expr_ex.hpp
-    /// Exploded instances of the make_expr and make_arg functions
+    /// Exploded instances of the make_expr and make_expr_ref functions
     //
     //  Copyright 2007 Eric Niebler. Distributed under the Boost
     //  Software License, Version 1.0. (See accompanying file
@@ -48,12 +48,12 @@
 
 	#define M5(R, _, I, ELEM)                                                                       \
         BOOST_PP_COMMA_IF(I)                                                                        \
-        typename result_of::as_arg<BOOST_PP_CAT(A, I) BOOST_PP_CAT(C, ELEM)&>::type                 \
+        typename result_of::as_expr_ref<BOOST_PP_CAT(A, I) BOOST_PP_CAT(C, ELEM)&>::type                 \
         /**/
 
 	#define M6(R, _, I, ELEM)                                                                       \
         BOOST_PP_COMMA_IF(I)                                                                        \
-        result_of::as_arg<BOOST_PP_CAT(A, I) BOOST_PP_CAT(C, ELEM)&>::call(BOOST_PP_CAT(a, I))      \
+        result_of::as_expr_ref<BOOST_PP_CAT(A, I) BOOST_PP_CAT(C, ELEM)&>::call(BOOST_PP_CAT(a, I))      \
         /**/
 
 	#define C0

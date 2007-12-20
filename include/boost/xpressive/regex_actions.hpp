@@ -86,22 +86,15 @@ namespace boost { namespace xpressive
         struct check_tag
         {};
 
-        struct BindArg
+        struct BindArg : proto::callable
         {
-            template<typename Sig>
-            struct result;
+            typedef int result_type;
 
-            template<typename This, typename Expr, typename State, typename Visitor>
-            struct result<This(Expr, State, Visitor)>
-            {
-                typedef UNCVREF(State) type;
-            };
-
-            template<typename Expr, typename State, typename Visitor>
-            State operator()(Expr const &expr, State const &state, Visitor &visitor) const
+            template<typename Visitor, typename Expr>
+            int operator()(Visitor &visitor, Expr const &expr) const
             {
                 visitor.let(expr);
-                return state;
+                return 0;
             }
         };
 
@@ -110,16 +103,20 @@ namespace boost { namespace xpressive
 
         struct BindArgs
           : proto::when<
+                // let(_a = b, _c = d)
                 proto::function<
                     proto::terminal<let_tag>
                   , proto::vararg<proto::assign<proto::_, proto::_> >
                 >
-              , proto::fold<proto::_pop_front(proto::_), proto::_state, BindArg>
+              , proto::function<
+                    proto::_state   // no-op
+                  , proto::vararg<proto::call<BindArg(proto::_visitor, proto::_)> >
+                >
             >
         {};
 
         struct let_domain
-          : boost::proto::domain<boost::proto::pod_generator<let_> >
+          : proto::domain<proto::pod_generator<let_> >
         {};
 
         template<typename Expr>
@@ -689,14 +686,14 @@ namespace boost { namespace xpressive
     /// as (a.k.a., lexical_cast)
     ///
     template<typename T, typename A>
-    typename proto::result_of::make_arg<
+    typename proto::result_of::make_expr_ref<
         proto::tag::function
       , proto::default_domain
       , op::as<T> const
       , A
     >::type as(A &&a)
     {
-        return proto::result_of::make_arg<
+        return proto::result_of::make_expr_ref<
             proto::tag::function
           , proto::default_domain
           , op::as<T> const
@@ -707,14 +704,14 @@ namespace boost { namespace xpressive
     /// static_cast_
     ///
     template<typename T, typename A>
-    typename proto::result_of::make_arg<
+    typename proto::result_of::make_expr_ref<
         proto::tag::function
       , proto::default_domain
       , op::static_cast_<T> const
       , A
     >::type static_cast_(A &&a)
     {
-        return proto::result_of::make_arg<
+        return proto::result_of::make_expr_ref<
             proto::tag::function
           , proto::default_domain
           , op::static_cast_<T> const
@@ -725,14 +722,14 @@ namespace boost { namespace xpressive
     /// dynamimc_cast_
     ///
     template<typename T, typename A>
-    typename proto::result_of::make_arg<
+    typename proto::result_of::make_expr_ref<
         proto::tag::function
       , proto::default_domain
       , op::dynamic_cast_<T> const
       , A
     >::type dynamic_cast_(A &&a)
     {
-        return proto::result_of::make_arg<
+        return proto::result_of::make_expr_ref<
             proto::tag::function
           , proto::default_domain
           , op::dynamic_cast_<T> const
@@ -743,14 +740,14 @@ namespace boost { namespace xpressive
     /// const_cast_
     ///
     template<typename T, typename A>
-    typename proto::result_of::make_arg<
+    typename proto::result_of::make_expr_ref<
         proto::tag::function
       , proto::default_domain
       , op::const_cast_<T> const
       , A
     >::type const_cast_(A &&a)
     {
-        return proto::result_of::make_arg<
+        return proto::result_of::make_expr_ref<
             proto::tag::function
           , proto::default_domain
           , op::const_cast_<T> const
@@ -808,14 +805,14 @@ namespace boost { namespace xpressive
     /// Usage: construct\<Type\>(arg1, arg2)
     ///
     template<typename T, typename... A>
-    typename proto::result_of::make_arg<
+    typename proto::result_of::make_expr_ref<
         proto::tag::function
       , proto::default_domain
       , op::construct<T> const
       , A...
     >::type construct(A &&... a)
     {
-        return proto::result_of::make_arg<
+        return proto::result_of::make_expr_ref<
             proto::tag::function
           , proto::default_domain
           , op::construct<T> const
@@ -826,14 +823,14 @@ namespace boost { namespace xpressive
     /// Usage: throw_\<Exception\>(arg1, arg2)
     ///
     template<typename T, typename... A>
-    typename proto::result_of::make_arg<
+    typename proto::result_of::make_expr_ref<
         proto::tag::function
       , proto::default_domain
       , op::throw_<T> const
       , A...
     >::type throw_(A &&... a)
     {
-        return proto::result_of::make_arg<
+        return proto::result_of::make_expr_ref<
             proto::tag::function
           , proto::default_domain
           , op::throw_<T> const

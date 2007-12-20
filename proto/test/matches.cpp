@@ -108,27 +108,27 @@ struct NumberGrammar
 void test_matches()
 {
     assert_matches< _ >( lit(1) );
-    assert_matches< _ >( as_arg(1) );
+    assert_matches< _ >( as_expr_ref(1) );
     assert_matches< _ >( as_expr(1) );
 
     assert_matches< terminal<int> >( lit(1) );
-    assert_matches< terminal<int> >( as_arg(1) );
+    assert_matches< terminal<int> >( as_expr_ref(1) );
     assert_matches< terminal<int> >( as_expr(1) );
 
     assert_not_matches< terminal<int> >( lit('a') );
-    assert_not_matches< terminal<int> >( as_arg('a') );
+    assert_not_matches< terminal<int> >( as_expr_ref('a') );
     assert_not_matches< terminal<int> >( as_expr('a') );
 
     assert_matches< terminal<convertible_to<int> > >( lit('a') );
-    assert_matches< terminal<convertible_to<int> > >( as_arg('a') );
+    assert_matches< terminal<convertible_to<int> > >( as_expr_ref('a') );
     assert_matches< terminal<convertible_to<int> > >( as_expr('a') );
 
     assert_not_matches< terminal<int> >( lit((int_convertible())) );
-    assert_not_matches< terminal<int> >( as_arg((int_convertible())) );
+    assert_not_matches< terminal<int> >( as_expr_ref((int_convertible())) );
     assert_not_matches< terminal<int> >( as_expr((int_convertible())) );
 
     assert_matches< terminal<convertible_to<int> > >( lit((int_convertible())) );
-    assert_matches< terminal<convertible_to<int> > >( as_arg((int_convertible())) );
+    assert_matches< terminal<convertible_to<int> > >( as_expr_ref((int_convertible())) );
     assert_matches< terminal<convertible_to<int> > >( as_expr((int_convertible())) );
 
     using transform::_arg;
@@ -151,63 +151,63 @@ void test_matches()
     >( lit('a') );
 
     assert_matches< terminal<char const *> >( lit("hello") );
-    assert_matches< terminal<char const *> >( as_arg("hello") );
+    assert_matches< terminal<char const *> >( as_expr_ref("hello") );
     assert_matches< terminal<char const *> >( as_expr("hello") );
 
     assert_matches< terminal<char const (&)[6]> >( lit("hello") );
-    assert_matches< terminal<char const (&)[6]> >( as_arg("hello") );
+    assert_matches< terminal<char const (&)[6]> >( as_expr_ref("hello") );
     assert_not_matches< terminal<char const (&)[6]> >( as_expr("hello") );
 
     assert_matches< terminal<char [6]> >( lit("hello") );
-    assert_matches< terminal<char [6]> >( as_arg("hello") );
+    assert_matches< terminal<char [6]> >( as_expr_ref("hello") );
     assert_matches< terminal<char [6]> >( as_expr("hello") );
 
     assert_matches< terminal<char const (&)[N]> >( lit("hello") );
-    assert_matches< terminal<char const (&)[N]> >( as_arg("hello") );
+    assert_matches< terminal<char const (&)[N]> >( as_expr_ref("hello") );
     assert_not_matches< terminal<char const (&)[N]> >( as_expr("hello") );
 
     assert_matches< terminal<char [N]> >( lit("hello") );
-    assert_matches< terminal<char [N]> >( as_arg("hello") );
+    assert_matches< terminal<char [N]> >( as_expr_ref("hello") );
     assert_matches< terminal<char [N]> >( as_expr("hello") );
 
     assert_matches< terminal<std::string> >( lit(std::string("hello")) );
-    assert_matches< terminal<std::string> >( as_arg(std::string("hello")) );
+    assert_matches< terminal<std::string> >( as_expr_ref(std::string("hello")) );
     assert_matches< terminal<std::string> >( as_expr(std::string("hello")) );
 
     assert_matches< terminal<std::basic_string<_> > >( lit(std::string("hello")) );
-    assert_matches< terminal<std::basic_string<_> > >( as_arg(std::string("hello")) );
+    assert_matches< terminal<std::basic_string<_> > >( as_expr_ref(std::string("hello")) );
     assert_matches< terminal<std::basic_string<_> > >( as_expr(std::string("hello")) );
 
     assert_not_matches< terminal<std::basic_string<_> > >( lit(1) );
-    assert_not_matches< terminal<std::basic_string<_> > >( as_arg(1) );
+    assert_not_matches< terminal<std::basic_string<_> > >( as_expr_ref(1) );
     assert_not_matches< terminal<std::basic_string<_> > >( as_expr(1) );
 
     assert_not_matches< terminal<std::basic_string<_,_,_> > >( lit(1) );
-    assert_not_matches< terminal<std::basic_string<_,_,_> > >( as_arg(1) );
+    assert_not_matches< terminal<std::basic_string<_,_,_> > >( as_expr_ref(1) );
     assert_not_matches< terminal<std::basic_string<_,_,_> > >( as_expr(1) );
 
     assert_matches< terminal<std::basic_string<_> const & > >( lit(std::string("hello")) );
-    assert_matches< terminal<std::basic_string<_> const & > >( as_arg(std::string("hello")) );
+    assert_matches< terminal<std::basic_string<_> const & > >( as_expr_ref(std::string("hello")) );
     assert_not_matches< terminal<std::basic_string<_> const & > >( as_expr(std::string("hello")) );
 
     assert_matches< terminal< void(&)() > >( lit(a_function) );
-    assert_matches< terminal< void(&)() > >( as_arg(a_function) );
+    assert_matches< terminal< void(&)() > >( as_expr_ref(a_function) );
     assert_matches< terminal< void(&)() > >( as_expr(a_function) );
 
     assert_not_matches< terminal< void(*)() > >( lit(a_function) );
-    assert_not_matches< terminal< void(*)() > >( as_arg(a_function) );
+    assert_not_matches< terminal< void(*)() > >( as_expr_ref(a_function) );
     assert_not_matches< terminal< void(*)() > >( as_expr(a_function) );
 
     assert_matches< terminal< convertible_to<void(*)()> > >( lit(a_function) );
-    assert_matches< terminal< convertible_to<void(*)()> > >( as_arg(a_function) );
+    assert_matches< terminal< convertible_to<void(*)()> > >( as_expr_ref(a_function) );
     assert_matches< terminal< convertible_to<void(*)()> > >( as_expr(a_function) );
 
     assert_matches< terminal< void(*)() > >( lit(&a_function) );
-    assert_matches< terminal< void(*)() > >( as_arg(&a_function) );
+    assert_matches< terminal< void(*)() > >( as_expr_ref(&a_function) );
     assert_matches< terminal< void(*)() > >( as_expr(&a_function) );
 
     assert_matches< terminal< void(* const &)() > >( lit(&a_function) );
-    assert_matches< terminal< void(* const &)() > >( as_arg(&a_function) );
+    assert_matches< terminal< void(* const &)() > >( as_expr_ref(&a_function) );
     assert_not_matches< terminal< void(* const &)() > >( as_expr(&a_function) );
 
     assert_matches<

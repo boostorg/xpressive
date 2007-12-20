@@ -1,7 +1,7 @@
 #ifndef BOOST_PP_IS_ITERATING
     ///////////////////////////////////////////////////////////////////////////////
     /// \file make_expr_ex.hpp
-    /// Exploded instances of the make_expr and make_arg functions
+    /// Exploded instances of the make_expr and make_expr_ref functions
     //
     //  Copyright 2007 Eric Niebler. Distributed under the Boost
     //  Software License, Version 1.0. (See accompanying file
@@ -15,19 +15,19 @@
         template<typename Tag, BOOST_PP_ENUM_PARAMS(SIZE, typename A)>                              \
         typename lazy_disable_if<                                                                   \
             is_domain<A0>                                                                           \
-          , result_of::make_arg<Tag, BOOST_PP_SEQ_FOR_EACH_I_R(R, M5, ~, PRODUCT)>                  \
+          , result_of::make_expr_ref<Tag, BOOST_PP_SEQ_FOR_EACH_I_R(R, M5, ~, PRODUCT)>             \
         >::type                                                                                     \
-        make_arg(BOOST_PP_SEQ_FOR_EACH_I_R(R, M4, ~, PRODUCT))                                      \
+        make_expr_ref(BOOST_PP_SEQ_FOR_EACH_I_R(R, M4, ~, PRODUCT))                                 \
         {                                                                                           \
-            return result_of::make_arg<Tag, BOOST_PP_SEQ_FOR_EACH_I_R(R, M5, ~, PRODUCT)>           \
+            return result_of::make_expr_ref<Tag, BOOST_PP_SEQ_FOR_EACH_I_R(R, M5, ~, PRODUCT)>      \
                 ::call(BOOST_PP_ENUM_PARAMS(SIZE, a));                                              \
         }                                                                                           \
                                                                                                     \
         template<typename Tag, typename Domain, BOOST_PP_ENUM_PARAMS(SIZE, typename A)>             \
-        typename result_of::make_arg<Tag, Domain, BOOST_PP_SEQ_FOR_EACH_I_R(R, M5, ~, PRODUCT)>::type\
-        make_arg(BOOST_PP_SEQ_FOR_EACH_I_R(R, M4, ~, PRODUCT))                                      \
+        typename result_of::make_expr_ref<Tag, Domain, BOOST_PP_SEQ_FOR_EACH_I_R(R, M5, ~, PRODUCT)>::type\
+        make_expr_ref(BOOST_PP_SEQ_FOR_EACH_I_R(R, M4, ~, PRODUCT))                                 \
         {                                                                                           \
-            return result_of::make_arg<Tag, Domain, BOOST_PP_SEQ_FOR_EACH_I_R(R, M5, ~, PRODUCT)>   \
+            return result_of::make_expr_ref<Tag, Domain, BOOST_PP_SEQ_FOR_EACH_I_R(R, M5, ~, PRODUCT)>\
                 ::call(BOOST_PP_ENUM_PARAMS(SIZE, a));                                              \
         }                                                                                           \
                                                                                                     \

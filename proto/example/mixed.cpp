@@ -248,14 +248,14 @@ namespace VectorOps
     };
 
     template<typename A>
-    typename proto::result_of::make_arg<
+    typename proto::result_of::make_expr_ref<
         proto::tag::function
       , MixedDomain
       , sin_ const
       , A
     >::type sin(A &&a)
     {
-        return proto::result_of::make_arg<
+        return proto::result_of::make_expr_ref<
             proto::tag::function
           , MixedDomain
           , sin_ const
