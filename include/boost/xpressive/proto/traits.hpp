@@ -16,6 +16,7 @@
 #include <boost/xpressive/proto/detail/apply_args.hpp>
 #include <boost/xpressive/proto/detail/nary_expr.hpp>
 #include <boost/xpressive/proto/detail/is_callable.hpp>
+#include <boost/xpressive/proto/detail/arg_c.hpp>
 #include <boost/xpressive/proto/detail/define.hpp>
 
 namespace boost { namespace proto
@@ -155,97 +156,6 @@ namespace boost { namespace proto
 
     namespace result_of
     {
-
-        namespace detail
-        {
-            // TODO completely unroll these to BOOST_PROTO_MAX_ARITY
-            template<typename Cons, long N>
-            struct arg_c
-            {
-                typedef arg_c<typename Cons::cdr_type::cdr_type, N-2> base_type;
-                typedef typename base_type::type type;
-
-                static type call(Cons &args)
-                {
-                    return base_type::call(args.cdr.cdr);
-                }
-            };
-
-            template<typename Cons>
-            struct arg_c<Cons, 0>
-            {
-                typedef REF(typename Cons::car_type) type;
-
-                static type call(Cons &args)
-                {
-                    return args.car;
-                }
-            };
-
-            template<typename Cons>
-            struct arg_c<Cons, 1>
-            {
-                typedef REF(typename Cons::cdr_type::car_type) type;
-
-                static type call(Cons &args)
-                {
-                    return args.cdr.car;
-                }
-            };
-
-
-            template<typename Cons, long N>
-            struct arg_cv
-            {
-                typedef arg_cv<typename Cons::cdr_type::cdr_type, N-2> base_type;
-                typedef typename base_type::type type;
-
-                static type call(Cons const &args)
-                {
-                    return base_type::call(args.cdr.cdr);
-                }
-            };
-
-            template<typename Cons>
-            struct arg_cv<Cons, 0>
-            {
-                typedef CVREF(typename Cons::car_type) type;
-
-                static type call(Cons const &args)
-                {
-                    return args.car;
-                }
-            };
-
-            template<typename Cons>
-            struct arg_cv<Cons, 1>
-            {
-                typedef CVREF(typename Cons::cdr_type::car_type) type;
-
-                static type call(Cons const &args)
-                {
-                    return args.cdr.car;
-                }
-            };
-
-            template<typename Cons, long N>
-            struct value_at_c
-              : value_at_c<typename Cons::cdr_type::cdr_type, N-2>
-            {};
-
-            template<typename Cons>
-            struct value_at_c<Cons, 0>
-            {
-                typedef typename Cons::car_type type;
-            };
-
-            template<typename Cons>
-            struct value_at_c<Cons, 1>
-            {
-                typedef typename Cons::cdr_type::car_type type;
-            };
-
-        } // namespace detail
 
         template<typename Expr, long N>
         struct value_at_c
