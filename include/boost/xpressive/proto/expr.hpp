@@ -35,25 +35,6 @@ namespace boost { namespace proto
             {
                 typedef Expr *type;
             };
-
-            template<typename X, std::size_t N, typename Y>
-            void checked_copy(X (&x)[N], Y (&y)[N])
-            {
-                for(std::size_t i = 0; i < N; ++i)
-                {
-                    y[i] = x[i];
-                }
-            }
-
-            template<typename T, std::size_t N>
-            struct if_is_array
-            {};
-
-            template<typename T, std::size_t N>
-            struct if_is_array<T[N], N>
-            {
-                typedef void type;
-            };
         }
 
         template<typename Tag, typename Args, long Arity>
@@ -96,21 +77,6 @@ namespace boost { namespace proto
             static expr make(A &&... a)
             {
                 expr that = {argsns_::make_cons_<typename Args::cons_type>(a...)};
-                return that;
-            }
-
-            // necessary for terminals that store arrays by value
-            template<typename A, std::size_t N>
-            static expr make(
-                A (&a)[N]
-              , typename exprns_::detail::if_is_array<
-                    typename Args::cons_type::car_type, N
-                >::type * = 0
-            )
-            {
-                typedef char arity_is_zero[0==Arity];
-                expr that;
-                exprns_::detail::checked_copy(a, that.proto_args_.car);
                 return that;
             }
 

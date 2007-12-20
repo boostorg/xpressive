@@ -25,14 +25,13 @@
             template<typename A>
             struct deep_copy_<term<A> >
             {
+                // TODO doesn't handle reference to function
                 typedef term<UNCVREF(A)> type;
 
                 template<typename Cons>
                 static typename type::cons_type call(Cons const &a)
                 {
-                    // BUGBUG doesn't handle arrays and function references
-                    typename type::cons_type that = {a.car};
-                    return that;
+                    return argsns_::make_cons_<typename type::cons_type>(a.car);
                 }
             };
 

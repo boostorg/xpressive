@@ -23,6 +23,10 @@ void test1()
     BOOST_CHECK_EQUAL(42, arg(left(r2)));
     BOOST_CHECK_EQUAL(24, arg(right(r2)));
 
+    char buf[16] = {'\0'};
+    terminal<char (&)[16]>::type t3 = {{buf}};
+    terminal<char[16]>::type r3 = deep_copy(t3);
+
     #ifdef BOOST_HAS_VARIADIC_TMPL
     function<
         terminal<int>::type
@@ -33,7 +37,7 @@ void test1()
       , terminal<int>::type
       , terminal<int>::type
       , terminal<int>::type
-    >::type r3 = deep_copy(t1(1,2,3,4,5,6,7));
+    >::type r4 = deep_copy(t1(1,2,3,4,5,6,7));
     #endif
 }
 

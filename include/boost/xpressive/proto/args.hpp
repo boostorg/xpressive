@@ -99,6 +99,39 @@
         #undef CAR
         #undef CDR
 
+            namespace detail
+            {
+                template<typename Cons, typename T, std::size_t N>
+                struct make_cons_array
+                {
+                    static Cons make(T (&t)[N])
+                    {
+                        Cons that = {t};
+                        return that;
+                    }
+                };
+
+                template<typename U, typename T, std::size_t N>
+                struct make_cons_array<cons<U[N]>, T, N>
+                {
+                    static cons<U[N]> make(T (&t)[N])
+                    {
+                        cons<U[N]> that;
+                        for(std::size_t i = 0; i < N; ++i)
+                        {
+                            that.car[i] = t[i];
+                        }
+                        return that;
+                    }
+                };
+            }
+
+            template<typename Cons, typename T, std::size_t N>
+            inline Cons make_cons_(T (&t)[N])
+            {
+                return argsns_::detail::make_cons_array<Cons, T, N>::make(t);
+            }
+
         }
 
     }}
