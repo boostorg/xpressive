@@ -16,7 +16,7 @@
         typename lazy_disable_if<                                                                   \
             is_domain<A0>                                                                           \
           , result_of::make_expr_ref<Tag, BOOST_PP_SEQ_FOR_EACH_I_R(R, M5, ~, PRODUCT)>             \
-        >::type                                                                                     \
+        >::type const                                                                               \
         make_expr_ref(BOOST_PP_SEQ_FOR_EACH_I_R(R, M4, ~, PRODUCT))                                 \
         {                                                                                           \
             return result_of::make_expr_ref<Tag, BOOST_PP_SEQ_FOR_EACH_I_R(R, M5, ~, PRODUCT)>      \
@@ -24,7 +24,7 @@
         }                                                                                           \
                                                                                                     \
         template<typename Tag, typename Domain, BOOST_PP_ENUM_PARAMS(SIZE, typename A)>             \
-        typename result_of::make_expr_ref<Tag, Domain, BOOST_PP_SEQ_FOR_EACH_I_R(R, M5, ~, PRODUCT)>::type\
+        typename result_of::make_expr_ref<Tag, Domain, BOOST_PP_SEQ_FOR_EACH_I_R(R, M5, ~, PRODUCT)>::type const\
         make_expr_ref(BOOST_PP_SEQ_FOR_EACH_I_R(R, M4, ~, PRODUCT))                                 \
         {                                                                                           \
             return result_of::make_expr_ref<Tag, Domain, BOOST_PP_SEQ_FOR_EACH_I_R(R, M5, ~, PRODUCT)>\
@@ -35,7 +35,7 @@
         typename lazy_disable_if<                                                                   \
             is_domain<A0>                                                                           \
           , result_of::make_expr<Tag, BOOST_PP_SEQ_FOR_EACH_I_R(R, M5, ~, PRODUCT)>                 \
-        >::type                                                                                     \
+        >::type const                                                                               \
         make_expr(BOOST_PP_SEQ_FOR_EACH_I_R(R, M4, ~, PRODUCT))                                     \
         {                                                                                           \
             return result_of::make_expr<Tag, BOOST_PP_SEQ_FOR_EACH_I_R(R, M5, ~, PRODUCT)>          \
@@ -43,7 +43,7 @@
         }                                                                                           \
                                                                                                     \
         template<typename Tag, typename Domain, BOOST_PP_ENUM_PARAMS(SIZE, typename A)>             \
-        typename result_of::make_expr<Tag, Domain, BOOST_PP_SEQ_FOR_EACH_I_R(R, M5, ~, PRODUCT)>::type\
+        typename result_of::make_expr<Tag, Domain, BOOST_PP_SEQ_FOR_EACH_I_R(R, M5, ~, PRODUCT)>::type const\
         make_expr(BOOST_PP_SEQ_FOR_EACH_I_R(R, M4, ~, PRODUCT))                                     \
         {                                                                                           \
             return result_of::make_expr<Tag, Domain, BOOST_PP_SEQ_FOR_EACH_I_R(R, M5, ~, PRODUCT)>  \

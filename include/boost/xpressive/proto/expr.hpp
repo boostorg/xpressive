@@ -75,7 +75,7 @@ namespace boost { namespace proto
         #if defined(BOOST_HAS_VARIADIC_TMPL) && defined(BOOST_HAS_RVALUE_REFS)
 
             template<typename A>
-            expr<tag::assign, args<expr &, typename result_of::as_expr_ref<A>::type> >
+            expr<tag::assign, args<expr &, typename result_of::as_expr_ref<A>::type> > const
             operator=(A &&a)
             {
                 expr<tag::assign, args<expr &, typename result_of::as_expr_ref<A>::type> > that =
@@ -84,7 +84,7 @@ namespace boost { namespace proto
             }
 
             template<typename A>
-            expr<tag::assign, args<expr const &, typename result_of::as_expr_ref<A>::type> >
+            expr<tag::assign, args<expr const &, typename result_of::as_expr_ref<A>::type> > const
             operator=(A &&a) const
             {
                 expr<tag::assign, args<expr const &, typename result_of::as_expr_ref<A>::type> > that =
@@ -93,7 +93,7 @@ namespace boost { namespace proto
             }
 
             template<typename A>
-            expr<tag::subscript, args<expr &, typename result_of::as_expr_ref<A>::type> >
+            expr<tag::subscript, args<expr &, typename result_of::as_expr_ref<A>::type> > const
             operator[](A &&a)
             {
                 expr<tag::subscript, args<expr &, typename result_of::as_expr_ref<A>::type> > that =
@@ -102,7 +102,7 @@ namespace boost { namespace proto
             }
 
             template<typename A>
-            expr<tag::subscript, args<expr const &, typename result_of::as_expr_ref<A>::type> >
+            expr<tag::subscript, args<expr const &, typename result_of::as_expr_ref<A>::type> > const
             operator[](A &&a) const
             {
                 expr<tag::subscript, args<expr const &, typename result_of::as_expr_ref<A>::type> > that =
@@ -111,7 +111,7 @@ namespace boost { namespace proto
             }
 
             template<typename... A>
-            expr<tag::function, args<expr &, typename result_of::as_expr_ref<A>::type...> >
+            expr<tag::function, args<expr &, typename result_of::as_expr_ref<A>::type...> > const
             operator()(A &&... a)
             {
                 typedef args<expr &, typename result_of::as_expr_ref<A>::type...> args_type;
@@ -121,7 +121,7 @@ namespace boost { namespace proto
             }
 
             template<typename... A>
-            expr<tag::function, args<expr const &, typename result_of::as_expr_ref<A>::type...> >
+            expr<tag::function, args<expr const &, typename result_of::as_expr_ref<A>::type...> > const
             operator()(A &&... a) const
             {
                 typedef args<expr const &, typename result_of::as_expr_ref<A>::type...> args_type;
@@ -133,7 +133,7 @@ namespace boost { namespace proto
         #else
 
             template<typename A>
-            expr<tag::assign, args<expr &, typename result_of::as_expr_ref<A &>::type> >
+            expr<tag::assign, args<expr &, typename result_of::as_expr_ref<A &>::type> > const
             operator=(A &a)
             {
                 expr<tag::assign, args<expr &, typename result_of::as_expr_ref<A &>::type> > that =
@@ -142,7 +142,7 @@ namespace boost { namespace proto
             }
 
             template<typename A>
-            expr<tag::assign, args<expr const &, typename result_of::as_expr_ref<A &>::type> >
+            expr<tag::assign, args<expr const &, typename result_of::as_expr_ref<A &>::type> > const
             operator=(A &a) const
             {
                 expr<tag::assign, args<expr const &, typename result_of::as_expr_ref<A &>::type> > that =
@@ -151,7 +151,7 @@ namespace boost { namespace proto
             }
 
             template<typename A>
-            expr<tag::assign, args<expr &, typename result_of::as_expr_ref<A const &>::type> >
+            expr<tag::assign, args<expr &, typename result_of::as_expr_ref<A const &>::type> > const
             operator=(A const &a)
             {
                 expr<tag::assign, args<expr &, typename result_of::as_expr_ref<A const &>::type> > that =
@@ -160,7 +160,7 @@ namespace boost { namespace proto
             }
 
             template<typename A>
-            expr<tag::assign, args<expr const &, typename result_of::as_expr_ref<A const &>::type> >
+            expr<tag::assign, args<expr const &, typename result_of::as_expr_ref<A const &>::type> > const
             operator=(A const &a) const
             {
                 expr<tag::assign, args<expr const &, typename result_of::as_expr_ref<A const &>::type> > that =
@@ -169,7 +169,7 @@ namespace boost { namespace proto
             }
 
             template<typename A>
-            expr<tag::subscript, args<expr &, typename result_of::as_expr_ref<A &>::type> >
+            expr<tag::subscript, args<expr &, typename result_of::as_expr_ref<A &>::type> > const
             operator[](A &a)
             {
                 expr<tag::subscript, args<expr &, typename result_of::as_expr_ref<A &>::type> > that =
@@ -178,7 +178,7 @@ namespace boost { namespace proto
             }
 
             template<typename A>
-            expr<tag::subscript, args<expr const &, typename result_of::as_expr_ref<A &>::type> >
+            expr<tag::subscript, args<expr const &, typename result_of::as_expr_ref<A &>::type> > const
             operator[](A &a) const
             {
                 expr<tag::subscript, args<expr const &, typename result_of::as_expr_ref<A &>::type> > that =
@@ -187,7 +187,7 @@ namespace boost { namespace proto
             }
 
             template<typename A>
-            expr<tag::subscript, args<expr &, typename result_of::as_expr_ref<A const &>::type> >
+            expr<tag::subscript, args<expr &, typename result_of::as_expr_ref<A const &>::type> > const
             operator[](A const &a)
             {
                 expr<tag::subscript, args<expr &, typename result_of::as_expr_ref<A const &>::type> > that =
@@ -196,7 +196,7 @@ namespace boost { namespace proto
             }
 
             template<typename A>
-            expr<tag::subscript, args<expr const &, typename result_of::as_expr_ref<A const &>::type> >
+            expr<tag::subscript, args<expr const &, typename result_of::as_expr_ref<A const &>::type> > const
             operator[](A const &a) const
             {
                 expr<tag::subscript, args<expr const &, typename result_of::as_expr_ref<A const &>::type> > that =
@@ -204,14 +204,14 @@ namespace boost { namespace proto
                 return that;
             }
 
-            expr<tag::function, args<expr &> >
+            expr<tag::function, args<expr &> > const
             operator()()
             {
                 expr<tag::function, args<expr &> > that = {{*this}};
                 return that;
             }
 
-            expr<tag::function, args<expr const &> >
+            expr<tag::function, args<expr const &> > const
             operator()() const
             {
                 expr<tag::function, args<expr const &> > that = {{*this}};

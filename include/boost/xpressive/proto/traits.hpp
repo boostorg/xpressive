@@ -453,73 +453,73 @@ namespace boost { namespace proto
 
 #ifdef BOOST_HAS_RVALUE_REFS
     template<typename T>
-    typename result_of::as_expr<T>::type as_expr(T &&t)
+    typename result_of::as_expr<T>::type const as_expr(T &&t)
     {
         return result_of::as_expr<T>::call(t);
     }
 
     template<typename Domain, typename T>
-    typename result_of::as_expr<T, Domain>::type as_expr(T &&t)
+    typename result_of::as_expr<T, Domain>::type const as_expr(T &&t)
     {
         return result_of::as_expr<T, Domain>::call(t);
     }
 
     template<typename T>
-    typename result_of::as_expr_ref<T>::type as_expr_ref(T &&t)
+    typename result_of::as_expr_ref<T>::type const as_expr_ref(T &&t)
     {
         return result_of::as_expr_ref<T>::call(t);
     }
 
     template<typename Domain, typename T>
-    typename result_of::as_expr_ref<T, Domain>::type as_expr_ref(T &&t)
+    typename result_of::as_expr_ref<T, Domain>::type const as_expr_ref(T &&t)
     {
         return result_of::as_expr_ref<T, Domain>::call(t);
     }
 #else
     template<typename T>
-    typename result_of::as_expr<T &>::type as_expr(T &t)
+    typename result_of::as_expr<T &>::type const as_expr(T &t)
     {
         return result_of::as_expr<T &>::call(t);
     }
 
     template<typename Domain, typename T>
-    typename result_of::as_expr<T &, Domain>::type as_expr(T &t)
+    typename result_of::as_expr<T &, Domain>::type const as_expr(T &t)
     {
         return result_of::as_expr<T &, Domain>::call(t);
     }
 
     template<typename T>
-    typename result_of::as_expr<T const &>::type as_expr(T const &t)
+    typename result_of::as_expr<T const &>::type const as_expr(T const &t)
     {
         return result_of::as_expr<T const &>::call(t);
     }
 
     template<typename Domain, typename T>
-    typename result_of::as_expr<T const &, Domain>::type as_expr(T const &t)
+    typename result_of::as_expr<T const &, Domain>::type const as_expr(T const &t)
     {
         return result_of::as_expr<T const &, Domain>::call(t);
     }
 
     template<typename T>
-    typename result_of::as_expr_ref<T &>::type as_expr_ref(T &t)
+    typename result_of::as_expr_ref<T &>::type const as_expr_ref(T &t)
     {
         return result_of::as_expr_ref<T &>::call(t);
     }
 
     template<typename Domain, typename T>
-    typename result_of::as_expr_ref<T &, Domain>::type as_expr_ref(T &t)
+    typename result_of::as_expr_ref<T &, Domain>::type const as_expr_ref(T &t)
     {
         return result_of::as_expr_ref<T &, Domain>::call(t);
     }
 
     template<typename T>
-    typename result_of::as_expr_ref<T const &>::type as_expr_ref(T const &t)
+    typename result_of::as_expr_ref<T const &>::type const as_expr_ref(T const &t)
     {
         return result_of::as_expr_ref<T const &>::call(t);
     }
 
     template<typename Domain, typename T>
-    typename result_of::as_expr_ref<T const &, Domain>::type as_expr_ref(T const &t)
+    typename result_of::as_expr_ref<T const &, Domain>::type const as_expr_ref(T const &t)
     {
         return result_of::as_expr_ref<T const &, Domain>::call(t);
     }

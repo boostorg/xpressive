@@ -754,7 +754,7 @@ namespace boost { namespace proto
     typename lazy_disable_if<
         is_domain<Sequence>
       , result_of::unpack_expr_ref<Tag, Sequence>
-    >::type
+    >::type const
     unpack_expr_ref(Sequence const &sequence)
     {
         return result_of::unpack_expr_ref<Tag, Sequence>::call(sequence);
@@ -763,7 +763,7 @@ namespace boost { namespace proto
     /// \overload
     ///
     template<typename Tag, typename Domain, typename Sequence2>
-    typename result_of::unpack_expr_ref<Tag, Domain, Sequence2>::type
+    typename result_of::unpack_expr_ref<Tag, Domain, Sequence2>::type const
     unpack_expr_ref(Sequence2 const &sequence2)
     {
         return result_of::unpack_expr_ref<Tag, Domain, Sequence2>::call(sequence2);
@@ -775,7 +775,7 @@ namespace boost { namespace proto
     typename lazy_disable_if<
         is_domain<Sequence>
       , result_of::unpack_expr<Tag, Sequence>
-    >::type
+    >::type const
     unpack_expr(Sequence const &sequence)
     {
         return result_of::unpack_expr<Tag, Sequence>::call(sequence);
@@ -784,7 +784,7 @@ namespace boost { namespace proto
     /// \overload
     ///
     template<typename Tag, typename Domain, typename Sequence2>
-    typename result_of::unpack_expr<Tag, Domain, Sequence2>::type
+    typename result_of::unpack_expr<Tag, Domain, Sequence2>::type const
     unpack_expr(Sequence2 const &sequence2)
     {
         return result_of::unpack_expr<Tag, Domain, Sequence2>::call(sequence2);
@@ -797,7 +797,7 @@ namespace boost { namespace proto
     typename lazy_disable_if<
         is_domain<Head>
       , result_of::make_expr_ref<Tag, Head, Tail...>
-    >::type
+    >::type const
     make_expr_ref(Head &&head, Tail &&... tail)
     {
         return result_of::make_expr_ref<Tag, Head, Tail...>::call(head, tail...);
@@ -806,7 +806,7 @@ namespace boost { namespace proto
     /// \overload
     ///
     template<typename Tag, typename Domain, typename Head, typename... Tail>
-    typename result_of::make_expr_ref<Tag, Domain, Head, Tail...>::type
+    typename result_of::make_expr_ref<Tag, Domain, Head, Tail...>::type const
     make_expr_ref(Head &&head, Tail &&... tail)
     {
         return result_of::make_expr_ref<Tag, Domain, Head, Tail...>::call(head, tail...);
@@ -818,7 +818,7 @@ namespace boost { namespace proto
     typename lazy_disable_if<
         is_domain<Head>
       , result_of::make_expr<Tag, Head, Tail...>
-    >::type
+    >::type const
     make_expr(Head &&head, Tail &&... tail)
     {
         return result_of::make_expr<Tag, Head, Tail...>::call(head, tail...);
@@ -827,7 +827,7 @@ namespace boost { namespace proto
     /// \overload
     ///
     template<typename Tag, typename Domain, typename Head, typename... Tail>
-    typename result_of::make_expr<Tag, Domain, Head, Tail...>::type
+    typename result_of::make_expr<Tag, Domain, Head, Tail...>::type const
     make_expr(Head &&head, Tail &&... tail)
     {
         return result_of::make_expr<Tag, Domain, Head, Tail...>::call(head, tail...);

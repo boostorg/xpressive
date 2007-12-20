@@ -48,7 +48,7 @@ namespace boost { namespace proto
     /// lit
     ///
     template<typename T>
-    inline literal<T &> lit(T &t)
+    inline literal<T &> const lit(T &t)
     {
         return literal<T &>(t);
     }
@@ -56,7 +56,7 @@ namespace boost { namespace proto
     /// \overload
     ///
     template<typename T>
-    inline literal<T const &> lit(T const &t)
+    inline literal<T const &> const lit(T const &t)
     {
         #ifdef _MSC_VER
         #pragma warning(push)

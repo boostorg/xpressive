@@ -13,7 +13,7 @@
 
     #define M3(R, SIZE, PRODUCT)                                                                    \
         template<BOOST_PP_ENUM_PARAMS(SIZE, typename A)>                                            \
-        expr<tag::function, args<expr &, BOOST_PP_SEQ_FOR_EACH_I_R(R, M5, ~, PRODUCT)> >            \
+        expr<tag::function, args<expr &, BOOST_PP_SEQ_FOR_EACH_I_R(R, M5, ~, PRODUCT)> > const      \
         operator()(BOOST_PP_SEQ_FOR_EACH_I_R(R, M4, ~, PRODUCT))                                    \
         {                                                                                           \
             typedef args<expr &, BOOST_PP_SEQ_FOR_EACH_I_R(R, M5, ~, PRODUCT)> args_type;           \
@@ -27,7 +27,7 @@
         }                                                                                           \
                                                                                                     \
         template<BOOST_PP_ENUM_PARAMS(SIZE, typename A)>                                            \
-        expr<tag::function, args<expr const &, BOOST_PP_SEQ_FOR_EACH_I_R(R, M5, ~, PRODUCT)> >      \
+        expr<tag::function, args<expr const &, BOOST_PP_SEQ_FOR_EACH_I_R(R, M5, ~, PRODUCT)> >  const\
         operator()(BOOST_PP_SEQ_FOR_EACH_I_R(R, M4, ~, PRODUCT)) const                              \
         {                                                                                           \
             typedef args<expr const &, BOOST_PP_SEQ_FOR_EACH_I_R(R, M5, ~, PRODUCT)> args_type;     \
@@ -48,12 +48,12 @@
 
 	#define M5(R, _, I, ELEM)                                                                       \
         BOOST_PP_COMMA_IF(I)                                                                        \
-        typename result_of::as_expr_ref<BOOST_PP_CAT(A, I) BOOST_PP_CAT(C, ELEM)&>::type                 \
+        typename result_of::as_expr_ref<BOOST_PP_CAT(A, I) BOOST_PP_CAT(C, ELEM)&>::type            \
         /**/
 
 	#define M6(R, _, I, ELEM)                                                                       \
         BOOST_PP_COMMA_IF(I)                                                                        \
-        result_of::as_expr_ref<BOOST_PP_CAT(A, I) BOOST_PP_CAT(C, ELEM)&>::call(BOOST_PP_CAT(a, I))      \
+        result_of::as_expr_ref<BOOST_PP_CAT(A, I) BOOST_PP_CAT(C, ELEM)&>::call(BOOST_PP_CAT(a, I)) \
         /**/
 
 	#define C0

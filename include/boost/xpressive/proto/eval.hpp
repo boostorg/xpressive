@@ -10,6 +10,7 @@
 #define BOOST_PROTO_EVAL_HPP_EAN_03_29_2007
 
 #include <boost/type_traits.hpp>
+#include <boost/xpressive/proto/proto_fwd.hpp>
 #include <boost/xpressive/proto/detail/define.hpp>
 
 namespace boost { namespace proto
@@ -36,12 +37,28 @@ namespace boost { namespace proto
               : proto::result_of::eval<UNREF(Expr), UNREF(Context)>
             {};
 
+        #ifdef BOOST_HAS_RVALUE_REFS
             template<typename Expr, typename Context>
-            typename proto::result_of::eval<UNREF(Expr), UNREF(Context)>::type
-            operator ()(Expr &&expr, Context &&context) const
+            typename proto::result_of::eval<Expr, UNREF(Context)>::type
+            operator ()(Expr &expr, Context &&context) const
             {
-                return UNREF(Context)::template eval<UNREF(Expr)>()(expr, context);
+                return UNREF(Context)::template eval<Expr>()(expr, context);
             }
+        #else
+            template<typename Expr, typename Context>
+            typename proto::result_of::eval<Expr, Context>::type
+            operator ()(Expr &expr, Context &context) const
+            {
+                return Context::template eval<Expr>()(expr, context);
+            }
+
+            template<typename Expr, typename Context>
+            typename proto::result_of::eval<Expr, Context>::type
+            operator ()(Expr &expr, Context const &context) const
+            {
+                return Context::template eval<Expr>()(expr, context);
+            }
+        #endif
         };
     }
 
