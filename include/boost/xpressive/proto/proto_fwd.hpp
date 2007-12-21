@@ -81,7 +81,7 @@ namespace boost { namespace proto
 
     namespace argsns_
     {
-        #if defined(BOOST_HAS_VARIADIC_TMPL) && defined(BOOST_HAS_RVALUE_REFS)
+        #ifdef BOOST_HAS_VARIADIC_TMPL
         template<typename... Args>
         struct cons;
 
@@ -291,15 +291,15 @@ namespace boost { namespace proto
 
     #if defined(BOOST_HAS_VARIADIC_TMPL) && defined(BOOST_HAS_RVALUE_REFS)
     template<typename T>
-    typename result_of::as_expr_ref<T>::type
+    typename result_of::as_expr_ref<T>::type const
     as_expr_ref(T &&t);
     #else
     template<typename T>
-    typename result_of::as_expr_ref<T &>::type
+    typename result_of::as_expr_ref<T &>::type const
     as_expr_ref(T &t);
 
     template<typename T>
-    typename result_of::as_expr_ref<T const &>::type
+    typename result_of::as_expr_ref<T const &>::type const
     as_expr_ref(T const &t);
     #endif
 
@@ -385,7 +385,7 @@ namespace boost { namespace proto
             struct is_vararg;
         }
 
-        #if defined(BOOST_HAS_VARIADIC_TMPL) && defined(BOOST_HAS_RVALUE_REFS)
+        #ifdef BOOST_HAS_VARIADIC_TMPL
         template<typename... Alts>
         struct or_;
 
@@ -528,9 +528,6 @@ namespace boost { namespace proto
         template<int I>
         struct _arg_c;
 
-        template<typename T>
-        struct always;
-
         struct _arg0;
         struct _arg1;
         struct _arg2;
@@ -570,7 +567,6 @@ namespace boost { namespace proto
     using transform::make;
     using transform::bind;
     using transform::fold;
-    using transform::always;
     using transform::reverse_fold;
     using transform::fold_tree;
     using transform::reverse_fold_tree;

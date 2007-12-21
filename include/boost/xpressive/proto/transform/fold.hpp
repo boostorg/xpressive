@@ -53,24 +53,6 @@ namespace boost { namespace proto
                 Visitor &v_;
             };
 
-            struct reverse : callable
-            {
-                template<typename Sig>
-                struct result;
-
-                template<typename This, typename T>
-                struct result<This(T)>
-                  : fusion::result_of::reverse<UNREF(T) const>
-                {};
-
-                template<typename T>
-                typename fusion::result_of::reverse<T const>::type
-                operator()(T const &t) const
-                {
-                    return fusion::reverse(t);
-                }
-            };
-
         } // namespace detail
 
         template<typename Sequence, typename State0, typename Fun>
@@ -103,7 +85,7 @@ namespace boost { namespace proto
 
         template<typename Sequence, typename State, typename Fun>
         struct reverse_fold
-          : fold<detail::reverse(Sequence), State, Fun>
+          : fold<_reverse(Sequence), State, Fun>
         {};
 
     }

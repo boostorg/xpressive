@@ -58,7 +58,7 @@
         #define BOOST_PP_ITERATION_PARAMS_1 (3, (1, BOOST_PROTO_MAX_ARITY, <boost/xpressive/proto/args.hpp>))
         #include BOOST_PP_ITERATE()
 
-        #if defined(BOOST_HAS_VARIADIC_TMPL) && defined(BOOST_HAS_RVALUE_REFS)
+        #ifdef BOOST_HAS_VARIADIC_TMPL
             template<BOOST_PP_ENUM_PARAMS(BOOST_PROTO_MAX_ARITY, typename A), typename... Args>
             struct args< BOOST_PP_ENUM_PARAMS(BOOST_PROTO_MAX_ARITY, A), Args... >
             {

@@ -110,18 +110,8 @@ namespace boost { namespace proto
       : mpl::true_
     {};
 
-    template<typename Grammar, typename Fun>
-    struct is_callable<transform::detail::fold_tree_<Grammar, Fun> >
-      : mpl::true_
-    {};
-
     template<typename Sequence, typename State0, typename Fun>
     struct is_callable<transform::reverse_fold_tree<Sequence, State0, Fun> >
-      : mpl::true_
-    {};
-
-    template<typename Grammar, typename Fun>
-    struct is_callable<transform::detail::reverse_fold_tree_<Grammar, Fun> >
       : mpl::true_
     {};
 }}

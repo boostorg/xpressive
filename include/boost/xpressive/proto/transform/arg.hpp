@@ -126,31 +126,7 @@ namespace boost { namespace proto
         typedef _arg0 _arg;
         typedef _arg0 _left;
         typedef _arg1 _right;
-
-        template<typename T>
-        struct always : callable
-        {
-            template<typename Sig>
-            struct result;
-
-            template<typename This, typename Expr, typename State, typename Visitor>
-            struct result<This(Expr, State, Visitor)>
-            {
-                typedef T type;
-            };
-
-            template<typename Expr, typename State, typename Visitor>
-            T operator()(Expr const &, State const &, Visitor &) const
-            {
-                return T();
-            }
-        };
     }
-
-    template<typename T>
-    struct is_callable<transform::always<T> >
-      : mpl::true_
-    {};
 
     template<int I>
     struct is_callable<transform::_arg_c<I> >
