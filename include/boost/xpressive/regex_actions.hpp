@@ -123,7 +123,7 @@ namespace boost { namespace xpressive
         struct let_
         {
             BOOST_PROTO_EXTENDS(Expr, let_<Expr>, let_domain)
-            BOOST_PROTO_EXTENDS_FUNCTION(Expr, let_<Expr>, let_domain)
+            BOOST_PROTO_EXTENDS_FUNCTION()
         };
 
         template<typename Args, typename BidiIter>
