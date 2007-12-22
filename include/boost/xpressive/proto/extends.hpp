@@ -83,7 +83,7 @@ namespace boost { namespace proto
             that_type;                                                                              \
             that_type that = {                                                                      \
                 {*static_cast<Derived BOOST_PROTO_CONST ## Const *>(this)                           \
-              , {boost::proto::result_of::as_expr_ref<A, Domain>::call(a)}}                              \
+              , {boost::proto::result_of::as_expr_ref<A, Domain>::call(a)}}                         \
             };                                                                                      \
             return Domain::make(that);                                                              \
         }                                                                                           \

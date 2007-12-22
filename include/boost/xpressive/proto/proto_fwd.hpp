@@ -279,7 +279,7 @@ namespace boost { namespace proto
     using result_of::tag_of;
     using result_of::is_domain;
     using result_of::domain_of;
-	using result_of::is_expr;
+    using result_of::is_expr;
 
     template<long N, typename Expr>
     typename result_of::arg_c<Expr, N>::type
