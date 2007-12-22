@@ -53,145 +53,237 @@ namespace boost { namespace proto
         Expr const &proto_base() const                                                              \
         {                                                                                           \
             return this->expr;                                                                      \
-        }                                                                                           \
-        /**/
+        }
 
+#if defined(BOOST_HAS_VARIADIC_TMPL) && defined(BOOST_HAS_RVALUE_REFS)
         /// INTERNAL ONLY
         ///
-    #define BOOST_PROTO_EXTENDS_ASSIGN_IMPL_(Expr, Derived, Domain, Const)                          \
+    #define BOOST_PROTO_EXTENDS_ASSIGN_IMPL_(Const)                                                 \
         template<typename A>                                                                        \
-        typename boost::mpl::apply_wrap1<                                                           \
-            Domain                                                                                  \
-          , boost::proto::expr<                                                                     \
-                boost::proto::tag::assign                                                           \
-              , boost::proto::args<                                                                 \
-                    Derived BOOST_PROTO_CONST ## Const &                                            \
-                  , typename boost::proto::result_of::as_expr_ref<A, Domain>::type                  \
-                >                                                                                   \
-            >                                                                                       \
+        typename boost::proto::result_of::make_expr_ref<                                            \
+            boost::proto::tag::assign                                                               \
+          , proto_domain                                                                            \
+          , proto_derived_expr BOOST_PROTO_CONST ## Const &                                         \
+          , A                                                                                       \
         >::type const                                                                               \
         operator =(A &&a) BOOST_PROTO_CONST ## Const                                                \
         {                                                                                           \
-            typedef                                                                                 \
-                boost::proto::expr<                                                                 \
-                    boost::proto::tag::assign                                                       \
-                  , boost::proto::args<                                                             \
-                        Derived BOOST_PROTO_CONST ## Const &                                        \
-                      , typename boost::proto::result_of::as_expr_ref<A, Domain>::type              \
-                    >                                                                               \
-                >                                                                                   \
-            that_type;                                                                              \
-            that_type that = {                                                                      \
-                {*static_cast<Derived BOOST_PROTO_CONST ## Const *>(this)                           \
-              , {boost::proto::result_of::as_expr_ref<A, Domain>::call(a)}}                         \
-            };                                                                                      \
-            return Domain::make(that);                                                              \
-        }                                                                                           \
-        /**/
+            return boost::proto::result_of::make_expr_ref<                                          \
+                boost::proto::tag::assign                                                           \
+              , proto_domain                                                                        \
+              , proto_derived_expr BOOST_PROTO_CONST ## Const &                                     \
+              , A                                                                                   \
+            >::call(*static_cast<proto_derived_expr BOOST_PROTO_CONST ## Const *>(this), a);        \
+        }
 
-    #define BOOST_PROTO_EXTENDS_ASSIGN_CONST(Expr, Derived, Domain)                                 \
-        BOOST_PROTO_EXTENDS_ASSIGN_IMPL_(Expr, Derived, Domain, 1)
-
-    #define BOOST_PROTO_EXTENDS_ASSIGN_NON_CONST(Expr, Derived, Domain)                             \
-        BOOST_PROTO_EXTENDS_ASSIGN_IMPL_(Expr, Derived, Domain, 0)
-
-    #define BOOST_PROTO_EXTENDS_ASSIGN(Expr, Derived, Domain)                                       \
-        BOOST_PROTO_EXTENDS_ASSIGN_CONST(Expr, Derived, Domain)                                     \
-        BOOST_PROTO_EXTENDS_ASSIGN_NON_CONST(Expr, Derived, Domain)                                 \
-        /**/
+    #define BOOST_PROTO_EXTENDS_ASSIGN()                                                            \
+        BOOST_PROTO_EXTENDS_ASSIGN_IMPL_(0)                                                         \
+        BOOST_PROTO_EXTENDS_ASSIGN_IMPL_(1)
 
         /// INTERNAL ONLY
         ///
-    #define BOOST_PROTO_EXTENDS_SUBSCRIPT_IMPL_(Expr, Derived, Domain, Const)                       \
+    #define BOOST_PROTO_EXTENDS_SUBSCRIPT_IMPL_(Const)                                              \
         template<typename A>                                                                        \
-        typename boost::mpl::apply_wrap1<                                                           \
-            Domain                                                                                  \
-          , boost::proto::expr<                                                                     \
-                boost::proto::tag::subscript                                                        \
-              , boost::proto::args<                                                                 \
-                    Derived BOOST_PROTO_CONST ## Const &                                            \
-                  , typename boost::proto::result_of::as_expr_ref<A, Domain>::type                  \
-              >                                                                                     \
-            >                                                                                       \
+        typename boost::proto::result_of::make_expr_ref<                                            \
+            boost::proto::tag::subscript                                                            \
+          , proto_domain                                                                            \
+          , proto_derived_expr BOOST_PROTO_CONST ## Const &                                         \
+          , A                                                                                       \
         >::type const                                                                               \
         operator [](A &&a) BOOST_PROTO_CONST ## Const                                               \
         {                                                                                           \
-            typedef                                                                                 \
-                boost::proto::expr<                                                                 \
-                    boost::proto::tag::subscript                                                    \
-                  , boost::proto::args<                                                             \
-                        Derived BOOST_PROTO_CONST ## Const &                                        \
-                      , typename boost::proto::result_of::as_expr_ref<A, Domain>::type              \
-                    >                                                                               \
-                >                                                                                   \
-            that_type;                                                                              \
-            that_type that = {                                                                      \
-                {*static_cast<Derived BOOST_PROTO_CONST ## Const *>(this)                           \
-              , {boost::proto::result_of::as_expr_ref<A, Domain>::call(a)}}                         \
-            };                                                                                      \
-            return Domain::make(that);                                                              \
-        }                                                                                           \
-        /**/
+            return boost::proto::result_of::make_expr_ref<                                          \
+                boost::proto::tag::subscript                                                        \
+              , proto_domain                                                                        \
+              , proto_derived_expr BOOST_PROTO_CONST ## Const &                                     \
+              , A                                                                                   \
+            >::call(*static_cast<proto_derived_expr BOOST_PROTO_CONST ## Const *>(this), a);        \
+        }
 
-    #define BOOST_PROTO_EXTENDS_SUBSCRIPT_CONST(Expr, Derived, Domain)                              \
-        BOOST_PROTO_EXTENDS_SUBSCRIPT_IMPL_(Expr, Derived, Domain, 1)
-
-    #define BOOST_PROTO_EXTENDS_SUBSCRIPT_NON_CONST(Expr, Derived, Domain)                          \
-        BOOST_PROTO_EXTENDS_SUBSCRIPT_IMPL_(Expr, Derived, Domain, 0)
-
-    #define BOOST_PROTO_EXTENDS_SUBSCRIPT(Expr, Derived, Domain)                                    \
-        BOOST_PROTO_EXTENDS_SUBSCRIPT_CONST(Expr, Derived, Domain)                                  \
-        BOOST_PROTO_EXTENDS_SUBSCRIPT_NON_CONST(Expr, Derived, Domain)                              \
-        /**/
+    #define BOOST_PROTO_EXTENDS_SUBSCRIPT()                                                         \
+        BOOST_PROTO_EXTENDS_SUBSCRIPT_IMPL_(0)                                                      \
+        BOOST_PROTO_EXTENDS_SUBSCRIPT_IMPL_(1)
 
         /// INTERNAL ONLY
         ///
-    #define BOOST_PROTO_EXTENDS_FUNCTION_IMPL_(Expr, Derived, Domain, Const)                        \
+    #define BOOST_PROTO_EXTENDS_FUNCTION_IMPL_(Const)                                               \
         template<typename... A>                                                                     \
-        typename boost::mpl::apply_wrap1<                                                           \
-            Domain                                                                                  \
-          , boost::proto::expr<                                                                     \
-                boost::proto::tag::function                                                         \
-              , boost::proto::args<                                                                 \
-                    Derived BOOST_PROTO_CONST ## Const &                                            \
-                  , typename boost::proto::result_of::as_expr_ref<A, Domain>::type...               \
-                >                                                                                   \
-            >                                                                                       \
+        typename boost::proto::result_of::make_expr_ref<                                            \
+            boost::proto::tag::function                                                             \
+          , proto_domain                                                                            \
+          , proto_derived_expr BOOST_PROTO_CONST ## Const &                                         \
+          , A...                                                                                    \
         >::type const                                                                               \
         operator ()(A &&... a) BOOST_PROTO_CONST ## Const                                           \
         {                                                                                           \
-           typedef                                                                                  \
-                boost::proto::args<                                                                 \
-                    Derived BOOST_PROTO_CONST ## Const &                                            \
-                  , typename boost::proto::result_of::as_expr_ref<A, Domain>::type...               \
-                >                                                                                   \
-            args_type;                                                                              \
-            typedef                                                                                 \
-                boost::proto::expr<                                                                 \
-                    boost::proto::tag::function                                                     \
-                  , args_type                                                                       \
-                >                                                                                   \
-            that_type;                                                                              \
-            that_type that = {                                                                      \
-                boost::proto::argsns_::make_cons_<typename args_type::cons_type>(                   \
-                    *static_cast<Derived BOOST_PROTO_CONST ## Const *>(this)                        \
-                  , boost::proto::result_of::as_expr_ref<A, Domain>::call(a)...                     \
-                )                                                                                   \
-            };                                                                                      \
-            return Domain::make(that);                                                              \
+            return boost::proto::result_of::make_expr_ref<                                          \
+                boost::proto::tag::function                                                         \
+              , proto_domain                                                                        \
+              , proto_derived_expr BOOST_PROTO_CONST ## Const &                                     \
+              , A...                                                                                \
+            >::call(*static_cast<proto_derived_expr BOOST_PROTO_CONST ## Const *>(this), a...);     \
+        }
+
+    #define BOOST_PROTO_EXTENDS_FUNCTION()                                                          \
+        BOOST_PROTO_EXTENDS_FUNCTION_IMPL_(0)                                                       \
+        BOOST_PROTO_EXTENDS_FUNCTION_IMPL_(1)
+
+#else
+        /// INTERNAL ONLY
+        ///
+    #define BOOST_PROTO_EXTENDS_ASSIGN_IMPL_(Const)                                                 \
+        template<typename A>                                                                        \
+        typename boost::proto::result_of::make_expr_ref<                                            \
+            boost::proto::tag::assign                                                               \
+          , proto_domain                                                                            \
+          , proto_derived_expr BOOST_PROTO_CONST ## Const &                                         \
+          , A &                                                                                     \
+        >::type const                                                                               \
+        operator =(A &a) BOOST_PROTO_CONST ## Const                                                 \
+        {                                                                                           \
+            return boost::proto::result_of::make_expr_ref<                                          \
+                boost::proto::tag::assign                                                           \
+              , proto_domain                                                                        \
+              , proto_derived_expr BOOST_PROTO_CONST ## Const &                                     \
+              , A &                                                                                 \
+            >::call(*static_cast<proto_derived_expr BOOST_PROTO_CONST ## Const *>(this), a);        \
         }                                                                                           \
-        /**/
+        template<typename A>                                                                        \
+        typename boost::proto::result_of::make_expr_ref<                                            \
+            boost::proto::tag::assign                                                               \
+          , proto_domain                                                                            \
+          , proto_derived_expr BOOST_PROTO_CONST ## Const &                                         \
+          , A const &                                                                               \
+        >::type const                                                                               \
+        operator =(A const &a) BOOST_PROTO_CONST ## Const                                           \
+        {                                                                                           \
+            return boost::proto::result_of::make_expr_ref<                                          \
+                boost::proto::tag::assign                                                           \
+              , proto_domain                                                                        \
+              , proto_derived_expr BOOST_PROTO_CONST ## Const &                                     \
+              , A const &                                                                           \
+            >::call(*static_cast<proto_derived_expr BOOST_PROTO_CONST ## Const *>(this), a);        \
+        }
 
-    #define BOOST_PROTO_EXTENDS_FUNCTION_CONST(Expr, Derived, Domain)                               \
-        BOOST_PROTO_EXTENDS_FUNCTION_IMPL_(Expr, Derived, Domain, 1)
+    #define BOOST_PROTO_EXTENDS_ASSIGN()                                                            \
+        BOOST_PROTO_EXTENDS_ASSIGN_IMPL_(0)                                                         \
+        BOOST_PROTO_EXTENDS_ASSIGN_IMPL_(1)
 
-    #define BOOST_PROTO_EXTENDS_FUNCTION_NON_CONST(Expr, Derived, Domain)                           \
-        BOOST_PROTO_EXTENDS_FUNCTION_IMPL_(Expr, Derived, Domain, 0)
+        /// INTERNAL ONLY
+        ///
+    #define BOOST_PROTO_EXTENDS_SUBSCRIPT_IMPL_(Const)                                              \
+        template<typename A>                                                                        \
+        typename boost::proto::result_of::make_expr_ref<                                            \
+            boost::proto::tag::subscript                                                            \
+          , proto_domain                                                                            \
+          , proto_derived_expr BOOST_PROTO_CONST ## Const &                                         \
+          , A &                                                                                     \
+        >::type const                                                                               \
+        operator [](A &a) BOOST_PROTO_CONST ## Const                                                \
+        {                                                                                           \
+            return boost::proto::result_of::make_expr_ref<                                          \
+                boost::proto::tag::subscript                                                        \
+              , proto_domain                                                                        \
+              , proto_derived_expr BOOST_PROTO_CONST ## Const &                                     \
+              , A &                                                                                 \
+            >::call(*static_cast<proto_derived_expr BOOST_PROTO_CONST ## Const *>(this), a);        \
+        }                                                                                           \
+        template<typename A>                                                                        \
+        typename boost::proto::result_of::make_expr_ref<                                            \
+            boost::proto::tag::subscript                                                            \
+          , proto_domain                                                                            \
+          , proto_derived_expr BOOST_PROTO_CONST ## Const &                                         \
+          , A const &                                                                               \
+        >::type const                                                                               \
+        operator [](A const &a) BOOST_PROTO_CONST ## Const                                          \
+        {                                                                                           \
+            return boost::proto::result_of::make_expr_ref<                                          \
+                boost::proto::tag::subscript                                                        \
+              , proto_domain                                                                        \
+              , proto_derived_expr BOOST_PROTO_CONST ## Const &                                     \
+              , A const &                                                                           \
+            >::call(*static_cast<proto_derived_expr BOOST_PROTO_CONST ## Const *>(this), a);        \
+        }
 
-    #define BOOST_PROTO_EXTENDS_FUNCTION(Expr, Derived, Domain)                                     \
-        BOOST_PROTO_EXTENDS_FUNCTION_CONST(Expr, Derived, Domain)                                   \
-        BOOST_PROTO_EXTENDS_FUNCTION_NON_CONST(Expr, Derived, Domain)                               \
-        /**/
+    #define BOOST_PROTO_EXTENDS_SUBSCRIPT()                                                         \
+        BOOST_PROTO_EXTENDS_SUBSCRIPT_IMPL_(0)                                                      \
+        BOOST_PROTO_EXTENDS_SUBSCRIPT_IMPL_(1)
+
+        /// INTERNAL ONLY
+        ///
+    #define BOOST_PROTO_EXTENDS_FUNCTION_IMPL_1                                                     \
+        ((0)(1))
+
+        /// INTERNAL ONLY
+        ///
+    #define BOOST_PROTO_EXTENDS_FUNCTION_IMPL_2(R, PRODUCT)                                         \
+        BOOST_PROTO_EXTENDS_FUNCTION_IMPL_8(R, BOOST_PP_SEQ_SIZE(PRODUCT), PRODUCT)
+
+        /// INTERNAL ONLY
+        ///
+    #define BOOST_PROTO_EXTENDS_FUNCTION_IMPL_3(R, STATE)                                           \
+        BOOST_PP_NOT_EQUAL(BOOST_PROTO_MAX_ARITY, BOOST_PP_SEQ_SIZE(STATE))
+
+        /// INTERNAL ONLY
+        ///
+    #define BOOST_PROTO_EXTENDS_FUNCTION_IMPL_4(R, STATE)                                           \
+        STATE BOOST_PROTO_EXTENDS_FUNCTION_IMPL_1
+
+        /// INTERNAL ONLY
+        ///
+    #define BOOST_PROTO_EXTENDS_FUNCTION_IMPL_5(R, _, I, ELEM)                                      \
+        BOOST_PP_COMMA_IF(I)                                                                        \
+        BOOST_PP_CAT(A, I) BOOST_PP_CAT(BOOST_PROTO_CONST, ELEM) &BOOST_PP_CAT(a, I)
+
+        /// INTERNAL ONLY
+        ///
+    #define BOOST_PROTO_EXTENDS_FUNCTION_IMPL_6(R, _, I, ELEM)                                      \
+        , BOOST_PP_CAT(A, I) BOOST_PP_CAT(BOOST_PROTO_CONST, ELEM) &
+
+        /// INTERNAL ONLY
+        ///
+    #define BOOST_PROTO_EXTENDS_FUNCTION_IMPL_7(R, STATE)                                           \
+        BOOST_PP_SEQ_FOR_EACH_PRODUCT_R(R, BOOST_PROTO_EXTENDS_FUNCTION_IMPL_2, STATE)
+
+        /// INTERNAL ONLY
+        ///
+    #define BOOST_PROTO_EXTENDS_FUNCTION_IMPL_8(R, SIZE, PRODUCT)                                   \
+        BOOST_PROTO_EXTENDS_FUNCTION_IMPL_9(R, SIZE, PRODUCT, 0)                                    \
+        BOOST_PROTO_EXTENDS_FUNCTION_IMPL_9(R, SIZE, PRODUCT, 1)
+
+        /// INTERNAL ONLY
+        ///
+    #define BOOST_PROTO_EXTENDS_FUNCTION_IMPL_9(R, SIZE, PRODUCT, Const)                            \
+        template<BOOST_PP_ENUM_PARAMS(SIZE, typename A)>                                            \
+        typename boost::proto::result_of::make_expr_ref<                                            \
+            boost::proto::tag::function                                                             \
+          , proto_domain                                                                            \
+          , proto_derived_expr BOOST_PROTO_CONST ## Const &                                         \
+            BOOST_PP_SEQ_FOR_EACH_I_R(R, BOOST_PROTO_EXTENDS_FUNCTION_IMPL_6, ~, PRODUCT)           \
+        >::type const                                                                               \
+        operator ()(BOOST_PP_SEQ_FOR_EACH_I_R(R, BOOST_PROTO_EXTENDS_FUNCTION_IMPL_5, ~, PRODUCT))  \
+            BOOST_PROTO_CONST ## Const                                                              \
+        {                                                                                           \
+            return boost::proto::result_of::make_expr_ref<                                          \
+                boost::proto::tag::function                                                         \
+              , proto_domain                                                                        \
+              , proto_derived_expr BOOST_PROTO_CONST ## Const &                                     \
+                BOOST_PP_SEQ_FOR_EACH_I_R(R, BOOST_PROTO_EXTENDS_FUNCTION_IMPL_6, ~, PRODUCT)       \
+            >::call(                                                                                \
+                *static_cast<proto_derived_expr BOOST_PROTO_CONST ## Const *>(this)                 \
+                BOOST_PP_ENUM_TRAILING_PARAMS(SIZE, a)                                              \
+            );                                                                                      \
+        }
+
+    #define BOOST_PROTO_EXTENDS_FUNCTION()                                                          \
+        BOOST_PP_FOR(                                                                               \
+            BOOST_PROTO_EXTENDS_FUNCTION_IMPL_1                                                     \
+          , BOOST_PROTO_EXTENDS_FUNCTION_IMPL_3                                                     \
+          , BOOST_PROTO_EXTENDS_FUNCTION_IMPL_4                                                     \
+          , BOOST_PROTO_EXTENDS_FUNCTION_IMPL_7                                                     \
+        )
+
+#endif
 
     namespace exprns_
     {
@@ -241,9 +333,9 @@ namespace boost { namespace proto
             {}
 
             BOOST_PROTO_EXTENDS(Expr, Derived, Domain)
-            BOOST_PROTO_EXTENDS_ASSIGN(Expr, Derived, Domain)
-            BOOST_PROTO_EXTENDS_SUBSCRIPT(Expr, Derived, Domain)
-            BOOST_PROTO_EXTENDS_FUNCTION(Expr, Derived, Domain)
+            BOOST_PROTO_EXTENDS_ASSIGN()
+            BOOST_PROTO_EXTENDS_SUBSCRIPT()
+            BOOST_PROTO_EXTENDS_FUNCTION()
         };
 
     } // namespace exprns_

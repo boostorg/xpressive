@@ -113,15 +113,15 @@ namespace boost { namespace proto
         struct is_proto_expr;
 
         template<typename Expr, typename A>
-        Expr construct(A &a);
+        Expr construct(A const &a);
 
     #ifdef BOOST_HAS_VARIADIC_TMPL
         template<typename Expr, typename... A>
-        Expr construct(A const &... a);
+        Expr construct(A &... a);
     #else
     #define TMP(Z, N, DATA)                                                                         \
         template<typename Expr BOOST_PP_ENUM_TRAILING_PARAMS_Z(Z, N, typename A)>                   \
-        Expr construct(BOOST_PP_ENUM_BINARY_PARAMS_Z(Z, N, A, const &a));                           \
+        Expr construct(BOOST_PP_ENUM_BINARY_PARAMS_Z(Z, N, A, &a));                           \
         /**/
         BOOST_PP_REPEAT_FROM_TO(1, BOOST_PP_INC(BOOST_PROTO_MAX_ARITY), TMP, ~)
     #undef TMP

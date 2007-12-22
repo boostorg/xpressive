@@ -797,9 +797,9 @@ namespace boost { namespace xpressive
         typedef typename proto::terminal<detail::action_arg<T, mpl::int_<I> > >::type action_arg_type;
 
         BOOST_PROTO_EXTENDS(action_arg_type, this_type, proto::default_domain)
-        BOOST_PROTO_EXTENDS_ASSIGN(action_arg_type, this_type, proto::default_domain)
-        BOOST_PROTO_EXTENDS_SUBSCRIPT(action_arg_type, this_type, proto::default_domain)
-        BOOST_PROTO_EXTENDS_FUNCTION(action_arg_type, this_type, proto::default_domain)
+        BOOST_PROTO_EXTENDS_ASSIGN()
+        BOOST_PROTO_EXTENDS_SUBSCRIPT()
+        BOOST_PROTO_EXTENDS_FUNCTION()
     };
 
     /// Usage: construct\<Type\>(arg1, arg2)

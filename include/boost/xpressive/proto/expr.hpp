@@ -227,7 +227,7 @@ namespace boost { namespace proto
         /// construct
         ///
         template<typename Expr, typename A>
-        inline Expr construct(A &a)
+        inline Expr construct(A const &a)
         {
             typedef typename Expr::proto_args::cons_type cons_type;
             Expr that = {proto::argsns_::make_cons_<cons_type>(a)};
@@ -238,7 +238,7 @@ namespace boost { namespace proto
         /// \overload
         ///
         template<typename Expr, typename... A>
-        inline Expr construct(A const &... a)
+        inline Expr construct(A &... a)
         {
             typedef typename Expr::proto_args::cons_type cons_type;
             Expr that = {proto::argsns_::make_cons_<cons_type>(a...)};
@@ -247,7 +247,7 @@ namespace boost { namespace proto
     #else
     #define TMP(Z, N, DATA)                                                                         \
         template<typename Expr BOOST_PP_ENUM_TRAILING_PARAMS_Z(Z, N, typename A)>                   \
-        inline Expr construct(BOOST_PP_ENUM_BINARY_PARAMS_Z(Z, N, A, const &a))                     \
+        inline Expr construct(BOOST_PP_ENUM_BINARY_PARAMS_Z(Z, N, A, &a))                           \
         {                                                                                           \
             typedef typename Expr::proto_args::cons_type cons_type;                                 \
             Expr that = {proto::argsns_::make_cons_<cons_type>(BOOST_PP_ENUM_PARAMS_Z(Z, N, a))};   \

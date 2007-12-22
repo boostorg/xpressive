@@ -112,8 +112,8 @@ template<typename T>
 struct lambda
 {
     BOOST_PROTO_EXTENDS(T, lambda<T>, lambda_domain)
-    BOOST_PROTO_EXTENDS_ASSIGN(T, lambda<T>, lambda_domain)
-    BOOST_PROTO_EXTENDS_SUBSCRIPT(T, lambda<T>, lambda_domain)
+    BOOST_PROTO_EXTENDS_ASSIGN()
+    BOOST_PROTO_EXTENDS_SUBSCRIPT()
 
     // Careful not to evaluate the return type of the nullary function
     // unless we have a nullary lambda!
