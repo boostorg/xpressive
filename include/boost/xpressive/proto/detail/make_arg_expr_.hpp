@@ -27,7 +27,7 @@
       : proto::detail::make_<Tag, typename domain_of<A0>::type, functional::as_expr, A0>
     {};
 
-    #define BOOST_PP_ITERATION_PARAMS_1 (3, (2, BOOST_PROTO_MAX_ARITY, <boost/xpressive/proto/detail/make_arg_expr_.hpp>))
+    #define BOOST_PP_ITERATION_PARAMS_1 (3, (2, BOOST_PP_INC(BOOST_PROTO_MAX_ARITY), <boost/xpressive/proto/detail/make_arg_expr_.hpp>))
     #include BOOST_PP_ITERATE()
 
 #else

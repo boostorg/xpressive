@@ -26,6 +26,20 @@
 # define BOOST_PROTO_MAX_LOGICAL_ARITY 8
 #endif
 
+#if BOOST_WORKAROUND(__GNUC__, == 3) \
+ || BOOST_WORKAROUND(__EDG_VERSION__, BOOST_TESTED_AT(306))
+# define BOOST_PROTO_BROKEN_CONST_OVERLOADS
+#endif
+
+#ifdef BOOST_PROTO_BROKEN_CONST_OVERLOADS
+# include <boost/utility/enable_if.hpp>
+# include <boost/type_traits/is_const.hpp>
+# define BOOST_PROTO_DISABLE_IF_IS_CONST(T)\
+    , typename boost::disable_if<boost::is_const<T> >::type * = 0
+#else
+# define BOOST_PROTO_DISABLE_IF_IS_CONST(T)
+#endif
+
 namespace boost { namespace proto
 {
     namespace detail
@@ -119,11 +133,13 @@ namespace boost { namespace proto
         template<typename Expr, typename... A>
         Expr construct(A &... a);
     #else
+        template<typename Expr, typename A>
+        Expr construct(A &a BOOST_PROTO_DISABLE_IF_IS_CONST(A));
     #define TMP(Z, N, DATA)                                                                         \
         template<typename Expr BOOST_PP_ENUM_TRAILING_PARAMS_Z(Z, N, typename A)>                   \
         Expr construct(BOOST_PP_ENUM_BINARY_PARAMS_Z(Z, N, A, &a));                           \
         /**/
-        BOOST_PP_REPEAT_FROM_TO(1, BOOST_PP_INC(BOOST_PROTO_MAX_ARITY), TMP, ~)
+        BOOST_PP_REPEAT_FROM_TO(2, BOOST_PP_INC(BOOST_PROTO_MAX_ARITY), TMP, ~)
     #undef TMP
     #endif
 

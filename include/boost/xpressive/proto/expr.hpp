@@ -245,6 +245,13 @@ namespace boost { namespace proto
             return that;
         }
     #else
+        template<typename Expr, typename A>
+        Expr construct(A &a BOOST_PROTO_DISABLE_IF_IS_CONST(A))
+        {
+            typedef typename Expr::proto_args::cons_type cons_type;
+            Expr that = {proto::argsns_::make_cons_<cons_type>(a)};
+            return that;
+        }
     #define TMP(Z, N, DATA)                                                                         \
         template<typename Expr BOOST_PP_ENUM_TRAILING_PARAMS_Z(Z, N, typename A)>                   \
         inline Expr construct(BOOST_PP_ENUM_BINARY_PARAMS_Z(Z, N, A, &a))                           \
@@ -254,7 +261,7 @@ namespace boost { namespace proto
             return that;                                                                            \
         }                                                                                           \
         /**/
-        BOOST_PP_REPEAT_FROM_TO(1, BOOST_PP_INC(BOOST_PROTO_MAX_ARITY), TMP, ~)
+        BOOST_PP_REPEAT_FROM_TO(2, BOOST_PP_INC(BOOST_PROTO_MAX_ARITY), TMP, ~)
     #undef TMP
     #endif
     }

@@ -151,6 +151,7 @@ namespace boost { namespace proto
     #define BOOST_PROTO_UNARY_OP_IS_POSTFIX_0
     #define BOOST_PROTO_UNARY_OP_IS_POSTFIX_1 , int
 
+#ifdef BOOST_HAS_RVALUE_REFS
     #define BOOST_PROTO_DEFINE_UNARY_OPERATOR(OP, TAG, POST)                                        \
         template<typename A>                                                                        \
         typename detail::generate_if<                                                               \
@@ -167,8 +168,7 @@ namespace boost { namespace proto
                 typename result_of::as_expr_ref<A, D>::type                                         \
             > > that = {{result_of::as_expr_ref<A, D>::call(a)}};                                   \
             return D::make(that);                                                                   \
-        }                                                                                           \
-        /**/
+        }
 
     #define BOOST_PROTO_DEFINE_BINARY_OPERATOR(OP, TAG)                                             \
         template<typename A, typename B>                                                            \
@@ -191,8 +191,128 @@ namespace boost { namespace proto
               , {result_of::as_expr_ref<B, D>::call(b)}}                                            \
             };                                                                                      \
             return D::make(that);                                                                   \
+        }
+#else
+    #define BOOST_PROTO_DEFINE_UNARY_OPERATOR(OP, TAG, POST)                                        \
+        template<typename A>                                                                        \
+        typename detail::generate_if<                                                               \
+            true                                                                                    \
+          , typename A::proto_domain                                                                \
+          , expr<TAG, args<                                                                         \
+                typename result_of::as_expr_ref<A &, typename A::proto_domain>::type                \
+            > >                                                                                     \
+        >::type const                                                                               \
+        operator OP(A &a BOOST_PROTO_UNARY_OP_IS_POSTFIX_ ## POST)                                  \
+        {                                                                                           \
+            typedef typename A::proto_domain D;                                                     \
+            expr<TAG, args<                                                                         \
+                typename result_of::as_expr_ref<A &, D>::type                                       \
+            > > that = {{result_of::as_expr_ref<A &, D>::call(a)}};                                 \
+            return D::make(that);                                                                   \
         }                                                                                           \
-        /**/
+        template<typename A>                                                                        \
+        typename detail::generate_if<                                                               \
+            true                                                                                    \
+          , typename A::proto_domain                                                                \
+          , expr<TAG, args<                                                                         \
+                typename result_of::as_expr_ref<A const &, typename A::proto_domain>::type          \
+            > >                                                                                     \
+        >::type const                                                                               \
+        operator OP(A const &a BOOST_PROTO_UNARY_OP_IS_POSTFIX_ ## POST)                            \
+        {                                                                                           \
+            typedef typename A::proto_domain D;                                                     \
+            expr<TAG, args<                                                                         \
+                typename result_of::as_expr_ref<A const &, D>::type                                 \
+            > > that = {{result_of::as_expr_ref<A const &, D>::call(a)}};                           \
+            return D::make(that);                                                                   \
+        }
+
+    #define BOOST_PROTO_DEFINE_BINARY_OPERATOR(OP, TAG)                                             \
+        template<typename A, typename B>                                                            \
+        typename detail::generate_if<                                                               \
+            result_of::is_expr<A>::value || result_of::is_expr<B>::value                            \
+          , typename detail::unify_domain<A, B>::type                                               \
+          , expr<TAG, args<                                                                         \
+                typename result_of::as_expr_ref<A &, typename detail::unify_domain<A, B>::type>::type\
+              , typename result_of::as_expr_ref<B &, typename detail::unify_domain<A, B>::type>::type\
+            > >                                                                                     \
+        >::type const                                                                               \
+        operator OP(A &a, B &b)                                                                     \
+        {                                                                                           \
+            typedef typename detail::unify_domain<A, B>::type D;                                    \
+            expr<TAG, args<                                                                         \
+                typename result_of::as_expr_ref<A &, D>::type                                       \
+              , typename result_of::as_expr_ref<B &, D>::type                                       \
+            > > that = {                                                                            \
+                {result_of::as_expr_ref<A &, D>::call(a)                                            \
+              , {result_of::as_expr_ref<B &, D>::call(b)}}                                          \
+            };                                                                                      \
+            return D::make(that);                                                                   \
+        }                                                                                           \
+        template<typename A, typename B>                                                            \
+        typename detail::generate_if<                                                               \
+            result_of::is_expr<A>::value || result_of::is_expr<B>::value                            \
+          , typename detail::unify_domain<A, B>::type                                               \
+          , expr<TAG, args<                                                                         \
+                typename result_of::as_expr_ref<A &, typename detail::unify_domain<A, B>::type>::type\
+              , typename result_of::as_expr_ref<B const &, typename detail::unify_domain<A, B>::type>::type\
+            > >                                                                                     \
+        >::type const                                                                               \
+        operator OP(A &a, B const &b)                                                               \
+        {                                                                                           \
+            typedef typename detail::unify_domain<A, B>::type D;                                    \
+            expr<TAG, args<                                                                         \
+                typename result_of::as_expr_ref<A &, D>::type                                       \
+              , typename result_of::as_expr_ref<B const &, D>::type                                 \
+            > > that = {                                                                            \
+                {result_of::as_expr_ref<A &, D>::call(a)                                            \
+              , {result_of::as_expr_ref<B const &, D>::call(b)}}                                    \
+            };                                                                                      \
+            return D::make(that);                                                                   \
+        }                                                                                           \
+        template<typename A, typename B>                                                            \
+        typename detail::generate_if<                                                               \
+            result_of::is_expr<A>::value || result_of::is_expr<B>::value                            \
+          , typename detail::unify_domain<A, B>::type                                               \
+          , expr<TAG, args<                                                                         \
+                typename result_of::as_expr_ref<A const &, typename detail::unify_domain<A, B>::type>::type\
+              , typename result_of::as_expr_ref<B &, typename detail::unify_domain<A, B>::type>::type\
+            > >                                                                                     \
+        >::type const                                                                               \
+        operator OP(A const &a, B &b)                                                               \
+        {                                                                                           \
+            typedef typename detail::unify_domain<A, B>::type D;                                    \
+            expr<TAG, args<                                                                         \
+                typename result_of::as_expr_ref<A const &, D>::type                                 \
+              , typename result_of::as_expr_ref<B &, D>::type                                       \
+            > > that = {                                                                            \
+                {result_of::as_expr_ref<A const &, D>::call(a)                                      \
+              , {result_of::as_expr_ref<B &, D>::call(b)}}                                          \
+            };                                                                                      \
+            return D::make(that);                                                                   \
+        }                                                                                           \
+        template<typename A, typename B>                                                            \
+        typename detail::generate_if<                                                               \
+            result_of::is_expr<A>::value || result_of::is_expr<B>::value                            \
+          , typename detail::unify_domain<A, B>::type                                               \
+          , expr<TAG, args<                                                                         \
+                typename result_of::as_expr_ref<A const &, typename detail::unify_domain<A, B>::type>::type\
+              , typename result_of::as_expr_ref<B const &, typename detail::unify_domain<A, B>::type>::type\
+            > >                                                                                     \
+        >::type const                                                                               \
+        operator OP(A const &a, B const &b)                                                         \
+        {                                                                                           \
+            typedef typename detail::unify_domain<A, B>::type D;                                    \
+            expr<TAG, args<                                                                         \
+                typename result_of::as_expr_ref<A const &, D>::type                                 \
+              , typename result_of::as_expr_ref<B const &, D>::type                                 \
+            > > that = {                                                                            \
+                {result_of::as_expr_ref<A const &, D>::call(a)                                      \
+              , {result_of::as_expr_ref<B const &, D>::call(b)}}                                    \
+            };                                                                                      \
+            return D::make(that);                                                                   \
+        }
+#endif
 
         BOOST_PROTO_DEFINE_UNARY_OPERATOR(+, tag::posit, 0)
         BOOST_PROTO_DEFINE_UNARY_OPERATOR(-, tag::negate, 0)
@@ -240,28 +360,80 @@ namespace boost { namespace proto
     #undef BOOST_PROTO_DEFINE_UNARY_OPERATOR
     #undef BOOST_PROTO_DEFINE_BINARY_OPERATOR
 
+    #ifdef BOOST_HAS_RVALUE_REFS
         template<typename A, typename B, typename C>
         typename result_of::make_expr_ref<tag::if_else_, A, B, C>::type const
         if_else(A &&a, B &&b, C &&c)
         {
             return result_of::make_expr_ref<tag::if_else_, A, B, C>::call(a, b, c);
         }
+    #else
+        template<typename A, typename B, typename C>
+        typename result_of::make_expr_ref<tag::if_else_, A &, B &, C &>::type const
+        if_else(A &a, B &b, C &c)
+        {
+            return result_of::make_expr_ref<tag::if_else_, A &, B &, C &>::call(a, b, c);
+        }
+        template<typename A, typename B, typename C>
+        typename result_of::make_expr_ref<tag::if_else_, A &, B &, C const &>::type const
+        if_else(A &a, B &b, C const &c)
+        {
+            return result_of::make_expr_ref<tag::if_else_, A &, B &, C const &>::call(a, b, c);
+        }
+        template<typename A, typename B, typename C>
+        typename result_of::make_expr_ref<tag::if_else_, A &, B const &, C &>::type const
+        if_else(A &a, B const &b, C &c)
+        {
+            return result_of::make_expr_ref<tag::if_else_, A &, B const &, C &>::call(a, b, c);
+        }
+        template<typename A, typename B, typename C>
+        typename result_of::make_expr_ref<tag::if_else_, A &, B const &, C const &>::type const
+        if_else(A &a, B const &b, C const &c)
+        {
+            return result_of::make_expr_ref<tag::if_else_, A &, B const &, C const &>::call(a, b, c);
+        }
+        template<typename A, typename B, typename C>
+        typename result_of::make_expr_ref<tag::if_else_, A const &, B &, C &>::type const
+        if_else(A const &a, B &b, C &c)
+        {
+            return result_of::make_expr_ref<tag::if_else_, A const &, B &, C &>::call(a, b, c);
+        }
+        template<typename A, typename B, typename C>
+        typename result_of::make_expr_ref<tag::if_else_, A const &, B &, C const &>::type const
+        if_else(A const &a, B &b, C const &c)
+        {
+            return result_of::make_expr_ref<tag::if_else_, A const &, B &, C const &>::call(a, b, c);
+        }
+        template<typename A, typename B, typename C>
+        typename result_of::make_expr_ref<tag::if_else_, A const &, B const &, C &>::type const
+        if_else(A const &a, B const &b, C &c)
+        {
+            return result_of::make_expr_ref<tag::if_else_, A const &, B const &, C &>::call(a, b, c);
+        }
+        template<typename A, typename B, typename C>
+        typename result_of::make_expr_ref<tag::if_else_, A const &, B const &, C const &>::type const
+        if_else(A const &a, B const &b, C const &c)
+        {
+            return result_of::make_expr_ref<tag::if_else_, A const &, B const &, C const &>::call(a, b, c);
+        }
+    #endif
+
     }
 
     using exprns_::if_else;
 
+#ifdef BOOST_HAS_RVALUE_REFS
 #define BOOST_PROTO_DEFINE_UNARY_OPERATOR(OP, TAG, TRAIT, DOMAIN, POST)                             \
     template<typename Arg>                                                                          \
     typename boost::proto::exprns_::detail::enable_unary<                                           \
         DOMAIN                                                                                      \
       , TRAIT<BOOST_PROTO_UNCVREF(Arg)>, Arg                                                        \
-      , typename boost::proto::result_of::make_expr_ref<TAG, DOMAIN, Arg>::type                          \
-    >::type const                                                                                         \
+      , typename boost::proto::result_of::make_expr_ref<TAG, DOMAIN, Arg>::type                     \
+    >::type const                                                                                   \
     operator OP(Arg &&arg BOOST_PROTO_UNARY_OP_IS_POSTFIX_ ## POST)                                 \
     {                                                                                               \
-        return boost::proto::result_of::make_expr_ref<TAG, DOMAIN, Arg>::call(arg);                      \
-    }                                                                                               \
-    /**/
+        return boost::proto::result_of::make_expr_ref<TAG, DOMAIN, Arg>::call(arg);                 \
+    }
 
 #define BOOST_PROTO_DEFINE_BINARY_OPERATOR(OP, TAG, TRAIT, DOMAIN)                                  \
     template<typename Left, typename Right>                                                         \
@@ -269,14 +441,86 @@ namespace boost { namespace proto
         DOMAIN                                                                                      \
       , TRAIT<BOOST_PROTO_UNCVREF(Left)>, Left                                                      \
       , TRAIT<BOOST_PROTO_UNCVREF(Right)>, Right                                                    \
-      , typename boost::proto::result_of::make_expr_ref<TAG, DOMAIN, Left, Right>::type                  \
+      , typename boost::proto::result_of::make_expr_ref<TAG, DOMAIN, Left, Right>::type             \
     >::type const                                                                                   \
     operator OP(Left &&left, Right &&right)                                                         \
     {                                                                                               \
-        return boost::proto::result_of::make_expr_ref<TAG, DOMAIN, Left, Right>                          \
+        return boost::proto::result_of::make_expr_ref<TAG, DOMAIN, Left, Right>                     \
+            ::call(left, right);                                                                    \
+    }
+#else
+#define BOOST_PROTO_DEFINE_UNARY_OPERATOR(OP, TAG, TRAIT, DOMAIN, POST)                             \
+    template<typename Arg>                                                                          \
+    typename boost::proto::exprns_::detail::enable_unary<                                           \
+        DOMAIN                                                                                      \
+      , TRAIT<Arg>, Arg &                                                                           \
+      , typename boost::proto::result_of::make_expr_ref<TAG, DOMAIN, Arg &>::type                   \
+    >::type const                                                                                   \
+    operator OP(Arg &arg BOOST_PROTO_UNARY_OP_IS_POSTFIX_ ## POST)                                  \
+    {                                                                                               \
+        return boost::proto::result_of::make_expr_ref<TAG, DOMAIN, Arg &>::call(arg);               \
+    }                                                                                               \
+    template<typename Arg>                                                                          \
+    typename boost::proto::exprns_::detail::enable_unary<                                           \
+        DOMAIN                                                                                      \
+      , TRAIT<Arg>, Arg const &                                                                     \
+      , typename boost::proto::result_of::make_expr_ref<TAG, DOMAIN, Arg const &>::type             \
+    >::type const                                                                                   \
+    operator OP(Arg const &arg BOOST_PROTO_UNARY_OP_IS_POSTFIX_ ## POST)                            \
+    {                                                                                               \
+        return boost::proto::result_of::make_expr_ref<TAG, DOMAIN, Arg const &>::call(arg);         \
+    }
+
+#define BOOST_PROTO_DEFINE_BINARY_OPERATOR(OP, TAG, TRAIT, DOMAIN)                                  \
+    template<typename Left, typename Right>                                                         \
+    typename boost::proto::exprns_::detail::enable_binary<                                          \
+        DOMAIN                                                                                      \
+      , TRAIT<Left>, Left &                                                                         \
+      , TRAIT<Right>, Right &                                                                       \
+      , typename boost::proto::result_of::make_expr_ref<TAG, DOMAIN, Left &, Right &>::type         \
+    >::type const                                                                                   \
+    operator OP(Left &left, Right &right)                                                           \
+    {                                                                                               \
+        return boost::proto::result_of::make_expr_ref<TAG, DOMAIN, Left &, Right &>                 \
             ::call(left, right);                                                                    \
     }                                                                                               \
-    /**/
+    template<typename Left, typename Right>                                                         \
+    typename boost::proto::exprns_::detail::enable_binary<                                          \
+        DOMAIN                                                                                      \
+      , TRAIT<Left>, Left &                                                                         \
+      , TRAIT<Right>, Right const &                                                                 \
+      , typename boost::proto::result_of::make_expr_ref<TAG, DOMAIN, Left &, Right const &>::type   \
+    >::type const                                                                                   \
+    operator OP(Left &left, Right const &right)                                                     \
+    {                                                                                               \
+        return boost::proto::result_of::make_expr_ref<TAG, DOMAIN, Left &, Right const &>           \
+            ::call(left, right);                                                                    \
+    }                                                                                               \
+    template<typename Left, typename Right>                                                         \
+    typename boost::proto::exprns_::detail::enable_binary<                                          \
+        DOMAIN                                                                                      \
+      , TRAIT<Left>, Left const &                                                                   \
+      , TRAIT<Right>, Right &                                                                       \
+      , typename boost::proto::result_of::make_expr_ref<TAG, DOMAIN, Left const &, Right &>::type   \
+    >::type const                                                                                   \
+    operator OP(Left const &left, Right &right)                                                     \
+    {                                                                                               \
+        return boost::proto::result_of::make_expr_ref<TAG, DOMAIN, Left const &, Right &>           \
+            ::call(left, right);                                                                    \
+    }                                                                                               \
+    template<typename Left, typename Right>                                                         \
+    typename boost::proto::exprns_::detail::enable_binary<                                          \
+        DOMAIN                                                                                      \
+      , TRAIT<Left>, Left const &                                                                   \
+      , TRAIT<Right>, Right const &                                                                 \
+      , typename boost::proto::result_of::make_expr_ref<TAG, DOMAIN, Left const &, Right const &>::type\
+    >::type const                                                                                   \
+    operator OP(Left const &left, Right const &right)                                               \
+    {                                                                                               \
+        return boost::proto::result_of::make_expr_ref<TAG, DOMAIN, Left const &, Right const &>     \
+            ::call(left, right);                                                                    \
+    }
+#endif
 
 #define BOOST_PROTO_DEFINE_OPERATORS(TRAIT, DOMAIN)                                                 \
     BOOST_PROTO_DEFINE_UNARY_OPERATOR(+, boost::proto::tag::posit, TRAIT, DOMAIN, 0)                \
@@ -328,7 +572,7 @@ namespace boost { namespace proto
 
     namespace exops
     {
-        BOOST_PROTO_DEFINE_OPERATORS(is_extension, default_domain)
+//        BOOST_PROTO_DEFINE_OPERATORS(is_extension, default_domain)
         using proto::if_else;
     }
 

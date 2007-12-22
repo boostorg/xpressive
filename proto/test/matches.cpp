@@ -11,7 +11,6 @@
 #include <boost/mpl/placeholders.hpp>
 #include <boost/type_traits/is_same.hpp>
 #include <boost/xpressive/proto/proto.hpp>
-#include <boost/xpressive/proto/transform.hpp>
 #include <boost/test/unit_test.hpp>
 
 using namespace boost;
