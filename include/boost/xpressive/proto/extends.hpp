@@ -248,12 +248,29 @@ namespace boost { namespace proto
         /// INTERNAL ONLY
         ///
     #define BOOST_PROTO_EXTENDS_FUNCTION_IMPL_8(R, SIZE, PRODUCT)                                   \
-        BOOST_PROTO_EXTENDS_FUNCTION_IMPL_9(R, SIZE, PRODUCT, 0)                                    \
-        BOOST_PROTO_EXTENDS_FUNCTION_IMPL_9(R, SIZE, PRODUCT, 1)
+        BOOST_PROTO_EXTENDS_FUNCTION_IMPL_10(R, SIZE, PRODUCT, 0)                                   \
+        BOOST_PROTO_EXTENDS_FUNCTION_IMPL_10(R, SIZE, PRODUCT, 1)
 
         /// INTERNAL ONLY
         ///
-    #define BOOST_PROTO_EXTENDS_FUNCTION_IMPL_9(R, SIZE, PRODUCT, Const)                            \
+    #define BOOST_PROTO_EXTENDS_FUNCTION_IMPL_9(Const)                                              \
+        typename boost::proto::result_of::make_expr_ref<                                            \
+            boost::proto::tag::function                                                             \
+          , proto_domain                                                                            \
+          , proto_derived_expr BOOST_PROTO_CONST ## Const &                                         \
+        >::type const                                                                               \
+        operator ()() BOOST_PROTO_CONST ## Const                                                    \
+        {                                                                                           \
+            return boost::proto::result_of::make_expr_ref<                                          \
+                boost::proto::tag::function                                                         \
+              , proto_domain                                                                        \
+              , proto_derived_expr BOOST_PROTO_CONST ## Const &                                     \
+            >::call(*static_cast<proto_derived_expr BOOST_PROTO_CONST ## Const *>(this));           \
+        }
+
+        /// INTERNAL ONLY
+        ///
+    #define BOOST_PROTO_EXTENDS_FUNCTION_IMPL_10(R, SIZE, PRODUCT, Const)                           \
         template<BOOST_PP_ENUM_PARAMS(SIZE, typename A)>                                            \
         typename boost::proto::result_of::make_expr_ref<                                            \
             boost::proto::tag::function                                                             \
@@ -276,6 +293,8 @@ namespace boost { namespace proto
         }
 
     #define BOOST_PROTO_EXTENDS_FUNCTION()                                                          \
+        BOOST_PROTO_EXTENDS_FUNCTION_IMPL_9(0)                                                      \
+        BOOST_PROTO_EXTENDS_FUNCTION_IMPL_9(1)                                                      \
         BOOST_PP_FOR(                                                                               \
             BOOST_PROTO_EXTENDS_FUNCTION_IMPL_1                                                     \
           , BOOST_PROTO_EXTENDS_FUNCTION_IMPL_3                                                     \
