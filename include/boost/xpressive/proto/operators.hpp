@@ -9,9 +9,9 @@
 #ifndef BOOST_PROTO_OPERATORS_HPP_EAN_10_28_2007
 #define BOOST_PROTO_OPERATORS_HPP_EAN_10_28_2007
 
+#include <boost/mpl/assert.hpp>
 #include <boost/mpl/logical.hpp>
 #include <boost/utility/enable_if.hpp>
-#include <boost/preprocessor/punctuation/comma.hpp>
 #include <boost/xpressive/proto/proto_fwd.hpp>
 #include <boost/xpressive/proto/make_expr.hpp>
 #include <boost/xpressive/proto/detail/define.hpp>
