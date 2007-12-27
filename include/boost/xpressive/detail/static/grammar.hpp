@@ -536,7 +536,7 @@ namespace boost { namespace xpressive
         struct DeepCopy
           : or_<
                 when< terminal<attribute_placeholder<_> >, as_read_attr(_arg) >
-              , when< terminal<_>, _make_terminal(_arg) >
+              , when< terminal<_>, _deep_copy(_) >
               , otherwise< nary_expr<_, vararg<DeepCopy> > >
             >
         {};

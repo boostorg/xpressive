@@ -148,8 +148,28 @@ namespace boost { namespace proto
             }
         }
 
-        template<typename Return, typename... Args>
+        template<typename Fun>
         struct make : callable
+        {
+            template<typename Sig>
+            struct result;
+
+            template<typename This, typename Expr, typename State, typename Visitor>
+            struct result<This(Expr, State, Visitor)>
+              : detail::make_<Fun, Expr, State, Visitor>
+            {};
+
+            template<typename Expr, typename State, typename Visitor>
+            typename result<make(Expr const &, State const &, Visitor &)>::type
+            operator()(Expr const &expr, State const &state, Visitor &visitor) const
+            {
+                typedef typename result<make(Expr const &, State const &, Visitor &)>::type result_type;
+                return result_type();
+            }
+        };
+
+        template<typename Return, typename... Args>
+        struct make<Return(Args...)> : callable
         {
             template<typename Sig>
             struct result;
@@ -168,15 +188,10 @@ namespace boost { namespace proto
             }
         };
 
-        template<typename Fun, typename... Args>
-        struct make<Fun(Args...)>
-          : make<Fun, Args...>
-        {};
-
     }
 
-    template<typename Fun, typename... Args>
-    struct is_callable<transform::make<Fun, Args...> >
+    template<typename Fun>
+    struct is_callable<transform::make<Fun> >
       : mpl::true_
     {};
 

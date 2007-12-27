@@ -483,46 +483,14 @@ namespace boost { namespace proto
         template<typename Fun>
         struct otherwise;
 
-        #if defined(BOOST_HAS_VARIADIC_TMPL) && defined(BOOST_HAS_RVALUE_REFS)
-        template<typename Fun, typename... Args>
+        template<typename Fun>
         struct call;
 
-        template<typename Fun, typename... Args>
+        template<typename Fun>
         struct make;
 
-        template<typename Fun, typename... Args>
+        template<typename Fun>
         struct bind;
-        #else
-        template<
-            typename Fun
-            BOOST_PP_ENUM_TRAILING_BINARY_PARAMS(
-                BOOST_PROTO_MAX_ARITY
-              , typename A
-              , = void BOOST_PP_INTERCEPT
-            )
-        >
-        struct call;
-
-        template<
-            typename Fun
-            BOOST_PP_ENUM_TRAILING_BINARY_PARAMS(
-                BOOST_PROTO_MAX_ARITY
-              , typename A
-              , = void BOOST_PP_INTERCEPT
-            )
-        >
-        struct make;
-
-        template<
-            typename Fun
-            BOOST_PP_ENUM_TRAILING_BINARY_PARAMS(
-                BOOST_PROTO_MAX_ARITY
-              , typename A
-              , = void BOOST_PP_INTERCEPT
-            )
-        >
-        struct bind;
-        #endif
 
         template<typename Sequence, typename State, typename Fun>
         struct fold;
@@ -842,6 +810,7 @@ namespace boost { namespace proto
     typedef functional::flatten     _flatten;
     typedef functional::pop_front   _pop_front;
     typedef functional::reverse     _reverse;
+    typedef functional::deep_copy   _deep_copy;
 
     template<typename T>
     struct is_extension;

@@ -41,6 +41,8 @@ namespace boost { namespace proto
     {
         struct deep_copy
         {
+            BOOST_PROTO_CALLABLE()
+
             template<typename Sig>
             struct result;
 

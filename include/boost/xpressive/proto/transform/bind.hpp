@@ -19,7 +19,7 @@ namespace boost { namespace proto
 
     namespace transform
     {
-        template<typename Return, typename... Args>
+        template<typename Fun>
         struct bind : callable
         {
             template<typename Sig>
@@ -29,8 +29,7 @@ namespace boost { namespace proto
             struct result<This(Expr, State, Visitor)>
               : boost::result_of<
                     call<
-                        typename boost::result_of<make<Return>(Expr, State, Visitor)>::type
-                      , Args...
+                        typename boost::result_of<make<Fun>(Expr, State, Visitor)>::type
                     >(Expr, State, Visitor)
                 >
             {};
@@ -40,21 +39,40 @@ namespace boost { namespace proto
             operator()(Expr const &expr, State const &state, Visitor &visitor) const
             {
                 return call<
-                    typename boost::result_of<make<Return>(Expr const &, State const &, Visitor &)>::type
-                  , Args...
+                    typename boost::result_of<make<Fun>(Expr const &, State const &, Visitor &)>::type
                 >()(expr, state, visitor);
             }
         };
 
-        template<typename Fun, typename... Args>
-        struct bind<Fun(Args...)>
-          : bind<Fun, Args...>
-        {};
+        template<typename Return, typename... Args>
+        struct bind<Return(Args...)> : callable
+        {
+            template<typename Sig>
+            struct result;
+
+            template<typename This, typename Expr, typename State, typename Visitor>
+            struct result<This(Expr, State, Visitor)>
+              : boost::result_of<
+                    call<
+                        typename boost::result_of<make<Return>(Expr, State, Visitor)>::type(Args...)
+                    >(Expr, State, Visitor)
+                >
+            {};
+
+            template<typename Expr, typename State, typename Visitor>
+            typename result<bind(Expr const &, State const &, Visitor &)>::type
+            operator()(Expr const &expr, State const &state, Visitor &visitor) const
+            {
+                return call<
+                    typename boost::result_of<make<Return>(Expr const &, State const &, Visitor &)>::type(Args...)
+                >()(expr, state, visitor);
+            }
+        };
 
     }
 
-    template<typename Fun, typename... Args>
-    struct is_callable<transform::bind<Fun, Args...> >
+    template<typename Fun>
+    struct is_callable<transform::bind<Fun> >
       : mpl::true_
     {};
 

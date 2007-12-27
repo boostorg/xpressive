@@ -63,8 +63,8 @@ namespace boost { namespace proto { namespace transform
           : boost::result_of<
                 typename mpl::if_<
                     is_callable<Return>
-                  , call<Return, Args...> // "Return" is a function to call
-                  , make<Return, Args...> // "Return" is an object to construct
+                  , call<Return(Args...)> // "Return" is a function to call
+                  , make<Return(Args...)> // "Return" is an object to construct
                 >::type(Expr, State, Visitor)
             >
         {};
@@ -75,8 +75,8 @@ namespace boost { namespace proto { namespace transform
         {
             return typename mpl::if_<
                 is_callable<Return>
-              , call<Return, Args...>
-              , make<Return, Args...>
+              , call<Return(Args...)>
+              , make<Return(Args...)>
             >::type()(expr, state, visitor);
         }
     };

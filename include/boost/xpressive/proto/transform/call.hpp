@@ -173,7 +173,7 @@ namespace boost { namespace proto
             };
         }
 
-        template<typename Fun, typename... Args>
+        template<typename Fun>
         struct call : callable
         {
             template<typename Sig>
@@ -181,9 +181,7 @@ namespace boost { namespace proto
 
             template<typename This, typename Expr, typename State, typename Visitor>
             struct result<This(Expr, State, Visitor)>
-              : boost::result_of<
-                    Fun(typename boost::result_of<when<_, Args>(Expr, State, Visitor)>::type...)
-                >
+              : boost::result_of<Fun(Expr, State, Visitor)>
             {};
 
             template<typename Expr, typename State, typename Visitor>
@@ -191,12 +189,12 @@ namespace boost { namespace proto
             operator()(Expr const &expr, State const &state, Visitor &visitor) const
             {
                 Fun f;
-                return f(when<_, Args>()(expr, state, visitor)...);
+                return f(expr, state, visitor);
             }
         };
 
         template<typename Fun>
-        struct call<Fun> : callable
+        struct call<Fun()> : callable
         {
             template<typename Sig>
             struct result;
@@ -224,7 +222,7 @@ namespace boost { namespace proto
         };
 
         template<typename Fun, typename Arg0>
-        struct call<Fun, Arg0> : callable
+        struct call<Fun(Arg0)> : callable
         {
             template<typename Sig>
             struct result;
@@ -252,7 +250,7 @@ namespace boost { namespace proto
         };
 
         template<typename Fun, typename Arg0, typename Arg1>
-        struct call<Fun, Arg0, Arg1> : callable
+        struct call<Fun(Arg0, Arg1)> : callable
         {
             template<typename Sig>
             struct result;
@@ -280,7 +278,7 @@ namespace boost { namespace proto
         };
 
         template<typename Fun, typename Arg0, typename Arg1, typename Arg2>
-        struct call<Fun, Arg0, Arg1, Arg2> : callable
+        struct call<Fun(Arg0, Arg1, Arg2)> : callable
         {
             template<typename Sig>
             struct result;
@@ -310,14 +308,31 @@ namespace boost { namespace proto
         };
 
         template<typename Fun, typename... Args>
-        struct call<Fun(Args...)>
-          : call<Fun, Args...>
-        {};
+        struct call<Fun(Args...)> : callable
+        {
+            template<typename Sig>
+            struct result;
+
+            template<typename This, typename Expr, typename State, typename Visitor>
+            struct result<This(Expr, State, Visitor)>
+              : boost::result_of<
+                    Fun(typename boost::result_of<when<_, Args>(Expr, State, Visitor)>::type...)
+                >
+            {};
+
+            template<typename Expr, typename State, typename Visitor>
+            typename result<call(Expr const &, State const &, Visitor &)>::type
+            operator()(Expr const &expr, State const &state, Visitor &visitor) const
+            {
+                Fun f;
+                return f(when<_, Args>()(expr, state, visitor)...);
+            }
+        };
 
     }
 
-    template<typename Fun, typename... Args>
-    struct is_callable<transform::call<Fun, Args...> >
+    template<typename Fun>
+    struct is_callable<transform::call<Fun> >
       : mpl::true_
     {};
 

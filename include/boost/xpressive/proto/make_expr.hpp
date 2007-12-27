@@ -219,7 +219,7 @@
       , BOOST_PP_INC(ARGCOUNT)                                                                  \
       , BOOST_PROTO_VARARG_FUN_                                                                 \
       , (NAME, TAG, BOUNDARGS, DOMAIN)                                                          \
-    )\
+    )                                                                                           \
     /**/
 
 /// \code
