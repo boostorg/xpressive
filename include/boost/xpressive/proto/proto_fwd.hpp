@@ -13,6 +13,7 @@
 #include <boost/config.hpp>
 #include <boost/preprocessor.hpp>
 #include <boost/type_traits.hpp>
+#include <boost/utility/enable_if.hpp>
 #include <boost/mpl/bool.hpp>
 #include <boost/mpl/long.hpp>
 #include <boost/mpl/aux_/template_arity.hpp>
@@ -127,7 +128,7 @@ namespace boost { namespace proto
         struct is_proto_expr;
 
         template<typename Expr, typename A>
-        Expr construct(A const &a);
+        Expr construct(A const &a, typename boost::disable_if<is_function<A> >::type * = 0);
 
     #ifdef BOOST_HAS_VARIADIC_TMPL
         template<typename Expr, typename... A>
@@ -255,7 +256,7 @@ namespace boost { namespace proto
         template<typename Tag, typename DomainOrSequence, typename SequenceOrVoid = void, typename EnableIf = void>
         struct unpack_expr;
 
-        #if defined(BOOST_HAS_VARIADIC_TMPL) && defined(BOOST_HAS_RVALUE_REFS)
+        #ifdef BOOST_HAS_VARIADIC_TMPL
         template<typename Tag, typename... Args>
         struct make_expr_ref;
 
@@ -299,20 +300,20 @@ namespace boost { namespace proto
 
     template<long N, typename Expr>
     typename result_of::arg_c<Expr, N>::type
-    arg_c(Expr &expr);
+    arg_c(Expr &expr BOOST_PROTO_DISABLE_IF_IS_CONST(Expr));
 
     template<long N, typename Expr>
     typename result_of::arg_c<Expr const, N>::type
     arg_c(Expr const &expr);
 
-    #if defined(BOOST_HAS_VARIADIC_TMPL) && defined(BOOST_HAS_RVALUE_REFS)
+    #ifdef BOOST_HAS_RVALUE_REFS
     template<typename T>
     typename result_of::as_expr_ref<T>::type const
     as_expr_ref(T &&t);
     #else
     template<typename T>
     typename result_of::as_expr_ref<T &>::type const
-    as_expr_ref(T &t);
+    as_expr_ref(T &t BOOST_PROTO_DISABLE_IF_IS_CONST(T));
 
     template<typename T>
     typename result_of::as_expr_ref<T const &>::type const

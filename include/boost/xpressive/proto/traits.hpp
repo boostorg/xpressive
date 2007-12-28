@@ -404,7 +404,7 @@ namespace boost { namespace proto
     }
 
     template<typename Expr>
-    typename result_of::arg<Expr>::type arg(Expr &expr)
+    typename result_of::arg<Expr>::type arg(Expr &expr BOOST_PROTO_DISABLE_IF_IS_CONST(Expr))
     {
         return result_of::arg<Expr>::call(expr.proto_base().proto_args_);
     }
@@ -416,7 +416,7 @@ namespace boost { namespace proto
     }
 
     template<typename Expr>
-    typename result_of::left<Expr>::type left(Expr &expr)
+    typename result_of::left<Expr>::type left(Expr &expr BOOST_PROTO_DISABLE_IF_IS_CONST(Expr))
     {
         return result_of::left<Expr>::call(expr.proto_base().proto_args_);
     }
@@ -428,7 +428,7 @@ namespace boost { namespace proto
     }
 
     template<typename Expr>
-    typename result_of::right<Expr>::type right(Expr &expr)
+    typename result_of::right<Expr>::type right(Expr &expr BOOST_PROTO_DISABLE_IF_IS_CONST(Expr))
     {
         return result_of::right<Expr>::call(expr.proto_base().proto_args_);
     }
@@ -440,7 +440,7 @@ namespace boost { namespace proto
     }
 
     template<long N, typename Expr>
-    typename result_of::arg_c<Expr, N>::type arg_c(Expr &expr)
+    typename result_of::arg_c<Expr, N>::type arg_c(Expr &expr BOOST_PROTO_DISABLE_IF_IS_CONST(Expr))
     {
         return result_of::arg_c<Expr, N>::call(expr.proto_base().proto_args_);
     }
@@ -477,13 +477,13 @@ namespace boost { namespace proto
     }
 #else
     template<typename T>
-    typename result_of::as_expr<T &>::type const as_expr(T &t)
+    typename result_of::as_expr<T &>::type const as_expr(T &t BOOST_PROTO_DISABLE_IF_IS_CONST(T))
     {
         return result_of::as_expr<T &>::call(t);
     }
 
     template<typename Domain, typename T>
-    typename result_of::as_expr<T &, Domain>::type const as_expr(T &t)
+    typename result_of::as_expr<T &, Domain>::type const as_expr(T &t BOOST_PROTO_DISABLE_IF_IS_CONST(T))
     {
         return result_of::as_expr<T &, Domain>::call(t);
     }
@@ -501,13 +501,13 @@ namespace boost { namespace proto
     }
 
     template<typename T>
-    typename result_of::as_expr_ref<T &>::type const as_expr_ref(T &t)
+    typename result_of::as_expr_ref<T &>::type const as_expr_ref(T &t BOOST_PROTO_DISABLE_IF_IS_CONST(T))
     {
         return result_of::as_expr_ref<T &>::call(t);
     }
 
     template<typename Domain, typename T>
-    typename result_of::as_expr_ref<T &, Domain>::type const as_expr_ref(T &t)
+    typename result_of::as_expr_ref<T &, Domain>::type const as_expr_ref(T &t BOOST_PROTO_DISABLE_IF_IS_CONST(T))
     {
         return result_of::as_expr_ref<T &, Domain>::call(t);
     }

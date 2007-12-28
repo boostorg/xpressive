@@ -101,10 +101,10 @@
 
             namespace detail
             {
-                template<typename Cons, typename T, std::size_t N>
+                template<typename Cons, typename T>
                 struct make_cons_array
                 {
-                    static Cons make(T (&t)[N])
+                    static Cons make(T &t)
                     {
                         Cons that = {t};
                         return that;
@@ -112,7 +112,7 @@
                 };
 
                 template<typename U, typename T, std::size_t N>
-                struct make_cons_array<cons<U[N]>, T, N>
+                struct make_cons_array<cons<U[N]>, T[N]>
                 {
                     static cons<U[N]> make(T (&t)[N])
                     {
@@ -126,10 +126,10 @@
                 };
             }
 
-            template<typename Cons, typename T, std::size_t N>
-            inline Cons make_cons_(T (&t)[N])
+            template<typename Cons, typename T>
+            inline Cons make_cons_(T &t)
             {
-                return argsns_::detail::make_cons_array<Cons, T, N>::make(t);
+                return argsns_::detail::make_cons_array<Cons, T>::make(t);
             }
 
         }
@@ -174,12 +174,14 @@
         template< BOOST_PP_ENUM_PARAMS(N, typename A) >
         cons<> const cons< BOOST_PP_ENUM_PARAMS(N, A) > BOOST_PP_REPEAT(BOOST_PP_DEC(N), CDR_TYPE, ~) ::cdr = {};
 
+        #if N > 1
         template<typename Cons BOOST_PP_ENUM_TRAILING_PARAMS(N, typename A) >
         inline Cons make_cons_(BOOST_PP_ENUM_BINARY_PARAMS(N, A, &a))
         {
             Cons that = BOOST_PP_ENUM_PARAMS(N, {a) BOOST_PP_REPEAT(N, RBRACE, ~);
             return that;
         }
+        #endif
 
     #undef N
 

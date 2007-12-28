@@ -44,6 +44,7 @@ namespace boost { namespace proto
             }
         };
 
+        #ifdef BOOST_HAS_VARIADIC_TMPL
         template<typename Return, typename... Args>
         struct bind<Return(Args...)> : callable
         {
@@ -68,7 +69,9 @@ namespace boost { namespace proto
                 >()(expr, state, visitor);
             }
         };
-
+        #else
+        #include <boost/xpressive/proto/detail/bind.hpp>
+        #endif
     }
 
     template<typename Fun>

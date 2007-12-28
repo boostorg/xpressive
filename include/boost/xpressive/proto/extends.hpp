@@ -254,18 +254,22 @@ namespace boost { namespace proto
         /// INTERNAL ONLY
         ///
     #define BOOST_PROTO_EXTENDS_FUNCTION_IMPL_9(Const)                                              \
-        typename boost::proto::result_of::make_expr_ref<                                            \
-            boost::proto::tag::function                                                             \
-          , proto_domain                                                                            \
-          , proto_derived_expr BOOST_PROTO_CONST ## Const &                                         \
+        typename boost::mpl::apply_wrap1<                                                           \
+            proto_domain                                                                            \
+          , boost::proto::expr<                                                                     \
+                boost::proto::tag::function                                                         \
+              , boost::proto::args<proto_derived_expr BOOST_PROTO_CONST ## Const &>                 \
+            >                                                                                       \
         >::type const                                                                               \
         operator ()() BOOST_PROTO_CONST ## Const                                                    \
         {                                                                                           \
-            return boost::proto::result_of::make_expr_ref<                                          \
+            typedef boost::proto::expr<                                                             \
                 boost::proto::tag::function                                                         \
-              , proto_domain                                                                        \
-              , proto_derived_expr BOOST_PROTO_CONST ## Const &                                     \
-            >::call(*static_cast<proto_derived_expr BOOST_PROTO_CONST ## Const *>(this));           \
+              , boost::proto::args<proto_derived_expr BOOST_PROTO_CONST ## Const &>                 \
+            > expr_type;                                                                            \
+            return proto_domain::make(boost::proto::construct<expr_type>(                           \
+                *static_cast<proto_derived_expr BOOST_PROTO_CONST ## Const *>(this)                 \
+            ));                                                                                     \
         }
 
         /// INTERNAL ONLY

@@ -14,6 +14,7 @@
 #include <boost/mpl/void.hpp>
 #include <boost/mpl/apply.hpp>
 #include <boost/mpl/assert.hpp>
+#include <boost/mpl/print.hpp>
 #include <boost/mpl/identity.hpp>
 #include <boost/mpl/eval_if.hpp>
 #include <boost/type_traits.hpp>
@@ -100,10 +101,7 @@ namespace boost { namespace proto
             template<typename T, typename U
                 BOOST_MPL_AUX_LAMBDA_ARITY_PARAM(long Arity = mpl::aux::template_arity<U>::value)
             >
-            struct lambda_matches;
-
-            template<typename T, typename U>
-            struct lambda_matches_aux_
+            struct lambda_matches
               : mpl::false_
             {};
 
@@ -112,8 +110,9 @@ namespace boost { namespace proto
                 template<typename, typename...> class T
               , typename E0, typename... ET
               , typename G0, typename... GT
+                BOOST_MPL_AUX_LAMBDA_ARITY_PARAM(long N)
             >
-            struct lambda_matches_aux_<T<E0, ET...>, T<G0, GT...> >
+            struct lambda_matches<T<E0, ET...>, T<G0, GT...> BOOST_MPL_AUX_LAMBDA_ARITY_PARAM(N)>
               : and_<
                     lambda_matches<E0, G0>::value
                   , lambda_matches<ET, GT>...
@@ -127,7 +126,11 @@ namespace boost { namespace proto
               , BOOST_PP_ENUM_PARAMS_Z(Z, N, typename E)                                            \
               , BOOST_PP_ENUM_PARAMS_Z(Z, N, typename G)                                            \
             >                                                                                       \
-            struct lambda_matches_aux_<T<BOOST_PP_ENUM_PARAMS_Z(Z, N, E)>, T<BOOST_PP_ENUM_PARAMS_Z(Z, N, G)> >\
+            struct lambda_matches<                                                                  \
+                T<BOOST_PP_ENUM_PARAMS_Z(Z, N, E)>                                                  \
+              , T<BOOST_PP_ENUM_PARAMS_Z(Z, N, G)>                                                  \
+                BOOST_MPL_AUX_LAMBDA_ARITY_PARAM(N)                                                 \
+            >                                                                                       \
               : and_<                                                                               \
                     lambda_matches<E0, G0>::value                                                   \
                     BOOST_PP_REPEAT_ ## Z(N, TMP0, ~)                                               \
@@ -138,16 +141,6 @@ namespace boost { namespace proto
         #undef TMP0
         #undef TMP1
         #endif
-
-            template<typename T, typename U BOOST_MPL_AUX_LAMBDA_ARITY_PARAM(long Arity)>
-            struct lambda_matches
-              : lambda_matches_aux_<T, U>
-            {};
-
-            template<typename T, typename U>
-            struct lambda_matches<T, U BOOST_MPL_AUX_LAMBDA_ARITY_PARAM(-1)>
-              : mpl::false_
-            {};
 
             template<typename T>
             struct lambda_matches<T, _ BOOST_MPL_AUX_LAMBDA_ARITY_PARAM(-1)>

@@ -13,6 +13,7 @@
 #include <boost/xpressive/proto/proto_fwd.hpp>
 #include <boost/xpressive/proto/traits.hpp>
 #include <boost/xpressive/proto/detail/dont_care.hpp>
+#include <boost/xpressive/proto/detail/as_lvalue.hpp>
 #include <boost/xpressive/proto/detail/define.hpp>
 
 namespace boost { namespace proto
@@ -22,12 +23,7 @@ namespace boost { namespace proto
     {
         namespace detail
         {
-            template<typename T>
-            T &uncv(T const &t)
-            {
-                return const_cast<T &>(t);
-            }
-
+            using proto::detail::uncv;
             using proto::detail::dont_care;
             typedef char (&yes_type)[2];
             typedef char no_type;
@@ -107,8 +103,7 @@ namespace boost { namespace proto
             {
                 typedef typename boost::result_of<Fun(Expr, State, Visitor)>::type type;
 
-                template<typename A, typename B, typename C>
-                static type call(A &&expr, B &&state, C &&visitor)
+                static type call(CVREF(Expr) expr, CVREF(State) state, CVREF(Visitor) visitor)
                 {
                     Fun f;
                     return f(expr, state, visitor);
@@ -126,8 +121,7 @@ namespace boost { namespace proto
             {
                 typedef typename boost::result_of<Fun()>::type type;
 
-                template<typename A, typename B, typename C>
-                static type call(A &&, B &&, C &&)
+                static type call(CVREF(Expr) expr, CVREF(State) state, CVREF(Visitor) visitor)
                 {
                     Fun f;
                     return f();
@@ -145,8 +139,7 @@ namespace boost { namespace proto
             {
                 typedef typename boost::result_of<Fun(Expr)>::type type;
 
-                template<typename A, typename B, typename C>
-                static type call(A &&expr, B &&, C &&)
+                static type call(CVREF(Expr) expr, CVREF(State) state, CVREF(Visitor) visitor)
                 {
                     Fun f;
                     return f(expr);
@@ -164,8 +157,7 @@ namespace boost { namespace proto
             {
                 typedef typename boost::result_of<Fun(Expr, State)>::type type;
 
-                template<typename A, typename B, typename C>
-                static type call(A &&expr, B &&state, C &&)
+                static type call(CVREF(Expr) expr, CVREF(State) state, CVREF(Visitor) visitor)
                 {
                     Fun f;
                     return f(expr, state);
@@ -307,6 +299,7 @@ namespace boost { namespace proto
             }
         };
 
+        #ifdef BOOST_HAS_VARIADIC_TMPL
         template<typename Fun, typename... Args>
         struct call<Fun(Args...)> : callable
         {
@@ -328,7 +321,9 @@ namespace boost { namespace proto
                 return f(when<_, Args>()(expr, state, visitor)...);
             }
         };
-
+        #else
+        #include <boost/xpressive/proto/detail/call.hpp>
+        #endif
     }
 
     template<typename Fun>

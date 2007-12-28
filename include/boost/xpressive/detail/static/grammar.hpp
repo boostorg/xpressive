@@ -375,7 +375,7 @@ namespace boost { namespace xpressive
         };
 
         template<typename T>
-        T &uncv(T const volatile &t)
+        T &uncv(T const &t)
         {
             return const_cast<T &>(t);
         }

@@ -40,6 +40,7 @@ namespace boost { namespace proto { namespace transform
         typedef typename Grammar::proto_base_expr proto_base_expr;
     };
 
+    #ifdef BOOST_HAS_VARIADIC_TMPL
     // Function-style transforms, handled below...
     template<typename Grammar, typename Return, typename... Args>
     struct when<Grammar, Return(*)(Args...)>
@@ -80,6 +81,9 @@ namespace boost { namespace proto { namespace transform
             >::type()(expr, state, visitor);
         }
     };
+    #else
+    #include <boost/xpressive/proto/detail/when.hpp>
+    #endif
 
     template<typename Fun>
     struct otherwise
