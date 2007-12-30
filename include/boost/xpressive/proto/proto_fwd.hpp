@@ -43,17 +43,6 @@
 
 namespace boost { namespace proto
 {
-    namespace detail
-    {
-        #if defined(BOOST_HAS_VARIADIC_TMPL) && defined(BOOST_HAS_RVALUE_REFS)
-        template<int... I>
-        struct indices;
-
-        template<int N, typename T = indices<> >
-        struct make_indices;
-        #endif
-    }
-
     namespace wildns_
     {
         struct _;
@@ -572,13 +561,7 @@ namespace boost { namespace proto
         template<typename Derived, typename DefaultCtx = default_context>
         struct callable_context;
 
-        template<typename Expr, typename Context
-            #if defined(BOOST_HAS_VARIADIC_TMPL) && defined(BOOST_HAS_RVALUE_REFS)
-          , typename Indices = typename proto::detail::make_indices<
-                Expr::proto_arity == 0 ? 1 : Expr::proto_arity
-            >::type
-            #endif
-        >
+        template<typename Expr, typename Context, long Arity = Expr::proto_arity>
         struct callable_eval;
     }
 

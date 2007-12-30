@@ -12,9 +12,13 @@
 
 namespace boost { namespace proto { namespace detail
 {
+    #ifdef BOOST_HAS_VARIADIC_TMPL
     template<int... I>
     struct indices
     {};
+
+    template<int N, typename Indices = indices<> >
+    struct make_indices;
 
     template<int N, int... I>
     struct make_indices<N, indices<I...> >
@@ -44,7 +48,7 @@ namespace boost { namespace proto { namespace detail
     {
         typedef indices<I...> type;
     };
-
+    #endif
 }}}
 
 #endif

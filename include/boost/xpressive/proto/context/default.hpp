@@ -118,19 +118,23 @@ namespace boost { namespace proto
         //BOOST_MPL_ASSERT((is_same<void(*)(),  result_of_fixup<void(* const &)()>::type>));
         //BOOST_MPL_ASSERT((is_same<void(*)(),  result_of_fixup<void(&)()>::type>));
 
-    #if BOOST_WORKAROUND(BOOST_MSVC, >= 1400)
+        #if BOOST_WORKAROUND(BOOST_MSVC, >= 1400)
         template<typename T> T &make_ref_(T &t);
         template<typename T> T const &make_ref_(T const &t);
         #define BOOST_PROTO_REF(x) proto::detail::make_ref_(x)
-    #else
+        #else
         #define BOOST_PROTO_REF(x) x
-    #endif
+        #endif
 
-        template<typename Expr, typename Context, typename Indices>
+        template<typename Expr, typename Context, long Arity>
         struct default_eval_function_;
 
+        #ifdef BOOST_HAS_VARIADIC_TMPL
+        template<typename Expr, typename Context, typename Indices>
+        struct default_eval_function_aux_;
+
         template<typename Expr, typename Context, int Zero, int... Indices>
-        struct default_eval_function_<Expr, Context, proto::detail::indices<Zero, Indices...> >
+        struct default_eval_function_aux_<Expr, Context, proto::detail::indices<Zero, Indices...> >
         {
             typedef
                 typename proto::detail::result_of_fixup<
@@ -159,6 +163,14 @@ namespace boost { namespace proto
                 );
             }
         };
+
+        template<typename Expr, typename Context, long Arity>
+        struct default_eval_function_
+          : default_eval_function_aux_<Expr, Context, typename proto::detail::make_indices<Arity>::type>
+        {};
+        #endif
+
+        #include <boost/xpressive/proto/detail/default_eval.hpp>
 
     } // namespace detail
 
@@ -351,7 +363,7 @@ namespace boost { namespace proto
           : proto::detail::default_eval_function_<
                 Expr
               , Context
-              , typename proto::detail::make_indices<Expr::proto_arity>::type
+              , Expr::proto_arity
             >
         {};
 

@@ -451,9 +451,7 @@ namespace boost { namespace proto
             template<typename Tag1, typename Args1, long N1, typename Args2, long N2>
             struct matches_<expr<Tag1, Args1, N1>, expr<Tag1, Args2, N2> >
               : vararg_matches<Args1, Args2>
-            {
-                BOOST_MPL_ASSERT_RELATION(N1, !=, N2);
-            };
+            {};
 
             template<typename Tag1, typename Args1, long N1, typename Args2, long N2>
             struct matches_<expr<Tag1, Args1, N1>, expr<_, Args2, N2> >

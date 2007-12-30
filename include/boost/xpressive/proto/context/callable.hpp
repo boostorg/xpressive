@@ -40,11 +40,13 @@ namespace boost { namespace proto
 
         no_type check_is_expr_handled(private_type_ const &);
 
+        template<typename Expr, typename Context, long Arity = Expr::proto_arity>
+        struct is_expr_handled;
+
+        #ifdef BOOST_HAS_VARIADIC_TMPL
+        // TODO use PP to loop-unroll this
         template<typename Context, typename Args>
         struct callable_context_wrapper;
-
-        template<typename Expr, typename Context, typename Args = typename Expr::proto_args>
-        struct is_expr_handled;
 
         template<int N, typename Result = args<> >
         struct make_dont_care;
@@ -95,50 +97,21 @@ namespace boost { namespace proto
             typedef mpl::bool_<value> type;
         };
 
-        template<typename Expr, typename Context, typename... Args>
-        struct is_expr_handled<Expr, Context, args<Args...> >
+        template<typename Expr, typename Context, long Arity>
+        struct is_expr_handled
           : is_expr_handled_aux_<
                 Expr
               , Context
-              , args<Args...>
-              , typename proto::detail::make_indices<sizeof...(Args)>::type
+              , typename Expr::proto_args
+              , typename proto::detail::make_indices<Arity>::type
             >
         {};
 
-        template<typename Expr, typename Context, typename T>
-        struct is_expr_handled<Expr, Context, term<T> >
-          : is_expr_handled_aux_<Expr, Context, args<T>, proto::detail::indices<0> >
-        {};
-
-    }
-
-    namespace context
-    {
-        /// callable_eval
-        ///
         template<typename Expr, typename Context, typename Indices>
-        struct callable_eval
-        {};
-
-        /// callable_context
-        ///
-        template<typename Context, typename DefaultCtx>
-        struct callable_context
-        {
-            /// callable_context::eval
-            ///
-            template<typename Expr, typename ThisContext = Context>
-            struct eval
-              : mpl::if_<
-                    proto::detail::is_expr_handled<Expr, Context>
-                  , callable_eval<Expr, ThisContext>
-                  , typename DefaultCtx::template eval<Expr, Context>
-                >::type
-            {};
-        };
+        struct callable_eval_;
 
         template<typename Expr, typename Context, int... Indices>
-        struct callable_eval<Expr, Context, proto::detail::indices<Indices...> >
+        struct callable_eval_<Expr, Context, proto::detail::indices<Indices...> >
         {
             typedef
                 typename boost::result_of<
@@ -157,8 +130,39 @@ namespace boost { namespace proto
                 );
             }
         };
-
+        #endif
     }
+
+    namespace context
+    {
+        /// callable_eval
+        ///
+        template<typename Expr, typename Context, long Arity>
+        struct callable_eval
+          #ifdef BOOST_HAS_VARIADIC_TMPL
+          : proto::detail::callable_eval_<Expr, Context, typename proto::detail::make_indices<Arity>::type>
+          #endif
+        {};
+
+        /// callable_context
+        ///
+        template<typename Context, typename DefaultCtx>
+        struct callable_context
+        {
+            /// callable_context::eval
+            ///
+            template<typename Expr, typename ThisContext = Context>
+            struct eval
+              : mpl::if_<
+                    proto::detail::is_expr_handled<Expr, Context>
+                  , callable_eval<Expr, ThisContext>
+                  , typename DefaultCtx::template eval<Expr, Context>
+                >::type
+            {};
+        };
+    }
+
+    #include <boost/xpressive/proto/detail/callable_eval.hpp>
 
 }}
 
