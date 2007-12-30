@@ -252,14 +252,14 @@ namespace VectorOps
         proto::tag::function
       , MixedDomain
       , sin_ const
-      , A
-    >::type sin(A &&a)
+      , A const &
+    >::type sin(A const &a)
     {
         return proto::result_of::make_expr_ref<
             proto::tag::function
           , MixedDomain
           , sin_ const
-          , A
+          , A const &
         >::call(sin_(), a);
     }
 
