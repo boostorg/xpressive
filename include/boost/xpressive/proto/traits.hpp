@@ -451,7 +451,7 @@ namespace boost { namespace proto
         return result_of::arg_c<Expr const, N>::call(expr.proto_base().proto_args_);
     }
 
-#ifdef BOOST_HAS_RVALUE_REFS
+    #ifdef BOOST_HAS_RVALUE_REFS
     template<typename T>
     typename result_of::as_expr<T>::type const as_expr(T &&t)
     {
@@ -475,7 +475,7 @@ namespace boost { namespace proto
     {
         return result_of::as_expr_ref<T, Domain>::call(t);
     }
-#else
+    #else
     template<typename T>
     typename result_of::as_expr<T &>::type const as_expr(T &t BOOST_PROTO_DISABLE_IF_IS_CONST(T))
     {
@@ -523,7 +523,7 @@ namespace boost { namespace proto
     {
         return result_of::as_expr_ref<T const &, Domain>::call(t);
     }
-#endif
+    #endif
 
     /// is_callable
     ///
@@ -536,6 +536,14 @@ namespace boost { namespace proto
     struct is_callable<callable>
       : mpl::false_
     {};
+
+    #if BOOST_WORKAROUND(__GNUC__, == 3)
+    // work around GCC bug
+    template<typename Tag, typename Args, long N>
+    struct is_callable<proto::expr<Tag, Args, N> >
+      : mpl::false_
+    {};
+    #endif
 
     /// is_aggregate
     ///

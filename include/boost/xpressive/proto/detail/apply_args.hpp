@@ -22,7 +22,7 @@
             template<typename E, typename S, typename V, typename G>
             struct apply_args;
 
-        #if defined(BOOST_HAS_VARIADIC_TMPL) && defined(BOOST_HAS_RVALUE_REFS)
+        #ifdef BOOST_HAS_VARIADIC_TMPL
             template<typename Prev, typename... G>
             struct pad_args
             {
@@ -60,7 +60,7 @@
                 #undef TMP
 
                 template<typename Cons>
-                static typename type::cons_type call(Cons const &a, S const &s, V &v)
+                static typename type::cons_type call(Cons const &a, S s, V v)
                 {
                     #define TMP0(Z, N, DATA) .cdr
                     #define TMP1(Z, N, DATA) {G##N()(a BOOST_PP_REPEAT_ ## Z(N, TMP0, ~) .car, s, v)
@@ -89,7 +89,7 @@
 
 #else
 
-        #if defined(BOOST_HAS_VARIADIC_TMPL) && defined(BOOST_HAS_RVALUE_REFS)
+        #ifdef BOOST_HAS_VARIADIC_TMPL
         template<typename Prev BOOST_PP_ENUM_TRAILING_PARAMS(BOOST_PP_ITERATION(), typename G)>
         struct pad_args<Prev BOOST_PP_ENUM_TRAILING_PARAMS(BOOST_PP_ITERATION(), G)>
         {
@@ -107,7 +107,7 @@
           , typename S
           , typename V 
             BOOST_PP_ENUM_TRAILING_PARAMS(BOOST_PROTO_MAX_ARITY, typename G)
-            #if defined(BOOST_HAS_VARIADIC_TMPL) && defined(BOOST_HAS_RVALUE_REFS)
+            #ifdef BOOST_HAS_VARIADIC_TMPL
           , typename... GRest
             #endif
         >
@@ -117,7 +117,7 @@
           , V
           , args<
                 BOOST_PP_ENUM_PARAMS(BOOST_PROTO_MAX_ARITY, G)
-                #if defined(BOOST_HAS_VARIADIC_TMPL) && defined(BOOST_HAS_RVALUE_REFS)
+                #ifdef BOOST_HAS_VARIADIC_TMPL
               , GRest...
                 #endif
             >
@@ -128,7 +128,7 @@
             #undef TMP
 
             template<typename Cons>
-            static typename type::cons_type call(Cons const &a, S const &s, V &v)
+            static typename type::cons_type call(Cons const &a, S s, V v)
             {
                 #define TMP0(Z, N, DATA) .cdr
                 #define TMP1(Z, N, DATA) {G##N()(a BOOST_PP_REPEAT_ ## Z(N, TMP0, ~) .car, s, v)

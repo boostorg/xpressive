@@ -34,7 +34,7 @@
               : is_callable2_<T>
             {};
 
-        #if defined(BOOST_HAS_VARIADIC_TMPL) && defined(BOOST_HAS_RVALUE_REFS)
+        #ifdef BOOST_HAS_VARIADIC_TMPL
             template<typename... Args>
             struct back;
 
@@ -65,7 +65,7 @@
 
     #define N BOOST_PP_ITERATION()
 
-        #if defined(BOOST_HAS_VARIADIC_TMPL) && defined(BOOST_HAS_RVALUE_REFS)
+        #ifdef BOOST_HAS_VARIADIC_TMPL
             template<BOOST_PP_ENUM_PARAMS(N, typename A)>
             struct back<BOOST_PP_ENUM_PARAMS(N, A)>
             {

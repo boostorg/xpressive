@@ -89,6 +89,16 @@ namespace boost { namespace proto
               : make_<R, Expr, State, Visitor>
             {};
 
+            #if BOOST_WORKAROUND(__GNUC__, == 3)
+            // work around GCC bug
+            template<typename Tag, typename Args, long N, typename Expr, typename State, typename Visitor>
+            struct make_if_<expr<Tag, Args, N>, Expr, State, Visitor, false>
+            {
+                typedef expr<Tag, Args, N> type;
+                typedef void not_applied_;
+            };
+            #endif
+
             template<typename R, typename Expr, typename State, typename Visitor>
             struct make_if_<R, Expr, State, Visitor, true>
               : remove_const<typename remove_reference<

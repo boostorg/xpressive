@@ -16,7 +16,7 @@ namespace boost { namespace proto
     namespace detail
     {
 
-    #if defined(BOOST_HAS_VARIADIC_TMPL) && defined(BOOST_HAS_RVALUE_REFS)
+    #ifdef BOOST_HAS_VARIADIC_TMPL
         template<typename A0, typename A1>
         struct cat_args;
 

@@ -94,6 +94,29 @@
             }
         };
 
+        #if BOOST_WORKAROUND(__GNUC__, == 3)
+        // work around GCC bug
+        template<typename Tag, typename Args, long Arity BOOST_PP_ENUM_TRAILING_PARAMS(N, typename A)>
+        struct make<expr<Tag, Args, Arity>(BOOST_PP_ENUM_PARAMS(N, A))> : callable
+        {
+            template<typename Sig>
+            struct result
+            {
+                typedef expr<Tag, Args, Arity> type;
+            };
+
+            template<typename Expr, typename State, typename Visitor>
+            expr<Tag, Args, Arity> operator()(Expr const &expr, State const &state, Visitor &visitor) const
+            {
+                return proto::construct<proto::expr<Tag, Args, Arity> >(
+                    #define TMP(Z, M, DATA) detail::as_lvalue(when<_, BOOST_PP_CAT(A, M)>()(expr, state, visitor))
+                    BOOST_PP_ENUM(N, TMP, DATA)
+                    #undef TMP
+                );
+            }
+        };
+        #endif
+
     #undef N
 
 #endif

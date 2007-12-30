@@ -358,7 +358,7 @@ namespace boost { namespace proto
         template<typename Tag, typename T> struct unary_expr;
         template<typename Tag, typename T, typename U> struct binary_expr;
 
-        #if defined(BOOST_HAS_VARIADIC_TMPL) && defined(BOOST_HAS_RVALUE_REFS)
+        #ifdef BOOST_HAS_VARIADIC_TMPL
         template<typename... Args> struct function;
         template<typename Tag, typename... Args> struct nary_expr;
         #else

@@ -35,7 +35,7 @@
                 }
             };
 
-        #if defined(BOOST_HAS_VARIADIC_TMPL) && defined(BOOST_HAS_RVALUE_REFS)
+        #ifdef BOOST_HAS_VARIADIC_TMPL
             template<
                 BOOST_PP_ENUM_PARAMS(BOOST_PROTO_MAX_ARITY, typename A)
               , typename... Rest
