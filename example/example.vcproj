@@ -533,50 +533,6 @@
 						RelativePath="..\..\..\boost\xpressive\detail\static\width_of.hpp"
 						>
 					</File>
-					<Filter
-						Name="transforms"
-						>
-						<File
-							RelativePath="..\..\..\boost\xpressive\detail\static\transforms\as_action.hpp"
-							>
-						</File>
-						<File
-							RelativePath="..\..\..\boost\xpressive\detail\static\transforms\as_alternate.hpp"
-							>
-						</File>
-						<File
-							RelativePath="..\..\..\boost\xpressive\detail\static\transforms\as_independent.hpp"
-							>
-						</File>
-						<File
-							RelativePath="..\..\..\boost\xpressive\detail\static\transforms\as_inverse.hpp"
-							>
-						</File>
-						<File
-							RelativePath="..\..\..\boost\xpressive\detail\static\transforms\as_marker.hpp"
-							>
-						</File>
-						<File
-							RelativePath="..\..\..\boost\xpressive\detail\static\transforms\as_matcher.hpp"
-							>
-						</File>
-						<File
-							RelativePath="..\..\..\boost\xpressive\detail\static\transforms\as_modifier.hpp"
-							>
-						</File>
-						<File
-							RelativePath="..\..\..\boost\xpressive\detail\static\transforms\as_quantifier.hpp"
-							>
-						</File>
-						<File
-							RelativePath="..\..\..\boost\xpressive\detail\static\transforms\as_sequence.hpp"
-							>
-						</File>
-						<File
-							RelativePath="..\..\..\boost\xpressive\detail\static\transforms\as_set.hpp"
-							>
-						</File>
-					</Filter>
 				</Filter>
 				<Filter
 					Name="utility"
@@ -799,10 +755,6 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\boost\xpressive\proto\ref.hpp"
-					>
-				</File>
-				<File
 					RelativePath="..\..\..\boost\xpressive\proto\tags.hpp"
 					>
 				</File>
@@ -834,23 +786,15 @@
 					Name="transform"
 					>
 					<File
-						RelativePath="..\..\..\boost\xpressive\proto\transform\apply.hpp"
-						>
-					</File>
-					<File
 						RelativePath="..\..\..\boost\xpressive\proto\transform\arg.hpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\..\boost\xpressive\proto\transform\branch.hpp"
+						RelativePath="..\..\..\boost\xpressive\proto\transform\bind.hpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\..\boost\xpressive\proto\transform\compose.hpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\boost\xpressive\proto\transform\construct.hpp"
+						RelativePath="..\..\..\boost\xpressive\proto\transform\call.hpp"
 						>
 					</File>
 					<File
@@ -862,15 +806,11 @@
 						>
 					</File>
 					<File
-						RelativePath="..\..\..\boost\xpressive\proto\transform\function.hpp"
+						RelativePath="..\..\..\boost\xpressive\proto\transform\make.hpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\..\boost\xpressive\proto\transform\list.hpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\..\boost\xpressive\proto\transform\pass_through.hpp"
+						RelativePath="..\..\..\boost\xpressive\proto\transform\when.hpp"
 						>
 					</File>
 				</Filter>
@@ -878,15 +818,91 @@
 					Name="detail"
 					>
 					<File
-						RelativePath="..\..\..\boost\xpressive\proto\detail\funop.hpp"
+						RelativePath="..\..\..\boost\xpressive\proto\detail\apply_args.hpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\..\boost\xpressive\proto\detail\prefix.hpp"
+						RelativePath="..\..\..\boost\xpressive\proto\detail\arg_c.hpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\..\boost\xpressive\proto\detail\suffix.hpp"
+						RelativePath="..\..\..\boost\xpressive\proto\detail\as_lvalue.hpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\boost\xpressive\proto\detail\bind.hpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\boost\xpressive\proto\detail\by_value_generator.hpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\boost\xpressive\proto\detail\call.hpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\boost\xpressive\proto\detail\callable_eval.hpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\boost\xpressive\proto\detail\cat_args.hpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\boost\xpressive\proto\detail\deep_copy.hpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\boost\xpressive\proto\detail\default_eval.hpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\boost\xpressive\proto\detail\define.hpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\boost\xpressive\proto\detail\dont_care.hpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\boost\xpressive\proto\detail\fun_call_ex.hpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\boost\xpressive\proto\detail\indices.hpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\boost\xpressive\proto\detail\is_callable.hpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\boost\xpressive\proto\detail\make.hpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\boost\xpressive\proto\detail\make_.hpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\boost\xpressive\proto\detail\make_arg_expr_.hpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\boost\xpressive\proto\detail\make_expr_ex.hpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\boost\xpressive\proto\detail\nary_expr.hpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\boost\xpressive\proto\detail\undef.hpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\..\boost\xpressive\proto\detail\when.hpp"
 						>
 					</File>
 				</Filter>
