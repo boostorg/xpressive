@@ -685,10 +685,6 @@ namespace detail
         ignore_unused(a8);
         ignore_unused(a9);
         ignore_unused(as_xpr);
-        ignore_unused(optional);
-        ignore_unused(before);
-        ignore_unused(after);
-        ignore_unused(keep);
     }
 }
 
