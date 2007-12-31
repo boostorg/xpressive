@@ -157,6 +157,11 @@ namespace boost { namespace proto
               : array_matches<T[M], U>
             {};
 
+            template<typename T, std::size_t M>
+            struct lambda_matches<T[M], T[M] BOOST_MPL_AUX_LAMBDA_ARITY_PARAM(-1)>
+              : mpl::true_
+            {};
+
             // How terminal_matches<> handles references and cv-qualifiers.
             // The cv and ref matter *only* if the grammar has a top-level ref.
             //

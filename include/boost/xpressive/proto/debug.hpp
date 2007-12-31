@@ -151,7 +151,7 @@ namespace boost { namespace proto
             }
 
         private:
-            static void call_(display_expr &, argsns_::cons<> const &)
+            static void call_(display_expr &, argsns_::nil)
             {}
 
             template<typename Cons>

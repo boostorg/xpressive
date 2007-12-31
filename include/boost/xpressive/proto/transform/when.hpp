@@ -14,6 +14,7 @@
 #include <boost/xpressive/proto/traits.hpp>
 #include <boost/xpressive/proto/transform/call.hpp>
 #include <boost/xpressive/proto/transform/make.hpp>
+#include <boost/function_types/is_function_pointer.hpp>
 
 namespace boost { namespace proto { namespace transform
 {
@@ -34,7 +35,7 @@ namespace boost { namespace proto { namespace transform
     // Simple transform, takes a raw transform and
     // applies it directly.
     template<typename Grammar, typename Fun>
-    struct when 
+    struct when
       : Fun, detail::vararg_if<Grammar>
     {
         typedef typename Grammar::proto_base_expr proto_base_expr;

@@ -22,12 +22,13 @@
 
         namespace argsns_
         {
+            typedef int nil;
 
             template<>
             struct args<>
             {
                 BOOST_STATIC_CONSTANT(long, size = 0);
-                typedef cons<> cons_type;
+                typedef nil cons_type;
             };
 
             template<typename A>
@@ -39,14 +40,6 @@
                 /// INTERNAL ONLY
                 ///
                 typedef A back_;
-            };
-
-            template<>
-            struct cons<>
-            {
-                BOOST_STATIC_CONSTANT(long, size = 0);
-                typedef void car_type;
-                typedef void cdr_type;
             };
 
         #define LBRACE(Z, N, DATA) {
@@ -166,13 +159,10 @@
             BOOST_PP_REPEAT(BOOST_PP_DEC(N), CAR, BOOST_PP_DEC(N))
             typedef BOOST_PP_CAT(A, BOOST_PP_DEC(N)) car_type;
             car_type car;
-            static cons<> const cdr;
-            typedef cons<> cdr_type;
+            enum dummy_ { cdr = 0 };
+            typedef nil cdr_type;
             BOOST_PP_REPEAT(BOOST_PP_DEC(N), CDR, BOOST_PP_DEC(N))
         };
-
-        template< BOOST_PP_ENUM_PARAMS(N, typename A) >
-        cons<> const cons< BOOST_PP_ENUM_PARAMS(N, A) > BOOST_PP_REPEAT(BOOST_PP_DEC(N), CDR_TYPE, ~) ::cdr = {};
 
         #if N > 1
         template<typename Cons BOOST_PP_ENUM_TRAILING_PARAMS(N, typename A) >

@@ -197,16 +197,22 @@ namespace boost { namespace spirit2
         // The visitor determines the case-sensitivity of the terminals
         typedef _visitor _icase;
 
+        // Ugh, would be nice to find a work-around for this:
+        #if BOOST_WORKAROUND(BOOST_MSVC, == 1310)
+        #define _arg(x) call<_arg(x)>
+        #define True() make<True()>
+        #endif
+
         // Extract the arg from terminals
         struct SpiritTerminal
           : or_<
                 when< AnyChar,          _arg >
               , when< CharLiteral,      if_<_icase, ichar(_arg), _arg> >
-              , when< CharParser,       if_<_icase, ichar(_arg(_arg1)), _arg(_arg1)> > // char_('a')
+              , when< CharParser,       if_<_icase, ichar(_arg(_arg1)), _arg(_arg1)> >  // char_('a')
               , when< NTBSLiteral,      if_<_icase, istr(_arg), char const*(_arg)> >
               , when< CharRangeParser,  if_<_icase
                                             , ichar_range(_arg(_arg1), _arg(_arg2))
-                                            , char_range(_arg(_arg1), _arg(_arg2))> >// char_('a','z')
+                                            , char_range(_arg(_arg1), _arg(_arg2))> >   // char_('a','z')
             >
         {};
 

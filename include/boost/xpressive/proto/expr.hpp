@@ -227,7 +227,7 @@ namespace boost { namespace proto
         /// construct
         ///
         template<typename Expr, typename A>
-        inline Expr construct(A const &a, typename boost::disable_if<is_function<A> >::type * = 0)
+        inline Expr construct(A const &a, typename boost::disable_if<is_function<A> >::type *)
         {
             typedef typename Expr::proto_args::cons_type cons_type;
             Expr that = {proto::argsns_::make_cons_<cons_type>(a)};

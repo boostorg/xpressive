@@ -10,14 +10,14 @@
     #define BOOST_PP_ITERATION_PARAMS_1 (3, (0, BOOST_PROTO_MAX_ARITY, <boost/xpressive/proto/detail/when.hpp>))
     #include BOOST_PP_ITERATE()
 
+    template<typename Grammar, typename Fun>
+    struct when<Grammar, Fun *>
+      : when<Grammar, Fun>
+    {};
+
 #else
 
     #define N BOOST_PP_ITERATION()
-
-    template<typename Grammar, typename Return BOOST_PP_ENUM_TRAILING_PARAMS(N, typename A)>
-    struct when<Grammar, Return(*)(BOOST_PP_ENUM_PARAMS(N, A))>
-      : when<Grammar, Return(BOOST_PP_ENUM_PARAMS(N, A))>
-    {};
 
     template<typename Grammar, typename Return BOOST_PP_ENUM_TRAILING_PARAMS(N, typename A)>
     struct when<Grammar, Return(BOOST_PP_ENUM_PARAMS(N, A))>

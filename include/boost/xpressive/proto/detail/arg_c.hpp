@@ -27,7 +27,7 @@
             template<typename Cons, long N>
             struct value_at_c;
 
-        #define CDR_TYPE(Z, N, DATA) ::cdr_type
+        #define CDR_TYPE(Z, N, DATA) ::BOOST_PP_CAT(S, N)
         #define CDR(Z, N, DATA) .cdr
 
         #ifdef BOOST_HAS_VARIADIC_TMPL
@@ -46,7 +46,7 @@
             template<typename Cons, long N>
             struct arg_cv
             {
-                typedef arg_c<typename Cons BOOST_PP_REPEAT(BOOST_PROTO_MAX_ARITY, CDR_TYPE, ~), N-BOOST_PROTO_MAX_ARITY> base_type;
+                typedef arg_cv<typename Cons BOOST_PP_REPEAT(BOOST_PROTO_MAX_ARITY, CDR_TYPE, ~), N-BOOST_PROTO_MAX_ARITY> base_type;
                 typedef typename base_type::type type;
 
                 static type call(Cons const &args)

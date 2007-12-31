@@ -32,7 +32,7 @@ namespace boost { namespace proto
             }
 
         private:
-            static void call_(argsns_::cons<> const &, Context &)
+            static void call_(argsns_::nil, Context &)
             {}
 
             template<typename Cons>
