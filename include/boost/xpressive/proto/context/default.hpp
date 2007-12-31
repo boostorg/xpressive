@@ -118,14 +118,6 @@ namespace boost { namespace proto
         //BOOST_MPL_ASSERT((is_same<void(*)(),  result_of_fixup<void(* const &)()>::type>));
         //BOOST_MPL_ASSERT((is_same<void(*)(),  result_of_fixup<void(&)()>::type>));
 
-        #if BOOST_WORKAROUND(BOOST_MSVC, >= 1400)
-        template<typename T> T &make_ref_(T &t);
-        template<typename T> T const &make_ref_(T const &t);
-        #define BOOST_PROTO_REF(x) proto::detail::make_ref_(x)
-        #else
-        #define BOOST_PROTO_REF(x) x
-        #endif
-
         template<typename Expr, typename Context, long Arity>
         struct default_eval_function_;
 
@@ -187,10 +179,10 @@ namespace boost { namespace proto
         struct default_eval<Expr, Context, Tag>                                                 \
         {                                                                                       \
         private:                                                                                \
-            static Expr &sexpr;                                                                 \
-            static Context &sctx;                                                               \
+            typedef typename proto::result_of::arg_c<Expr, 0>::type e0;                         \
+            typedef typename proto::result_of::eval<UNREF(e0), Context>::type r0;               \
         public:                                                                                 \
-            BOOST_PROTO_DECLTYPE_(Op proto::eval(BOOST_PROTO_REF(proto::arg_c<0>(sexpr)), sctx), result_type)\
+            BOOST_PROTO_DECLTYPE_(Op proto::detail::make<r0>(), result_type)                    \
             result_type operator()(Expr &expr, Context &ctx) const                              \
             {                                                                                   \
                 return Op proto::eval(proto::arg_c<0>(expr), ctx);                              \
@@ -205,10 +197,12 @@ namespace boost { namespace proto
         struct default_eval<Expr, Context, Tag>                                                 \
         {                                                                                       \
         private:                                                                                \
-            static Expr &sexpr;                                                                 \
-            static Context &sctx;                                                               \
+            typedef typename proto::result_of::arg_c<Expr, 0>::type e0;                         \
+            typedef typename proto::result_of::arg_c<Expr, 1>::type e1;                         \
+            typedef typename proto::result_of::eval<UNREF(e0), Context>::type r0;               \
+            typedef typename proto::result_of::eval<UNREF(e1), Context>::type r1;               \
         public:                                                                                 \
-            BOOST_PROTO_DECLTYPE_(proto::eval(BOOST_PROTO_REF(proto::arg_c<0>(sexpr)), sctx) Op proto::eval(BOOST_PROTO_REF(proto::arg_c<1>(sexpr)), sctx), result_type)\
+            BOOST_PROTO_DECLTYPE_(proto::detail::make<r0>() Op proto::detail::make<r1>(), result_type)\
             result_type operator()(Expr &expr, Context &ctx) const                              \
             {                                                                                   \
                 return proto::eval(proto::arg_c<0>(expr), ctx) Op proto::eval(proto::arg_c<1>(expr), ctx);\
@@ -273,10 +267,10 @@ namespace boost { namespace proto
         struct default_eval<Expr, Context, proto::tag::post_inc>
         {
         private:
-            static Expr &sexpr;
-            static Context &sctx;
+            typedef typename proto::result_of::arg_c<Expr, 0>::type e0;
+            typedef typename proto::result_of::eval<UNREF(e0), Context>::type r0;
         public:
-            BOOST_PROTO_DECLTYPE_(proto::eval(BOOST_PROTO_REF(proto::arg_c<0>(sexpr)), sctx) ++, result_type)
+            BOOST_PROTO_DECLTYPE_(proto::detail::make<r0>() ++, result_type)
             result_type operator()(Expr &expr, Context &ctx) const
             {
                 return proto::eval(proto::arg_c<0>(expr), ctx) ++;
@@ -288,10 +282,10 @@ namespace boost { namespace proto
         struct default_eval<Expr, Context, proto::tag::post_dec>
         {
         private:
-            static Expr &sexpr;
-            static Context &sctx;
+            typedef typename proto::result_of::arg_c<Expr, 0>::type e0;
+            typedef typename proto::result_of::eval<UNREF(e0), Context>::type r0;
         public:
-            BOOST_PROTO_DECLTYPE_(proto::eval(BOOST_PROTO_REF(proto::arg_c<0>(sexpr)), sctx) --, result_type)
+            BOOST_PROTO_DECLTYPE_(proto::detail::make<r0>() --, result_type)
             result_type operator()(Expr &expr, Context &ctx) const
             {
                 return proto::eval(proto::arg_c<0>(expr), ctx) --;
@@ -303,10 +297,12 @@ namespace boost { namespace proto
         struct default_eval<Expr, Context, proto::tag::subscript>
         {
         private:
-            static Expr &sexpr;
-            static Context &sctx;
+            typedef typename proto::result_of::arg_c<Expr, 0>::type e0;
+            typedef typename proto::result_of::arg_c<Expr, 1>::type e1;
+            typedef typename proto::result_of::eval<UNREF(e0), Context>::type r0;
+            typedef typename proto::result_of::eval<UNREF(e1), Context>::type r1;
         public:
-            BOOST_PROTO_DECLTYPE_(proto::eval(BOOST_PROTO_REF(proto::arg_c<0>(sexpr)), sctx)[proto::eval(BOOST_PROTO_REF(proto::arg_c<1>(sexpr)), sctx)], result_type)
+            BOOST_PROTO_DECLTYPE_(proto::detail::make<r0>()[proto::detail::make<r1>()], result_type)
             result_type operator()(Expr &expr, Context &ctx) const
             {
                 return proto::eval(proto::arg_c<0>(expr), ctx)[proto::eval(proto::arg_c<1>(expr), ctx)];
@@ -318,13 +314,17 @@ namespace boost { namespace proto
         struct default_eval<Expr, Context, proto::tag::if_else_>
         {
         private:
-            static Expr &sexpr;
-            static Context &sctx;
+            typedef typename proto::result_of::arg_c<Expr, 0>::type e0;
+            typedef typename proto::result_of::arg_c<Expr, 1>::type e1;
+            typedef typename proto::result_of::arg_c<Expr, 2>::type e2;
+            typedef typename proto::result_of::eval<UNREF(e0), Context>::type r0;
+            typedef typename proto::result_of::eval<UNREF(e1), Context>::type r1;
+            typedef typename proto::result_of::eval<UNREF(e2), Context>::type r2;
         public:
             BOOST_PROTO_DECLTYPE_(
-                proto::eval(BOOST_PROTO_REF(proto::arg_c<0>(sexpr)), sctx)
-              ? proto::eval(BOOST_PROTO_REF(proto::arg_c<1>(sexpr)), sctx)
-              : proto::eval(BOOST_PROTO_REF(proto::arg_c<2>(sexpr)), sctx)
+                proto::detail::make<r0>()
+              ? proto::detail::make<r1>()
+              : proto::detail::make<r2>()
               , result_type
             )
             result_type operator()(Expr &expr, Context &ctx) const
@@ -339,18 +339,13 @@ namespace boost { namespace proto
         template<typename Expr, typename Context>
         struct default_eval<Expr, Context, proto::tag::comma>
         {
-            typedef typename proto::result_of::eval<
-                typename remove_reference<typename proto::result_of::arg_c<Expr, 0>::type>::type
-              , Context
-            >::type proto_arg0;
-            
-            typedef typename proto::result_of::eval<
-                typename remove_reference<typename proto::result_of::arg_c<Expr, 1>::type>::type
-              , Context
-            >::type proto_arg1;
-
-            typedef typename proto::detail::comma_result<proto_arg0, proto_arg1>::type result_type;
-
+        private:
+            typedef typename proto::result_of::arg_c<Expr, 0>::type e0;
+            typedef typename proto::result_of::arg_c<Expr, 1>::type e1;
+            typedef typename proto::result_of::eval<UNREF(e0), Context>::type r0;
+            typedef typename proto::result_of::eval<UNREF(e1), Context>::type r1;
+        public:
+            typedef typename proto::detail::comma_result<r0, r1>::type result_type;
             result_type operator()(Expr &expr, Context &ctx) const
             {
                 return proto::eval(proto::arg_c<0>(expr), ctx), proto::eval(proto::arg_c<1>(expr), ctx);

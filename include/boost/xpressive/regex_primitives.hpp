@@ -492,11 +492,16 @@ range(Char ch_min, Char ch_max)
 /// \brief Make a sub-expression optional. Equivalent to !as_xpr(expr).
 ///
 /// \param expr The sub-expression to make optional.
-#ifdef BOOST_XPRESSIVE_DOXYGEN_INVOKED
-template<typename Expr> detail::unspecified optional(Expr const &expr) { return 0; }
-#else
-proto::functional::make_expr_ref<proto::tag::logical_not, proto::default_domain> const optional = {};
-#endif
+template<typename Expr>
+typename proto::result_of::make_expr_ref<
+    proto::tag::logical_not
+  , proto::default_domain
+  , Expr const &
+>::type const
+optional(Expr const &expr)
+{
+    return !proto::as_expr(expr);
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Repeat a sub-expression multiple times.
@@ -510,7 +515,11 @@ proto::functional::make_expr_ref<proto::tag::logical_not, proto::default_domain>
 ///
 /// \param expr The sub-expression to repeat.
 template<unsigned int Min, unsigned int Max, typename Expr>
-typename proto::result_of::make_expr_ref<detail::generic_quant_tag<Min, Max>, proto::default_domain, Expr const>::type const
+typename proto::result_of::make_expr_ref<
+    detail::generic_quant_tag<Min, Max>
+  , proto::default_domain
+  , Expr const &
+>::type const
 repeat(Expr const &expr)
 {
     return proto::make_expr_ref<detail::generic_quant_tag<Min, Max>, proto::default_domain>(expr);
@@ -519,7 +528,11 @@ repeat(Expr const &expr)
 /// \overload
 ///
 template<unsigned int Count, typename Expr2>
-typename proto::result_of::make_expr_ref<detail::generic_quant_tag<Count, Count>, proto::default_domain, Expr2 const>::type const
+typename proto::result_of::make_expr_ref<
+    detail::generic_quant_tag<Count, Count>
+  , proto::default_domain
+  , Expr2 const &
+>::type const
 repeat(Expr2 const &expr2)
 {
     return proto::make_expr_ref<detail::generic_quant_tag<Count, Count>, proto::default_domain>(expr2);
@@ -535,11 +548,16 @@ repeat(Expr2 const &expr2)
 /// \attention keep(expr) is equivalent to the perl (?>...) extension.
 ///
 /// \param expr The sub-expression to modify.
-#ifdef BOOST_XPRESSIVE_DOXYGEN_INVOKED
-template<typename Expr> detail::unspecified keep(Expr const &expr) { return 0; }
-#else
-proto::functional::make_expr_ref<detail::keeper_tag, proto::default_domain> const keep = {};
-#endif
+template<typename Expr>
+typename proto::result_of::make_expr_ref<
+    detail::keeper_tag
+  , proto::default_domain
+  , Expr const &
+>::type const
+keep(Expr const &expr)
+{
+    return proto::make_expr_ref<detail::keeper_tag, proto::default_domain>(expr);
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Look-ahead assertion.
@@ -554,11 +572,16 @@ proto::functional::make_expr_ref<detail::keeper_tag, proto::default_domain> cons
 /// perl (?!...) extension.
 ///
 /// \param expr The sub-expression to put in the look-ahead assertion.
-#ifdef BOOST_XPRESSIVE_DOXYGEN_INVOKED
-template<typename Expr> detail::unspecified before(Expr const &expr) { return 0; }
-#else
-proto::functional::make_expr_ref<detail::lookahead_tag, proto::default_domain> const before = {};
-#endif
+template<typename Expr>
+typename proto::result_of::make_expr_ref<
+    detail::lookahead_tag
+  , proto::default_domain
+  , Expr const &
+>::type const
+before(Expr const &expr)
+{
+    return proto::make_expr_ref<detail::lookahead_tag, proto::default_domain>(expr);
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Look-behind assertion.
@@ -575,11 +598,16 @@ proto::functional::make_expr_ref<detail::lookahead_tag, proto::default_domain> c
 /// \param expr The sub-expression to put in the look-ahead assertion.
 ///
 /// \pre expr cannot match a variable number of characters.
-#ifdef BOOST_XPRESSIVE_DOXYGEN_INVOKED
-template<typename Expr> detail::unspecified after(Expr const &expr) { return 0; }
-#else
-proto::functional::make_expr_ref<detail::lookbehind_tag, proto::default_domain> const after = {};
-#endif
+template<typename Expr>
+typename proto::result_of::make_expr_ref<
+    detail::lookbehind_tag
+  , proto::default_domain
+  , Expr const &
+>::type const
+after(Expr const &expr)
+{
+    return proto::make_expr_ref<detail::lookbehind_tag, proto::default_domain>(expr);
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Specify a regex traits or a std::locale.

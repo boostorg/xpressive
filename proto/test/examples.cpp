@@ -161,6 +161,12 @@ struct CalcArity2
 {};
 //]
 
+// BUGBUG find workaround for this
+#if BOOST_WORKAROUND(BOOST_MSVC, == 1310)
+#define _pop_front(x) call<_pop_front(x)>
+#define _arg(x) call<_arg(x)>
+#endif
+
 //[ AsArgList
 // This transform matches function invocations such as foo(1,'a',"b")
 // and transforms them into Fusion cons lists of their arguments. In this
@@ -175,7 +181,7 @@ struct ArgsAsList
             /*<< The first child expression of a `function<>` node is the
             function being invoked. We don't want that in our list, so use
             the `pop_front()` to remove it. >>*/
-            _pop_front(_)    // make (_) optional
+            _pop_front(_)
           /*<< `nil` is the initial state used by the `reverse_fold<>`
           transform. >>*/
           , fusion::nil()
