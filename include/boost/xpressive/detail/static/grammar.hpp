@@ -636,25 +636,25 @@ namespace boost { namespace xpressive
             {};
 
             // Here are some transforms ...
-            struct as_regex
-              : call<Gram>
-            {};
+            typedef 
+                call<Gram>
+            as_regex;
 
-            struct as_independent
-              : call<as_regex(_make_shift_right(_, true_matcher()), no_next())>
-            {};
+            typedef
+                call<as_regex(_make_shift_right(_, true_matcher()), no_next())>
+            as_independent;
 
-            struct as_alternate
-              : call<as_regex(_make_shift_right(_, alternate_end_matcher()), no_next())>
-            {};
+            typedef
+                call<as_regex(_make_shift_right(_, alternate_end_matcher()), no_next())>
+            as_alternate;
 
-            struct as_alternates_list
-              : reverse_fold_tree<
+            typedef
+                reverse_fold_tree<
                     _
                   , fusion::nil()
                   , alternates_list<as_alternate, _state>(as_alternate, _state)
                 >
-            {};
+            as_alternates_list;
 
             template<typename Greedy, typename Tag, typename Base = callable>
             struct as_repeater
@@ -736,18 +736,18 @@ namespace boost { namespace xpressive
                 >
             {};
 
-            struct as_list_set
-              : call<
+            typedef
+                call<
                     fill_list_set(
                         set_matcher<traits(_visitor), ListSet<Char> >()
                       , _
                       , _visitor
                     )
                 >
-            {};
+            as_list_set;
 
-            struct as_set
-              : fold_tree<
+            typedef
+                fold_tree<
                     _
                   , charset_matcher<
                         traits(_visitor)
@@ -760,7 +760,7 @@ namespace boost { namespace xpressive
                     >()
                   , merge_charset(_state, as_regex(_make_shift_right(_, end_matcher()), no_next()), _visitor)
                 >
-            {};
+            as_set;
 
             // Here are the cases, which use the transforms defined above.
             template<typename Tag, typename Dummy = void>

@@ -73,8 +73,6 @@
             };
         #endif
 
-            // TODO when gcc #33965 is fixed, change the idiom to
-            // template<typename X, bool IsTransform = true> struct my_transform {...};
             template<
                 template<BOOST_PP_ENUM_PARAMS(N, typename BOOST_PP_INTERCEPT)> class T
               , BOOST_PP_ENUM_PARAMS(N, typename A)
