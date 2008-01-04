@@ -42,8 +42,6 @@
                 typedef A back_;
             };
 
-        #define LBRACE(Z, N, DATA) {
-        #define RBRACE(Z, N, DATA) }
         #define CDR_TYPE(Z, N, DATA) ::cdr_type
         #define CAR(Z, N, DATA) typedef BOOST_PP_CAT(A, N) car_type; car_type car; struct BOOST_PP_CAT(S, N) {
         #define CDR(Z, N, DATA) } cdr; typedef BOOST_PP_CAT(S, BOOST_PP_DEC(BOOST_PP_SUB(DATA, N))) cdr_type;
@@ -81,13 +79,11 @@
                 Cons that = 
                     BOOST_PP_ENUM_PARAMS(BOOST_PROTO_MAX_ARITY, {a)
                   , argsns_::make_cons_<typename Cons BOOST_PP_REPEAT(BOOST_PROTO_MAX_ARITY, CDR_TYPE, ~)>(rest...)
-                    BOOST_PP_REPEAT(BOOST_PROTO_MAX_ARITY, RBRACE, ~);
+                    BOOST_PP_ENUM_PARAMS(BOOST_PROTO_MAX_ARITY, } BOOST_PP_INTERCEPT);
                 return that;
             }
         #endif
 
-        #undef LBRACE
-        #undef RBRACE
         #undef CDR_TYPE
         #undef CAR
         #undef CDR
@@ -168,7 +164,8 @@
         template<typename Cons BOOST_PP_ENUM_TRAILING_PARAMS(N, typename A) >
         inline Cons make_cons_(BOOST_PP_ENUM_BINARY_PARAMS(N, A, &a))
         {
-            Cons that = BOOST_PP_ENUM_PARAMS(N, {a) BOOST_PP_REPEAT(N, RBRACE, ~);
+            Cons that = BOOST_PP_ENUM_PARAMS(N, {a) 
+                        BOOST_PP_ENUM_PARAMS(N, } BOOST_PP_INTERCEPT);
             return that;
         }
         #endif
