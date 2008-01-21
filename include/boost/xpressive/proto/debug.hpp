@@ -20,7 +20,7 @@
 #include <boost/xpressive/proto/expr.hpp>
 #include <boost/xpressive/proto/traits.hpp>
 #else
-/// INTERNAL ONLY
+/// INTERNAL <> ONLY
 /// Needed to work around doxygen bug
 struct a_dummy_global;
 #endif
@@ -127,7 +127,7 @@ namespace boost { namespace proto
             {}
 
             template<typename Args>
-            void operator()(expr<tag::terminal, Args, 0> const &expr) const
+            void operator()(proto::expr<tag::terminal, Args, 0> const &expr) const
             {
                 this->sout_ << std::setw(this->depth_) << (this->first_? "" : ", ")
                     << "terminal(" << proto::arg(expr) << ")\n";
@@ -140,7 +140,7 @@ namespace boost { namespace proto
 
         #define BOOST_PP_LOCAL_MACRO(N)                                                             \
             template<typename Tag, typename Args>                                                   \
-            void operator()(expr<Tag, Args, N> const &expr) const                                   \
+            void operator()(proto::expr<Tag, Args, N> const &expr) const                                   \
             {                                                                                       \
                 using namespace tag;                                                                \
                 this->sout_ << std::setw(this->depth_) << (this->first_? "" : ", ")                 \

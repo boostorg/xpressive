@@ -12,8 +12,8 @@
 
     #include <boost/xpressive/proto/detail/prefix.hpp>
     #include <boost/preprocessor/cat.hpp>
-    #include <boost/preprocessor/enum.hpp>
-    #include <boost/preprocessor/iterate.hpp>
+    #include <boost/preprocessor/repetition/enum.hpp>
+    #include <boost/preprocessor/iteration/iterate.hpp>
     #include <boost/mpl/if.hpp>
     #include <boost/xpressive/proto/proto_fwd.hpp>
     #include <boost/xpressive/proto/args.hpp>
@@ -28,11 +28,11 @@
 
             #define BOOST_PROTO_DEFINE_TRANSFORM_TYPE(z, n, data)\
                 typename Grammar::BOOST_PP_CAT(proto_arg, n)\
-                    ::template apply<typename Expr::BOOST_PP_CAT(proto_arg, n)::proto_base_expr, State, Visitor>\
+                    ::template result<void(typename Expr::BOOST_PP_CAT(proto_arg, n)::proto_base_expr, State, Visitor)>\
                 ::type
 
             #define BOOST_PROTO_DEFINE_TRANSFORM(z, n, data)\
-                Grammar::BOOST_PP_CAT(proto_arg, n)::call(\
+                typename Grammar::BOOST_PP_CAT(proto_arg, n)()(\
                     expr.BOOST_PP_CAT(arg, n).proto_base(), state, visitor\
                 )
 
@@ -55,45 +55,13 @@
         } // namespace detail
 
         template<typename Grammar>
-        struct pass_through
-          : Grammar
+        struct pass_through : callable
         {
-            pass_through() {}
+            template<typename Sig>
+            struct result;
 
-            template<typename Expr, typename State, typename Visitor>
-            struct apply
-              : detail::pass_through_impl<
-                    Grammar
-                  , typename Expr::proto_base_expr
-                  , State
-                  , Visitor
-                  , Expr::proto_arity::value
-                >
-            {};
-
-            template<typename Expr, typename State, typename Visitor>
-            static typename apply<Expr, State, Visitor>::type
-            call(Expr const &expr, State const &state, Visitor &visitor)
-            {
-                return apply<Expr, State, Visitor>::call(expr.proto_base(), state, visitor);
-            }
-        };
-    } // namespace transform
-
-    template<typename Grammar>
-    struct is_transform<transform::pass_through<Grammar> >
-      : mpl::true_
-    {};
-
-    namespace has_transformns_
-    {
-        template<typename Grammar>
-        struct has_pass_through_transform
-        {
-            has_pass_through_transform() {}
-
-            template<typename Expr, typename State, typename Visitor>
-            struct apply
+            template<typename This, typename Expr, typename State, typename Visitor>
+            struct result<This(Expr, State, Visitor)>
               : transform::detail::pass_through_impl<
                     Grammar
                   , typename Expr::proto_base_expr
@@ -104,14 +72,19 @@
             {};
 
             template<typename Expr, typename State, typename Visitor>
-            static typename apply<Expr, State, Visitor>::type
-            call(Expr const &expr, State const &state, Visitor &visitor)
+            typename result<void(Expr, State, Visitor)>::type
+            operator ()(Expr const &expr, State const &state, Visitor &visitor) const
             {
-                return apply<Expr, State, Visitor>::call(expr.proto_base(), state, visitor);
+                return result<void(Expr, State, Visitor)>::call(expr.proto_base(), state, visitor);
             }
         };
 
-    } // namespace has_transformns_
+    } // namespace transform
+
+    template<typename Grammar>
+    struct is_callable<transform::pass_through<Grammar> >
+      : mpl::true_
+    {};
 
     }} // namespace boost::proto
 
@@ -124,7 +97,7 @@
             template<typename Grammar, typename Expr, typename State, typename Visitor>
             struct pass_through_impl<Grammar, Expr, State, Visitor, N>
             {
-                typedef expr<
+                typedef proto::expr<
                     typename Expr::proto_tag
                   , BOOST_PP_CAT(args, N)<
                         BOOST_PP_ENUM(N, BOOST_PROTO_DEFINE_TRANSFORM_TYPE, ~)

@@ -29,8 +29,12 @@
     #include <boost/mpl/or.hpp>
     #include <boost/mpl/bool.hpp>
     #include <boost/mpl/eval_if.hpp>
+    #include <boost/mpl/aux_/template_arity.hpp>
+    #include <boost/mpl/aux_/lambda_arity_param.hpp>
     #include <boost/static_assert.hpp>
     #include <boost/utility/result_of.hpp>
+    #include <boost/type_traits/is_pod.hpp>
+    #include <boost/type_traits/is_same.hpp>
     #include <boost/type_traits/is_array.hpp>
     #include <boost/type_traits/is_function.hpp>
     #include <boost/type_traits/remove_cv.hpp>
@@ -56,13 +60,56 @@
 
     namespace boost { namespace proto
     {
+        namespace detail
+        {
+            template<typename T, typename EnableIf = void>
+            struct is_callable2_
+              : mpl::false_
+            {};
+
+            template<typename T>
+            struct is_callable2_<T, typename T::proto_is_callable_>
+              : mpl::true_
+            {};
+
+            template<typename T BOOST_MPL_AUX_LAMBDA_ARITY_PARAM(long Arity = mpl::aux::template_arity<T>::value)>
+            struct is_callable_
+              : is_callable2_<T>
+            {};
+        }
+
         template<typename T>
-        struct is_transform
-          : mpl::false_
+        struct is_callable
+          : proto::detail::is_callable_<T>
         {};
 
         template<>
-        struct is_transform<proto::_>
+        struct is_callable<proto::_>
+          : mpl::true_
+        {};
+
+        template<>
+        struct is_callable<proto::callable>
+          : mpl::false_
+        {};
+
+        #if BOOST_WORKAROUND(__GNUC__, == 3)
+        // work around GCC bug
+        template<typename Tag, typename Args, long N>
+        struct is_callable<proto::expr<Tag, Args, N> >
+          : mpl::false_
+        {};
+        #endif
+
+        /// is_aggregate
+        ///
+        template<typename T>
+        struct is_aggregate
+          : is_pod<T>
+        {};
+
+        template<typename Tag, typename Args, long N>
+        struct is_aggregate<proto::expr<Tag, Args, N> >
           : mpl::true_
         {};
 
@@ -97,12 +144,6 @@
                 typedef typename Expr::proto_tag type;
             };
 
-            // id
-            template<typename Expr>
-            struct id
-              : result_of::deep_copy<Expr>
-            {};
-
             // as_expr
             template<typename T, typename Domain, typename EnableIf>
             struct as_expr
@@ -113,7 +154,7 @@
                   , remove_cv<T>
                 >::type proto_arg0;
 
-                typedef expr<proto::tag::terminal, args0<proto_arg0> > expr_type;
+                typedef proto::expr<proto::tag::terminal, args0<proto_arg0> > expr_type;
                 typedef typename Domain::template apply<expr_type>::type type;
                 typedef type const result_type;
 
@@ -141,7 +182,7 @@
             template<typename T, typename Domain, typename EnableIf>
             struct as_arg
             {
-                typedef expr<proto::tag::terminal, args0<T &> > expr_type;
+                typedef proto::expr<proto::tag::terminal, args0<T &> > expr_type;
                 typedef typename Domain::template apply<expr_type>::type type;
 
                 template<typename T2>
@@ -170,8 +211,8 @@
 
             // left
                 // BUGBUG this forces the instantiation of Expr. Couldn't we
-                // partially specialize left<> on expr< T, A > and
-                // ref_< expr< T, A > > and return A::arg0 ?
+                // partially specialize left<> on proto::expr< T, A > and
+                // ref_< proto::expr< T, A > > and return A::arg0 ?
             template<typename Expr>
             struct left
               : unref<typename Expr::proto_arg0>
@@ -202,8 +243,8 @@
             template<typename T>
             struct terminal : has_identity_transform
             {
-                terminal();
-                typedef expr<proto::tag::terminal, args0<T> > type;
+                BOOST_PROTO_NOT_CALLABLE()
+                typedef proto::expr<proto::tag::terminal, args0<T> > type;
                 typedef type proto_base_expr;
                 typedef proto::tag::terminal proto_tag;
                 typedef T proto_arg0;
@@ -211,10 +252,10 @@
 
             // if_else
             template<typename T, typename U, typename V>
-            struct if_else_ : has_pass_through_transform<if_else_<T, U, V> >
+            struct if_else_ : pass_through<if_else_<T, U, V> >
             {
-                if_else_();
-                typedef expr<proto::tag::if_else_, args3<T, U, V> > type;
+                BOOST_PROTO_NOT_CALLABLE()
+                typedef proto::expr<proto::tag::if_else_, args3<T, U, V> > type;
                 typedef type proto_base_expr;
                 typedef proto::tag::if_else_ proto_tag;
                 typedef T proto_arg0;
@@ -224,10 +265,10 @@
 
             // unary_expr
             template<typename Tag, typename T>
-            struct unary_expr : has_pass_through_transform<unary_expr<Tag, T> >
+            struct unary_expr : pass_through<unary_expr<Tag, T> >
             {
-                unary_expr();
-                typedef expr<Tag, args1<T> > type;
+                BOOST_PROTO_NOT_CALLABLE()
+                typedef proto::expr<Tag, args1<T> > type;
                 typedef type proto_base_expr;
                 typedef Tag proto_tag;
                 typedef T proto_arg0;
@@ -235,10 +276,10 @@
 
             // binary_expr
             template<typename Tag, typename T, typename U>
-            struct binary_expr : has_pass_through_transform<binary_expr<Tag, T, U> >
+            struct binary_expr : pass_through<binary_expr<Tag, T, U> >
             {
-                binary_expr();
-                typedef expr<Tag, args2<T, U> > type;
+                BOOST_PROTO_NOT_CALLABLE()
+                typedef proto::expr<Tag, args2<T, U> > type;
                 typedef type proto_base_expr;
                 typedef Tag proto_tag;
                 typedef T proto_arg0;
@@ -247,10 +288,10 @@
 
         #define BOOST_PROTO_UNARY_GENERATOR(Name)                                                   \
             template<typename T>                                                                    \
-            struct Name : has_pass_through_transform<Name<T> >                                      \
+            struct Name : pass_through<Name<T> >                                                    \
             {                                                                                       \
-                Name();                                                                             \
-                typedef expr<proto::tag::Name, args1<T> > type;                                     \
+                BOOST_PROTO_NOT_CALLABLE()                                                          \
+                typedef proto::expr<proto::tag::Name, args1<T> > type;                              \
                 typedef type proto_base_expr;                                                       \
                 typedef proto::tag::Name proto_tag;                                                 \
                 typedef T proto_arg0;                                                               \
@@ -259,10 +300,10 @@
 
         #define BOOST_PROTO_BINARY_GENERATOR(Name)                                                  \
             template<typename T, typename U>                                                        \
-            struct Name : has_pass_through_transform<Name<T, U> >                                   \
+            struct Name : pass_through<Name<T, U> >                                                 \
             {                                                                                       \
-                Name();                                                                             \
-                typedef expr<proto::tag::Name, args2<T, U> > type;                                  \
+                BOOST_PROTO_NOT_CALLABLE()                                                          \
+                typedef proto::expr<proto::tag::Name, args2<T, U> > type;                           \
                 typedef type proto_base_expr;                                                       \
                 typedef proto::tag::Name proto_tag;                                                 \
                 typedef T proto_arg0;                                                               \
@@ -347,7 +388,7 @@
             struct as_expr
             {
                 template<typename Sig>
-                struct result {};
+                struct result;
 
                 template<typename This, typename T>
                 struct result<This(T)>
@@ -389,7 +430,7 @@
             struct as_arg
             {
                 template<typename Sig>
-                struct result {};
+                struct result;
 
                 template<typename This, typename T>
                 struct result<This(T)>
@@ -415,7 +456,7 @@
             struct arg_c
             {
                 template<typename Sig>
-                struct result {};
+                struct result;
 
                 template<typename This, typename Expr>
                 struct result<This(Expr)>
@@ -439,7 +480,7 @@
             struct arg
             {
                 template<typename Sig>
-                struct result {};
+                struct result;
 
                 template<typename This, typename Expr>
                 struct result<This(Expr)>
@@ -462,7 +503,7 @@
             struct left
             {
                 template<typename Sig>
-                struct result {};
+                struct result;
 
                 template<typename This, typename Expr>
                 struct result<This(Expr)>
@@ -485,7 +526,7 @@
             struct right
             {
                 template<typename Sig>
-                struct result {};
+                struct result;
 
                 template<typename This, typename Expr>
                 struct result<This(Expr)>
@@ -654,14 +695,15 @@
                 BOOST_PP_ENUM_PARAMS(N, A)
                 BOOST_PP_ENUM_TRAILING_PARAMS(BOOST_PP_SUB(BOOST_PROTO_MAX_ARITY, N), void BOOST_PP_INTERCEPT), void
             >
-              : has_pass_through_transform<
+              : pass_through<
                     function<
                         BOOST_PP_ENUM_PARAMS(N, A)
                         BOOST_PP_ENUM_TRAILING_PARAMS(BOOST_PP_SUB(BOOST_PROTO_MAX_ARITY, N), void BOOST_PP_INTERCEPT), void
                     >
                 >
             {
-                typedef expr<proto::tag::function, BOOST_PP_CAT(args, N)<BOOST_PP_ENUM_PARAMS(N, A)> > type;
+                BOOST_PROTO_NOT_CALLABLE()
+                typedef proto::expr<proto::tag::function, BOOST_PP_CAT(args, N)<BOOST_PP_ENUM_PARAMS(N, A)> > type;
                 typedef type proto_base_expr;
                 typedef proto::tag::function proto_tag;
                 BOOST_PP_REPEAT(N, BOOST_PROTO_ARG, A)
@@ -674,7 +716,7 @@
                 BOOST_PP_ENUM_TRAILING_PARAMS(N, A)
                 BOOST_PP_ENUM_TRAILING_PARAMS(BOOST_PP_SUB(BOOST_PROTO_MAX_ARITY, N), void BOOST_PP_INTERCEPT), void
             >
-              : has_pass_through_transform<
+              : pass_through<
                     nary_expr<
                         Tag
                         BOOST_PP_ENUM_TRAILING_PARAMS(N, A)
@@ -682,7 +724,8 @@
                     >
                 >
             {
-                typedef expr<Tag, BOOST_PP_CAT(args, N)<BOOST_PP_ENUM_PARAMS(N, A)> > type;
+                BOOST_PROTO_NOT_CALLABLE()
+                typedef proto::expr<Tag, BOOST_PP_CAT(args, N)<BOOST_PP_ENUM_PARAMS(N, A)> > type;
                 typedef type proto_base_expr;
                 typedef Tag proto_tag;
                 BOOST_PP_REPEAT(N, BOOST_PROTO_ARG, A)
@@ -698,12 +741,20 @@
                 BOOST_PP_REPEAT(N, BOOST_PROTO_IMPLICIT_ARG, A)
 
                 template<typename Tag, typename Args, long Arity>
-                operator expr<Tag, Args, Arity> () const
+                operator proto::expr<Tag, Args, Arity> () const
                 {
-                    expr<Tag, Args, Arity> that = {BOOST_PP_ENUM_PARAMS(N, a)};
+                    proto::expr<Tag, Args, Arity> that = {BOOST_PP_ENUM_PARAMS(N, a)};
                     return that;
                 }
             };
+
+            template<
+                template<BOOST_PP_ENUM_PARAMS(N, typename BOOST_PP_INTERCEPT)> class T
+              , BOOST_PP_ENUM_PARAMS(N, typename A)
+            >
+            struct is_callable_<T<BOOST_PP_ENUM_PARAMS(N, A)> BOOST_MPL_AUX_LAMBDA_ARITY_PARAM(N)>
+              : is_same<BOOST_PP_CAT(A, BOOST_PP_DEC(N)), callable>
+            {};
         }
 
         template<BOOST_PP_ENUM_PARAMS(N, typename A)>

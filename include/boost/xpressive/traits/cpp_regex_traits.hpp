@@ -16,6 +16,7 @@
 # pragma once
 #endif
 
+#include <ios>
 #include <string>
 #include <locale>
 #include <sstream>
@@ -23,6 +24,7 @@
 #include <boost/assert.hpp>
 #include <boost/integer.hpp>
 #include <boost/mpl/assert.hpp>
+#include <boost/detail/workaround.hpp>
 #include <boost/type_traits/is_same.hpp>
 #include <boost/xpressive/detail/detail_fwd.hpp>
 #include <boost/xpressive/detail/utility/literals.hpp>
