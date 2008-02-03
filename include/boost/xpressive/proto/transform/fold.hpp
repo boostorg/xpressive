@@ -3,7 +3,7 @@
     /// \file fold.hpp
     /// Contains definition of the fold<> and reverse_fold<> transforms.
     //
-    //  Copyright 2007 Eric Niebler. Distributed under the Boost
+    //  Copyright 2008 Eric Niebler. Distributed under the Boost
     //  Software License, Version 1.0. (See accompanying file
     //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -11,13 +11,17 @@
     #define BOOST_PROTO_TRANSFORM_FOLD_HPP_EAN_11_04_2007
 
     #include <boost/xpressive/proto/detail/prefix.hpp>
+    #include <boost/version.hpp>
     #include <boost/preprocessor/cat.hpp>
     #include <boost/preprocessor/iteration/iterate.hpp>
     #include <boost/preprocessor/arithmetic/inc.hpp>
     #include <boost/preprocessor/arithmetic/sub.hpp>
     #include <boost/preprocessor/repetition/repeat.hpp>
+    #if BOOST_VERSION >= 103500
     #include <boost/fusion/include/fold.hpp>
-    #include <boost/fusion/include/reverse.hpp>
+    #else
+    #include <boost/spirit/fusion/algorithm/fold.hpp>
+    #endif
     #include <boost/xpressive/proto/proto_fwd.hpp>
     #include <boost/xpressive/proto/fusion.hpp>
     #include <boost/xpressive/proto/traits.hpp>
@@ -39,29 +43,67 @@
                       : v_(v)
                     {}
 
-                    typedef when<_, Transform> Tfx;
-
-                    template<typename Sig>
-                    struct result;
+                    template<typename Sig> struct result {};
 
                     template<typename This, typename Expr, typename State>
                     struct result<This(Expr, State)>
-                      : Tfx::template result<void(typename proto::detail::remove_cv_ref<Expr>::type
-                                                , typename proto::detail::remove_cv_ref<State>::type
-                                                , Visitor)>
-                    {};
+                    {
+                        typedef
+                            typename when<_, Transform>::template result<void(
+                                BOOST_PROTO_UNCVREF(Expr)
+                              , BOOST_PROTO_UNCVREF(State)
+                              , Visitor
+                            )>::type
+                        type;
+                    };
+
+                    #if BOOST_VERSION < 103500
+                    template<typename Expr, typename State>
+                    struct apply : result<void(Expr, State)> {};
+                    #endif
 
                     template<typename Expr, typename State>
-                    typename Tfx::template result<void(Expr, State, Visitor)>::type
+                    typename when<_, Transform>::template result<void(Expr, State, Visitor)>::type
                     operator ()(Expr const &expr, State const &state) const
                     {
-                        return Tfx()(expr, state, this->v_);
+                        return when<_, Transform>()(expr, state, this->v_);
                     }
 
                 private:
                     Visitor &v_;
                 };
 
+                #if BOOST_VERSION < 103500
+                template<typename Sequence, typename EnableIf = void>
+                struct as_fusion_sequence_type
+                {
+                    typedef Sequence const type;
+                };
+
+                template<typename Sequence>
+                Sequence const &as_fusion_sequence(Sequence const &sequence, ...)
+                {
+                    return sequence;
+                }
+
+                template<typename Sequence>
+                struct as_fusion_sequence_type<Sequence, typename Sequence::proto_is_expr_>
+                {
+                    typedef typename Sequence::proto_base_expr const type;
+                };
+
+                template<typename Sequence>
+                typename Sequence::proto_base_expr const &as_fusion_sequence(Sequence const &sequence, int)
+                {
+                    return sequence.proto_base();
+                }
+
+                #define BOOST_PROTO_AS_FUSION_SEQUENCE_TYPE(X) typename detail::as_fusion_sequence_type<X>::type
+                #define BOOST_PROTO_AS_FUSION_SEQUENCE(X) detail::as_fusion_sequence(X, 0)
+                #else
+                #define BOOST_PROTO_AS_FUSION_SEQUENCE_TYPE(X) X
+                #define BOOST_PROTO_AS_FUSION_SEQUENCE(X) X
+                #endif
 
                 template<typename Fun, typename Expr, typename State, typename Visitor, long Arity = Expr::proto_arity::value>
                 struct fold_impl
@@ -76,8 +118,12 @@
                     /**/
 
                 #define BOOST_PROTO_FOLD_STATE_TYPE(z, n, data)\
-                    typedef typename when<_, Fun>::template\
-                        result<void(typename Expr::BOOST_PROTO_ARG_N_TYPE(n)::proto_base_expr, BOOST_PP_CAT(state, n), Visitor)>::type\
+                    typedef\
+                        typename when<_, Fun>::template result<void(\
+                            typename Expr::BOOST_PROTO_ARG_N_TYPE(n)::proto_base_expr\
+                          , BOOST_PP_CAT(state, n)\
+                          , Visitor\
+                        )>::type\
                     BOOST_PP_CAT(state, BOOST_PP_INC(n));\
                     /**/
 
@@ -87,8 +133,12 @@
                     /**/
 
                 #define BOOST_PROTO_REVERSE_FOLD_STATE_TYPE(z, n, data)\
-                    typedef typename when<_, Fun>::template\
-                        result<void(typename Expr::BOOST_PROTO_ARG_N_TYPE(BOOST_PP_SUB(data, BOOST_PP_INC(n)))::proto_base_expr, BOOST_PP_CAT(state, BOOST_PP_SUB(data, n)), Visitor)>::type\
+                    typedef\
+                        typename when<_, Fun>::template result<void(\
+                            typename Expr::BOOST_PROTO_ARG_N_TYPE(BOOST_PP_SUB(data, BOOST_PP_INC(n)))::proto_base_expr\
+                          , BOOST_PP_CAT(state, BOOST_PP_SUB(data, n))\
+                          , Visitor\
+                        )>::type\
                     BOOST_PP_CAT(state, BOOST_PP_SUB(data, BOOST_PP_INC(n)));\
                     /**/
 
@@ -109,27 +159,34 @@
             } // namespace detail
 
             template<typename Sequence, typename State0, typename Fun>
-            struct fold : callable
+            struct fold : proto::callable
             {
-                template<typename Sig>
-                struct result;
+                template<typename Sig> struct result {};
 
                 template<typename This, typename Expr, typename State, typename Visitor>
                 struct result<This(Expr, State, Visitor)>
-                  : fusion::result_of::fold<
+                {
+                    typedef
                         typename when<_, Sequence>::template result<void(Expr, State, Visitor)>::type
-                      , typename when<_, State0>::template result<void(Expr, State, Visitor)>::type
-                      , detail::as_callable<Fun, Visitor>
-                    >
-                {};
+                    sequence;
+
+                    typedef
+                        typename fusion::BOOST_PROTO_FUSION_RESULT_OF::fold<
+                            BOOST_PROTO_AS_FUSION_SEQUENCE_TYPE(sequence)
+                          , typename when<_, State0>::template result<void(Expr, State, Visitor)>::type
+                          , detail::as_callable<Fun, Visitor>
+                        >::type
+                    type;
+                };
 
                 template<typename Expr, typename State, typename Visitor>
                 typename result<void(Expr, State, Visitor)>::type
                 operator ()(Expr const &expr, State const &state, Visitor &visitor) const
                 {
+                    when<_, Sequence> sequence;
                     detail::as_callable<Fun, Visitor> fun(visitor);
                     return fusion::fold(
-                        when<_, Sequence>()(expr, state, visitor)
+                        BOOST_PROTO_AS_FUSION_SEQUENCE(sequence(expr, state, visitor))
                       , when<_, State0>()(expr, state, visitor)
                       , fun
                     );
@@ -141,29 +198,43 @@
               : fold<_reverse(Sequence), State, Fun>
             {};
 
-            // A fold transform that transforms the left sub-tree and
-            // uses the result as state while transforming the right.
+            /// This specialization is only for improved compile-time performance
+            /// in the commom case when the Sequence transform is \c proto::_.
+            ///
+            /// INTERNAL ONLY
+            ///
             template<typename State0, typename Fun>
-            struct fold<_, State0, Fun> : callable
+            struct fold<_, State0, Fun> : proto::callable
             {
-                template<typename Sig>
-                struct result;
+                template<typename Sig> struct result {};
 
                 template<typename This, typename Expr, typename State, typename Visitor>
                 struct result<This(Expr, State, Visitor)>
-                  : detail::fold_impl<
-                        Fun
-                      , typename Expr::proto_base_expr
-                      , typename when<_, State0>::template result<void(Expr, State, Visitor)>::type
-                      , Visitor
-                    >
-                {};
+                {
+                    typedef
+                        typename detail::fold_impl<
+                            Fun
+                          , typename Expr::proto_base_expr
+                          , typename when<_, State0>::template result<void(Expr, State, Visitor)>::type
+                          , Visitor
+                        >::type
+                    type;
+                };
 
                 template<typename Expr, typename State, typename Visitor>
                 typename result<void(Expr, State, Visitor)>::type
                 operator ()(Expr const &expr, State const &state, Visitor &visitor) const
                 {
-                    return result<void(Expr, State, Visitor)>::call(
+                    typedef
+                        detail::fold_impl<
+                            Fun
+                          , typename Expr::proto_base_expr
+                          , typename when<_, State0>::template result<void(Expr, State, Visitor)>::type
+                          , Visitor
+                        >
+                    impl;
+
+                    return impl::call(
                         expr.proto_base()
                       , when<_, State0>()(expr, state, visitor)
                       , visitor
@@ -171,29 +242,43 @@
                 }
             };
 
-            // A reverse_fold compiler that compiles the right sub-tree and
-            // uses the result as state while compiling the left.
+            /// This specialization is only for improved compile-time performance
+            /// in the commom case when the Sequence transform is \c proto::_.
+            ///
+            /// INTERNAL ONLY
+            ///
             template<typename State0, typename Fun>
-            struct reverse_fold<_, State0, Fun> : callable
+            struct reverse_fold<_, State0, Fun> : proto::callable
             {
-                template<typename Sig>
-                struct result;
+                template<typename Sig> struct result {};
 
                 template<typename This, typename Expr, typename State, typename Visitor>
                 struct result<This(Expr, State, Visitor)>
-                  : detail::reverse_fold_impl<
-                        Fun
-                      , typename Expr::proto_base_expr
-                      , typename when<_, State0>::template result<void(Expr, State, Visitor)>::type
-                      , Visitor
-                    >
-                {};
+                {
+                    typedef
+                        typename detail::reverse_fold_impl<
+                            Fun
+                          , typename Expr::proto_base_expr
+                          , typename when<_, State0>::template result<void(Expr, State, Visitor)>::type
+                          , Visitor
+                        >::type
+                    type;
+                };
 
                 template<typename Expr, typename State, typename Visitor>
                 typename result<void(Expr, State, Visitor)>::type
                 operator ()(Expr const &expr, State const &state, Visitor &visitor) const
                 {
-                    return result<void(Expr, State, Visitor)>::call(
+                    typedef
+                        detail::reverse_fold_impl<
+                            Fun
+                          , typename Expr::proto_base_expr
+                          , typename when<_, State0>::template result<void(Expr, State, Visitor)>::type
+                          , Visitor
+                        >
+                    impl;
+
+                    return impl::call(
                         expr.proto_base()
                       , when<_, State0>()(expr, state, visitor)
                       , visitor

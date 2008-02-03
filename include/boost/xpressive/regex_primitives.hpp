@@ -2,7 +2,7 @@
 /// \file regex_primitives.hpp
 /// Contains the syntax elements for writing static regular expressions.
 //
-//  Copyright 2007 Eric Niebler. Distributed under the Boost
+//  Copyright 2008 Eric Niebler. Distributed under the Boost
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -118,19 +118,21 @@ namespace boost { namespace xpressive { namespace detail
     // replace "Expr" with "keep(*State) >> Expr"
     struct skip_primitives : proto::callable
     {
-        template<typename Sig>
-        struct result;
+        template<typename Sig> struct result {};
 
         template<typename This, typename Expr, typename State, typename Visitor>
         struct result<This(Expr, State, Visitor)>
-          : proto::shift_right<
-                typename proto::unary_expr<
-                    keeper_tag
-                  , typename proto::dereference<State>::type
+        {
+            typedef
+                typename proto::shift_right<
+                    typename proto::unary_expr<
+                        keeper_tag
+                      , typename proto::dereference<State>::type
+                    >::type
+                  , Expr
                 >::type
-              , Expr
-            >
-        {};
+            type;
+        };
 
         template<typename Expr, typename State, typename Visitor>
         typename result<void(Expr, State, Visitor)>::type
@@ -146,7 +148,7 @@ namespace boost { namespace xpressive { namespace detail
       : proto::or_<
             proto::terminal<proto::_>
           , proto::comma<proto::_, proto::_>
-          , proto::subscript<proto::terminal<set_initializer>, proto::_> 
+          , proto::subscript<proto::terminal<set_initializer>, proto::_>
           , proto::assign<proto::terminal<set_initializer>, proto::_>
           , proto::assign<proto::terminal<attribute_placeholder<proto::_> >, proto::_>
           , proto::complement<Primitives>
@@ -178,15 +180,18 @@ namespace boost { namespace xpressive { namespace detail
 
         template<typename This, typename Expr>
         struct result<This(Expr)>
-          : proto::shift_right<
-                typename SkipGrammar::result<void(
-                    typename proto::result_of::as_expr<Expr>::type
-                  , skip_type
-                  , mpl::void_
-                )>::type
-              , typename proto::dereference<skip_type>::type
-            >
-        {};
+        {
+            typedef
+                typename proto::shift_right<
+                    typename SkipGrammar::result<void(
+                        typename proto::result_of::as_expr<Expr>::type
+                      , skip_type
+                      , mpl::void_
+                    )>::type
+                  , typename proto::dereference<skip_type>::type
+                >::type
+            type;
+        };
 
         template<typename Expr>
         typename result<skip_directive(Expr)>::type
@@ -603,11 +608,19 @@ range(Char ch_min, Char ch_max)
 /// \brief Make a sub-expression optional. Equivalent to !as_xpr(expr).
 ///
 /// \param expr The sub-expression to make optional.
-#ifdef BOOST_XPRESSIVE_DOXYGEN_INVOKED
-template<typename Expr> detail::unspecified optional(Expr const &expr) { return 0; }
-#else
-proto::functional::make_expr<proto::tag::logical_not, proto::default_domain> const optional = {};
-#endif
+template<typename Expr>
+typename proto::result_of::make_expr<
+    proto::tag::logical_not
+  , proto::default_domain
+  , Expr const &
+>::type const
+optional(Expr const &expr)
+{
+    return proto::make_expr<
+        proto::tag::logical_not
+      , proto::default_domain
+    >(boost::ref(expr));
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Repeat a sub-expression multiple times.
@@ -621,19 +634,33 @@ proto::functional::make_expr<proto::tag::logical_not, proto::default_domain> con
 ///
 /// \param expr The sub-expression to repeat.
 template<unsigned int Min, unsigned int Max, typename Expr>
-typename proto::result_of::make_expr<detail::generic_quant_tag<Min, Max>, proto::default_domain, Expr const>::type const
+typename proto::result_of::make_expr<
+    detail::generic_quant_tag<Min, Max>
+  , proto::default_domain
+  , Expr const &
+>::type const
 repeat(Expr const &expr)
 {
-    return proto::make_expr<detail::generic_quant_tag<Min, Max>, proto::default_domain>(expr);
+    return proto::make_expr<
+        detail::generic_quant_tag<Min, Max>
+      , proto::default_domain
+    >(boost::ref(expr));
 }
 
 /// \overload
 ///
 template<unsigned int Count, typename Expr2>
-typename proto::result_of::make_expr<detail::generic_quant_tag<Count, Count>, proto::default_domain, Expr2 const>::type const
+typename proto::result_of::make_expr<
+    detail::generic_quant_tag<Count, Count>
+  , proto::default_domain
+  , Expr2 const &
+>::type const
 repeat(Expr2 const &expr2)
 {
-    return proto::make_expr<detail::generic_quant_tag<Count, Count>, proto::default_domain>(expr2);
+    return proto::make_expr<
+        detail::generic_quant_tag<Count, Count>
+      , proto::default_domain
+    >(boost::ref(expr2));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -646,11 +673,19 @@ repeat(Expr2 const &expr2)
 /// \attention keep(expr) is equivalent to the perl (?>...) extension.
 ///
 /// \param expr The sub-expression to modify.
-#ifdef BOOST_XPRESSIVE_DOXYGEN_INVOKED
-template<typename Expr> detail::unspecified keep(Expr const &expr) { return 0; }
-#else
-proto::functional::make_expr<detail::keeper_tag, proto::default_domain> const keep = {};
-#endif
+template<typename Expr>
+typename proto::result_of::make_expr<
+    detail::keeper_tag
+  , proto::default_domain
+  , Expr const &
+>::type const
+keep(Expr const &expr)
+{
+    return proto::make_expr<
+        detail::keeper_tag
+      , proto::default_domain
+    >(boost::ref(expr));
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Look-ahead assertion.
@@ -665,11 +700,19 @@ proto::functional::make_expr<detail::keeper_tag, proto::default_domain> const ke
 /// perl (?!...) extension.
 ///
 /// \param expr The sub-expression to put in the look-ahead assertion.
-#ifdef BOOST_XPRESSIVE_DOXYGEN_INVOKED
-template<typename Expr> detail::unspecified before(Expr const &expr) { return 0; }
-#else
-proto::functional::make_expr<detail::lookahead_tag, proto::default_domain> const before = {};
-#endif
+template<typename Expr>
+typename proto::result_of::make_expr<
+    detail::lookahead_tag
+  , proto::default_domain
+  , Expr const &
+>::type const
+before(Expr const &expr)
+{
+    return proto::make_expr<
+        detail::lookahead_tag
+      , proto::default_domain
+    >(boost::ref(expr));
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Look-behind assertion.
@@ -686,11 +729,19 @@ proto::functional::make_expr<detail::lookahead_tag, proto::default_domain> const
 /// \param expr The sub-expression to put in the look-ahead assertion.
 ///
 /// \pre expr cannot match a variable number of characters.
-#ifdef BOOST_XPRESSIVE_DOXYGEN_INVOKED
-template<typename Expr> detail::unspecified after(Expr const &expr) { return 0; }
-#else
-proto::functional::make_expr<detail::lookbehind_tag, proto::default_domain> const after = {};
-#endif
+template<typename Expr>
+typename proto::result_of::make_expr<
+    detail::lookbehind_tag
+  , proto::default_domain
+  , Expr const &
+>::type const
+after(Expr const &expr)
+{
+    return proto::make_expr<
+        detail::lookbehind_tag
+      , proto::default_domain
+    >(boost::ref(expr));
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Specify a regex traits or a std::locale.
@@ -751,7 +802,7 @@ proto::terminal<detail::attribute_placeholder<mpl::int_<9> > >::type const a9 = 
 ///                        >> *set[_s | punct];
 /// \endcode
 ///
-/// \attention Skipping does not affect how nested regexes are handles because
+/// \attention Skipping does not affect how nested regexes are handled because
 /// they are treated atomically. String literals are also treated
 /// atomically; that is, no skipping is done within a string literal. So
 /// <tt>skip(_s)("this that")</tt> is not the same as
@@ -810,10 +861,6 @@ namespace detail
         ignore_unused(a8);
         ignore_unused(a9);
         ignore_unused(as_xpr);
-        ignore_unused(optional);
-        ignore_unused(before);
-        ignore_unused(after);
-        ignore_unused(keep);
     }
 }
 

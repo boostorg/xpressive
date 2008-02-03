@@ -5,7 +5,7 @@
     /// proto::eval() that simply evaluates each child expression, doesn't
     /// combine the results at all, and returns void.
     //
-    //  Copyright 2007 Eric Niebler. Distributed under the Boost
+    //  Copyright 2008 Eric Niebler. Distributed under the Boost
     //  Software License, Version 1.0. (See accompanying file
     //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -74,7 +74,7 @@
 
             void operator ()(Expr &expr, Context &ctx) const
             {
-                BOOST_PP_REPEAT(N, BOOST_PROTO_EVAL_N, ~)                
+                BOOST_PP_REPEAT(N, BOOST_PROTO_EVAL_N, ~)
             }
         };
 

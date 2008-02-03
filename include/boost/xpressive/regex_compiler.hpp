@@ -3,7 +3,7 @@
 /// Contains the definition of regex_compiler, a factory for building regex objects
 /// from strings.
 //
-//  Copyright 2007 Eric Niebler. Distributed under the Boost
+//  Copyright 2008 Eric Niebler. Distributed under the Boost
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -106,7 +106,7 @@ struct regex_compiler
     ///         represented by the character range.
     /// \pre    InputIter is a model of the InputIterator concept.
     /// \pre    [begin,end) is a valid range.
-    /// \pre    The range of characters specified by [begin,end) contains a 
+    /// \pre    The range of characters specified by [begin,end) contains a
     ///         valid string-based representation of a regular expression.
     /// \throw  regex_error when the range of characters has invalid regular
     ///         expression syntax.

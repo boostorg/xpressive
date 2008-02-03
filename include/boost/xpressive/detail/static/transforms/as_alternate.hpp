@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // as_alternate.hpp
 //
-//  Copyright 2007 Eric Niebler. Distributed under the Boost
+//  Copyright 2008 Eric Niebler. Distributed under the Boost
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -21,10 +21,6 @@
 #include <boost/xpressive/detail/static/static.hpp>
 #include <boost/xpressive/detail/core/matcher/alternate_matcher.hpp>
 #include <boost/xpressive/detail/utility/cons.hpp>
-
-#define UNCV(x) typename remove_const<x>::type
-#define UNREF(x) typename remove_reference<x>::type
-#define UNCVREF(x) UNCV(UNREF(x))
 
 namespace boost { namespace xpressive
 {
@@ -66,10 +62,9 @@ namespace boost { namespace xpressive
         ///////////////////////////////////////////////////////////////////////////////
         // in_alternate_list
         template<typename Grammar>
-        struct in_alternate_list : callable
+        struct in_alternate_list : proto::callable
         {
-            template<typename Sig>
-            struct result;
+            template<typename Sig> struct result {};
 
             template<typename This, typename Expr, typename State, typename Visitor>
             struct result<This(Expr, State, Visitor)>
@@ -94,10 +89,9 @@ namespace boost { namespace xpressive
         ///////////////////////////////////////////////////////////////////////////////
         // as_alternate_matcher
         template<typename Grammar>
-        struct as_alternate_matcher : callable
+        struct as_alternate_matcher : proto::callable
         {
-            template<typename Sig>
-            struct result;
+            template<typename Sig> struct result {};
 
             template<typename This, typename Expr, typename State, typename Visitor>
             struct result<This(Expr, State, Visitor)>
@@ -121,9 +115,5 @@ namespace boost { namespace xpressive
     }
 
 }}
-
-#undef UNCV
-#undef UNREF
-#undef UNCVREF
 
 #endif

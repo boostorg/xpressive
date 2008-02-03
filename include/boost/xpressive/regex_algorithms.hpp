@@ -2,7 +2,7 @@
 /// \file regex_algorithms.hpp
 /// Contains the regex_match(), regex_search() and regex_replace() algorithms.
 //
-//  Copyright 2007 Eric Niebler. Distributed under the Boost
+//  Copyright 2008 Eric Niebler. Distributed under the Boost
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -537,7 +537,7 @@ inline OutIter regex_replace
         }
 
         out = what.format(out, fmt, flags);
-        cur = state.cur_ = what[0].second;
+        cur = state.cur_ = state.next_search_ = what[0].second;
 
         if(0 == (flags & format_first_only))
         {
@@ -552,7 +552,7 @@ inline OutIter regex_replace
 
                 access::set_prefix_suffix(what, begin, end);
                 out = what.format(out, fmt, flags);
-                cur = state.cur_ = what[0].second;
+                cur = state.cur_ = state.next_search_ = what[0].second;
                 not_null = (0 == what.length());
                 state.reset(what, *access::get_regex_impl(re));
             }

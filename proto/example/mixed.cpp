@@ -1,6 +1,6 @@
 //[ Mixed
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright 2007 Eric Niebler. Distributed under the Boost
+//  Copyright 2008 Eric Niebler. Distributed under the Boost
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
@@ -44,14 +44,14 @@ struct begin : proto::callable
 {
     template<class Sig>
     struct result;
-    
+
     template<class This, class Cont>
     struct result<This(Cont)>
       : proto::result_of::as_expr<
             iterator_wrapper<typename boost::remove_reference<Cont>::type::const_iterator>
         >
     {};
-    
+
     template<typename Cont>
     typename result<begin(Cont const &)>::type
     operator ()(Cont const &cont) const
@@ -246,15 +246,10 @@ namespace VectorOps
         proto::tag::function
       , MixedDomain
       , sin_ const
-      , A const
+      , A const &
     >::type sin(A const &a)
     {
-        return proto::result_of::make_expr<
-            proto::tag::function
-          , MixedDomain
-          , sin_ const
-          , A const
-        >::call(sin_(), a);
+        return proto::make_expr<proto::tag::function, MixedDomain>(sin_(), boost::ref(a));
     }
 
     template<typename FwdIter, typename Expr, typename Op>

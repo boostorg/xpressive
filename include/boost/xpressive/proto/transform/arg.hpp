@@ -2,7 +2,7 @@
 /// \file arg.hpp
 /// Contains definition of the argN transforms.
 //
-//  Copyright 2007 Eric Niebler. Distributed under the Boost
+//  Copyright 2008 Eric Niebler. Distributed under the Boost
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -20,10 +20,9 @@ namespace boost { namespace proto
     namespace transform
     {
 
-        struct expr : callable
+        struct expr : proto::callable
         {
-            template<typename Sig>
-            struct result;
+            template<typename Sig> struct result {};
 
             template<typename This, typename Expr, typename State, typename Visitor>
             struct result<This(Expr, State, Visitor)>
@@ -39,10 +38,9 @@ namespace boost { namespace proto
             }
         };
 
-        struct state : callable
+        struct state : proto::callable
         {
-            template<typename Sig>
-            struct result;
+            template<typename Sig> struct result {};
 
             template<typename This, typename Expr, typename State, typename Visitor>
             struct result<This(Expr, State, Visitor)>
@@ -58,10 +56,9 @@ namespace boost { namespace proto
             }
         };
 
-        struct visitor : callable
+        struct visitor : proto::callable
         {
-            template<typename Sig>
-            struct result;
+            template<typename Sig> struct result {};
 
             template<typename This, typename Expr, typename State, typename Visitor>
             struct result<This(Expr, State, Visitor)>
@@ -78,21 +75,52 @@ namespace boost { namespace proto
         };
 
         template<int I>
-        struct arg_c : callable
+        struct arg_c : proto::callable
         {
-            template<typename Sig>
-            struct result;
+            template<typename Sig> struct result {};
 
             template<typename This, typename Expr, typename State, typename Visitor>
             struct result<This(Expr, State, Visitor)>
-              : proto::result_of::arg_c<Expr, I>
-            {};
+            {
+                typedef typename proto::result_of::arg_c<Expr, I>::type type;
+            };
 
             template<typename Expr, typename State, typename Visitor>
-            typename proto::result_of::arg_c<Expr, I>::type
+            typename proto::result_of::arg_c<Expr, I>::const_reference
             operator ()(Expr const &expr, State const &, Visitor &) const
             {
                 return proto::arg_c<I>(expr);
+            }
+        };
+
+        struct _ref : proto::callable
+        {
+            template<typename Sig> struct result {};
+
+            template<typename This, typename T>
+            struct result<This(T)>
+            {
+                typedef boost::reference_wrapper<T const> type;
+            };
+
+            template<typename This, typename T>
+            struct result<This(T &)>
+            {
+                typedef boost::reference_wrapper<T> type;
+            };
+
+            template<typename T>
+            boost::reference_wrapper<T>
+            operator ()(T &t) const
+            {
+                return boost::reference_wrapper<T>(t);
+            }
+
+            template<typename T>
+            boost::reference_wrapper<T const>
+            operator ()(T const &t) const
+            {
+                return boost::reference_wrapper<T const>(t);
             }
         };
     }
@@ -124,6 +152,11 @@ namespace boost { namespace proto
 
     template<int I>
     struct is_callable<_arg_c<I> >
+      : mpl::true_
+    {};
+
+    template<>
+    struct is_callable<transform::_ref>
       : mpl::true_
     {};
 

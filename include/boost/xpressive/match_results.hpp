@@ -4,7 +4,7 @@
 /// The match_results type holds the results of a regex_match() or
 /// regex_search() operation.
 //
-//  Copyright 2007 Eric Niebler. Distributed under the Boost
+//  Copyright 2008 Eric Niebler. Distributed under the Boost
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
@@ -324,8 +324,8 @@ public:
         return *this;
     }
 
-    /// Returns one plus the number of marked sub-expressions in the regular 
-    /// expression that was matched if *this represents the result of a 
+    /// Returns one plus the number of marked sub-expressions in the regular
+    /// expression that was matched if *this represents the result of a
     /// successful match. Otherwise returns 0.
     size_type size() const
     {

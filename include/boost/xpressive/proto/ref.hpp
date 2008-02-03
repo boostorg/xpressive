@@ -2,7 +2,7 @@
 /// \file ref.hpp
 /// Utility for storing a sub-expr by reference
 //
-//  Copyright 2007 Eric Niebler. Distributed under the Boost
+//  Copyright 2008 Eric Niebler. Distributed under the Boost
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -43,7 +43,6 @@ namespace boost { namespace proto
             typedef typename Expr::proto_args proto_args;
             typedef typename Expr::proto_arity proto_arity;
             typedef typename Expr::proto_domain proto_domain;
-            //typedef tag::proto_expr fusion_tag;
             typedef void proto_is_ref_;
             typedef void proto_is_expr_;
             typedef Expr proto_derived_expr;
@@ -137,11 +136,11 @@ namespace boost { namespace proto
         struct unref
         {
             template<typename T>
-            struct result;
+            struct result {};
 
             template<typename This, typename T>
             struct result<This(T)>
-              : result_of::unref<typename detail::remove_cv_ref<T>::type>
+              : result_of::unref<BOOST_PROTO_UNCVREF(T)>
             {};
 
             template<typename T>

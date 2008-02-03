@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // toy_spirit3.cpp
 //
-//  Copyright 2006 Eric Niebler. Distributed under the Boost
+//  Copyright 2008 Eric Niebler. Distributed under the Boost
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -21,6 +21,7 @@
 # include <boost/spirit/fusion/algorithm/for_each.hpp>
 # include <boost/spirit/fusion/algorithm/fold.hpp>
 # include <boost/spirit/fusion/algorithm/any.hpp>
+# include <boost/spirit/fusion/sequence/cons.hpp>
 #else
 # include <boost/fusion/include/for_each.hpp>
 # include <boost/fusion/include/fold.hpp>
@@ -183,11 +184,11 @@ namespace boost { namespace spirit2
         {};
 
         struct CharParser
-          : function<AnyChar, CharLiteral>
+          : proto::function<AnyChar, CharLiteral>
         {};
 
         struct CharRangeParser
-          : function<AnyChar, CharLiteral, CharLiteral>
+          : proto::function<AnyChar, CharLiteral, CharLiteral>
         {};
 
         struct NoCase

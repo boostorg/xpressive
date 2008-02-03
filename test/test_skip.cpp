@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // test_skip.hpp
 //
-//  Copyright 2004 Eric Niebler. Distributed under the Boost
+//  Copyright 2008 Eric Niebler. Distributed under the Boost
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -25,7 +25,7 @@ void test1()
              (s1= as_xpr('b')) >>
              as_xpr('b') >>
             *as_xpr('c')    // causes backtracking
-        ) >> 
+        ) >>
         "c c";
 
     smatch what;

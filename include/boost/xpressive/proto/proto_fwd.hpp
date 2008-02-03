@@ -2,7 +2,7 @@
 /// \file proto_fwd.hpp
 /// Forward declarations of all of proto's public types and functions.
 //
-//  Copyright 2007 Eric Niebler. Distributed under the Boost
+//  Copyright 2008 Eric Niebler. Distributed under the Boost
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -13,12 +13,14 @@
 #include <cstddef>
 #include <climits>
 #include <boost/config.hpp>
+#include <boost/version.hpp>
 #include <boost/detail/workaround.hpp>
 #include <boost/preprocessor/arithmetic/sub.hpp>
+#include <boost/preprocessor/punctuation/comma.hpp>
 #include <boost/preprocessor/repetition/enum_params_with_a_default.hpp>
 #include <boost/preprocessor/repetition/enum_trailing_binary_params.hpp>
 #include <boost/mpl/long.hpp>
-#include <boost/type_traits/remove_cv.hpp>
+#include <boost/type_traits/remove_const.hpp>
 #include <boost/type_traits/remove_reference.hpp>
 
 #ifndef BOOST_PROTO_MAX_ARITY
@@ -38,12 +40,54 @@
 # include <boost/utility/enable_if.hpp>
 # include <boost/type_traits/is_const.hpp>
 # define BOOST_PROTO_DISABLE_IF_IS_CONST(T)\
-    , typename boost::disable_if<boost::is_const<T> >::type * = 0
+    , typename boost::disable_if<boost::is_const<T>, boost::proto::detail::undefined>::type * = 0
 #else
 # define BOOST_PROTO_DISABLE_IF_IS_CONST(T)
 #endif
 
+#if BOOST_VERSION < 103500
+#define BOOST_PROTO_DEFINE_FUSION_TAG(X)        typedef X tag;
+#define BOOST_PROTO_DEFINE_FUSION_CATEGORY(X)
+#define BOOST_PROTO_FUSION_RESULT_OF            meta
+#define BOOST_PROTO_FUSION_EXTENSION            meta
+#define BOOST_PROTO_FUSION_AT_C(N, X)           at<N>(X)
+#else
+#define BOOST_PROTO_DEFINE_FUSION_TAG(X)        typedef X fusion_tag;
+#define BOOST_PROTO_DEFINE_FUSION_CATEGORY(X)   typedef X category;
+#define BOOST_PROTO_FUSION_RESULT_OF            result_of
+#define BOOST_PROTO_FUSION_EXTENSION            extension
+#define BOOST_PROTO_FUSION_AT_C(N, X)           at_c<N>(X)
+#endif
+
 #include <boost/xpressive/proto/detail/suffix.hpp> // must be last include
+
+#ifdef BOOST_PROTO_DOXYGEN_INVOKED
+// HACKHACK so Doxygen shows inheritance from mpl::true_ and mpl::false_
+namespace boost
+{
+    /// INTERNAL ONLY
+    ///
+    namespace mpl
+    {
+        /// INTERNAL ONLY
+        ///
+        struct true_ {};
+        /// INTERNAL ONLY
+        ///
+        struct false_ {};
+    }
+
+    /// INTERNAL ONLY
+    ///
+    namespace fusion
+    {
+        /// INTERNAL ONLY
+        ///
+        template<typename Function>
+        class unfused_generic {};
+    }
+}
+#endif
 
 namespace boost { namespace proto
 {
@@ -53,11 +97,12 @@ namespace boost { namespace proto
         typedef char (&no_type)[2];
 
         struct dont_care;
+        struct undefined; // leave this undefined
 
-        template<typename T>
-        struct remove_cv_ref
-          : remove_cv<typename remove_reference<T>::type>
-        {};
+        /// INTERNAL ONLY
+        ///
+        #define BOOST_PROTO_UNCVREF(X)                                                              \
+            typename boost::remove_const<typename boost::remove_reference<X>::type>::type
     }
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -191,14 +236,22 @@ namespace boost { namespace proto
         template<
             typename Grammar0
           , typename Grammar1
-          , BOOST_PP_ENUM_PARAMS_WITH_A_DEFAULT(BOOST_PP_SUB(BOOST_PROTO_MAX_LOGICAL_ARITY,2), typename G, void)
+          , BOOST_PP_ENUM_PARAMS_WITH_A_DEFAULT(
+                BOOST_PP_SUB(BOOST_PROTO_MAX_LOGICAL_ARITY,2)
+              , typename G
+              , void
+            )
         >
         struct or_;
 
         template<
             typename Grammar0
           , typename Grammar1
-          , BOOST_PP_ENUM_PARAMS_WITH_A_DEFAULT(BOOST_PP_SUB(BOOST_PROTO_MAX_LOGICAL_ARITY,2), typename G, void)
+          , BOOST_PP_ENUM_PARAMS_WITH_A_DEFAULT(
+                BOOST_PP_SUB(BOOST_PROTO_MAX_LOGICAL_ARITY,2)
+              , typename G
+              , void
+            )
         >
         struct and_;
 
@@ -298,17 +351,17 @@ namespace boost { namespace proto
 
         template<
             typename Tag
+          , typename DomainOrA0
             BOOST_PP_ENUM_TRAILING_BINARY_PARAMS(
                 BOOST_PROTO_MAX_ARITY
               , typename A
               , = void BOOST_PP_INTERCEPT
             )
-          , typename _1 = void
-          , typename _2 = void
+          , typename EnableIf = void
         >
         struct make_expr;
 
-        template<typename Tag, typename DomainOrSequence, typename SequenceOrVoid = void, typename _ = void>
+        template<typename Tag, typename DomainOrSequence, typename SequenceOrVoid = void, typename EnableIf = void>
         struct unpack_expr;
 
         template<typename T, typename EnableIf = void>
@@ -408,6 +461,7 @@ namespace boost { namespace proto
         struct left;
         struct right;
         struct unref;
+        struct eval;
         struct deep_copy;
 
         template<typename Domain = default_domain>
@@ -433,7 +487,7 @@ namespace boost { namespace proto
 
         template<typename Tag, typename Domain = deduce_domain>
         struct unfused_expr;
-    
+
         typedef make_expr<tag::terminal>            make_terminal;
         typedef make_expr<tag::posit>               make_posit;
         typedef make_expr<tag::negate>              make_negate;
@@ -479,52 +533,6 @@ namespace boost { namespace proto
         typedef make_expr<tag::subscript>           make_subscript;
         typedef make_expr<tag::if_else_>            make_if_else;
         typedef make_expr<tag::function>            make_function;
-
-        //typedef make_expr_ref<tag::terminal>            make_terminal_ref;
-        //typedef make_expr_ref<tag::posit>               make_posit_ref;
-        //typedef make_expr_ref<tag::negate>              make_negate_ref;
-        //typedef make_expr_ref<tag::dereference>         make_dereference_ref;
-        //typedef make_expr_ref<tag::complement>          make_complement_ref;
-        //typedef make_expr_ref<tag::address_of>          make_address_of_ref;
-        //typedef make_expr_ref<tag::logical_not>         make_logical_not_ref;
-        //typedef make_expr_ref<tag::pre_inc>             make_pre_inc_ref;
-        //typedef make_expr_ref<tag::pre_dec>             make_pre_dec_ref;
-        //typedef make_expr_ref<tag::post_inc>            make_post_inc_ref;
-        //typedef make_expr_ref<tag::post_dec>            make_post_dec_ref;
-        //typedef make_expr_ref<tag::shift_left>          make_shift_left_ref;
-        //typedef make_expr_ref<tag::shift_right>         make_shift_right_ref;
-        //typedef make_expr_ref<tag::multiplies>          make_multiplies_ref;
-        //typedef make_expr_ref<tag::divides>             make_divides_ref;
-        //typedef make_expr_ref<tag::modulus>             make_modulus_ref;
-        //typedef make_expr_ref<tag::plus>                make_plus_ref;
-        //typedef make_expr_ref<tag::minus>               make_minus_ref;
-        //typedef make_expr_ref<tag::less>                make_less_ref;
-        //typedef make_expr_ref<tag::greater>             make_greater_ref;
-        //typedef make_expr_ref<tag::less_equal>          make_less_equal_ref;
-        //typedef make_expr_ref<tag::greater_equal>       make_greater_equal_ref;
-        //typedef make_expr_ref<tag::equal_to>            make_equal_to_ref;
-        //typedef make_expr_ref<tag::not_equal_to>        make_not_equal_to_ref;
-        //typedef make_expr_ref<tag::logical_or>          make_logical_or_ref;
-        //typedef make_expr_ref<tag::logical_and>         make_logical_and_ref;
-        //typedef make_expr_ref<tag::bitwise_and>         make_bitwise_and_ref;
-        //typedef make_expr_ref<tag::bitwise_or>          make_bitwise_or_ref;
-        //typedef make_expr_ref<tag::bitwise_xor>         make_bitwise_xor_ref;
-        //typedef make_expr_ref<tag::comma>               make_comma_ref;
-        //typedef make_expr_ref<tag::mem_ptr>             make_mem_ptr_ref;
-        //typedef make_expr_ref<tag::assign>              make_assign_ref;
-        //typedef make_expr_ref<tag::shift_left_assign>   make_shift_left_assign_ref;
-        //typedef make_expr_ref<tag::shift_right_assign>  make_shift_right_assign_ref;
-        //typedef make_expr_ref<tag::multiplies_assign>   make_multiplies_assign_ref;
-        //typedef make_expr_ref<tag::divides_assign>      make_divides_assign_ref;
-        //typedef make_expr_ref<tag::modulus_assign>      make_modulus_assign_ref;
-        //typedef make_expr_ref<tag::plus_assign>         make_plus_assign_ref;
-        //typedef make_expr_ref<tag::minus_assign>        make_minus_assign_ref;
-        //typedef make_expr_ref<tag::bitwise_and_assign>  make_bitwise_and_assign_ref;
-        //typedef make_expr_ref<tag::bitwise_or_assign>   make_bitwise_or_assign_ref;
-        //typedef make_expr_ref<tag::bitwise_xor_assign>  make_bitwise_xor_assign_ref;
-        //typedef make_expr_ref<tag::subscript>           make_subscript_ref;
-        //typedef make_expr_ref<tag::if_else_>            make_if_else_ref;
-        //typedef make_expr_ref<tag::function>            make_function_ref;
 
         struct flatten;
         struct pop_front;
@@ -577,82 +585,11 @@ namespace boost { namespace proto
     typedef functional::make_if_else                _make_if_else;
     typedef functional::make_function               _make_function;
 
-    //typedef functional::make_terminal_ref               _make_terminal_ref;
-    //typedef functional::make_posit_ref                  _make_posit_ref;
-    //typedef functional::make_negate_ref                 _make_negate_ref;
-    //typedef functional::make_dereference_ref            _make_dereference_ref;
-    //typedef functional::make_complement_ref             _make_complement_ref;
-    //typedef functional::make_address_of_ref             _make_address_of_ref;
-    //typedef functional::make_logical_not_ref            _make_logical_not_ref;
-    //typedef functional::make_pre_inc_ref                _make_pre_inc_ref;
-    //typedef functional::make_pre_dec_ref                _make_pre_dec_ref;
-    //typedef functional::make_post_inc_ref               _make_post_inc_ref;
-    //typedef functional::make_post_dec_ref               _make_post_dec_ref;
-    //typedef functional::make_shift_left_ref             _make_shift_left_ref;
-    //typedef functional::make_shift_right_ref            _make_shift_right_ref;
-    //typedef functional::make_multiplies_ref             _make_multiplies_ref;
-    //typedef functional::make_divides_ref                _make_divides_ref;
-    //typedef functional::make_modulus_ref                _make_modulus_ref;
-    //typedef functional::make_plus_ref                   _make_plus_ref;
-    //typedef functional::make_minus_ref                  _make_minus_ref;
-    //typedef functional::make_less_ref                   _make_less_ref;
-    //typedef functional::make_greater_ref                _make_greater_ref;
-    //typedef functional::make_less_equal_ref             _make_less_equal_ref;
-    //typedef functional::make_greater_equal_ref          _make_greater_equal_ref;
-    //typedef functional::make_equal_to_ref               _make_equal_to_ref;
-    //typedef functional::make_not_equal_to_ref           _make_not_equal_to_ref;
-    //typedef functional::make_logical_or_ref             _make_logical_or_ref;
-    //typedef functional::make_logical_and_ref            _make_logical_and_ref;
-    //typedef functional::make_bitwise_and_ref            _make_bitwise_and_ref;
-    //typedef functional::make_bitwise_or_ref             _make_bitwise_or_ref;
-    //typedef functional::make_bitwise_xor_ref            _make_bitwise_xor_ref;
-    //typedef functional::make_comma_ref                  _make_comma_ref;
-    //typedef functional::make_mem_ptr_ref                _make_mem_ptr_ref;
-    //typedef functional::make_assign_ref                 _make_assign_ref;
-    //typedef functional::make_shift_left_assign_ref      _make_shift_left_assign_ref;
-    //typedef functional::make_shift_right_assign_ref     _make_shift_right_assign_ref;
-    //typedef functional::make_multiplies_assign_ref      _make_multiplies_assign_ref;
-    //typedef functional::make_divides_assign_ref         _make_divides_assign_ref;
-    //typedef functional::make_modulus_assign_ref         _make_modulus_assign_ref;
-    //typedef functional::make_plus_assign_ref            _make_plus_assign_ref;
-    //typedef functional::make_minus_assign_ref           _make_minus_assign_ref;
-    //typedef functional::make_bitwise_and_assign_ref     _make_bitwise_and_assign_ref;
-    //typedef functional::make_bitwise_or_assign_ref      _make_bitwise_or_assign_ref;
-    //typedef functional::make_bitwise_xor_assign_ref     _make_bitwise_xor_assign_ref;
-    //typedef functional::make_subscript_ref              _make_subscript_ref;
-    //typedef functional::make_if_else_ref                _make_if_else_ref;
-    //typedef functional::make_function_ref               _make_function_ref;
-
     typedef functional::flatten     _flatten;
     typedef functional::pop_front   _pop_front;
     typedef functional::reverse     _reverse;
+    typedef functional::deep_copy   _eval;
     typedef functional::deep_copy   _deep_copy;
-
-#define BOOST_PROTO_IDENTITY_TRANSFORM()                                                            \
-    template<typename Expr_, typename State_, typename Visitor_>                                    \
-    Expr_ const &operator ()(Expr_ const &expr_, State_ const &, Visitor_ &) const                  \
-    {                                                                                               \
-        return expr_;                                                                               \
-    }                                                                                               \
-                                                                                                    \
-    template<typename Sig>                                                                          \
-    struct result;                                                                                  \
-                                                                                                    \
-    template<typename This, typename Expr_, typename State_, typename Visitor_>                     \
-    struct result<This(Expr_,State_,Visitor_)>                                                      \
-    {                                                                                               \
-        typedef Expr_ type;                                                                         \
-    }
-
-    namespace has_transformns_
-    {
-        struct has_identity_transform
-        {
-            BOOST_PROTO_IDENTITY_TRANSFORM();
-        };
-    }
-
-    using has_transformns_::has_identity_transform;
 
     template<typename T>
     struct is_callable;
@@ -722,6 +659,8 @@ namespace boost { namespace proto
         typedef arg0 arg;
         typedef arg0 left;
         typedef arg1 right;
+
+        struct _ref;
     }
 
     using transform::when;
@@ -755,6 +694,8 @@ namespace boost { namespace proto
 
     template<int I>
     struct _arg_c;
+
+    using transform::_ref;
 
     template<typename T>
     struct is_extension;

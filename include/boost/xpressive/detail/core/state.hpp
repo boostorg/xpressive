@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // state.hpp
 //
-//  Copyright 2007 Eric Niebler. Distributed under the Boost
+//  Copyright 2008 Eric Niebler. Distributed under the Boost
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -127,6 +127,7 @@ struct match_state
     actionable const **action_list_tail_;
     action_args_type *action_args_;
     attr_context attr_context_;
+    BidiIter next_search_;
 
     ///////////////////////////////////////////////////////////////////////////////
     //
@@ -151,6 +152,7 @@ struct match_state
       , action_list_tail_(&action_list_.next)
       , action_args_(&core_access<BidiIter>::get_action_args(what))
       , attr_context_() // zero-initializes the fields of attr_context_
+      , next_search_(begin)
     {
         // reclaim any cached memory in the match_results struct
         this->extras_->sub_match_stack_.unwind();

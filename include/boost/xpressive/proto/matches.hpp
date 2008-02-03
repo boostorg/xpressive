@@ -4,7 +4,7 @@
     /// Contains definition of matches\<\> metafunction for determining if
     /// a given expression matches a given pattern.
     //
-    //  Copyright 2007 Eric Niebler. Distributed under the Boost
+    //  Copyright 2008 Eric Niebler. Distributed under the Boost
     //  Software License, Version 1.0. (See accompanying file
     //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -42,7 +42,7 @@
     // Some compilers (like GCC) need extra help figuring out a template's arity.
     // I use MPL's BOOST_MPL_AUX_LAMBDA_ARITY_PARAM() macro to disambiguate, which
     // which is controlled by the BOOST_MPL_LIMIT_METAFUNCTION_ARITY macro. If
-    // You define BOOST_PROTO_MAX_ARITY to be greater than 
+    // You define BOOST_PROTO_MAX_ARITY to be greater than
     // BOOST_MPL_LIMIT_METAFUNCTION_ARITY on these compilers, things don't work.
     // You must define BOOST_MPL_LIMIT_METAFUNCTION_ARITY to be greater.
     #ifdef BOOST_MPL_CFG_EXTENDED_TEMPLATE_PARAMETERS_MATCHING
@@ -197,7 +197,7 @@
             template<
                 typename T
               , typename U
-              , bool B = is_array<typename remove_cv_ref<T>::type>::value
+              , bool B = is_array<BOOST_PROTO_UNCVREF(T)>::value
             >
             struct terminal_array_matches
               : mpl::false_
@@ -225,8 +225,8 @@
                     mpl::and_<
                         is_cv_ref_compatible<T, U>
                       , lambda_matches<
-                            typename remove_cv_ref<T>::type
-                          , typename remove_cv_ref<U>::type
+                            BOOST_PROTO_UNCVREF(T)
+                          , BOOST_PROTO_UNCVREF(U)
                         >
                     >
                   , terminal_array_matches<T, U>
@@ -239,8 +239,8 @@
               : mpl::and_<
                     is_cv_ref_compatible<T, U>
                   , lambda_matches<
-                        typename remove_cv_ref<T>::type
-                      , typename remove_cv_ref<U>::type
+                        BOOST_PROTO_UNCVREF(T)
+                      , BOOST_PROTO_UNCVREF(U)
                     >
                 >
             {};
@@ -400,11 +400,23 @@
 
         namespace wildcardns_
         {
-            struct _
-              : has_identity_transform
+            struct _ : proto::callable
             {
-                BOOST_PROTO_CALLABLE()
                 typedef _ proto_base_expr;
+
+                template<typename Sig> struct result {};
+
+                template<typename This, typename Expr, typename State, typename Visitor>
+                struct result<This(Expr, State, Visitor)>
+                {
+                    typedef Expr type;
+                };
+
+                template<typename Expr, typename State, typename Visitor>
+                Expr const &operator ()(Expr const &expr, State const &, Visitor &) const
+                {
+                    return expr;
+                }
             };
         }
 
@@ -412,30 +424,46 @@
         {
             // not_
             template<typename Grammar>
-            struct not_
-              : has_identity_transform
+            struct not_ : proto::callable
             {
-                BOOST_PROTO_CALLABLE()
                 typedef not_ proto_base_expr;
+
+                template<typename Sig> struct result {};
+
+                template<typename This, typename Expr, typename State, typename Visitor>
+                struct result<This(Expr, State, Visitor)>
+                {
+                    typedef Expr type;
+                };
+
+                template<typename Expr, typename State, typename Visitor>
+                Expr const &operator ()(Expr const &expr, State const &, Visitor &) const
+                {
+                    return expr;
+                }
             };
 
             // if_
             template<typename If, typename Then, typename Else>
-            struct if_ : callable
+            struct if_ : proto::callable
             {
                 typedef if_ proto_base_expr;
 
-                template<typename Sig>
-                struct result;
+                template<typename Sig> struct result {};
 
                 template<typename This, typename Expr, typename State, typename Visitor>
                 struct result<This(Expr, State, Visitor)>
-                  : mpl::eval_if<
-                        typename when<_, If>::template result<void(Expr, State, Visitor)>::type
-                      , typename when<_, Then>::template result<void(Expr, State, Visitor)>
-                      , typename when<_, Else>::template result<void(Expr, State, Visitor)>
-                    >
-                {};
+                {
+                    typedef
+                        typename mpl::if_<
+                            typename when<_, If>::template result<void(Expr, State, Visitor)>::type
+                          , when<_, Then>
+                          , when<_, Else>
+                        >::type
+                    branch;
+
+                    typedef typename branch::template result<void(Expr, State, Visitor)>::type type;
+                };
 
                 template<typename Expr, typename State, typename Visitor>
                 typename result<void(Expr, State, Visitor)>::type
@@ -455,12 +483,11 @@
 
             // or_
             template<BOOST_PP_ENUM_PARAMS(BOOST_PROTO_MAX_LOGICAL_ARITY, typename G)>
-            struct or_ : callable
+            struct or_ : proto::callable
             {
                 typedef or_ proto_base_expr;
 
-                template<typename Sig>
-                struct result;
+                template<typename Sig> struct result {};
 
                 template<typename This, typename Expr, typename State, typename Visitor>
                 struct result<This(Expr, State, Visitor)>
@@ -480,12 +507,11 @@
 
             // and_
             template<BOOST_PP_ENUM_PARAMS(BOOST_PROTO_MAX_LOGICAL_ARITY, typename G)>
-            struct and_ : callable
+            struct and_ : proto::callable
             {
                 typedef and_ proto_base_expr;
 
-                template<typename Sig>
-                struct result;
+                template<typename Sig> struct result {};
 
                 template<typename This, typename Expr, typename State, typename Visitor>
                 struct result<This(Expr, State, Visitor)>
@@ -505,23 +531,25 @@
 
             // switch_
             template<typename Cases>
-            struct switch_ : callable
+            struct switch_ : proto::callable
             {
                 typedef switch_ proto_base_expr;
 
-                template<typename Sig>
-                struct result;
+                template<typename Sig> struct result {};
 
                 template<typename This, typename Expr, typename State, typename Visitor>
                 struct result<This(Expr, State, Visitor)>
-                  : Cases::template case_<typename Expr::proto_tag>::template result<void(Expr, State, Visitor)>
-                {};
+                {
+                    typedef typename Cases::template case_<typename Expr::proto_tag> impl;
+                    typedef typename impl::template result<void(Expr, State, Visitor)>::type type;
+                };
 
                 template<typename Expr, typename State, typename Visitor>
                 typename result<void(Expr, State, Visitor)>::type
                 operator ()(Expr const &expr, State const &state, Visitor &visitor) const
                 {
-                    return typename Cases::template case_<typename Expr::proto_tag>()(expr, state, visitor);
+                    typedef typename Cases::template case_<typename Expr::proto_tag> impl;
+                    return impl()(expr, state, visitor);
                 }
             };
 

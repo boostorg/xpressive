@@ -5,7 +5,7 @@
     /// right\<\>, tag\<\>, and the helper functions arg(), arg_c(),
     /// left() and right().
     //
-    //  Copyright 2007 Eric Niebler. Distributed under the Boost
+    //  Copyright 2008 Eric Niebler. Distributed under the Boost
     //  Software License, Version 1.0. (See accompanying file
     //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -241,9 +241,22 @@
         {
             // terminal
             template<typename T>
-            struct terminal : has_identity_transform
+            struct terminal
             {
-                BOOST_PROTO_NOT_CALLABLE()
+                template<typename Sig> struct result {};
+
+                template<typename This, typename Expr, typename State, typename Visitor>
+                struct result<This(Expr, State, Visitor)>
+                {
+                    typedef Expr type;
+                };
+
+                template<typename Expr, typename State, typename Visitor>
+                Expr const &operator ()(Expr const &expr, State const &, Visitor &) const
+                {
+                    return expr;
+                }
+
                 typedef proto::expr<proto::tag::terminal, args0<T> > type;
                 typedef type proto_base_expr;
                 typedef proto::tag::terminal proto_tag;
@@ -355,7 +368,7 @@
             BOOST_PROTO_BINARY_GENERATOR(bitwise_or_assign)
             BOOST_PROTO_BINARY_GENERATOR(bitwise_xor_assign)
             BOOST_PROTO_BINARY_GENERATOR(subscript)
-        
+
         } // namespace op
 
         #undef BOOST_PROTO_UNARY_GENERATOR
@@ -388,7 +401,7 @@
             struct as_expr
             {
                 template<typename Sig>
-                struct result;
+                struct result {};
 
                 template<typename This, typename T>
                 struct result<This(T)>
@@ -430,7 +443,7 @@
             struct as_arg
             {
                 template<typename Sig>
-                struct result;
+                struct result {};
 
                 template<typename This, typename T>
                 struct result<This(T)>
@@ -456,11 +469,11 @@
             struct arg_c
             {
                 template<typename Sig>
-                struct result;
+                struct result {};
 
                 template<typename This, typename Expr>
                 struct result<This(Expr)>
-                  : result_of::arg_c<typename detail::remove_cv_ref<Expr>::type, N>
+                  : result_of::arg_c<BOOST_PROTO_UNCVREF(Expr), N>
                 {};
 
                 template<typename Expr>
@@ -480,11 +493,11 @@
             struct arg
             {
                 template<typename Sig>
-                struct result;
+                struct result {};
 
                 template<typename This, typename Expr>
                 struct result<This(Expr)>
-                  : result_of::arg<typename detail::remove_cv_ref<Expr>::type, N>
+                  : result_of::arg<BOOST_PROTO_UNCVREF(Expr), N>
                 {};
 
                 template<typename Expr>
@@ -503,11 +516,11 @@
             struct left
             {
                 template<typename Sig>
-                struct result;
+                struct result {};
 
                 template<typename This, typename Expr>
                 struct result<This(Expr)>
-                  : result_of::left<typename detail::remove_cv_ref<Expr>::type>
+                  : result_of::left<BOOST_PROTO_UNCVREF(Expr)>
                 {};
 
                 template<typename Expr>
@@ -526,11 +539,11 @@
             struct right
             {
                 template<typename Sig>
-                struct result;
+                struct result {};
 
                 template<typename This, typename Expr>
                 struct result<This(Expr)>
-                  : result_of::right<typename detail::remove_cv_ref<Expr>::type>
+                  : result_of::right<BOOST_PROTO_UNCVREF(Expr)>
                 {};
 
                 template<typename Expr>
@@ -772,14 +785,22 @@
         {
             template<typename Expr>
             struct arg_c<Expr, N>
-              : unref<typename Expr::BOOST_PP_CAT(proto_arg, N)>
             {
-                static typename arg_c<Expr, N>::reference call(Expr &expr)
+                typedef typename Expr::BOOST_PP_CAT(proto_arg, N) wrapped_type;
+                typedef typename unref<wrapped_type>::type type;
+                typedef typename unref<wrapped_type>::reference reference;
+                typedef typename unref<wrapped_type>::const_reference const_reference;
+
+                /// INTERNAL ONLY
+                ///
+                static reference call(Expr &expr)
                 {
                     return proto::unref(expr.proto_base().BOOST_PP_CAT(arg, N));
                 }
 
-                static typename arg_c<Expr, N>::const_reference call(Expr const &expr)
+                /// INTERNAL ONLY
+                ///
+                static const_reference call(Expr const &expr)
                 {
                     return proto::unref(expr.proto_base().BOOST_PP_CAT(arg, N));
                 }

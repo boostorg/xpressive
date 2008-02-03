@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // examples2.hpp
 //
-//  Copyright 2006 Eric Niebler. Distributed under the Boost
+//  Copyright 2008 Eric Niebler. Distributed under the Boost
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -11,8 +11,12 @@
 #include <boost/xpressive/proto/proto.hpp>
 #include <boost/xpressive/proto/transform.hpp>
 #include <boost/utility/result_of.hpp>
-#include <boost/fusion/include/cons.hpp>
-#include <boost/fusion/include/pop_front.hpp>
+#if BOOST_VERSION < 103500
+# include <boost/spirit/fusion/sequence/cons.hpp>
+#else
+# include <boost/fusion/include/cons.hpp>
+# include <boost/fusion/include/pop_front.hpp>
+#endif
 #include <boost/test/unit_test.hpp>
 
 namespace proto = boost::proto;
@@ -265,7 +269,7 @@ struct MakePair
         function<terminal<make_pair_tag>, terminal<_>, terminal<_> >
       /*<< Return `std::pair<F,S>(f,s)` where `f` and `s` are the
       first and second arguments to the lazy `make_pair_()` function.
-      (This uses `proto:::make<>` under the covers to evaluate the 
+      (This uses `proto:::make<>` under the covers to evaluate the
       transform.)>>*/
       , std::pair<_arg(_arg1), _arg(_arg2)>(_arg(_arg1), _arg(_arg2))
     >
@@ -285,7 +289,7 @@ namespace lazy_make_pair2
     struct make_pair : proto::callable
     {
         template<typename Sig> struct result;
-        
+
         template<typename This, typename First, typename Second>
         struct result<This(First, Second)>
         {
@@ -309,7 +313,7 @@ namespace lazy_make_pair2
             function<terminal<make_pair_tag>, terminal<_>, terminal<_> >
           /*<< Return `make_pair()(f,s)` where `f` and `s` are the
           first and second arguments to the lazy `make_pair_()` function.
-          (This uses `proto:::call<>` under the covers  to evaluate the 
+          (This uses `proto:::call<>` under the covers  to evaluate the
           transform.)>>*/
           , make_pair(_arg(_arg1), _arg(_arg2))
         >
@@ -392,9 +396,9 @@ void test_examples()
     BOOST_CHECK_EQUAL(p3.second, 3.14);
 
     NegateInt()(lit(1), i, i);
-#ifndef BOOST_MSVC
+    #ifndef BOOST_MSVC
     SquareAndPromoteInt()(lit(1), i, i);
-#endif
+    #endif
 }
 
 using namespace boost::unit_test;
