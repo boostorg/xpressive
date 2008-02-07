@@ -351,10 +351,14 @@
             struct protoify_
             {
                 typedef
+                    typename boost::unwrap_reference<T>::type
+                unref_type;
+
+                typedef
                     typename mpl::eval_if<
                         boost::is_reference_wrapper<T>
-                      , proto::result_of::as_arg<typename boost::unwrap_reference<T>::type, Domain>
-                      , proto::result_of::as_expr<T, Domain>
+                      , proto::result_of::as_arg<unref_type, Domain>
+                      , proto::result_of::as_expr<unref_type, Domain>
                     >::type
                 type;
 
@@ -364,7 +368,7 @@
                         is_reference_wrapper<T>
                       , functional::as_arg<Domain>
                       , functional::as_expr<Domain>
-                    >::type()(static_cast<typename boost::unwrap_reference<T>::type &>(t));
+                    >::type()(static_cast<unref_type &>(t));
                 }
             };
 
@@ -372,17 +376,16 @@
             struct protoify_<T &, Domain>
             {
                 typedef
-                    typename proto::result_of::as_arg<
-                        typename boost::unwrap_reference<T>::type
-                      , Domain
-                    >::type
+                    typename boost::unwrap_reference<T>::type
+                unref_type;
+
+                typedef
+                    typename proto::result_of::as_arg<unref_type, Domain>::type
                 type;
 
                 static type call(T &t)
                 {
-                    return functional::as_arg<Domain>()(
-                        static_cast<typename boost::unwrap_reference<T>::type &>(t)
-                    );
+                    return functional::as_arg<Domain>()(static_cast<unref_type &>(t));
                 }
             };
 
@@ -563,7 +566,7 @@
                 BOOST_PROTO_CALLABLE()
 
                 template<typename Sig>
-                struct result {};
+                struct result;
 
                 template<typename This, typename A0>
                 struct result<This(A0)>
@@ -645,7 +648,7 @@
                 BOOST_PROTO_CALLABLE()
 
                 template<typename Sig>
-                struct result {};
+                struct result;
 
                 template<typename This, typename Sequence>
                 struct result<This(Sequence)>
@@ -757,11 +760,15 @@
 
     #include BOOST_PP_ITERATE()
 
+        /// INTERNAL ONLY
+        ///
         template<typename Tag, typename Domain>
         struct is_callable<functional::make_expr<Tag, Domain> >
           : mpl::true_
         {};
 
+        /// INTERNAL ONLY
+        ///
         template<typename Tag, typename Domain>
         struct is_callable<functional::unpack_expr<Tag, Domain> >
           : mpl::true_

@@ -168,7 +168,8 @@
             template<typename Fun>
             struct make : proto::callable
             {
-                template<typename Sig> struct result {};
+                template<typename Sig>
+                struct result;
 
                 template<typename This, typename Expr, typename State, typename Visitor>
                 struct result<This(Expr, State, Visitor)>
@@ -178,7 +179,7 @@
 
                 template<typename Expr, typename State, typename Visitor>
                 typename result<void(Expr, State, Visitor)>::type
-                operator ()(Expr const &expr, State const &state, Visitor &visitor) const
+                operator ()(Expr const &, State const &, Visitor &) const
                 {
                     typedef typename result<void(Expr, State, Visitor)>::type result_type;
                     return result_type();
@@ -189,6 +190,8 @@
             #include BOOST_PP_ITERATE()
         }
 
+        /// INTERNAL ONLY
+        ///
         template<typename Fun>
         struct is_callable<transform::make<Fun> >
           : mpl::true_
@@ -273,7 +276,8 @@
         template<typename Return BOOST_PP_ENUM_TRAILING_PARAMS(N, typename A)>
         struct make<Return(BOOST_PP_ENUM_PARAMS(N, A))> : proto::callable
         {
-            template<typename Sig> struct result {};
+            template<typename Sig>
+            struct result;
 
             template<typename This, typename Expr, typename State, typename Visitor>
             struct result<This(Expr, State, Visitor)>
@@ -300,7 +304,8 @@
         struct make<proto::expr<Tag, Args, Arity>(BOOST_PP_ENUM_PARAMS(N, A))>
           : proto::callable
         {
-            template<typename Sig> struct result {};
+            template<typename Sig>
+            struct result;
 
             template<typename This, typename Expr, typename State, typename Visitor>
             struct result<This(Expr, State, Visitor)>

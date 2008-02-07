@@ -10,6 +10,7 @@
 #define BOOST_PROTO_EVAL_HPP_EAN_03_29_2007
 
 #include <boost/xpressive/proto/detail/prefix.hpp> // must be first include
+#include <boost/xpressive/proto/proto_fwd.hpp> // BOOST_PROTO_CALLABLE
 #include <boost/type_traits/remove_reference.hpp>
 #include <boost/xpressive/proto/detail/suffix.hpp> // must be last include
 
@@ -42,7 +43,7 @@ namespace boost { namespace proto
             BOOST_PROTO_CALLABLE()
 
             template<typename Sig>
-            struct result {};
+            struct result;
 
             template<typename This, typename Expr, typename Context>
             struct result<This(Expr, Context)>
@@ -60,8 +61,7 @@ namespace boost { namespace proto
             /// \param The Proto expression to evaluate
             /// \param The context in which the expression should be
             ///     evaluated.
-            /// \note This function is equivalent to
-            ///     <tt>typename Context::template eval<Expr>()(expr, context)</tt>.
+            /// \return <tt>typename Context::template eval<Expr>()(expr, context)</tt>
             template<typename Expr, typename Context>
             typename proto::result_of::eval<Expr, Context>::type
             operator ()(Expr &expr, Context &context) const
