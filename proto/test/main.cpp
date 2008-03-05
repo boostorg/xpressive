@@ -14,7 +14,7 @@
 
 namespace boost { namespace fusion
 {
-    inline std::ostream &operator<<(std::ostream &sout, nil)
+    inline std::ostream &operator <<(std::ostream &sout, nil)
     {
         return sout << "<nil>";
     }
@@ -58,7 +58,7 @@ struct make_negate : callable
 
     template<typename T>
     typename negate<T>::type
-    operator()(T const &t) const
+    operator ()(T const &t) const
     {
         typename negate<T>::type that = {t};
         return that;
@@ -77,7 +77,7 @@ struct make_negate : callable
 //
 //    template<typename T, typename U>
 //    fusion::cons<T, U>
-//    operator()(T const &t, U const &u) const
+//    operator ()(T const &t, U const &u) const
 //    {
 //        return fusion::cons<T, U>(t, u);
 //    }
@@ -152,13 +152,13 @@ struct noncopy
     ~noncopy() {}
 private:
     noncopy(const noncopy &);
-    noncopy &operator=(const noncopy &);
+    noncopy &operator =(const noncopy &);
 };
 
 struct disp
 {
     template<typename T>
-    void operator()(T const &t) const
+    void operator ()(T const &t) const
     {
         std::printf("%s\n", typeid(T).name());
     }
@@ -180,7 +180,7 @@ struct byvalexpr
       : extends<E, byvalexpr<E>, byvaldom>(e)
     {}
 
-    using extends<E, byvalexpr<E>, byvaldom>::operator=;
+    using extends<E, byvalexpr<E>, byvaldom>::operator =;
 };
 
 byvalexpr<terminal<int>::type> A;

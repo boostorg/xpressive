@@ -333,14 +333,14 @@ namespace boost { namespace proto
 
         #ifdef BOOST_HAS_VARIADIC_TMPL
             template<typename... Args>
-            Cons operator()(Args &... args) const
+            Cons operator ()(Args &... args) const
             {
                 return argsns_::make_cons_<Cons>(args...);
             }
         #else
             #define TMP(Z, N, DATA)                                                                 \
             template<BOOST_PP_ENUM_PARAMS_Z(Z, N, typename A)>                                      \
-            Cons operator()(BOOST_PP_ENUM_BINARY_PARAMS_Z(Z, N, A, &a)) const                       \
+            Cons operator ()(BOOST_PP_ENUM_BINARY_PARAMS_Z(Z, N, A, &a)) const                       \
             {                                                                                       \
                 return argsns_::make_cons_<Cons>(BOOST_PP_ENUM_PARAMS_Z(Z, N, a));                  \
             }

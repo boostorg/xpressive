@@ -268,7 +268,7 @@ namespace boost { namespace spirit2
         {}
 
         template<typename T>
-        bool operator()(T const &t) const
+        bool operator ()(T const &t) const
         {
             Iterator tmp = this->first;
             if((*static_cast<Derived const *>(this))(t))
@@ -307,24 +307,24 @@ namespace boost { namespace spirit2
         #endif
 
         template<typename T>
-        bool operator()(T const &t, bool success) const // used by fusion::fold
+        bool operator ()(T const &t, bool success) const // used by fusion::fold
         {
             return success && (*this)(t);
         }
 
         template<typename List>
-        bool operator()(alternate<List> const &alternates) const
+        bool operator ()(alternate<List> const &alternates) const
         {
             return fusion::any(alternates.elems, *static_cast<with_reset const *>(this));
         }
 
         template<typename List>
-        bool operator()(sequence<List> const &sequence) const
+        bool operator ()(sequence<List> const &sequence) const
         {
             return fusion::fold(sequence.elems, true, *this);
         }
 
-        bool operator()(char_tag ch) const
+        bool operator ()(char_tag ch) const
         {
             if(this->done())
                 return false;
@@ -332,7 +332,7 @@ namespace boost { namespace spirit2
             return true;
         }
 
-        bool operator()(char ch) const
+        bool operator ()(char ch) const
         {
             if(this->done() || ch != *this->first)
                 return false;
@@ -340,7 +340,7 @@ namespace boost { namespace spirit2
             return true;
         }
 
-        bool operator()(ichar ich) const
+        bool operator ()(ichar ich) const
         {
             if(this->done() || !utility::char_icmp(*this->first, ich.lo_, ich.hi_))
                 return false;
@@ -348,17 +348,17 @@ namespace boost { namespace spirit2
             return true;
         }
 
-        bool operator()(char const *sz) const
+        bool operator ()(char const *sz) const
         {
             return utility::string_cmp(sz, this->first, this->second);
         }
 
-        bool operator()(istr const &s) const
+        bool operator ()(istr const &s) const
         {
             return utility::string_icmp(s.str_, this->first, this->second);
         }
 
-        bool operator()(char_range rng) const
+        bool operator ()(char_range rng) const
         {
             if(this->done() || !utility::in_range(*this->first, rng.first, rng.second))
                 return false;
@@ -366,7 +366,7 @@ namespace boost { namespace spirit2
             return true;
         }
 
-        bool operator()(ichar_range rng) const
+        bool operator ()(ichar_range rng) const
         {
             if(this->done() || !utility::in_irange(*this->first, rng.first, rng.second))
                 return false;

@@ -26,7 +26,7 @@ namespace boost { namespace proto
         struct null_eval
         {
             typedef void result_type;
-            void operator()(Expr &expr, Context &ctx) const
+            void operator ()(Expr &expr, Context &ctx) const
             {
                 this->call_(expr.proto_base().proto_args_, ctx);
             }
@@ -47,7 +47,7 @@ namespace boost { namespace proto
         struct null_eval<Expr, Context, 0>
         {
             typedef void result_type;
-            void operator()(Expr &, Context &) const
+            void operator ()(Expr &, Context &) const
             {}
         };
 

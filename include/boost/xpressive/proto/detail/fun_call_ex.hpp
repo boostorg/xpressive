@@ -8,13 +8,14 @@
     //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
     #define M1(Z, N, _) ((0)(1))
+    //#define M1(Z, N, _) ((1))
 
     #define M2(R, PRODUCT) M3(R, BOOST_PP_SEQ_SIZE(PRODUCT), PRODUCT)
 
     #define M3(R, SIZE, PRODUCT)                                                                    \
         template<BOOST_PP_ENUM_PARAMS(SIZE, typename A)>                                            \
         expr<tag::function, args<expr &, BOOST_PP_SEQ_FOR_EACH_I_R(R, M5, ~, PRODUCT)> > const      \
-        operator()(BOOST_PP_SEQ_FOR_EACH_I_R(R, M4, ~, PRODUCT))                                    \
+        operator ()(BOOST_PP_SEQ_FOR_EACH_I_R(R, M4, ~, PRODUCT))                                    \
         {                                                                                           \
             typedef args<expr &, BOOST_PP_SEQ_FOR_EACH_I_R(R, M5, ~, PRODUCT)> args_type;           \
             expr<tag::function, args_type> that = {                                                 \
@@ -28,7 +29,7 @@
                                                                                                     \
         template<BOOST_PP_ENUM_PARAMS(SIZE, typename A)>                                            \
         expr<tag::function, args<expr const &, BOOST_PP_SEQ_FOR_EACH_I_R(R, M5, ~, PRODUCT)> >  const\
-        operator()(BOOST_PP_SEQ_FOR_EACH_I_R(R, M4, ~, PRODUCT)) const                              \
+        operator ()(BOOST_PP_SEQ_FOR_EACH_I_R(R, M4, ~, PRODUCT)) const                              \
         {                                                                                           \
             typedef args<expr const &, BOOST_PP_SEQ_FOR_EACH_I_R(R, M5, ~, PRODUCT)> args_type;     \
             expr<tag::function, args_type> that = {                                                 \

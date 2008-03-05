@@ -30,7 +30,7 @@ namespace boost { namespace proto
 
             struct private_type_
             {
-                private_type_ const &operator,(int) const;
+                private_type_ const &operator ,(int) const;
             };
 
             template<typename T>
@@ -178,7 +178,7 @@ namespace boost { namespace proto
 
             template<typename Expr, typename State, typename Visitor>
             typename result<call(Expr const &, State const &, Visitor &)>::type
-            operator()(Expr const &expr, State const &state, Visitor &visitor) const
+            operator ()(Expr const &expr, State const &state, Visitor &visitor) const
             {
                 Fun f;
                 return f(expr, state, visitor);
@@ -203,7 +203,7 @@ namespace boost { namespace proto
 
             template<typename Expr, typename State, typename Visitor>
             typename result<call(Expr const &, State const &, Visitor &)>::type
-            operator()(Expr const &expr, State const &state, Visitor &visitor) const
+            operator ()(Expr const &expr, State const &state, Visitor &visitor) const
             {
                 return result<call(Expr const &, State const &, Visitor &)>::call(
                     expr
@@ -231,7 +231,7 @@ namespace boost { namespace proto
 
             template<typename Expr, typename State, typename Visitor>
             typename result<call(Expr const &, State const &, Visitor &)>::type
-            operator()(Expr const &expr, State const &state, Visitor &visitor) const
+            operator ()(Expr const &expr, State const &state, Visitor &visitor) const
             {
                 return result<call(Expr const &, State const &, Visitor &)>::call(
                     when<_, Arg0>()(expr, state, visitor)
@@ -259,7 +259,7 @@ namespace boost { namespace proto
 
             template<typename Expr, typename State, typename Visitor>
             typename result<call(Expr const &, State const &, Visitor &)>::type
-            operator()(Expr const &expr, State const &state, Visitor &visitor) const
+            operator ()(Expr const &expr, State const &state, Visitor &visitor) const
             {
                 return result<call(Expr const &, State const &, Visitor &)>::call(
                     when<_, Arg0>()(expr, state, visitor)
@@ -288,7 +288,7 @@ namespace boost { namespace proto
 
             template<typename Expr, typename State, typename Visitor>
             typename result<call(Expr const &, State const &, Visitor &)>::type
-            operator()(Expr const &expr, State const &state, Visitor &visitor) const
+            operator ()(Expr const &expr, State const &state, Visitor &visitor) const
             {
                 Fun f;
                 return f(
@@ -315,7 +315,7 @@ namespace boost { namespace proto
 
             template<typename Expr, typename State, typename Visitor>
             typename result<call(Expr const &, State const &, Visitor &)>::type
-            operator()(Expr const &expr, State const &state, Visitor &visitor) const
+            operator ()(Expr const &expr, State const &state, Visitor &visitor) const
             {
                 Fun f;
                 return f(when<_, Args>()(expr, state, visitor)...);

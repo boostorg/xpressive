@@ -191,7 +191,7 @@ namespace boost { namespace xpressive
 
             template<typename T, typename Visitor>
             typename Visitor::template apply<T>::type
-            operator()(T const &t, Visitor &visitor) const
+            operator ()(T const &t, Visitor &visitor) const
             {
                 return visitor.call(t);
             }
@@ -202,7 +202,7 @@ namespace boost { namespace xpressive
             typedef std::size_t result_type;
 
             template<typename Xpr>
-            std::size_t operator()(Xpr const &xpr) const
+            std::size_t operator ()(Xpr const &xpr) const
             {
                 return xpr.get_width().value();
             }
@@ -213,7 +213,7 @@ namespace boost { namespace xpressive
             typedef int result_type;
 
             template<typename Expr>
-            int operator()(Expr const &expr) const
+            int operator ()(Expr const &expr) const
             {
                 return expr.mark_number_;
             }
@@ -224,7 +224,7 @@ namespace boost { namespace xpressive
             typedef int result_type;
 
             template<typename Visitor>
-            int operator()(Visitor &visitor) const
+            int operator ()(Visitor &visitor) const
             {
                 return visitor.get_hidden_mark();
             }
@@ -243,7 +243,7 @@ namespace boost { namespace xpressive
 
             template<typename Visitor>
             typename Visitor::traits_type const &
-            operator()(Visitor &visitor) const
+            operator ()(Visitor &visitor) const
             {
                 return visitor.traits();
             }
@@ -262,7 +262,7 @@ namespace boost { namespace xpressive
 
             template<typename Traits>
             typename Traits::char_class_type
-            operator()(Traits const &traits) const
+            operator ()(Traits const &traits) const
             {
                 return lookup_classname(traits, "newline");
             }
@@ -281,7 +281,7 @@ namespace boost { namespace xpressive
 
             template<typename Posix, typename Visitor>
             posix_charset_matcher<typename Visitor::traits_type>
-            operator()(Posix const &posix, Visitor const &visitor, bool yes_no) const
+            operator ()(Posix const &posix, Visitor const &visitor, bool yes_no) const
             {
                 char const *name_end = posix.name_ + std::strlen(posix.name_);
                 return posix_charset_matcher<typename Visitor::traits_type>(
@@ -352,7 +352,7 @@ namespace boost { namespace xpressive
             };
 
             template<typename Set, typename Expr, typename Visitor>
-            Set operator()(Set set, Expr const &expr, Visitor &visitor) const
+            Set operator ()(Set set, Expr const &expr, Visitor &visitor) const
             {
                 typename Set::char_type *buffer = set.set_;
                 this->fill(buffer, expr, visitor.traits());
@@ -393,7 +393,7 @@ namespace boost { namespace xpressive
 
             template<typename CharSet, typename Traits, typename ICase, typename Not, typename Visitor>
             CharSet const &
-            operator()(CharSet const &charset, literal_matcher<Traits, ICase, Not> const &ch, Visitor &visitor) const
+            operator ()(CharSet const &charset, literal_matcher<Traits, ICase, Not> const &ch, Visitor &visitor) const
             {
                 BOOST_MPL_ASSERT_NOT((Not)); // TODO fixme!
                 set_char(uncv(charset.charset_), ch.ch_, visitor.traits(), ICase());
@@ -402,7 +402,7 @@ namespace boost { namespace xpressive
 
             template<typename CharSet, typename Traits, typename ICase, typename Visitor>
             CharSet const &
-            operator()(CharSet const &charset, range_matcher<Traits, ICase> const &rg, Visitor &visitor) const
+            operator ()(CharSet const &charset, range_matcher<Traits, ICase> const &rg, Visitor &visitor) const
             {
                 BOOST_ASSERT(!rg.not_); // TODO fixme!
                 set_range(uncv(charset.charset_), rg.ch_min_, rg.ch_max_, visitor.traits(), ICase());
@@ -411,7 +411,7 @@ namespace boost { namespace xpressive
 
             template<typename CharSet, typename Traits, typename Size, typename Visitor>
             CharSet const &
-            operator()(CharSet const &charset, set_matcher<Traits, Size> const &set_, Visitor &visitor) const
+            operator ()(CharSet const &charset, set_matcher<Traits, Size> const &set_, Visitor &visitor) const
             {
                 BOOST_ASSERT(!set_.not_); // TODO fixme!
                 for(int i=0; i < Size::value; ++i)
@@ -423,7 +423,7 @@ namespace boost { namespace xpressive
 
             template<typename CharSet, typename Traits, typename Visitor>
             CharSet const &
-            operator()(CharSet const &charset, posix_charset_matcher<Traits> const &posix, Visitor &visitor) const
+            operator ()(CharSet const &charset, posix_charset_matcher<Traits> const &posix, Visitor &visitor) const
             {
                 set_class(uncv(charset.charset_), posix.mask_, posix.not_, visitor.traits());
                 return charset;
@@ -442,7 +442,7 @@ namespace boost { namespace xpressive
             };
 
             template<typename Set>
-            Set operator()(Set set) const
+            Set operator ()(Set set) const
             {
                 set.inverse();
                 return set;
@@ -461,7 +461,7 @@ namespace boost { namespace xpressive
 
             template<typename Modifier, typename Visitor>
             typename Modifier::template apply<Visitor>::type
-            operator()(Modifier const &modifier, Visitor &visitor) const
+            operator ()(Modifier const &modifier, Visitor &visitor) const
             {
                 return modifier.call(visitor);
             }

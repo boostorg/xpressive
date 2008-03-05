@@ -421,7 +421,7 @@ and precedence rules for the C++ operators. Our grammar can assume them. Also,
 in C++ grouping is already handled for us with the use of parenthesis, so we
 don't have to code that into our grammar.
 
-Let's begin our grammar for forward-declaring it:
+Let's begin our grammar by forward-declaring it:
 
     struct CalculatorGrammar;
 

@@ -44,7 +44,7 @@ namespace boost { namespace proto
 
                 template<typename Expr, typename State>
                 typename boost::result_of<Tfx(Expr const &, State const &, Visitor &)>::type
-                operator()(Expr const &expr, State const &state) const
+                operator ()(Expr const &expr, State const &state) const
                 {
                     return Tfx()(expr, state, this->v_);
                 }
@@ -72,7 +72,7 @@ namespace boost { namespace proto
 
             template<typename Expr, typename State, typename Visitor>
             typename result<fold(Expr const &, State const &, Visitor &)>::type
-            operator()(Expr const &expr, State const &state, Visitor &visitor) const
+            operator ()(Expr const &expr, State const &state, Visitor &visitor) const
             {
                 detail::as_callable<Fun, Visitor> fun(visitor);
                 return fusion::fold(

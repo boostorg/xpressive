@@ -83,7 +83,7 @@
 
             template<typename Expr, typename State, typename Visitor>
             typename result<make(Expr const &, State const &, Visitor &)>::type
-            operator()(Expr const &expr, State const &state, Visitor &visitor) const
+            operator ()(Expr const &expr, State const &state, Visitor &visitor) const
             {
                 typedef typename result<make(Expr const &, State const &, Visitor &)>::type result_type;
                 return detail::construct<result_type>(
@@ -106,7 +106,7 @@
             };
 
             template<typename Expr, typename State, typename Visitor>
-            expr<Tag, Args, Arity> operator()(Expr const &expr, State const &state, Visitor &visitor) const
+            expr<Tag, Args, Arity> operator ()(Expr const &expr, State const &state, Visitor &visitor) const
             {
                 return proto::construct<proto::expr<Tag, Args, Arity> >(
                     #define TMP(Z, M, DATA) detail::as_lvalue(when<_, BOOST_PP_CAT(A, M)>()(expr, state, visitor))

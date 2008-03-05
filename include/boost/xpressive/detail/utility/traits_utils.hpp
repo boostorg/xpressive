@@ -55,7 +55,7 @@ namespace boost { namespace xpressive { namespace detail
           : traits_(traits)
         {}
 
-        result_type operator()(char ch) const
+        result_type operator ()(char ch) const
         {
             return this->traits_.widen(ch);
         }
@@ -77,7 +77,7 @@ namespace boost { namespace xpressive { namespace detail
         BOOST_MPL_ASSERT((is_same<FromChar, char>));
         typedef To const result_type;
         template<typename Traits>
-        result_type operator()(From const &from, Traits const &traits) const
+        result_type operator ()(From const &from, Traits const &traits) const
         {
             widen_fun<Traits> widen(traits);
             To to(
@@ -93,7 +93,7 @@ namespace boost { namespace xpressive { namespace detail
     {
         typedef To const result_type;
         template<typename Traits>
-        result_type operator()(From const &from, Traits const &) const
+        result_type operator ()(From const &from, Traits const &) const
         {
             To to(detail::data_begin(from), detail::data_end(from));
             return to;
@@ -105,7 +105,7 @@ namespace boost { namespace xpressive { namespace detail
     {
         typedef From const &result_type;
         template<typename Traits>
-        result_type operator()(From const &from, Traits const &) const
+        result_type operator ()(From const &from, Traits const &) const
         {
             return from;
         }

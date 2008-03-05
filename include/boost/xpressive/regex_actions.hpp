@@ -91,7 +91,7 @@ namespace boost { namespace xpressive
             typedef int result_type;
 
             template<typename Visitor, typename Expr>
-            int operator()(Visitor &visitor, Expr const &expr) const
+            int operator ()(Visitor &visitor, Expr const &expr) const
             {
                 visitor.let(expr);
                 return 0;
@@ -140,7 +140,7 @@ namespace boost { namespace xpressive
             typedef void result_type;
 
             template<typename Sequence, typename Value>
-            void operator()(Sequence &seq, Value const &val) const
+            void operator ()(Sequence &seq, Value const &val) const
             {
                 seq.push(val);
             }
@@ -151,7 +151,7 @@ namespace boost { namespace xpressive
             typedef void result_type;
 
             template<typename Sequence, typename Value>
-            void operator()(Sequence &seq, Value const &val) const
+            void operator ()(Sequence &seq, Value const &val) const
             {
                 seq.push_back(val);
             }
@@ -162,7 +162,7 @@ namespace boost { namespace xpressive
             typedef void result_type;
 
             template<typename Sequence, typename Value>
-            void operator()(Sequence &seq, Value const &val) const
+            void operator ()(Sequence &seq, Value const &val) const
             {
                 seq.push_front(val);
             }
@@ -173,7 +173,7 @@ namespace boost { namespace xpressive
             typedef void result_type;
 
             template<typename Sequence>
-            void operator()(Sequence &seq) const
+            void operator ()(Sequence &seq) const
             {
                 seq.pop();
             }
@@ -184,7 +184,7 @@ namespace boost { namespace xpressive
             typedef void result_type;
 
             template<typename Sequence>
-            void operator()(Sequence &seq) const
+            void operator ()(Sequence &seq) const
             {
                 seq.pop_back();
             }
@@ -195,7 +195,7 @@ namespace boost { namespace xpressive
             typedef void result_type;
 
             template<typename Sequence>
-            void operator()(Sequence &seq) const
+            void operator ()(Sequence &seq) const
             {
                 seq.pop_front();
             }
@@ -220,7 +220,7 @@ namespace boost { namespace xpressive
             };
 
             template<typename Sequence>
-            typename result<front(Sequence &)>::type operator()(Sequence &seq) const
+            typename result<front(Sequence &)>::type operator ()(Sequence &seq) const
             {
                 return seq.front();
             }
@@ -245,7 +245,7 @@ namespace boost { namespace xpressive
             };
 
             template<typename Sequence>
-            typename result<back(Sequence &)>::type operator()(Sequence &seq) const
+            typename result<back(Sequence &)>::type operator ()(Sequence &seq) const
             {
                 return seq.back();
             }
@@ -270,7 +270,7 @@ namespace boost { namespace xpressive
             };
 
             template<typename Sequence>
-            typename result<top(Sequence &)>::type operator()(Sequence &seq) const
+            typename result<top(Sequence &)>::type operator ()(Sequence &seq) const
             {
                 return seq.top();
             }
@@ -288,7 +288,7 @@ namespace boost { namespace xpressive
             };
 
             template<typename Pair>
-            typename Pair::first_type operator()(Pair const &p) const
+            typename Pair::first_type operator ()(Pair const &p) const
             {
                 return p.first;
             }
@@ -306,7 +306,7 @@ namespace boost { namespace xpressive
             };
 
             template<typename Pair>
-            typename Pair::second_type operator()(Pair const &p) const
+            typename Pair::second_type operator ()(Pair const &p) const
             {
                 return p.second;
             }
@@ -317,7 +317,7 @@ namespace boost { namespace xpressive
             typedef bool result_type;
 
             template<typename Sub>
-            bool operator()(Sub const &sub) const
+            bool operator ()(Sub const &sub) const
             {
                 return sub.matched;
             }
@@ -335,7 +335,7 @@ namespace boost { namespace xpressive
             };
 
             template<typename Sub>
-            typename Sub::difference_type operator()(Sub const &sub) const
+            typename Sub::difference_type operator ()(Sub const &sub) const
             {
                 return sub.length();
             }
@@ -353,7 +353,7 @@ namespace boost { namespace xpressive
             };
 
             template<typename Sub>
-            typename Sub::string_type operator()(Sub const &sub) const
+            typename Sub::string_type operator ()(Sub const &sub) const
             {
                 return sub.str();
             }
@@ -429,11 +429,11 @@ namespace boost { namespace xpressive
                 typedef UNREF(Cont) &type;
             };
 
-            /// operator()
+            /// operator ()
             ///
             template<typename Cont, typename A0>
             typename result<insert(Cont &, A0 const &)>::type
-            operator()(Cont &cont, A0 const &a0) const
+            operator ()(Cont &cont, A0 const &a0) const
             {
                 return cont.insert(a0);
             }
@@ -442,7 +442,7 @@ namespace boost { namespace xpressive
             ///
             template<typename Cont, typename A0, typename A1>
             typename result<insert(Cont &, A0 const &, A1 const &)>::type
-            operator()(Cont &cont, A0 const &a0, A1 const &a1) const
+            operator ()(Cont &cont, A0 const &a0, A1 const &a1) const
             {
                 return cont.insert(a0, a1);
             }
@@ -451,7 +451,7 @@ namespace boost { namespace xpressive
             ///
             template<typename Cont, typename A0, typename A1, typename A2>
             typename result<insert(Cont &, A0 const &, A1 const &, A2 const &)>::type
-            operator()(Cont &cont, A0 const &a0, A1 const &a1, A2 const &a2) const
+            operator ()(Cont &cont, A0 const &a0, A1 const &a1, A2 const &a2) const
             {
                 return cont.insert(a0, a1, a2);
             }
@@ -469,7 +469,7 @@ namespace boost { namespace xpressive
             };
 
             template<typename First, typename Second>
-            std::pair<First, Second> operator()(First const &first, Second const &second) const
+            std::pair<First, Second> operator ()(First const &first, Second const &second) const
             {
                 return std::make_pair(first, second);
             }
@@ -481,7 +481,7 @@ namespace boost { namespace xpressive
             typedef T result_type;
 
             template<typename Value>
-            T operator()(Value const &val) const
+            T operator ()(Value const &val) const
             {
                 return lexical_cast<T>(val);
             }
@@ -493,7 +493,7 @@ namespace boost { namespace xpressive
             typedef T result_type;
 
             template<typename Value>
-            T operator()(Value const &val) const
+            T operator ()(Value const &val) const
             {
                 return static_cast<T>(val);
             }
@@ -505,7 +505,7 @@ namespace boost { namespace xpressive
             typedef T result_type;
 
             template<typename Value>
-            T operator()(Value const &val) const
+            T operator ()(Value const &val) const
             {
                 return dynamic_cast<T>(val);
             }
@@ -517,7 +517,7 @@ namespace boost { namespace xpressive
             typedef T result_type;
 
             template<typename Value>
-            T operator()(Value const &val) const
+            T operator ()(Value const &val) const
             {
                 return const_cast<T>(val);
             }
@@ -528,25 +528,25 @@ namespace boost { namespace xpressive
         {
             typedef T result_type;
 
-            T operator()() const
+            T operator ()() const
             {
                 return T();
             }
 
             template<typename A0>
-            T operator()(A0 const &a0) const
+            T operator ()(A0 const &a0) const
             {
                 return T(a0);
             }
 
             template<typename A0, typename A1>
-            T operator()(A0 const &a0, A1 const &a1) const
+            T operator ()(A0 const &a0, A1 const &a1) const
             {
                 return T(a0, a1);
             }
 
             template<typename A0, typename A1, typename A2>
-            T operator()(A0 const &a0, A1 const &a1, A2 const &a2) const
+            T operator ()(A0 const &a0, A1 const &a1, A2 const &a2) const
             {
                 return T(a0, a1, a2);
             }
@@ -557,25 +557,25 @@ namespace boost { namespace xpressive
         {
             typedef void result_type;
 
-            void operator()() const
+            void operator ()() const
             {
                 boost::throw_exception(Except());
             }
 
             template<typename A0>
-            void operator()(A0 const &a0) const
+            void operator ()(A0 const &a0) const
             {
                 boost::throw_exception(Except(a0));
             }
 
             template<typename A0, typename A1>
-            void operator()(A0 const &a0, A1 const &a1) const
+            void operator ()(A0 const &a0, A1 const &a1) const
             {
                 boost::throw_exception(Except(a0, a1));
             }
 
             template<typename A0, typename A1, typename A2>
-            void operator()(A0 const &a0, A1 const &a1, A2 const &a2) const
+            void operator ()(A0 const &a0, A1 const &a1, A2 const &a2) const
             {
                 boost::throw_exception(Except(a0, a1, a2));
             }

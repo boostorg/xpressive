@@ -62,7 +62,7 @@ struct begin : proto::callable
     
     template<typename Cont>
     typename result<begin(Cont const &)>::type
-    operator()(Cont const &cont) const
+    operator ()(Cont const &cont) const
     {
         iterator_wrapper<typename Cont::const_iterator> it(cont.begin());
         return proto::as_expr(it);
@@ -97,7 +97,7 @@ struct DereferenceCtx
     {
         typedef typename std::iterator_traits<Iter>::reference result_type;
 
-        result_type operator()(Expr &expr, DereferenceCtx const &) const
+        result_type operator ()(Expr &expr, DereferenceCtx const &) const
         {
             return *proto::arg(expr).it;
         }
@@ -121,7 +121,7 @@ struct IncrementCtx
     {
         typedef void result_type;
 
-        result_type operator()(Expr &expr, IncrementCtx const &) const
+        result_type operator ()(Expr &expr, IncrementCtx const &) const
         {
             ++proto::arg(expr).it;
         }
@@ -179,7 +179,7 @@ struct MixedExpr
     {}
 private:
     // hide this:
-    using proto::extends<Expr, MixedExpr<Expr>, MixedDomain>::operator[];
+    using proto::extends<Expr, MixedExpr<Expr>, MixedDomain>::operator [];
 };
 
 // Define a trait type for detecting vector and list terminals, to
@@ -208,7 +208,7 @@ namespace VectorOps
     struct assign_op
     {
         template<typename T, typename U>
-        void operator()(T &t, U const &u) const
+        void operator ()(T &t, U const &u) const
         {
             t = u;
         }
@@ -217,7 +217,7 @@ namespace VectorOps
     struct plus_assign_op
     {
         template<typename T, typename U>
-        void operator()(T &t, U const &u) const
+        void operator ()(T &t, U const &u) const
         {
             t += u;
         }
@@ -226,7 +226,7 @@ namespace VectorOps
     struct minus_assign_op
     {
         template<typename T, typename U>
-        void operator()(T &t, U const &u) const
+        void operator ()(T &t, U const &u) const
         {
             t -= u;
         }
@@ -241,7 +241,7 @@ namespace VectorOps
         {};
 
         template<typename Arg>
-        Arg operator()(Arg const &arg) const
+        Arg operator ()(Arg const &arg) const
         {
             return std::sin(arg);
         }

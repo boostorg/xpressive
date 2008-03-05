@@ -33,6 +33,10 @@ namespace boost { namespace xpressive { namespace detail
         typedef ICase icase_type;
         char_type ch_;
 
+        explicit literal_matcher(char_type ch)
+          : ch_(ch)
+        {}
+
         template<typename Char>
         literal_matcher(Char ch, Traits const &traits)
           : ch_(detail::translate(detail::char_cast<char_type>(ch, traits), traits, icase_type()))

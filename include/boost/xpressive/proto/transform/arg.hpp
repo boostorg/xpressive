@@ -38,7 +38,7 @@ namespace boost { namespace proto
 
             template<typename Expr, typename State, typename Visitor>
             Expr const &
-            operator()(Expr const &expr, State const &, Visitor &) const
+            operator ()(Expr const &expr, State const &, Visitor &) const
             {
                 return expr;
             }
@@ -63,7 +63,7 @@ namespace boost { namespace proto
 
             template<typename Expr, typename State, typename Visitor>
             State const &
-            operator()(Expr const &, State const &state, Visitor &) const
+            operator ()(Expr const &, State const &state, Visitor &) const
             {
                 return state;
             }
@@ -82,7 +82,7 @@ namespace boost { namespace proto
 
             template<typename Expr, typename State, typename Visitor>
             Visitor &
-            operator()(Expr const &, State const &, Visitor &visitor) const
+            operator ()(Expr const &, State const &, Visitor &visitor) const
             {
                 return visitor;
             }
@@ -106,7 +106,7 @@ namespace boost { namespace proto
 
             template<typename Expr, typename State, typename Visitor>
             typename proto::result_of::arg_c<Expr const &, I>::type
-            operator()(Expr const &expr, State const &, Visitor &) const
+            operator ()(Expr const &expr, State const &, Visitor &) const
             {
                 return proto::arg_c<I>(expr);
             }

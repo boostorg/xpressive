@@ -183,7 +183,7 @@ namespace boost { namespace proto
             typedef typename proto::result_of::eval<UNREF(e0), Context>::type r0;               \
         public:                                                                                 \
             BOOST_PROTO_DECLTYPE_(Op proto::detail::make<r0>(), result_type)                    \
-            result_type operator()(Expr &expr, Context &ctx) const                              \
+            result_type operator ()(Expr &expr, Context &ctx) const                              \
             {                                                                                   \
                 return Op proto::eval(proto::arg_c<0>(expr), ctx);                              \
             }                                                                                   \
@@ -203,7 +203,7 @@ namespace boost { namespace proto
             typedef typename proto::result_of::eval<UNREF(e1), Context>::type r1;               \
         public:                                                                                 \
             BOOST_PROTO_DECLTYPE_(proto::detail::make<r0>() Op proto::detail::make<r1>(), result_type)\
-            result_type operator()(Expr &expr, Context &ctx) const                              \
+            result_type operator ()(Expr &expr, Context &ctx) const                              \
             {                                                                                   \
                 return proto::eval(proto::arg_c<0>(expr), ctx) Op proto::eval(proto::arg_c<1>(expr), ctx);\
             }                                                                                   \
@@ -256,7 +256,7 @@ namespace boost { namespace proto
         {
             typedef typename proto::result_of::arg<Expr>::type result_type;
 
-            result_type operator()(Expr &expr, Context &) const
+            result_type operator ()(Expr &expr, Context &) const
             {
                 return proto::arg(expr);
             }
@@ -271,7 +271,7 @@ namespace boost { namespace proto
             typedef typename proto::result_of::eval<UNREF(e0), Context>::type r0;
         public:
             BOOST_PROTO_DECLTYPE_(proto::detail::make<r0>() ++, result_type)
-            result_type operator()(Expr &expr, Context &ctx) const
+            result_type operator ()(Expr &expr, Context &ctx) const
             {
                 return proto::eval(proto::arg_c<0>(expr), ctx) ++;
             }
@@ -286,7 +286,7 @@ namespace boost { namespace proto
             typedef typename proto::result_of::eval<UNREF(e0), Context>::type r0;
         public:
             BOOST_PROTO_DECLTYPE_(proto::detail::make<r0>() --, result_type)
-            result_type operator()(Expr &expr, Context &ctx) const
+            result_type operator ()(Expr &expr, Context &ctx) const
             {
                 return proto::eval(proto::arg_c<0>(expr), ctx) --;
             }
@@ -303,7 +303,7 @@ namespace boost { namespace proto
             typedef typename proto::result_of::eval<UNREF(e1), Context>::type r1;
         public:
             BOOST_PROTO_DECLTYPE_(proto::detail::make<r0>()[proto::detail::make<r1>()], result_type)
-            result_type operator()(Expr &expr, Context &ctx) const
+            result_type operator ()(Expr &expr, Context &ctx) const
             {
                 return proto::eval(proto::arg_c<0>(expr), ctx)[proto::eval(proto::arg_c<1>(expr), ctx)];
             }
@@ -327,7 +327,7 @@ namespace boost { namespace proto
               : proto::detail::make<r2>()
               , result_type
             )
-            result_type operator()(Expr &expr, Context &ctx) const
+            result_type operator ()(Expr &expr, Context &ctx) const
             {
                 return proto::eval(proto::arg_c<0>(expr), ctx)
                      ? proto::eval(proto::arg_c<1>(expr), ctx)
@@ -346,7 +346,7 @@ namespace boost { namespace proto
             typedef typename proto::result_of::eval<UNREF(e1), Context>::type r1;
         public:
             typedef typename proto::detail::comma_result<r0, r1>::type result_type;
-            result_type operator()(Expr &expr, Context &ctx) const
+            result_type operator ()(Expr &expr, Context &ctx) const
             {
                 return proto::eval(proto::arg_c<0>(expr), ctx), proto::eval(proto::arg_c<1>(expr), ctx);
             }

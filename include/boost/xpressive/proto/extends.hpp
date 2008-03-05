@@ -211,8 +211,8 @@ namespace boost { namespace proto
 
         /// INTERNAL ONLY
         ///
-    #define BOOST_PROTO_EXTENDS_FUNCTION_IMPL_1                                                     \
-        ((0)(1))
+    #define BOOST_PROTO_EXTENDS_FUNCTION_IMPL_1 ((0)(1))
+    //#define BOOST_PROTO_EXTENDS_FUNCTION_IMPL_1 ((1))
 
         /// INTERNAL ONLY
         ///
@@ -330,7 +330,7 @@ namespace boost { namespace proto
         ///
         /// // ...
         /// my_terminal<int> _1, _2;
-        /// _1 + _2; // OK, uses proto::operator+
+        /// _1 + _2; // OK, uses proto::operator +
         /// \endcode
         ///
         /// Without the second \c Dummy template parameter, Proto's operator

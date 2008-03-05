@@ -65,7 +65,7 @@ struct to_string
     {}
 
     template<typename Op>
-    void operator()(Op const &op) const
+    void operator ()(Op const &op) const
     {
         this->sout_ << '(' << boost::addressof(op) << ')';
     }

@@ -30,7 +30,7 @@ namespace boost { namespace proto
         namespace hidden_detail_
         {
             typedef char (&not_ostream)[sizeof(std::ostream)+1];
-            not_ostream operator<<(std::ostream &, proto::detail::dont_care);
+            not_ostream operator <<(std::ostream &, proto::detail::dont_care);
 
             template<typename Tag, std::size_t S>
             struct printable_tag_
@@ -125,7 +125,7 @@ namespace boost { namespace proto
             {}
 
             template<typename Args>
-            void operator()(expr<tag::terminal, Args, 0> const &expr) const
+            void operator ()(expr<tag::terminal, Args, 0> const &expr) const
             {
                 this->sout_ << std::setw(this->depth_) << (this->first_? "" : ", ")
                     << "terminal(" << proto::arg(expr) << ")\n";
@@ -133,7 +133,7 @@ namespace boost { namespace proto
             }
 
             template<typename Tag, typename Args, long N>
-            void operator()(expr<Tag, Args, N> const &expr) const
+            void operator ()(expr<Tag, Args, N> const &expr) const
             {
                 using namespace tag;
                 this->sout_ << std::setw(this->depth_) << (this->first_? "" : ", ")
@@ -145,12 +145,14 @@ namespace boost { namespace proto
             }
 
             template<typename T>
-            void operator()(T const &t) const
+            void operator ()(T const &t) const
             {
                 (*this)(t.proto_base());
             }
 
         private:
+            display_expr &operator=(display_expr const &);
+
             static void call_(display_expr &, argsns_::nil)
             {}
 

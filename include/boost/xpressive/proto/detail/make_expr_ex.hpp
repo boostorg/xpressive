@@ -8,6 +8,7 @@
     //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
     #define M1(Z, N, _) ((0)(1))
+    //#define M1(Z, N, _) ((1))
 
     #define M2(R, PRODUCT) M3(R, BOOST_PP_SEQ_SIZE(PRODUCT), PRODUCT)
 

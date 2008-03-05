@@ -140,7 +140,7 @@ namespace boost { namespace xpressive { namespace detail
       : mpl::true_
     {};
 
-    // The subscript operator[] is used for sets, as in set['a' | range('b','h')]
+    // The subscript operator [] is used for sets, as in set['a' | range('b','h')]
     // It is also used for actions, which by definition have side-effects and thus are impure
     template<typename Expr, typename Char, typename Left>
     struct use_simple_repeat_subscript

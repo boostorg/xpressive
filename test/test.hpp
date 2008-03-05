@@ -30,8 +30,6 @@ using namespace boost::xpressive;
 #define BOOST_XPR_CHECK(pred)                                                   \
     if( pred ) {} else { BOOST_ERROR( this->section_ << " : " << #pred ); }
 
-using namespace boost::xpressive;
-
 ///////////////////////////////////////////////////////////////////////////////
 // backrefs
 //

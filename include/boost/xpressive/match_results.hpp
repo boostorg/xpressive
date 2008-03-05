@@ -55,7 +55,7 @@ namespace boost { namespace xpressive { namespace detail
 //
 struct type_info_less
 {
-    bool operator()(std::type_info const *left, std::type_info const *right) const
+    bool operator ()(std::type_info const *left, std::type_info const *right) const
     {
         return 0 != left->before(*right);
     }

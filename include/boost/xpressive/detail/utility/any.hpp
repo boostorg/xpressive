@@ -74,7 +74,7 @@ namespace boost { namespace fusion
 
             template <typename Sequence, typename F>
             inline bool
-            operator()(Sequence const& seq, F const& f) const
+            operator ()(Sequence const& seq, F const& f) const
             {
                 return detail::any(
                         fusion::begin(seq)
@@ -87,7 +87,7 @@ namespace boost { namespace fusion
 
             template <typename Sequence, typename F>
             inline bool
-            operator()(Sequence& seq, F const& f) const
+            operator ()(Sequence& seq, F const& f) const
             {
                 return detail::any(
                         fusion::begin(seq)

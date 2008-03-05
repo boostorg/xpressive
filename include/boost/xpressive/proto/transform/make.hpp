@@ -129,19 +129,19 @@ namespace boost { namespace proto
 
                 #ifdef BOOST_HAS_VARIADIC_TMPL
                 template<typename... Args>
-                Type operator()(Args &... args) const
+                Type operator ()(Args &... args) const
                 {
                     return Type(args...);
                 }
                 #else
-                Type operator()() const
+                Type operator ()() const
                 {
                     return Type();
                 }
 
                 #define TMP(Z, N, DATA)                                                             \
                 template<BOOST_PP_ENUM_PARAMS_Z(Z, N, typename A)>                                  \
-                Type operator()(BOOST_PP_ENUM_BINARY_PARAMS_Z(Z, N, A, &a)) const                   \
+                Type operator ()(BOOST_PP_ENUM_BINARY_PARAMS_Z(Z, N, A, &a)) const                   \
                 {                                                                                   \
                     return Type(BOOST_PP_ENUM_PARAMS_Z(Z, N, a));                                   \
                 }
@@ -155,14 +155,14 @@ namespace boost { namespace proto
             {
                 typedef Type result_type;
 
-                Type operator()() const
+                Type operator ()() const
                 {
                     return Type();
                 }
 
                 #ifdef BOOST_HAS_VARIADIC_TMPL
                 template<typename... Args>
-                Type operator()(Args &... args) const
+                Type operator ()(Args &... args) const
                 {
                     Type that = {args...};
                     return that;
@@ -170,7 +170,7 @@ namespace boost { namespace proto
                 #else
                 #define TMP(Z, N, DATA)                                                             \
                 template<BOOST_PP_ENUM_PARAMS_Z(Z, N, typename A)>                                  \
-                Type operator()(BOOST_PP_ENUM_BINARY_PARAMS_Z(Z, N, A, &a)) const                   \
+                Type operator ()(BOOST_PP_ENUM_BINARY_PARAMS_Z(Z, N, A, &a)) const                   \
                 {                                                                                   \
                     Type that = {BOOST_PP_ENUM_PARAMS_Z(Z, N, a)};                                  \
                     return that;                                                                    \
@@ -187,14 +187,14 @@ namespace boost { namespace proto
 
                 #ifdef BOOST_HAS_VARIADIC_TMPL
                 template<typename... Args>
-                result_type operator()(Args &... args) const
+                result_type operator ()(Args &... args) const
                 {
                     return proto::construct<result_type>(args...);
                 }
                 #else
                 #define TMP(Z, N, DATA)                                                             \
                 template<BOOST_PP_ENUM_PARAMS_Z(Z, N, typename A)>                                  \
-                result_type operator()(BOOST_PP_ENUM_BINARY_PARAMS_Z(Z, N, A, &a)) const            \
+                result_type operator ()(BOOST_PP_ENUM_BINARY_PARAMS_Z(Z, N, A, &a)) const            \
                 {                                                                                   \
                     return proto::construct<result_type>(BOOST_PP_ENUM_PARAMS_Z(Z, N, a));          \
                 }
@@ -234,7 +234,7 @@ namespace boost { namespace proto
 
             template<typename Expr, typename State, typename Visitor>
             typename result<make(Expr const &, State const &, Visitor &)>::type
-            operator()(Expr const &expr, State const &state, Visitor &visitor) const
+            operator ()(Expr const &expr, State const &state, Visitor &visitor) const
             {
                 typedef typename result<make(Expr const &, State const &, Visitor &)>::type result_type;
                 return result_type();
@@ -255,7 +255,7 @@ namespace boost { namespace proto
 
             template<typename Expr, typename State, typename Visitor>
             typename result<make(Expr const &, State const &, Visitor &)>::type
-            operator()(Expr const &expr, State const &state, Visitor &visitor) const
+            operator ()(Expr const &expr, State const &state, Visitor &visitor) const
             {
                 typedef typename result<make(Expr const &, State const &, Visitor &)>::type result_type;
                 return detail::construct<result_type>(

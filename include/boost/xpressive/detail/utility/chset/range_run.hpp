@@ -46,7 +46,7 @@ struct range
 template<typename Char>
 struct range_compare
 {
-    bool operator()(range<Char> const &x, range<Char> const &y) const
+    bool operator ()(range<Char> const &x, range<Char> const &y) const
     {
         return x.first_ < y.first_;
     }

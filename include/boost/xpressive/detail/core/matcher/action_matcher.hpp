@@ -85,7 +85,7 @@ namespace boost { namespace xpressive { namespace detail
             typename fusion::result_of::invoke<function_type, evaluated_args>::type
         result_type;
 
-        result_type operator()(Expr &expr, Context &ctx) const
+        result_type operator ()(Expr &expr, Context &ctx) const
         {
             return fusion::invoke<function_type>(
                 proto::arg(proto::arg_c<0>(proto::right(expr)))
@@ -118,7 +118,7 @@ namespace boost { namespace xpressive { namespace detail
             function_type(typename proto::result_of::eval<left_type, Context>::type)
         >::type result_type;
 
-        result_type operator()(Expr &expr, Context &ctx) const
+        result_type operator ()(Expr &expr, Context &ctx) const
         {
             return proto::arg(proto::right(expr))(
                 proto::eval(proto::left(expr), ctx)
@@ -157,7 +157,7 @@ namespace boost { namespace xpressive { namespace detail
         struct eval_terminal<Expr, reference_wrapper<Arg> >
         {
             typedef Arg &result_type;
-            result_type operator()(Expr &expr, action_context const &) const
+            result_type operator ()(Expr &expr, action_context const &) const
             {
                 return proto::arg(expr).get();
             }
@@ -167,7 +167,7 @@ namespace boost { namespace xpressive { namespace detail
         struct eval_terminal<Expr, opt<Arg> >
         {
             typedef Arg const &result_type;
-            result_type operator()(Expr &expr, action_context const &) const
+            result_type operator ()(Expr &expr, action_context const &) const
             {
                 return proto::arg(expr);
             }
@@ -177,7 +177,7 @@ namespace boost { namespace xpressive { namespace detail
         struct eval_terminal<Expr, action_arg<Type, Int> >
         {
             typedef typename action_arg<Type, Int>::reference result_type;
-            result_type operator()(Expr &expr, action_context const &ctx) const
+            result_type operator ()(Expr &expr, action_context const &ctx) const
             {
                 action_args_type::const_iterator where_ = ctx.args().find(&typeid(proto::arg(expr)));
                 if(where_ == ctx.args().end())
@@ -275,7 +275,7 @@ namespace boost { namespace xpressive { namespace detail
         };
 
         template<typename State, typename Index>
-        sub_match<typename State::iterator> operator()(State const &state, Index i)
+        sub_match<typename State::iterator> operator ()(State const &state, Index i)
         {
             return state.sub_matches_[i];
         }
@@ -294,7 +294,7 @@ namespace boost { namespace xpressive { namespace detail
 
         template<typename State, typename Attr>
         typename Attr::matcher_type::value_type::second_type const *
-        operator()(State const &state, Attr const &)
+        operator ()(State const &state, Attr const &)
         {
             typedef typename Attr::matcher_type::value_type::second_type attr_type;
             int slot = typename Attr::nbr_type();

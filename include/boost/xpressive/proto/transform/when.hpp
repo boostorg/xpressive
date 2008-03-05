@@ -73,7 +73,7 @@ namespace boost { namespace proto { namespace transform
 
         template<typename Expr, typename State, typename Visitor>
         typename result<when(Expr const &, State const &, Visitor &)>::type
-        operator()(Expr const &expr, State const &state, Visitor &visitor) const
+        operator ()(Expr const &expr, State const &state, Visitor &visitor) const
         {
             return typename mpl::if_<
                 is_callable<Return>

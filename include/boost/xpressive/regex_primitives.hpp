@@ -57,38 +57,38 @@ namespace boost { namespace xpressive { namespace detail
         typedef int result_type;
 
         template<typename Subs>
-        int operator()(Subs &subs, int i) const
+        int operator ()(Subs &subs, int i) const
         {
             subs.push_back(i);
             return i;
         }
     };
 
-    using grammar_detail::mark_number;
+    //using grammar_detail::mark_number;
 
-    // s1 or -s1
-    struct SubMatch
-      : proto::or_<
-            proto::when<basic_mark_tag,                push_back(proto::_visitor, mark_number(proto::_arg)) >
-          , proto::when<proto::negate<basic_mark_tag>, push_back(proto::_visitor, mpl::int_<-1>())          >
-        >
-    {};
+    //// s1 or -s1
+    //struct SubMatch
+    //  : proto::or_<
+    //        proto::when<basic_mark_tag,                push_back(proto::_visitor, mark_number(proto::_arg)) >
+    //      , proto::when<proto::negate<basic_mark_tag>, push_back(proto::_visitor, mpl::int_<-1>())          >
+    //    >
+    //{};
 
-    struct SubMatchList
-      : proto::or_<SubMatch, proto::comma<SubMatchList, SubMatch> >
-    {};
+    //struct SubMatchList
+    //  : proto::or_<SubMatch, proto::comma<SubMatchList, SubMatch> >
+    //{};
 
-    template<typename Subs>
-    typename enable_if<
-        mpl::and_<proto::is_expr<Subs>, proto::matches<Subs, SubMatchList> >
-      , std::vector<int>
-    >::type
-    to_vector(Subs const &subs)
-    {
-        std::vector<int> subs_;
-        SubMatchList()(subs, 0, subs_);
-        return subs_;
-    }
+    //template<typename Subs>
+    //typename enable_if<
+    //    mpl::and_<proto::is_expr<Subs>, proto::matches<Subs, SubMatchList> >
+    //  , std::vector<int>
+    //>::type
+    //to_vector(Subs const &subs)
+    //{
+    //    std::vector<int> subs_;
+    //    SubMatchList()(subs, 0, subs_);
+    //    return subs_;
+    //}
 
 
 /*
@@ -500,7 +500,11 @@ typename proto::result_of::make_expr_ref<
 >::type const
 optional(Expr const &expr)
 {
-    return !proto::as_expr(expr);
+    return proto::result_of::make_expr_ref<
+        proto::tag::logical_not
+      , proto::default_domain
+      , Expr const &
+    >::call(expr);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -522,7 +526,11 @@ typename proto::result_of::make_expr_ref<
 >::type const
 repeat(Expr const &expr)
 {
-    return proto::make_expr_ref<detail::generic_quant_tag<Min, Max>, proto::default_domain>(expr);
+    return proto::result_of::make_expr_ref<
+        detail::generic_quant_tag<Min, Max>
+      , proto::default_domain
+      , Expr const &
+    >::call(expr);
 }
 
 /// \overload
@@ -535,7 +543,11 @@ typename proto::result_of::make_expr_ref<
 >::type const
 repeat(Expr2 const &expr2)
 {
-    return proto::make_expr_ref<detail::generic_quant_tag<Count, Count>, proto::default_domain>(expr2);
+    return proto::result_of::make_expr_ref<
+        detail::generic_quant_tag<Count, Count>
+      , proto::default_domain
+      , Expr2 const &
+    >::call(expr2);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -556,7 +568,11 @@ typename proto::result_of::make_expr_ref<
 >::type const
 keep(Expr const &expr)
 {
-    return proto::make_expr_ref<detail::keeper_tag, proto::default_domain>(expr);
+    return proto::result_of::make_expr_ref<
+        detail::keeper_tag
+      , proto::default_domain
+      , Expr const &
+    >::call(expr);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -580,7 +596,11 @@ typename proto::result_of::make_expr_ref<
 >::type const
 before(Expr const &expr)
 {
-    return proto::make_expr_ref<detail::lookahead_tag, proto::default_domain>(expr);
+    return proto::result_of::make_expr_ref<
+        detail::lookahead_tag
+      , proto::default_domain
+      , Expr const &
+    >::call(expr);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -606,7 +626,11 @@ typename proto::result_of::make_expr_ref<
 >::type const
 after(Expr const &expr)
 {
-    return proto::make_expr_ref<detail::lookbehind_tag, proto::default_domain>(expr);
+    return proto::result_of::make_expr_ref<
+        detail::lookbehind_tag
+      , proto::default_domain
+      , Expr const &
+    >::call(expr);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

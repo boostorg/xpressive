@@ -384,13 +384,48 @@ namespace boost { namespace xpressive { namespace detail
     };
     #endif
 
-    struct true_ : mpl::true_ {};
-    struct false_ : mpl::false_ {};
+    using mpl::true_;
+    using mpl::false_;
 
     typedef true_ greedy_t;
     typedef false_ non_greedy_t;
 
 }}} // namespace boost::xpressive::detail
+
+namespace boost { namespace xpressive { namespace grammar_detail
+{
+    using proto::_;
+    using proto::or_;
+    using proto::if_;
+    using proto::call;
+    using proto::when;
+    using proto::otherwise;
+    using proto::switch_;
+    using proto::make;
+    using proto::_arg;
+    using proto::_left;
+    using proto::_right;
+    using proto::not_;
+    using proto::_state;
+    using proto::_visitor;
+    using proto::callable;
+    using proto::reverse_fold;
+    using proto::reverse_fold_tree;
+    using proto::terminal;
+    using proto::shift_right;
+    using proto::bitwise_or;
+    using proto::logical_not;
+    using proto::dereference;
+    using proto::posit;
+    using proto::negate;
+    using proto::complement;
+    using proto::comma;
+    using proto::assign;
+    using proto::subscript;
+    using proto::unary_expr;
+    using proto::binary_expr;
+    namespace tag = proto::tag;
+}}}
 
 namespace boost { namespace xpressive { namespace op
 {

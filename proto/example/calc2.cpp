@@ -5,7 +5,7 @@
 //
 // This example enhances the simple arithmetic expression evaluator
 // in calc1.cpp by using proto::extends to make arithemetic
-// expressions immediately evaluatable with operator(), a-la a
+// expressions immediately evaluatable with operator (), a-la a
 // function object
 
 #include <iostream>
@@ -17,7 +17,7 @@ using namespace boost;
 // Will be used to define the placeholders _1 and _2
 template<typename I> struct arg {};
 
-// For expressions in the calculator domain, operator()
+// For expressions in the calculator domain, operator ()
 // will be special; it will evaluate the expression.
 struct calculator_domain;
 
@@ -40,14 +40,14 @@ struct calculator_context
 
     // Handle the evaluation of the placeholder terminals
     template<typename I>
-    double operator()(proto::tag::terminal, arg<I>) const
+    double operator ()(proto::tag::terminal, arg<I>) const
     {
         return d[ I() - 1 ];
     }
 };
 
 // Wrap all calculator expressions in this type, which defines
-// operator() to evaluate the expression.
+// operator () to evaluate the expression.
 template<typename Expr>
 struct calculator_expression
   : proto::extends<Expr, calculator_expression<Expr>, calculator_domain>
@@ -60,22 +60,22 @@ struct calculator_expression
       : base_type(expr)
     {}
 
-    using base_type::operator=;
+    using base_type::operator =;
 
-    // Override operator() to evaluate the expression
-    double operator()() const
+    // Override operator () to evaluate the expression
+    double operator ()() const
     {
         calculator_context const ctx;
         return proto::eval(*this, ctx);
     }
 
-    double operator()(double d1) const
+    double operator ()(double d1) const
     {
         calculator_context const ctx(d1);
         return proto::eval(*this, ctx);
     }
 
-    double operator()(double d1, double d2) const
+    double operator ()(double d1, double d2) const
     {
         calculator_context const ctx(d1, d2);
         return proto::eval(*this, ctx);

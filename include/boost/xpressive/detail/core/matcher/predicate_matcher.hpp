@@ -44,7 +44,7 @@ namespace boost { namespace xpressive { namespace detail
         struct eval_terminal<Expr, reference_wrapper<Arg> >
         {
             typedef Arg &result_type;
-            result_type operator()(Expr &expr, predicate_context const &) const
+            result_type operator ()(Expr &expr, predicate_context const &) const
             {
                 return proto::arg(expr).get();
             }
@@ -54,7 +54,7 @@ namespace boost { namespace xpressive { namespace detail
         struct eval_terminal<Expr, any_matcher>
         {
             typedef sub_match<BidiIter> const &result_type;
-            result_type operator()(Expr &, predicate_context const &ctx) const
+            result_type operator ()(Expr &, predicate_context const &ctx) const
             {
                 return ctx.sub_matches_[ctx.sub_];
             }
@@ -64,7 +64,7 @@ namespace boost { namespace xpressive { namespace detail
         struct eval_terminal<Expr, mark_placeholder>
         {
             typedef sub_match<BidiIter> const &result_type;
-            result_type operator()(Expr &expr, predicate_context const &ctx) const
+            result_type operator ()(Expr &expr, predicate_context const &ctx) const
             {
                 return ctx.sub_matches_[proto::arg(expr).mark_number_];
             }

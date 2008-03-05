@@ -82,8 +82,8 @@ struct unary_arity
 
     template<typename Expr, typename State, typename Visitor>
     typename result<unary_arity(Expr const &, State const &, Visitor &)>::type
-    /*<< Transforms have a nested `operator()` member function. >>*/
-    operator()(Expr const &, State const &, Visitor &) const
+    /*<< Transforms have a nested `operator ()` member function. >>*/
+    operator ()(Expr const &, State const &, Visitor &) const
     {
         /*<< The `unary_arity` transform doesn't have an interesting
         runtime counterpart, so just return a default-constructed object
@@ -124,7 +124,7 @@ struct binary_arity
     template<typename Expr, typename State, typename Visitor>
     typename result<binary_arity(Expr const &, State const &, Visitor &)>::type
     /*<< Transforms have a nested `call()` member function. >>*/
-    operator()(Expr const &, State const &, Visitor &) const
+    operator ()(Expr const &, State const &, Visitor &) const
     {
         /*<< The `binary_arity` transform doesn't have an interesting
         runtime counterpart, so just return a default-constructed object

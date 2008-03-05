@@ -59,18 +59,20 @@ namespace boost { namespace xpressive { namespace detail
     // alt_match
     //
     template<typename BidiIter, typename Next>
-    inline bool alt_match
-    (
-        alternates_vector<BidiIter> const &alts, match_state<BidiIter> &state, Next const &
+    inline bool alt_match(
+        alternates_vector<BidiIter> const &alts
+      , match_state<BidiIter> &state
+      , Next const &
     )
     {
         return detail::any(alts.begin(), alts.end(), alt_match_pred<BidiIter, Next>(state));
     }
 
     template<typename Head, typename Tail, typename BidiIter, typename Next>
-    inline bool alt_match
-    (
-        alternates_list<Head, Tail> const &alts, match_state<BidiIter> &state, Next const &
+    inline bool alt_match(
+        alternates_list<Head, Tail> const &alts
+      , match_state<BidiIter> &state
+      , Next const &
     )
     {
         return fusion::any(alts, alt_match_pred<BidiIter, Next>(state));

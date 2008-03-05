@@ -32,7 +32,7 @@ namespace boost { namespace proto
 
         struct private_type_
         {
-            private_type_ const &operator,(int) const;
+            private_type_ const &operator ,(int) const;
         };
 
         template<typename T>

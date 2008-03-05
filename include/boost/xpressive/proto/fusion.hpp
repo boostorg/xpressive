@@ -82,7 +82,7 @@ namespace boost { namespace proto
             };
 
             template<typename Expr>
-            flat_view<Expr const> operator()(Expr const &expr) const
+            flat_view<Expr const> operator ()(Expr const &expr) const
             {
                 return flat_view<Expr const>(expr);
             }
@@ -100,7 +100,7 @@ namespace boost { namespace proto
 
             template<typename Expr>
             typename fusion::result_of::pop_front<Expr const>::type
-            operator()(Expr const &expr) const
+            operator ()(Expr const &expr) const
             {
                 return fusion::pop_front(expr);
             }
@@ -118,7 +118,7 @@ namespace boost { namespace proto
 
             template<typename Expr>
             typename fusion::result_of::reverse<Expr const>::type
-            operator()(Expr const &expr) const
+            operator ()(Expr const &expr) const
             {
                 return fusion::reverse(expr);
             }
@@ -160,7 +160,7 @@ namespace boost { namespace proto
 
         template<typename Expr>
         typename proto::result_of::eval<Expr, Context>::type
-        operator()(Expr &expr) const
+        operator ()(Expr &expr) const
         {
             return proto::eval(expr, this->ctx_);
         }
@@ -419,7 +419,7 @@ namespace boost { namespace fusion
 
             template<typename Expr>
             typename result<as_element(Expr &)>::type
-            operator()(Expr &expr) const
+            operator ()(Expr &expr) const
             {
                 return typename result<as_element(Expr &)>::type(expr);
             }

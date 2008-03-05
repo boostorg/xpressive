@@ -693,7 +693,7 @@ namespace boost { namespace proto
 
             template<typename Expr, typename State, typename Visitor>
             typename result<or_(Expr const &, State const &, Visitor &)>::type
-            operator()(Expr const &expr, State const &state, Visitor &visitor) const
+            operator ()(Expr const &expr, State const &state, Visitor &visitor) const
             {
                 typedef typename proto::result_of::detail::matches_<typename Expr::proto_base_expr, or_>::which which;
                 return which()(expr, state, visitor);
@@ -734,7 +734,7 @@ namespace boost { namespace proto
 
             template<typename Expr, typename State, typename Visitor>
             typename result<if_(Expr const &, State const &, Visitor &)>::type
-            operator()(Expr const &expr, State const &state, Visitor &visitor) const
+            operator ()(Expr const &expr, State const &state, Visitor &visitor) const
             {
                 typedef
                     typename mpl::if_<
@@ -769,7 +769,7 @@ namespace boost { namespace proto
 
             template<typename Expr, typename State, typename Visitor>
             typename result<switch_(Expr const &, State const &, Visitor &)>::type
-            operator()(Expr const &expr, State const &state, Visitor &visitor) const
+            operator ()(Expr const &expr, State const &state, Visitor &visitor) const
             {
                 typedef typename Cases::template case_<typename Expr::proto_tag> case_;
                 return case_()(expr, state, visitor);

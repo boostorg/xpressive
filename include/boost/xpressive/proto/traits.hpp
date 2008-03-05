@@ -41,7 +41,7 @@ namespace boost { namespace proto
 
             template<typename Expr, typename State, typename Visitor>
             Expr const &
-            operator()(Expr const &expr, State const &, Visitor &) const
+            operator ()(Expr const &expr, State const &, Visitor &) const
             {
                 return expr;
             }
@@ -68,7 +68,7 @@ namespace boost { namespace proto
 
             template<typename Expr, typename State, typename Visitor>
             typename result<unary_expr(Expr const &, State const &, Visitor &)>::type
-            operator()(Expr const &expr, State const &state, Visitor &visitor) const
+            operator ()(Expr const &expr, State const &state, Visitor &visitor) const
             {
                 typename result<unary_expr(Expr const &, State const &, Visitor &)>::type that = {
                     {T()(proto::arg_c<0>(expr), state, visitor)}
@@ -97,7 +97,7 @@ namespace boost { namespace proto
 
             template<typename Expr, typename State, typename Visitor>
             typename result<binary_expr(Expr const &, State const &, Visitor &)>::type
-            operator()(Expr const &expr, State const &state, Visitor &visitor) const
+            operator ()(Expr const &expr, State const &state, Visitor &visitor) const
             {
                 typename result<binary_expr(Expr const &, State const &, Visitor &)>::type that = {
                     {T()(proto::arg_c<0>(expr), state, visitor)
@@ -210,7 +210,8 @@ namespace boost { namespace proto
             typedef expr<tag::terminal, term<value_type> > expr_type;
             typedef typename Domain::template apply<expr_type>::type type;
 
-            static type const call(CVREF(T) t)
+            template<typename U>
+            static type const call(U &t)
             {
                 return Domain::make(proto::construct<expr_type>(t));
             }

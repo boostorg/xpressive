@@ -11,11 +11,19 @@
     #define BOOST_PROTO_ARGS_HPP_EAN_10_28_2007
 
     #include <utility>
+    #include <boost/config.hpp>
     #include <boost/mpl/assert.hpp>
     #include <boost/type_traits.hpp>
     #include <boost/utility/result_of.hpp>
     #include <boost/xpressive/proto/proto_fwd.hpp>
     #include <boost/xpressive/proto/detail/define.hpp>
+
+    #if BOOST_MSVC
+    #pragma warning(push)
+    #pragma warning(disable : 4510) // default constructor could not be generated
+    #pragma warning(disable : 4512) // assignment operator could not be generated
+    #pragma warning(disable : 4610) // can never be instantiated - user defined constructor required
+    #endif
 
     namespace boost { namespace proto
     {
@@ -126,6 +134,10 @@
     }}
 
     #include <boost/xpressive/proto/detail/undef.hpp>
+
+    #if BOOST_MSVC
+    #pragma warning(pop)
+    #endif
 
     #endif
 

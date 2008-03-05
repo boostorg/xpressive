@@ -33,7 +33,7 @@
 
             template<typename Expr, typename State, typename Visitor>
             typename result<call(Expr const &, State const &, Visitor &)>::type
-            operator()(Expr const &expr, State const &state, Visitor &visitor) const
+            operator ()(Expr const &expr, State const &state, Visitor &visitor) const
             {
                 Fun f;
                 #define TMP(Z, M, DATA) when<_, BOOST_PP_CAT(A, M)>()(expr, state, visitor)

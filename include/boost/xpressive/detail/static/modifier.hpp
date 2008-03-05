@@ -32,14 +32,14 @@ namespace boost { namespace xpressive { namespace detail
 
         template<typename Expr>
         struct apply
-          : proto::result_of::make_expr_ref<modifier_tag, Modifier, Expr const>
+          : proto::result_of::make_expr_ref<modifier_tag, proto::default_domain, Modifier, Expr const &>
         {};
 
         template<typename Expr>
-        typename proto::result_of::make_expr_ref<modifier_tag, Modifier, Expr const>::type
+        typename proto::result_of::make_expr_ref<modifier_tag, Modifier, Expr const &>::type
         operator ()(Expr const &expr) const
         {
-            return proto::make_expr_ref<modifier_tag>(this->mod_, expr);
+            return proto::result_of::make_expr_ref<modifier_tag, proto::default_domain, Modifier, Expr const &>::call(this->mod_, expr);
         }
 
         operator opt_type() const

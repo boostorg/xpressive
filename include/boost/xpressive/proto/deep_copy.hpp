@@ -53,7 +53,7 @@ namespace boost { namespace proto
 
             template<typename Expr>
             typename result_of::deep_copy<Expr>::type const
-            operator()(Expr const &expr) const
+            operator ()(Expr const &expr) const
             {
                 return result_of::deep_copy<Expr>::call(expr);
             }

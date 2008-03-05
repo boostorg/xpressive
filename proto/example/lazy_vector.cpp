@@ -57,7 +57,7 @@ struct lazy_subscript_context
     {
         typedef typename proto::result_of::value_at_c<Expr, 0>::type::value_type result_type;
 
-        result_type operator()( Expr const & expr, lazy_subscript_context & ctx ) const
+        result_type operator ()( Expr const & expr, lazy_subscript_context & ctx ) const
         {
             return proto::arg( expr )[ ctx.subscript_ ];
         }
@@ -67,7 +67,7 @@ struct lazy_subscript_context
 };
 
 // Here is the domain-specific expression wrapper, which overrides
-// operator[] to evaluate the expression using the lazy_subscript_context.
+// operator [] to evaluate the expression using the lazy_subscript_context.
 template<typename Expr>
 struct lazy_vector_expr
   : proto::extends<Expr, lazy_vector_expr<Expr>, lazy_vector_domain>

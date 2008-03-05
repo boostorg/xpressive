@@ -75,7 +75,7 @@ struct char_sink
       , traits_(traits)
     {}
 
-    void operator()(char_type ch) const
+    void operator ()(char_type ch) const
     {
         this->bset_.set_char(ch, ICase, this->traits_);
     }

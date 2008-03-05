@@ -34,7 +34,7 @@ struct Vec3SubscriptCtx
 
     // Index array terminals with our subscript. Everything
     // else will be handled by the default evaluation context.
-    int operator()(tag::terminal, int const (&arr)[3]) const
+    int operator ()(tag::terminal, int const (&arr)[3]) const
     {
         return arr[this->i_];
     }
@@ -53,7 +53,7 @@ struct CountLeavesCtx
 
       typedef void result_type;
 
-      void operator()(tag::terminal, int const(&)[3])
+      void operator ()(tag::terminal, int const(&)[3])
       {
           ++this->count;
       }
@@ -91,17 +91,17 @@ struct Vec3
         (*this)[2] = k;
     }
 
-    int &operator[](int i)
+    int &operator [](int i)
     {
         return arg(*this)[i];
     }
 
-    int const &operator[](int i) const
+    int const &operator [](int i) const
     {
         return arg(*this)[i];
     }
 
-    // Here we define a operator= for Vec3 terminals that
+    // Here we define a operator = for Vec3 terminals that
     // takes a Vec3 expression.
     template< typename Expr >
     Vec3 &operator =(Expr const & expr)

@@ -36,7 +36,7 @@ struct calculator_context
 
     // Handle the evaluation of the placeholder terminals
     template<typename I>
-    double operator()(proto::tag::terminal, arg<I>) const
+    double operator ()(proto::tag::terminal, arg<I>) const
     {
         return d[ I() - 1 ];
     }

@@ -144,7 +144,7 @@ struct regex_compiler
     }
 
     ///////////////////////////////////////////////////////////////////////////
-    // operator[]
+    // operator []
     /// Return a reference to the named regular expression. If no such named
     /// regular expression exists, create a new regular expression and return
     /// a reference to it.

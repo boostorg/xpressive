@@ -66,7 +66,7 @@ namespace boost { namespace proto
 
             template<typename Expr, typename State, typename Visitor>
             typename result<fold_tree(Expr const &, State const &, Visitor &)>::type
-            operator()(Expr const &expr, State const &state, Visitor &visitor) const
+            operator ()(Expr const &expr, State const &state, Visitor &visitor) const
             {
                 typedef typename result<fold_tree(Expr const &, State const &, Visitor &)>::impl impl;
                 return impl()(expr, state, visitor);
@@ -97,7 +97,7 @@ namespace boost { namespace proto
 
             template<typename Expr, typename State, typename Visitor>
             typename result<reverse_fold_tree(Expr const &, State const &, Visitor &)>::type
-            operator()(Expr const &expr, State const &state, Visitor &visitor) const
+            operator ()(Expr const &expr, State const &state, Visitor &visitor) const
             {
                 typedef typename result<reverse_fold_tree(Expr const &, State const &, Visitor &)>::impl impl;
                 return impl()(expr, state, visitor);

@@ -45,7 +45,7 @@
 
                 template<typename Expr, typename State, typename Visitor>
                 typename result<nary_expr(Expr const &, State const &, Visitor &)>::type
-                operator()(Expr const &expr, State const &state, Visitor &visitor) const
+                operator ()(Expr const &expr, State const &state, Visitor &visitor) const
                 {
                     typedef result<nary_expr(Expr const &, State const &, Visitor &)> result_;
                     typename result_::type that = {
@@ -100,7 +100,7 @@
 
                 template<typename Expr, typename State, typename Visitor>
                 typename result<nary_expr(Expr const &, State const &, Visitor &)>::type
-                operator()(Expr const &expr, State const &state, Visitor &visitor) const
+                operator ()(Expr const &expr, State const &state, Visitor &visitor) const
                 {
                     typedef result<nary_expr(Expr const &, State const &, Visitor &)> result_;
                     typename result_::type that = {

@@ -55,7 +55,7 @@ struct calculator_arity
   : boost::result_of<CalculatorGrammar(Expr, mpl::int_<0>, mpl::void_)>
 {};
 
-// For expressions in the calculator domain, operator()
+// For expressions in the calculator domain, operator ()
 // will be special; it will evaluate the expression.
 struct calculator_domain;
 
@@ -78,14 +78,14 @@ struct calculator_context
 
     // Handle the evaluation of the placeholder terminals
     template<typename I>
-    double operator()(proto::tag::terminal, arg<I>) const
+    double operator ()(proto::tag::terminal, arg<I>) const
     {
         return d[ I() - 1 ];
     }
 };
 
 // Wrap all calculator expressions in this type, which defines
-// operator() to evaluate the expression.
+// operator () to evaluate the expression.
 template<typename Expr>
 struct calculator_expression
   : proto::extends<Expr, calculator_expression<Expr>, calculator_domain>
@@ -98,10 +98,10 @@ struct calculator_expression
       : base_type(expr)
     {}
 
-    using base_type::operator=;
+    using base_type::operator =;
 
-    // Override operator() to evaluate the expression
-    double operator()() const
+    // Override operator () to evaluate the expression
+    double operator ()() const
     {
         // Assert that the expression has arity 0
         BOOST_MPL_ASSERT_RELATION(0, ==, calculator_arity<Expr>::type::value);
@@ -109,7 +109,7 @@ struct calculator_expression
         return proto::eval(*this, ctx);
     }
 
-    double operator()(double d1) const
+    double operator ()(double d1) const
     {
         // Assert that the expression has arity 1
         BOOST_MPL_ASSERT_RELATION(1, ==, calculator_arity<Expr>::type::value);
@@ -117,7 +117,7 @@ struct calculator_expression
         return proto::eval(*this, ctx);
     }
 
-    double operator()(double d1, double d2) const
+    double operator ()(double d1, double d2) const
     {
         // Assert that the expression has arity 2
         BOOST_MPL_ASSERT_RELATION(2, ==, calculator_arity<Expr>::type::value);
