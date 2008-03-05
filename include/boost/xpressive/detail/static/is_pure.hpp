@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // is_pure.hpp
 //
-//  Copyright 2007 Eric Niebler. Distributed under the Boost
+//  Copyright 2008 Eric Niebler. Distributed under the Boost
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -110,7 +110,7 @@ namespace boost { namespace xpressive { namespace detail
 
     template<typename Expr, typename Char>
     struct use_simple_repeat_<Expr, Char, modifier_tag>
-      : use_simple_repeat_<typename unref_arg_c<Expr, 0>::type, Char>
+      : use_simple_repeat_<typename unref_arg_c<Expr, 1>::type, Char>
     {};
 
     template<typename Expr, typename Char>

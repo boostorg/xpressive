@@ -2,7 +2,7 @@
 /// \file regex_algorithms.hpp
 /// Contains the regex_match(), regex_search() and regex_replace() algorithms.
 //
-//  Copyright 2007 Eric Niebler. Distributed under the Boost
+//  Copyright 2008 Eric Niebler. Distributed under the Boost
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -81,7 +81,8 @@ inline bool regex_match
         // handle partial matches
         else if(state.found_partial_match_ && 0 != (flags & regex_constants::match_partial))
         {
-            return state.set_partial_match(), true;
+            state.set_partial_match();
+            return true;
         }
     }
 
@@ -256,7 +257,7 @@ inline bool regex_search_impl
         }
 
         // If we have a finder, use it to find where a potential match can start
-        else if(impl.finder_)
+        else if(impl.finder_ && (!partial_ok || impl.finder_->ok_for_partial_matches()))
         {
             finder<BidiIter> const &find = *impl.finder_;
             if(find(state))
@@ -537,7 +538,7 @@ inline OutIter regex_replace
         }
 
         out = what.format(out, fmt, flags);
-        cur = state.cur_ = what[0].second;
+        cur = state.cur_ = state.next_search_ = what[0].second;
 
         if(0 == (flags & format_first_only))
         {
@@ -552,7 +553,7 @@ inline OutIter regex_replace
 
                 access::set_prefix_suffix(what, begin, end);
                 out = what.format(out, fmt, flags);
-                cur = state.cur_ = what[0].second;
+                cur = state.cur_ = state.next_search_ = what[0].second;
                 not_null = (0 == what.length());
                 state.reset(what, *access::get_regex_impl(re));
             }

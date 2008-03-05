@@ -41,6 +41,51 @@
 # define BOOST_PROTO_DISABLE_IF_IS_CONST(T)
 #endif
 
+#if BOOST_VERSION < 103500
+#define BOOST_PROTO_DEFINE_FUSION_TAG(X)        typedef X tag;
+#define BOOST_PROTO_DEFINE_FUSION_CATEGORY(X)
+#define BOOST_PROTO_FUSION_RESULT_OF            meta
+#define BOOST_PROTO_FUSION_EXTENSION            meta
+#define BOOST_PROTO_FUSION_AT_C(N, X)           at<N>(X)
+#else
+#define BOOST_PROTO_DEFINE_FUSION_TAG(X)        typedef X fusion_tag;
+#define BOOST_PROTO_DEFINE_FUSION_CATEGORY(X)   typedef X category;
+#define BOOST_PROTO_FUSION_RESULT_OF            result_of
+#define BOOST_PROTO_FUSION_EXTENSION            extension
+#define BOOST_PROTO_FUSION_AT_C(N, X)           at_c<N>(X)
+#endif
+
+#ifdef BOOST_PROTO_DOXYGEN_INVOKED
+// HACKHACK so Doxygen shows inheritance from mpl::true_ and mpl::false_
+namespace boost
+{
+    /// INTERNAL ONLY
+    ///
+    namespace mpl
+    {
+        /// INTERNAL ONLY
+        ///
+        struct true_ {};
+        /// INTERNAL ONLY
+        ///
+        struct false_ {};
+    }
+
+    /// INTERNAL ONLY
+    ///
+    namespace fusion
+    {
+        /// INTERNAL ONLY
+        ///
+        template<typename Function>
+        class unfused_generic {};
+    }
+}
+#define BOOST_PROTO_FOR_DOXYGEN_ONLY(x) x
+#else
+#define BOOST_PROTO_FOR_DOXYGEN_ONLY(x)
+#endif
+
 namespace boost { namespace proto
 {
     namespace wildns_

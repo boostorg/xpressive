@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // detail_fwd.hpp
 //
-//  Copyright 2007 Eric Niebler. Distributed under the Boost
+//  Copyright 2008 Eric Niebler. Distributed under the Boost
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -69,6 +69,8 @@ namespace boost { namespace xpressive { namespace detail
     //
     struct end_matcher;
 
+    struct independent_end_matcher;
+
     struct assert_bos_matcher;
 
     struct assert_eos_matcher;
@@ -95,7 +97,7 @@ namespace boost { namespace xpressive { namespace detail
     template<typename BidiIter>
     struct sequence;
 
-    template<typename Traits, bool ICase>
+    template<typename Traits, typename ICase>
     struct mark_matcher;
 
     struct mark_begin_matcher;
@@ -131,7 +133,7 @@ namespace boost { namespace xpressive { namespace detail
     template<typename Traits, typename ICase, typename Not>
     struct literal_matcher;
 
-    template<typename Traits, bool ICase>
+    template<typename Traits, typename ICase>
     struct string_matcher;
 
     template<typename Actor>
@@ -263,6 +265,8 @@ namespace boost { namespace xpressive { namespace detail
     typedef static_xpression<end_matcher, no_next> end_xpression;
 
     typedef static_xpression<alternate_end_matcher, no_next> alternate_end_xpression;
+
+    typedef static_xpression<independent_end_matcher, no_next> independent_end_xpression;
 
     typedef static_xpression<true_matcher, no_next> true_xpression;
 

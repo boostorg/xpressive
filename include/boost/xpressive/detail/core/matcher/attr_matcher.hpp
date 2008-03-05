@@ -1,8 +1,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 // attr_matcher.hpp
 //
-//  Copyright 2007 Eric Niebler.
-//  Copyright 2007 David Jenkins.
+//  Copyright 2008 Eric Niebler.
+//  Copyright 2008 David Jenkins.
 //
 //  Distributed under the Boost Software License, Version 1.0. (See
 //  accompanying file LICENSE_1_0.txt or copy at
@@ -41,6 +41,8 @@ namespace boost { namespace xpressive { namespace detail
         {
             return this->traits_.translate(ch1);
         }
+    private:
+        char_translate &operator =(char_translate const &);
     };
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -60,6 +62,8 @@ namespace boost { namespace xpressive { namespace detail
         {
             return this->traits_.translate_nocase(ch1);
         }
+    private:
+        char_translate &operator =(char_translate const &);
     };
 
     ///////////////////////////////////////////////////////////////////////////////

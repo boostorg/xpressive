@@ -2,7 +2,7 @@
 /// \file regex_primitives.hpp
 /// Contains the syntax elements for writing static regular expressions.
 //
-//  Copyright 2007 Eric Niebler. Distributed under the Boost
+//  Copyright 2008 Eric Niebler. Distributed under the Boost
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -11,9 +11,11 @@
 
 #include <vector>
 #include <climits>
+#include <boost/config.hpp>
 #include <boost/mpl/if.hpp>
 #include <boost/mpl/and.hpp>
 #include <boost/mpl/assert.hpp>
+#include <boost/detail/workaround.hpp>
 #include <boost/preprocessor/cat.hpp>
 #include <boost/xpressive/detail/detail_fwd.hpp>
 #include <boost/xpressive/detail/core/matchers.hpp>
@@ -22,7 +24,7 @@
 // Doxygen can't handle proto :-(
 #ifndef BOOST_XPRESSIVE_DOXYGEN_INVOKED
 # include <boost/xpressive/proto/proto.hpp>
-# include <boost/xpressive/proto/transform/arg.hpp>
+# include <boost/xpressive/proto/transform.hpp>
 # include <boost/xpressive/detail/core/icase.hpp>
 # include <boost/xpressive/detail/static/compile.hpp>
 # include <boost/xpressive/detail/static/modifier.hpp>
@@ -52,6 +54,13 @@ namespace boost { namespace xpressive { namespace detail
         using proto::extends<basic_mark_tag, mark_tag>::operator =;
     };
 
+    // workaround msvc-7.1 bug with function pointer types
+    // within function types:
+    #if BOOST_WORKAROUND(BOOST_MSVC, == 1310)
+    #define mark_number(x) proto::call<mark_number(x)>
+    #define minus_one() proto::make<minus_one()>
+    #endif
+
     struct push_back : proto::callable
     {
         typedef int result_type;
@@ -64,32 +73,139 @@ namespace boost { namespace xpressive { namespace detail
         }
     };
 
-    //using grammar_detail::mark_number;
+    struct mark_number : proto::callable
+    {
+        typedef int result_type;
 
-    //// s1 or -s1
-    //struct SubMatch
-    //  : proto::or_<
-    //        proto::when<basic_mark_tag,                push_back(proto::_visitor, mark_number(proto::_arg)) >
-    //      , proto::when<proto::negate<basic_mark_tag>, push_back(proto::_visitor, mpl::int_<-1>())          >
-    //    >
-    //{};
+        template<typename Expr>
+        int operator ()(Expr const &expr) const
+        {
+            return expr.mark_number_;
+        }
+    };
 
-    //struct SubMatchList
-    //  : proto::or_<SubMatch, proto::comma<SubMatchList, SubMatch> >
-    //{};
+    typedef mpl::int_<-1> minus_one;
 
-    //template<typename Subs>
-    //typename enable_if<
-    //    mpl::and_<proto::is_expr<Subs>, proto::matches<Subs, SubMatchList> >
-    //  , std::vector<int>
-    //>::type
-    //to_vector(Subs const &subs)
-    //{
-    //    std::vector<int> subs_;
-    //    SubMatchList()(subs, 0, subs_);
-    //    return subs_;
-    //}
+    // s1 or -s1
+    struct SubMatch
+      : proto::or_<
+            proto::when<basic_mark_tag,                push_back(proto::_visitor, mark_number(proto::_arg)) >
+          , proto::when<proto::negate<basic_mark_tag>, push_back(proto::_visitor, minus_one())              >
+        >
+    {};
 
+    struct SubMatchList
+      : proto::or_<SubMatch, proto::comma<SubMatchList, SubMatch> >
+    {};
+
+    template<typename Subs>
+    typename enable_if<
+        mpl::and_<proto::is_expr<Subs>, proto::matches<Subs, SubMatchList> >
+      , std::vector<int>
+    >::type
+    to_vector(Subs const &subs)
+    {
+        std::vector<int> subs_;
+        SubMatchList()(subs, 0, subs_);
+        return subs_;
+    }
+
+    #if BOOST_WORKAROUND(BOOST_MSVC, == 1310)
+    #undef mark_number
+    #undef minus_one
+    #endif
+
+    // replace "Expr" with "keep(*State) >> Expr"
+    struct skip_primitives : proto::callable
+    {
+        template<typename Sig> struct result {};
+
+        template<typename This, typename Expr, typename State, typename Visitor>
+        struct result<This(Expr, State, Visitor)>
+        {
+            typedef
+                typename proto::shift_right<
+                    typename proto::unary_expr<
+                        keeper_tag
+                      , typename proto::dereference<State>::type
+                    >::type
+                  , Expr
+                >::type
+            type;
+        };
+
+        template<typename Expr, typename State, typename Visitor>
+        typename result<void(Expr, State, Visitor)>::type
+        operator ()(Expr const &expr, State const &state, Visitor &) const
+        {
+            typedef typename result<void(Expr, State, Visitor)>::type type;
+            type that = {{{state}}, expr};
+            return that;
+        }
+    };
+
+    struct Primitives
+      : proto::or_<
+            proto::terminal<proto::_>
+          , proto::comma<proto::_, proto::_>
+          , proto::subscript<proto::terminal<set_initializer>, proto::_>
+          , proto::assign<proto::terminal<set_initializer>, proto::_>
+          , proto::assign<proto::terminal<attribute_placeholder<proto::_> >, proto::_>
+          , proto::complement<Primitives>
+        >
+    {};
+
+    struct SkipGrammar
+      : proto::or_<
+            proto::when<Primitives, skip_primitives>
+          , proto::assign<proto::terminal<mark_placeholder>, SkipGrammar>   // don't "skip" mark tags
+          , proto::subscript<SkipGrammar, proto::_>                         // don't put skips in actions
+          , proto::binary_expr<modifier_tag, proto::_, SkipGrammar>         // don't skip modifiers
+          , proto::unary_expr<lookbehind_tag, proto::_>                     // don't skip lookbehinds
+          , proto::nary_expr<proto::_, proto::vararg<SkipGrammar> >         // everything else is fair game!
+        >
+    {};
+
+    template<typename Skip>
+    struct skip_directive
+    {
+        typedef typename proto::result_of::as_expr<Skip>::type skip_type;
+
+        skip_directive(Skip const &skip)
+          : skip_(proto::as_expr(skip))
+        {}
+
+        template<typename Sig>
+        struct result;
+
+        template<typename This, typename Expr>
+        struct result<This(Expr)>
+        {
+            typedef
+                typename proto::shift_right<
+                    typename SkipGrammar::result<void(
+                        typename proto::result_of::as_expr<Expr>::type
+                      , skip_type
+                      , mpl::void_
+                    )>::type
+                  , typename proto::dereference<skip_type>::type
+                >::type
+            type;
+        };
+
+        template<typename Expr>
+        typename result<skip_directive(Expr)>::type
+        operator ()(Expr const &expr) const
+        {
+            mpl::void_ ignore;
+            typedef typename result<skip_directive(Expr)>::type result_type;
+            result_type result = {SkipGrammar()(proto::as_expr(expr), this->skip_, ignore), {skip_}};
+            return result;
+        }
+
+    private:
+        skip_type skip_;
+    };
 
 /*
 ///////////////////////////////////////////////////////////////////////////////
@@ -664,6 +780,48 @@ proto::terminal<detail::attribute_placeholder<mpl::int_<6> > >::type const a6 = 
 proto::terminal<detail::attribute_placeholder<mpl::int_<7> > >::type const a7 = {{{}}};
 proto::terminal<detail::attribute_placeholder<mpl::int_<8> > >::type const a8 = {{{}}};
 proto::terminal<detail::attribute_placeholder<mpl::int_<9> > >::type const a9 = {{{}}};
+
+///////////////////////////////////////////////////////////////////////////////
+/// \brief Specify which characters to skip when matching a regex.
+///
+/// <tt>skip()</tt> instructs the regex engine to skip certain characters when matching
+/// a regex. It is most useful for writing regexes that ignore whitespace.
+/// For instance, the following specifies a regex that skips whitespace and
+/// punctuation:
+///
+/// \code
+/// // A sentence is one or more words separated by whitespace
+/// // and punctuation.
+/// sregex word = +alpha;
+/// sregex sentence = skip(set[_s | punct])( +word );
+/// \endcode
+///
+/// The way it works in the above example is to insert
+/// <tt>keep(*set[_s | punct])</tt> before each primitive within the regex.
+/// A "primitive" includes terminals like strings, character sets and nested
+/// regexes. A final <tt>*set[_s | punct]</tt> is added to the end of the
+/// regex. The regex <tt>sentence</tt> specified above is equivalent to
+/// the following:
+///
+/// \code
+/// sregex sentence = +( keep(*set[_s | punct]) >> word )
+///                        >> *set[_s | punct];
+/// \endcode
+///
+/// \attention Skipping does not affect how nested regexes are handled because
+/// they are treated atomically. String literals are also treated
+/// atomically; that is, no skipping is done within a string literal. So
+/// <tt>skip(_s)("this that")</tt> is not the same as
+/// <tt>skip(_s)("this" >> as_xpr("that"))</tt>. The first will only match
+/// when there is only one space between "this" and "that". The second will
+/// skip any and all whitespace between "this" and "that".
+///
+/// \param skip A regex that specifies which characters to skip.
+template<typename Skip>
+detail::skip_directive<Skip> skip(Skip const &skip)
+{
+    return detail::skip_directive<Skip>(skip);
+}
 
 namespace detail
 {

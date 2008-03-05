@@ -3,7 +3,7 @@
 /// Contains the definition of regex_compiler, a factory for building regex objects
 /// from strings.
 //
-//  Copyright 2007 Eric Niebler. Distributed under the Boost
+//  Copyright 2008 Eric Niebler. Distributed under the Boost
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -320,19 +320,16 @@ private:
             negative = true; // fall-through
         case token_positive_lookahead:
             lookahead = true;
-            seq_end = detail::make_dynamic<BidiIter>(detail::true_matcher());
             break;
 
         case token_negative_lookbehind:
             negative = true; // fall-through
         case token_positive_lookbehind:
             lookbehind = true;
-            seq_end = detail::make_dynamic<BidiIter>(detail::true_matcher());
             break;
 
         case token_independent_sub_expression:
             keeper = true;
-            seq_end = detail::make_dynamic<BidiIter>(detail::true_matcher());
             break;
 
         case token_comment:
@@ -430,16 +427,19 @@ private:
         typedef detail::shared_matchable<BidiIter> xpr_type;
         if(lookahead)
         {
+            seq += detail::make_independent_end_xpression<BidiIter>(seq.pure());
             detail::lookahead_matcher<xpr_type> lookahead(seq.xpr(), negative, seq.pure());
             seq = detail::make_dynamic<BidiIter>(lookahead);
         }
         else if(lookbehind)
         {
+            seq += detail::make_independent_end_xpression<BidiIter>(seq.pure());
             detail::lookbehind_matcher<xpr_type> lookbehind(seq.xpr(), seq.width().value(), negative, seq.pure());
             seq = detail::make_dynamic<BidiIter>(lookbehind);
         }
         else if(keeper) // independent sub-expression
         {
+            seq += detail::make_independent_end_xpression<BidiIter>(seq.pure());
             detail::keeper_matcher<xpr_type> keeper(seq.xpr(), seq.pure());
             seq = detail::make_dynamic<BidiIter>(keeper);
         }

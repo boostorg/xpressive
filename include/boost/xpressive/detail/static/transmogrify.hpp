@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // transmogrify.hpp
 //
-//  Copyright 2007 Eric Niebler. Distributed under the Boost
+//  Copyright 2008 Eric Niebler. Distributed under the Boost
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -45,7 +45,7 @@ namespace boost { namespace xpressive { namespace detail
         <
             is_char_literal<Matcher, char_type>
           , literal_matcher<Traits, ICase, false_>
-          , string_matcher<Traits, ICase::value>
+          , string_matcher<Traits, ICase>
         >::type type;
 
         template<typename Matcher2, typename Visitor>
@@ -140,7 +140,7 @@ namespace boost { namespace xpressive { namespace detail
     template<typename BidiIter, typename ICase, typename Traits>
     struct transmogrify<BidiIter, ICase, Traits, mark_placeholder >
     {
-        typedef mark_matcher<Traits, ICase::value> type;
+        typedef mark_matcher<Traits, ICase> type;
 
         template<typename Matcher2, typename Visitor>
         static type call(Matcher2 const &m, Visitor &visitor)

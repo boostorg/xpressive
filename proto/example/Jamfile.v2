@@ -53,3 +53,15 @@ exe mixed
         mixed.cpp
     ;
 
+exe futures
+    :
+        futures.cpp
+    ;
+
+exe map_assign
+    :
+        map_assign.cpp
+    :
+        <toolset>gcc:<cxxflags>-ftemplate-depth-1024
+    ;
+

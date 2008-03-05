@@ -2,7 +2,7 @@
 /// \file regex_actions.hpp
 /// Defines the syntax elements of xpressive's action expressions.
 //
-//  Copyright 2007 Eric Niebler. Distributed under the Boost
+//  Copyright 2008 Eric Niebler. Distributed under the Boost
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -14,6 +14,7 @@
 # pragma once
 #endif
 
+#include <boost/config.hpp>
 #include <boost/ref.hpp>
 #include <boost/mpl/if.hpp>
 #include <boost/mpl/or.hpp>
@@ -40,7 +41,7 @@
 
 // Doxygen can't handle proto :-(
 #ifndef BOOST_XPRESSIVE_DOXYGEN_INVOKED
-# include <boost/xpressive/proto/transform/fold.hpp>
+# include <boost/xpressive/proto/transform.hpp>
 # include <boost/xpressive/detail/core/matcher/action_matcher.hpp>
 #endif
 
@@ -51,6 +52,13 @@
 /// INTERNAL ONLY
 ///
 #define UNCVREF(x)  typename remove_cv<typename remove_reference<x>::type>::type
+
+#if BOOST_MSVC
+#pragma warning(push)
+#pragma warning(disable : 4510) // default constructor could not be generated
+#pragma warning(disable : 4512) // assignment operator could not be generated
+#pragma warning(disable : 4610) // can never be instantiated - user defined constructor required
+#endif
 
 namespace boost { namespace xpressive
 {
@@ -867,5 +875,9 @@ namespace boost { namespace xpressive
 
 #undef UNREF
 #undef UNCVREF
+
+#if BOOST_MSVC
+#pragma warning(pop)
+#endif
 
 #endif // BOOST_XPRESSIVE_ACTIONS_HPP_EAN_03_22_2007

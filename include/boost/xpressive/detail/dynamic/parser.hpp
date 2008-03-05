@@ -3,7 +3,7 @@
 /// Contains the definition of regex_compiler, a factory for building regex objects
 /// from strings.
 //
-//  Copyright 2007 Eric Niebler. Distributed under the Boost
+//  Copyright 2008 Eric Niebler. Distributed under the Boost
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -22,6 +22,7 @@
 #include <boost/xpressive/regex_constants.hpp>
 #include <boost/xpressive/detail/detail_fwd.hpp>
 #include <boost/xpressive/detail/core/matchers.hpp>
+#include <boost/xpressive/detail/utility/ignore_unused.hpp>
 #include <boost/xpressive/detail/dynamic/dynamic.hpp>
 
 // The Regular Expression grammar, in pseudo BNF:
@@ -124,12 +125,12 @@ inline sequence<BidiIter> make_literal_xpression
 
     if(0 != (regex_constants::icase_ & flags))
     {
-        string_matcher<Traits, true> matcher(literal, traits);
+        string_matcher<Traits, mpl::true_> matcher(literal, traits);
         return make_dynamic<BidiIter>(matcher);
     }
     else
     {
-        string_matcher<Traits, false> matcher(literal, traits);
+        string_matcher<Traits, mpl::false_> matcher(literal, traits);
         return make_dynamic<BidiIter>(matcher);
     }
 }
@@ -149,14 +150,14 @@ inline sequence<BidiIter> make_backref_xpression
     {
         return make_dynamic<BidiIter>
         (
-            mark_matcher<Traits, true>(mark_nbr, traits)
+            mark_matcher<Traits, mpl::true_>(mark_nbr, traits)
         );
     }
     else
     {
         return make_dynamic<BidiIter>
         (
-            mark_matcher<Traits, false>(mark_nbr, traits)
+            mark_matcher<Traits, mpl::false_>(mark_nbr, traits)
         );
     }
 }
@@ -172,6 +173,7 @@ inline void merge_charset
   , Traits const &traits
 )
 {
+    detail::ignore_unused(traits);
     if(0 != compound.posix_yes())
     {
         typename Traits::char_class_type mask = compound.posix_yes();
@@ -332,6 +334,22 @@ inline sequence<BidiIter> make_assert_word(Cond, Traits const &traits)
     (
         detail::assert_word_matcher<Cond, Traits>(traits)
     );
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// make_independent_end_xpression
+//
+template<typename BidiIter>
+inline sequence<BidiIter> make_independent_end_xpression(bool pure)
+{
+    if(pure)
+    {
+        return detail::make_dynamic<BidiIter>(detail::true_matcher());
+    }
+    else
+    {
+        return detail::make_dynamic<BidiIter>(detail::independent_end_matcher());
+    }
 }
 
 }}} // namespace boost::xpressive::detail
