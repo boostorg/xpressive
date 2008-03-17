@@ -81,6 +81,7 @@ namespace boost { namespace proto
 
             static callable_context_wrapper<Context, DontCare> &sctx_;
             static Expr &sexpr_;
+            static typename Expr::proto_tag &stag_;
 
             BOOST_STATIC_CONSTANT(bool, value =
             (
@@ -88,7 +89,7 @@ namespace boost { namespace proto
                 sizeof(
                     proto::detail::check_is_expr_handled(
                         (sctx_(
-                            typename Expr::proto_tag()
+                            stag_()
                           , proto::arg_c<Indices>(sexpr_)...
                         ), 0)
                     )
@@ -135,8 +136,18 @@ namespace boost { namespace proto
 
     namespace context
     {
-        /// callable_eval
+        /// \brief A BinaryFunction that accepts a Proto expression and a
+        /// callable context and calls the context with the expression tag
+        /// and children as arguments, effectively fanning the expression
+        /// out.
         ///
+        /// <tt>callable_eval\<\></tt> requires that \c Context is a
+        /// PolymorphicFunctionObject that can be invoked with \c Expr's
+        /// tag and children as expressions, as follows:
+        ///
+        /// \code
+        /// context(Expr::proto_tag(), arg_c<0>(expr), arg_c<1>(expr), ...)
+        /// \endcode
         template<typename Expr, typename Context, long Arity>
         struct callable_eval
           #ifdef BOOST_HAS_VARIADIC_TMPL

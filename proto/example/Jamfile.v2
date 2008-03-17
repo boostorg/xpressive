@@ -65,3 +65,8 @@ exe map_assign
         <toolset>gcc:<cxxflags>-ftemplate-depth-1024
     ;
 
+exe lambda
+    :
+        lambda.cpp
+    ;
+

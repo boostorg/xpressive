@@ -251,11 +251,58 @@ struct MakePair
         /*<< Match expressions like `make_pair_(1, 3.14)` >>*/
         function<terminal<make_pair_tag>, terminal<_>, terminal<_> >
       /*<< Return `std::pair<F,S>(f,s)` where `f` and `s` are the
-      first and second arguments to the lazy `make_pair_()` function >>*/
+      first and second arguments to the lazy `make_pair_()` function.
+      (This uses `proto::make<>` under the covers to evaluate the
+      transform.)>>*/
       , std::pair<_arg(_arg1), _arg(_arg2)>(_arg(_arg1), _arg(_arg2))
     >
 {};
 //]
+
+namespace lazy_make_pair2
+{
+    //[ LazyMakePair2
+    struct make_pair_tag {};
+    terminal<make_pair_tag>::type const make_pair_ = {{}};
+
+    // Like std::make_pair(), only as a function object.
+    /*<<Inheriting from `proto::callable` lets Proto know
+    that this is a callable transform, so we can use it
+    without having to wrap it in `proto::call<>`.>>*/
+    struct make_pair : callable
+    {
+        template<typename Sig> struct result;
+
+        template<typename This, typename First, typename Second>
+        struct result<This(First, Second)>
+        {
+            typedef std::pair<First, Second> type;
+        };
+
+        template<typename First, typename Second>
+        std::pair<First, Second>
+        operator()(First const &first, Second const &second) const
+        {
+            return std::make_pair(first, second);
+        }
+    };
+
+    // This transform matches lazy function invocations like
+    // `make_pair_(1, 3.14)` and actually builds a `std::pair<>`
+    // from the arguments.
+    struct MakePair
+      : when<
+            /*<< Match expressions like `make_pair_(1, 3.14)` >>*/
+            function<terminal<make_pair_tag>, terminal<_>, terminal<_> >
+          /*<< Return `make_pair()(f,s)` where `f` and `s` are the
+          first and second arguments to the lazy `make_pair_()` function.
+          (This uses `proto::call<>` under the covers  to evaluate the
+          transform.)>>*/
+          , make_pair(_arg(_arg1), _arg(_arg2))
+        >
+    {};
+    //]
+}
 
 //[ NegateInt
 struct NegateInt

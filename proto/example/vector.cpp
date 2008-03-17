@@ -118,7 +118,7 @@ struct AssignOpsCases
 };
 
 // A vector grammar is a terminal or some op that is not an
-// assignment op. (Assignment will be handles specially.)
+// assignment op. (Assignment will be handled specially.)
 struct VectorGrammar
   : proto::or_<
         proto::terminal<_>

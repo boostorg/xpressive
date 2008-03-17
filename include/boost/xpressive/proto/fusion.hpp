@@ -10,6 +10,7 @@
 #define BOOST_PROTO_FUSION_HPP_EAN_11_04_2006
 
 #include <boost/type_traits.hpp>
+#include <boost/mpl/if.hpp>
 #include <boost/mpl/long.hpp>
 #include <boost/fusion/include/is_view.hpp>
 #include <boost/fusion/include/tag_of_fwd.hpp>
@@ -182,7 +183,7 @@ namespace boost { namespace fusion
         template<>
         struct is_view_impl<proto::tag::proto_flat_view>
         {
-            template<typename Iterator>
+            template<typename Sequence>
             struct apply
               : mpl::true_
             {};
@@ -191,7 +192,7 @@ namespace boost { namespace fusion
         template<>
         struct is_view_impl<proto::tag::proto_expr>
         {
-            template<typename Iterator>
+            template<typename Sequence>
             struct apply
               : mpl::false_
             {};
