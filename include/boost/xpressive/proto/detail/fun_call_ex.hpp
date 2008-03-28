@@ -61,7 +61,7 @@
 
     #define C1 const
 
-    #define BOOST_PP_ITERATION_PARAMS_1 (3, (1, BOOST_PP_DEC(BOOST_PROTO_MAX_ARITY), <boost/xpressive/proto/detail/fun_call_ex.hpp>))
+    #define BOOST_PP_ITERATION_PARAMS_1 (3, (1, BOOST_PP_DEC(BOOST_PROTO_MAX_FUNCTION_CALL_ARITY), <boost/xpressive/proto/detail/fun_call_ex.hpp>))
     #include BOOST_PP_ITERATE()
 
     #undef C0

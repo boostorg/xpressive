@@ -222,7 +222,7 @@ namespace boost { namespace proto
         /// INTERNAL ONLY
         ///
     #define BOOST_PROTO_EXTENDS_FUNCTION_IMPL_3(R, STATE)                                           \
-        BOOST_PP_NOT_EQUAL(BOOST_PROTO_MAX_ARITY, BOOST_PP_SEQ_SIZE(STATE))
+        BOOST_PP_NOT_EQUAL(BOOST_PROTO_MAX_FUNCTION_CALL_ARITY, BOOST_PP_SEQ_SIZE(STATE))
 
         /// INTERNAL ONLY
         ///
