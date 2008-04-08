@@ -22,6 +22,7 @@
 #include <boost/assert.hpp>
 #include <boost/mpl/if.hpp>
 #include <boost/throw_exception.hpp>
+#include <boost/utility/result_of.hpp>
 #include <boost/type_traits/is_const.hpp>
 #include <boost/type_traits/remove_reference.hpp>
 #include <boost/xpressive/detail/detail_fwd.hpp>
@@ -281,7 +282,7 @@ namespace boost { namespace xpressive { namespace detail
             result_type;
 
             result_type operator ()(
-                typename impl::expr_param expr
+                typename impl::expr_param
               , typename impl::state_param state
               , typename impl::data_param data
             ) const
@@ -416,8 +417,8 @@ namespace boost { namespace xpressive { namespace detail
 
             result_type operator ()(
                 typename impl::expr_param expr
-              , typename impl::state_param state
-              , typename impl::data_param data
+              , typename impl::state_param
+              , typename impl::data_param
             ) const
             {
                 return result_type::make(proto::value(expr));
@@ -463,13 +464,13 @@ namespace boost { namespace xpressive { namespace detail
         {
             // Bind the arguments
             typedef
-                typename BindActionArgs::template impl<
+                typename boost::result_of<BindActionArgs(
                     Actor const &
                   , match_state<BidiIter> &
                   , int const &
-                >::result_type
+                )>::type
             action_type;
-            
+
             action<action_type> actor(BindActionArgs()(this->actor_, state, this->sub_));
 
             // Put the action in the action list

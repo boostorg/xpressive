@@ -585,7 +585,7 @@ template<typename Expr> detail::unspecified icase(Expr const &expr) { return 0; 
 #ifdef BOOST_XPRESSIVE_DOXYGEN_INVOKED
 template<typename Literal> detail::unspecified as_xpr(Literal const &literal) { return 0; }
 #else
-proto::functor::as_expr<> const as_xpr = {};
+proto::functional::as_expr<> const as_xpr = {};
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////
