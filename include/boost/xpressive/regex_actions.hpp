@@ -19,6 +19,7 @@
 #include <boost/mpl/if.hpp>
 #include <boost/mpl/or.hpp>
 #include <boost/mpl/int.hpp>
+#include <boost/noncopyable.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/throw_exception.hpp>
 #include <boost/utility/enable_if.hpp>
@@ -40,7 +41,7 @@
 
 // Doxygen can't handle proto :-(
 #ifndef BOOST_XPRESSIVE_DOXYGEN_INVOKED
-# include <boost/proto/transform.hpp>
+# include <boost/xpressive/proto/transform.hpp>
 # include <boost/xpressive/detail/core/matcher/action_matcher.hpp>
 #endif
 
@@ -97,10 +98,10 @@ namespace boost { namespace xpressive
         {
             typedef int result_type;
 
-            template<typename Data, typename Expr>
-            int operator ()(Data &data, Expr const &expr) const
+            template<typename Visitor, typename Expr>
+            int operator ()(Visitor &visitor, Expr const &expr) const
             {
-                data.let(expr);
+                visitor.let(expr);
                 return 0;
             }
         };
@@ -117,7 +118,7 @@ namespace boost { namespace xpressive
                 >
               , proto::function<
                     proto::_state   // no-op
-                  , proto::vararg<proto::call<BindArg(proto::_data, proto::_)> >
+                  , proto::vararg<proto::call<BindArg(proto::_visitor, proto::_)> >
                 >
             >
         {};
@@ -129,18 +130,14 @@ namespace boost { namespace xpressive
         template<typename Expr>
         struct let_
         {
-            BOOST_PROTO_BASIC_EXTENDS(Expr, let_<Expr>, let_domain)
-            BOOST_PROTO_EXTENDS_FUNCTION()
+            BOOST_PROTO_EXTENDS(Expr, let_<Expr>, let_domain)
+            BOOST_PROTO_EXTENDS_FUNCTION(Expr, let_<Expr>, let_domain)
         };
 
         template<typename Args, typename BidiIter>
         void bind_args(let_<Args> const &args, match_results<BidiIter> &what)
         {
-            BindArgs::impl<let_<Args> const &, int, match_results<BidiIter> &>()(
-                args
-              , 0
-              , what
-            );
+            BindArgs()(args, 0, what);
         }
 
         template<typename BidiIter>
@@ -682,12 +679,12 @@ namespace boost { namespace xpressive
 
         T &get()
         {
-            return proto::value(*this);
+            return proto::arg(*this);
         }
 
         T const &get() const
         {
-            return proto::value(*this);
+            return proto::arg(*this);
         }
     };
 
@@ -705,24 +702,27 @@ namespace boost { namespace xpressive
 
         T &get() const
         {
-            return proto::value(*this).get();
+            return proto::arg(*this).get();
         }
     };
 
     template<typename T>
     struct local
-      : detail::value_wrapper<T>
+      : private noncopyable
+      , detail::value_wrapper<T>
       , proto::terminal<reference_wrapper<T> >::type
     {
         typedef typename proto::terminal<reference_wrapper<T> >::type base_type;
 
         local()
-          : detail::value_wrapper<T>()
+          : noncopyable()
+          , detail::value_wrapper<T>()
           , base_type(base_type::make(boost::ref(detail::value_wrapper<T>::value)))
         {}
 
         explicit local(T const &t)
-          : detail::value_wrapper<T>(t)
+          : noncopyable()
+          , detail::value_wrapper<T>(t)
           , base_type(base_type::make(boost::ref(detail::value_wrapper<T>::value)))
         {}
 
@@ -730,16 +730,13 @@ namespace boost { namespace xpressive
 
         T &get()
         {
-            return proto::value(*this);
+            return proto::arg(*this);
         }
 
         T const &get() const
         {
-            return proto::value(*this);
+            return proto::arg(*this);
         }
-
-    private:
-        local(local const &);
     };
 
     /// as (a.k.a., lexical_cast)
@@ -824,6 +821,9 @@ namespace boost { namespace xpressive
         typedef typename proto::terminal<detail::action_arg<T, mpl::int_<I> > >::type action_arg_type;
 
         BOOST_PROTO_EXTENDS(action_arg_type, this_type, proto::default_domain)
+        BOOST_PROTO_EXTENDS_ASSIGN(action_arg_type, this_type, proto::default_domain)
+        BOOST_PROTO_EXTENDS_SUBSCRIPT(action_arg_type, this_type, proto::default_domain)
+        BOOST_PROTO_EXTENDS_FUNCTION(action_arg_type, this_type, proto::default_domain)
     };
 
     /// Usage: construct\<Type\>(arg1, arg2)

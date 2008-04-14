@@ -19,28 +19,26 @@
 
 namespace boost { namespace xpressive { namespace grammar_detail
 {
-    struct as_matcher : proto::transform<as_matcher>
+    struct as_matcher : proto::callable
     {
-        template<typename Expr, typename State, typename Data>
-        struct impl : proto::transform_impl<Expr, State, Data>
-        {
-            typedef typename impl::data data_type;
+        template<typename Sig> struct result {};
 
+        template<typename This, typename Expr, typename State, typename Visitor>
+        struct result<This(Expr, State, Visitor)>
+        {
             typedef
-                typename data_type::template apply<
-                    typename proto::result_of::value<typename impl::expr>::type
+                typename Visitor::template apply<
+                    typename proto::result_of::arg<Expr>::type
                 >::type
-            result_type;
-            
-            result_type operator ()(
-                typename impl::expr_param expr
-              , typename impl::state_param
-              , typename impl::data_param data
-            ) const
-            {
-                return data.call(proto::value(expr));
-            }
+            type;
         };
+
+        template<typename Expr, typename State, typename Visitor>
+        typename result<void(Expr, State, Visitor)>::type
+        operator ()(Expr const &expr, State const &, Visitor &visitor) const
+        {
+            return visitor.call(proto::arg(expr));
+        }
     };
 
 }}}
