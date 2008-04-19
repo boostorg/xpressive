@@ -122,18 +122,13 @@ namespace boost { namespace xpressive { namespace detail
         template<typename Expr, typename State, typename Data>
         struct impl : proto::transform_impl<Expr, State, Data>
         {
-            typedef typename impl::expr expr_type;
-            typedef typename impl::state state_type;
-            
             typedef
                 typename proto::shift_right<
                     typename proto::unary_expr<
                         keeper_tag
-                      , typename proto::dereference<
-                            typename state_type::proto_derived_expr // remove the const &
-                        >::type
+                      , typename proto::dereference<State>::type
                     >::type
-                  , typename expr_type::proto_derived_expr // remove the const &
+                  , Expr
                 >::type
             result_type;
 
