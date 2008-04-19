@@ -24,7 +24,8 @@
 // Doxygen can't handle proto :-(
 #ifndef BOOST_XPRESSIVE_DOXYGEN_INVOKED
 # include <boost/proto/core.hpp>
-# include <boost/proto/transform.hpp>
+# include <boost/proto/transform/arg.hpp>
+# include <boost/proto/transform/when.hpp>
 # include <boost/xpressive/detail/core/icase.hpp>
 # include <boost/xpressive/detail/static/compile.hpp>
 # include <boost/xpressive/detail/static/modifier.hpp>

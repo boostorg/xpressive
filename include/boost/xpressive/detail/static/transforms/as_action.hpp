@@ -24,7 +24,12 @@
 #include <boost/xpressive/detail/static/static.hpp>
 #include <boost/xpressive/detail/static/transforms/as_quantifier.hpp>
 #include <boost/proto/core.hpp>
-#include <boost/proto/transform.hpp>
+#include <boost/proto/transform/arg.hpp>
+#include <boost/proto/transform/call.hpp>
+#include <boost/proto/transform/make.hpp>
+#include <boost/proto/transform/when.hpp>
+#include <boost/proto/transform/fold.hpp>
+#include <boost/proto/transform/fold_tree.hpp>
 
 namespace boost { namespace xpressive { namespace detail
 {
