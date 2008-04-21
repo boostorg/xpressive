@@ -67,7 +67,7 @@ These flags live in the `regex_constants` namespace.
 
 [h2 The ECMA-262 Format Sequences]
 
-When you haven't specified a substitution string dialect with one of the format flags above, 
+When you haven't specified a substitution string dialect with one of the format flags above,
 you get the dialect defined by ECMA-262, the standard for ECMAScript. The table below shows
 the escape sequences recognized in ECMA-262 mode.
 

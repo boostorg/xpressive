@@ -72,15 +72,15 @@ namespace boost { namespace xpressive { namespace grammar_detail
             typedef
                 typename proto::result_of::child<Expr>::type
             arg_type;
-            
+
             typedef
                 typename Grammar::template impl<arg_type, detail::true_xpression, Data>::result_type
             xpr_type;
-            
+
             typedef
                 detail::simple_repeat_matcher<xpr_type, Greedy>
             matcher_type;
-            
+
             typedef
                 typename proto::terminal<matcher_type>::type
             result_type;
@@ -165,7 +165,7 @@ namespace boost { namespace xpressive { namespace grammar_detail
             typedef
                 typename proto::result_of::child<Expr>::type
             xpr_type;
-            
+
             typedef
                 typename InsertMark::impl<xpr_type, State, Data>::result_type
             marked_sub_type;
@@ -224,7 +224,7 @@ namespace boost { namespace xpressive { namespace grammar_detail
             typedef
                 detail::alternate_end_xpression
             end_xpr;
-            
+
             typedef
                 detail::optional_matcher<
                     typename Grammar::template impl<Expr, end_xpr, Data>::result_type
@@ -256,7 +256,7 @@ namespace boost { namespace xpressive { namespace grammar_detail
             typedef
                 detail::alternate_end_xpression
             end_xpr;
-            
+
             typedef
                 detail::optional_mark_matcher<
                     typename Grammar::template impl<Expr, end_xpr, Data>::result_type

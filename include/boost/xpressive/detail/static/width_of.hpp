@@ -37,17 +37,17 @@ namespace boost { namespace xpressive { namespace detail
     struct add_widths
       : mpl::size_t<N + M>
     {};
-    
+
     template<std::size_t M>
     struct add_widths<unknown_width::value, M>
       : unknown_width
     {};
-    
+
     template<std::size_t N>
     struct add_widths<N, unknown_width::value>
       : unknown_width
     {};
-    
+
     template<>
     struct add_widths<unknown_width::value, unknown_width::value>
       : unknown_width

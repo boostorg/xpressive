@@ -351,7 +351,7 @@ namespace boost { namespace xpressive { namespace detail
             typedef
                 typename expr_type::proto_child0::matcher_type::value_type::second_type
             attr_type;
-            
+
             typedef
                 typename proto::terminal<opt<attr_type> >::type
             result_type;

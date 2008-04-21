@@ -188,7 +188,7 @@ namespace boost { namespace xpressive { namespace detail
                   , mpl::void_ &
                 >
             skip_transform;
-            
+
             typedef
                 typename proto::shift_right<
                     typename skip_transform::result_type

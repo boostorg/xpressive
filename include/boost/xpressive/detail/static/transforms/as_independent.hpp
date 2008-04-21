@@ -102,7 +102,7 @@ namespace boost { namespace xpressive { namespace grammar_detail
         struct impl : proto::transform_impl<Expr, State, Data>
         {
             typedef typename proto::result_of::child<Expr>::type arg_type;
-            
+
             typedef
                 typename IndependentEndXpression::impl<arg_type, int, int>::result_type
             end_xpr_type;
@@ -110,7 +110,7 @@ namespace boost { namespace xpressive { namespace grammar_detail
             typedef
                 typename Grammar::template impl<arg_type, end_xpr_type, Data>::result_type
             xpr_type;
-            
+
             typedef
                 detail::lookahead_matcher<xpr_type>
             result_type;
@@ -141,7 +141,7 @@ namespace boost { namespace xpressive { namespace grammar_detail
         struct impl : proto::transform_impl<Expr, State, Data>
         {
             typedef typename proto::result_of::child<Expr>::type arg_type;
-            
+
             typedef
                 typename IndependentEndXpression::impl<arg_type, int, int>::result_type
             end_xpr_type;
@@ -149,7 +149,7 @@ namespace boost { namespace xpressive { namespace grammar_detail
             typedef
                 typename Grammar::template impl<arg_type, end_xpr_type, Data>::result_type
             xpr_type;
-            
+
             typedef
                 detail::lookbehind_matcher<xpr_type>
             result_type;
@@ -179,7 +179,7 @@ namespace boost { namespace xpressive { namespace grammar_detail
         struct impl : proto::transform_impl<Expr, State, Data>
         {
             typedef typename proto::result_of::child<Expr>::type arg_type;
-            
+
             typedef
                 typename IndependentEndXpression::impl<arg_type, int, int>::result_type
             end_xpr_type;

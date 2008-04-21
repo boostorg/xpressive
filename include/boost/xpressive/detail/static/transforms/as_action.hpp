@@ -173,7 +173,7 @@ namespace boost { namespace xpressive { namespace grammar_detail
                   , typename data_type::icase_type
                 >
             result_type;
-            
+
             result_type operator ()(
                 typename impl::expr_param expr
               , typename impl::state_param
@@ -202,9 +202,9 @@ namespace boost { namespace xpressive { namespace grammar_detail
                     typename MaxAttr::template impl<Expr, mpl::int_<0>, int>::result_type
                 >
             begin_type;
-            
+
             typedef typename impl::expr expr_type;
-            
+
             typedef
                 typename shift_right<
                     typename terminal<begin_type>::type

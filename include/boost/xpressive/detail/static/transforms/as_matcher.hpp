@@ -31,7 +31,7 @@ namespace boost { namespace xpressive { namespace grammar_detail
                     typename proto::result_of::value<typename impl::expr>::type
                 >::type
             result_type;
-            
+
             result_type operator ()(
                 typename impl::expr_param expr
               , typename impl::state_param

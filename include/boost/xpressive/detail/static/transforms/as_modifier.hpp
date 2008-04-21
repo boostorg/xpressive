@@ -47,7 +47,7 @@ namespace boost { namespace xpressive { namespace grammar_detail
                     typename proto::result_of::left<typename impl::expr>::type
                 >::type
             modifier_type;
-            
+
             typedef
                 typename modifier_type::template apply<typename impl::data>::type
             visitor_type;
@@ -55,7 +55,7 @@ namespace boost { namespace xpressive { namespace grammar_detail
             typedef
                 typename proto::result_of::right<Expr>::type
             expr_type;
-            
+
             typedef
                 typename Grammar::template impl<expr_type, State, visitor_type &>::result_type
             result_type;
