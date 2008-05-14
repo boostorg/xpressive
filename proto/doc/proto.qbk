@@ -38,7 +38,7 @@
 [def _PETE_                 [@http://www.codesourcery.com/pooma/download.html PETE]]
 [def _spirit_fx_            [@http://spirit.sourceforge.net Spirit Parser Framework]]
 [def _spirit_               [@http://spirit.sourceforge.net Spirit]]
-[def _xpressive_            [@../../../libs/xpressive/doc/index.html Boost.Xpressive]]
+[def _xpressive_            [@/libs/xpressive/doc/index.html Boost.Xpressive]]
 [def _expr_                 [classref  boost::proto::exprns_::expr<Tag,Args,1> `expr<>`]]
 [def _ref_                  [classref  boost::proto::refns_::ref_ `ref_<>`]]
 [def _unref_                [classref  boost::proto::functional::unref `unref()`]]
