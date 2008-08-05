@@ -45,6 +45,13 @@ namespace boost { namespace xpressive { namespace detail
         static Nbr nbr() { return Nbr(); }
     };
 
+    template<typename Nbr, typename Matcher>
+    struct read_attr<Nbr, Matcher &>
+    {
+        typedef Nbr nbr_type;
+        typedef Matcher matcher_type;
+    };
+
 }}}
 
 namespace boost { namespace xpressive { namespace grammar_detail
