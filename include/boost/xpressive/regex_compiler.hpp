@@ -3,7 +3,7 @@
 /// Contains the definition of regex_compiler, a factory for building regex objects
 /// from strings.
 //
-//  Copyright 2004 Eric Niebler. Distributed under the Boost
+//  Copyright 2008 Eric Niebler. Distributed under the Boost
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -21,7 +21,10 @@
 #include <boost/range/begin.hpp>
 #include <boost/range/end.hpp>
 #include <boost/mpl/assert.hpp>
+#include <boost/throw_exception.hpp>
 #include <boost/type_traits/is_same.hpp>
+#include <boost/type_traits/is_pointer.hpp>
+#include <boost/utility/enable_if.hpp>
 #include <boost/iterator/iterator_traits.hpp>
 #include <boost/xpressive/basic_regex.hpp>
 #include <boost/xpressive/detail/dynamic/parser.hpp>
@@ -105,12 +108,13 @@ struct regex_compiler
     ///         represented by the character range.
     /// \pre    InputIter is a model of the InputIterator concept.
     /// \pre    [begin,end) is a valid range.
-    /// \pre    The range of characters specified by [begin,end) contains a 
+    /// \pre    The range of characters specified by [begin,end) contains a
     ///         valid string-based representation of a regular expression.
     /// \throw  regex_error when the range of characters has invalid regular
     ///         expression syntax.
     template<typename InputIter>
-    basic_regex<BidiIter> compile(InputIter begin, InputIter end, flag_type flags = regex_constants::ECMAScript)
+    basic_regex<BidiIter>
+    compile(InputIter begin, InputIter end, flag_type flags = regex_constants::ECMAScript)
     {
         typedef typename iterator_category<InputIter>::type category;
         return this->compile_(begin, end, flags, category());
@@ -119,14 +123,16 @@ struct regex_compiler
     /// \overload
     ///
     template<typename InputRange>
-    basic_regex<BidiIter> compile(InputRange const &pat, flag_type flags = regex_constants::ECMAScript)
+    typename disable_if<is_pointer<InputRange>, basic_regex<BidiIter> >::type
+    compile(InputRange const &pat, flag_type flags = regex_constants::ECMAScript)
     {
         return this->compile(boost::begin(pat), boost::end(pat), flags);
     }
 
     /// \overload
     ///
-    basic_regex<BidiIter> compile(char_type const *begin, flag_type flags = regex_constants::ECMAScript)
+    basic_regex<BidiIter>
+    compile(char_type const *begin, flag_type flags = regex_constants::ECMAScript)
     {
         BOOST_ASSERT(0 != begin);
         char_type const *end = begin + std::char_traits<char_type>::length(begin);
@@ -319,19 +325,16 @@ private:
             negative = true; // fall-through
         case token_positive_lookahead:
             lookahead = true;
-            seq_end = detail::make_dynamic<BidiIter>(detail::true_matcher());
             break;
 
         case token_negative_lookbehind:
             negative = true; // fall-through
         case token_positive_lookbehind:
             lookbehind = true;
-            seq_end = detail::make_dynamic<BidiIter>(detail::true_matcher());
             break;
 
         case token_independent_sub_expression:
             keeper = true;
-            seq_end = detail::make_dynamic<BidiIter>(detail::true_matcher());
             break;
 
         case token_comment:
@@ -357,7 +360,10 @@ private:
             return detail::make_dynamic<BidiIter>(detail::regex_byref_matcher<BidiIter>(this->self_));
 
         case token_rule_assign:
-            throw regex_error(error_badrule, "rule assignments must be at the front of the regex");
+            boost::throw_exception(
+                regex_error(error_badrule, "rule assignments must be at the front of the regex")
+            );
+            break;
 
         case token_rule_ref:
             {
@@ -403,7 +409,8 @@ private:
                     );
                 }
             }
-            throw regex_error(error_badmark, "invalid named back-reference");
+            boost::throw_exception(regex_error(error_badmark, "invalid named back-reference"));
+            break;
 
         default:
             mark_nbr = static_cast<int>(++this->mark_count_);
@@ -425,16 +432,19 @@ private:
         typedef detail::shared_matchable<BidiIter> xpr_type;
         if(lookahead)
         {
+            seq += detail::make_independent_end_xpression<BidiIter>(seq.pure());
             detail::lookahead_matcher<xpr_type> lookahead(seq.xpr(), negative, seq.pure());
             seq = detail::make_dynamic<BidiIter>(lookahead);
         }
         else if(lookbehind)
         {
+            seq += detail::make_independent_end_xpression<BidiIter>(seq.pure());
             detail::lookbehind_matcher<xpr_type> lookbehind(seq.xpr(), seq.width().value(), negative, seq.pure());
             seq = detail::make_dynamic<BidiIter>(lookbehind);
         }
         else if(keeper) // independent sub-expression
         {
+            seq += detail::make_independent_end_xpression<BidiIter>(seq.pure());
             detail::keeper_matcher<xpr_type> keeper(seq.xpr(), seq.pure());
             seq = detail::make_dynamic<BidiIter>(keeper);
         }
@@ -497,10 +507,10 @@ private:
             return detail::make_assert_end_line<BidiIter>(this->traits_.flags(), this->rxtraits());
 
         case token_assert_word_boundary:
-            return detail::make_assert_word<BidiIter>(detail::word_boundary<true>(), this->rxtraits());
+            return detail::make_assert_word<BidiIter>(detail::word_boundary<mpl::true_>(), this->rxtraits());
 
         case token_assert_not_word_boundary:
-            return detail::make_assert_word<BidiIter>(detail::word_boundary<false>(), this->rxtraits());
+            return detail::make_assert_word<BidiIter>(detail::word_boundary<mpl::false_>(), this->rxtraits());
 
         case token_assert_word_begin:
             return detail::make_assert_word<BidiIter>(detail::word_begin(), this->rxtraits());
@@ -539,7 +549,8 @@ private:
             return this->parse_charset(begin, end);
 
         case token_invalid_quantifier:
-            throw regex_error(error_badrepeat, "quantifier not expected");
+            boost::throw_exception(regex_error(error_badrepeat, "quantifier not expected"));
+            break;
 
         case token_quote_meta_begin:
             return detail::make_literal_xpression<BidiIter>
@@ -548,11 +559,13 @@ private:
             );
 
         case token_quote_meta_end:
-            throw regex_error
-            (
-                error_escape
-              , "found quote-meta end without corresponding quote-meta begin"
+            boost::throw_exception(
+                regex_error(
+                    error_escape
+                  , "found quote-meta end without corresponding quote-meta begin"
+                )
             );
+            break;
 
         case token_end_of_pattern:
             break;

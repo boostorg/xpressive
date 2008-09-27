@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // action.hpp
 //
-//  Copyright 2004 Eric Niebler. Distributed under the Boost
+//  Copyright 2008 Eric Niebler. Distributed under the Boost
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -14,6 +14,7 @@
 #endif
 
 #include <boost/xpressive/detail/detail_fwd.hpp>
+#include <boost/xpressive/match_results.hpp> // for type_info_less
 
 namespace boost { namespace xpressive { namespace detail
 {
@@ -21,7 +22,6 @@ namespace boost { namespace xpressive { namespace detail
     ///////////////////////////////////////////////////////////////////////////////
     // actionable
     //
-    template<typename BidiIter>
     struct actionable
     {
         virtual ~actionable() {}
@@ -29,10 +29,9 @@ namespace boost { namespace xpressive { namespace detail
 
         actionable()
           : next(0)
-        {
-        }
+        {}
 
-        actionable<BidiIter> const *next;
+        actionable const *next;
     };
 
 }}} // namespace boost::xpressive::detail

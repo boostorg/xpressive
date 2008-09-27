@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // end_matcher.hpp
 //
-//  Copyright 2004 Eric Niebler. Distributed under the Boost
+//  Copyright 2008 Eric Niebler. Distributed under the Boost
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -65,11 +65,30 @@ namespace boost { namespace xpressive { namespace detail
             s0.matched = true;
 
             // Now execute any actions that have been queued
-            for(actionable<BidiIter> const *actor = state.action_list_.next; 0 != actor; actor = actor->next)
+            for(actionable const *actor = state.action_list_.next; 0 != actor; actor = actor->next)
             {
                 actor->execute(state.action_args_);
             }
 
+            return true;
+        }
+    };
+
+    ///////////////////////////////////////////////////////////////////////////////
+    // independent_end_matcher
+    //
+    struct independent_end_matcher
+      : quant_style_assertion
+    {
+        template<typename BidiIter, typename Next>
+        bool match(match_state<BidiIter> &state, Next const &) const
+        {
+            // Now execute any actions that have been queued
+            for(actionable const *actor = state.action_list_.next; 0 != actor; actor = actor->next)
+            {
+                actor->execute(state.action_args_);
+            }
+                        
             return true;
         }
     };

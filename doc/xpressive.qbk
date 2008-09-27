@@ -1,5 +1,5 @@
 [/
- / Copyright (c) 2006 Eric Niebler
+ / Copyright (c) 2008 Eric Niebler
  /
  / Distributed under the Boost Software License, Version 1.0. (See accompanying
  / file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -8,14 +8,14 @@
 [library Boost.Xpressive
     [quickbook 1.3]
     [authors [Niebler, Eric]]
-    [copyright 2003 2004 Eric Niebler]
+    [copyright 2007 Eric Niebler]
     [category string-text]
     [id xpressive]
     [dirname xpressive]
     [purpose
         Regular expressions that can be written as strings or as expression templates,
         and that can refer to each other and themselves recursively with the power of
-        context-free grammars
+        context-free grammars.
     ]
     [license
         Distributed under the Boost Software License, Version 1.0.
@@ -121,6 +121,12 @@ and dynamic.
 [include regexpp_diffs.qbk]
 
 [include perf.qbk]
+
+[section Appendix 5: Implementation Notes]
+
+[include tracking_ptr.qbk]
+
+[endsect]
 
 [endsect]
 

@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // test1.h
 //
-//  Copyright 2004 Eric Niebler. Distributed under the Boost
+//  Copyright 2008 Eric Niebler. Distributed under the Boost
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -124,6 +124,13 @@ boost::iterator_range<xpr_test_case<BidiIterT> const *> get_test_cases()
           , L("foobarboo")
           , regex_type(bos >> L('b') >> *_ >> L("ar"))
           , no_match
+        )
+      , xpr_test_case
+        (
+            "test15.1"
+          , L("fOo")
+          , regex_type(!icase(L('f') >> *as_xpr(L('o'))))
+          , backrefs(L("fOo"), nilbr)
         )
     };
 

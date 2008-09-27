@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // access.hpp
 //
-//  Copyright 2004 Eric Niebler. Distributed under the Boost
+//  Copyright 2008 Eric Niebler. Distributed under the Boost
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -17,6 +17,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/xpressive/detail/detail_fwd.hpp>
 #include <boost/xpressive/detail/dynamic/matchable.hpp>
+#include <boost/xpressive/match_results.hpp> // for type_info_less
 
 namespace boost { namespace xpressive { namespace detail
 {

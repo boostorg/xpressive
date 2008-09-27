@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // regex_impl.hpp
 //
-//  Copyright 2004 Eric Niebler. Distributed under the Boost
+//  Copyright 2008 Eric Niebler. Distributed under the Boost
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -31,6 +31,7 @@ struct finder
   : counted_base<finder<BidiIter> >
 {
     virtual ~finder() {}
+    virtual bool ok_for_partial_matches() const { return true; }
     virtual bool operator ()(match_state<BidiIter> &state) const = 0;
 };
 

@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // test.hpp
 //
-//  Copyright 2004 Eric Niebler. Distributed under the Boost
+//  Copyright 2008 Eric Niebler. Distributed under the Boost
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -35,6 +35,9 @@ using namespace boost::xpressive;
 ///////////////////////////////////////////////////////////////////////////////
 // backrefs
 //
+#if defined(__cplusplus_cli)
+#pragma managed(push, off)
+#endif
 template<typename Char>
 inline std::vector<std::basic_string<Char> > backrefs(Char const *br0, ...)
 {
@@ -54,6 +57,9 @@ inline std::vector<std::basic_string<Char> > backrefs(Char const *br0, ...)
     }
     return backrefs;
 }
+#if defined(__cplusplus_cli)
+#pragma managed(pop)
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 //

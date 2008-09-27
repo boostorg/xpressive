@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // any.hpp
 //
-//  Copyright 2004 Eric Niebler. Distributed under the Boost
+//  Copyright 2008 Eric Niebler. Distributed under the Boost
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -15,7 +15,7 @@
 // In Boost 1.33+, we have a cons list in Fusion, so just include it.
 
 # if BOOST_VERSION >= 103500
-#  include <boost/fusion/algorithm/query/any.hpp> // Boost 1.35+ has Fusion2
+#  include <boost/fusion/include/any.hpp> // Boost 1.35+ has Fusion2
 # else
 #  include <boost/spirit/fusion/algorithm/any.hpp> // Fusion1
 # endif

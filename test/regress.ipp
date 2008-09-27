@@ -84,14 +84,6 @@ unsigned int test_count = 0;
 // The global object that contains the current test case
 xpr_test_case<char> test;
 
-sregex const rx_sec = '[' >> (s1= +_) >> ']';
-sregex const rx_str = "str=" >> (s1= *_);
-sregex const rx_pat = "pat=" >> (s1= *_);
-sregex const rx_flg = "flg=" >> (s1= *_);
-sregex const rx_sub = "sub=" >> (s1= *_);
-sregex const rx_res = "res=" >> (s1= *_);
-sregex const rx_br = "br" >> (s1= +digit) >> '=' >> (s2= *_);
-
 struct test_case_formatter
 {
     friend std::ostream &operator <<(std::ostream &sout, test_case_formatter)
@@ -169,9 +161,22 @@ bool get_test()
     std::string line;
     smatch what;
 
+    sregex const rx_sec = '[' >> (s1= +_) >> ']';
+    sregex const rx_str = "str=" >> (s1= *_);
+    sregex const rx_pat = "pat=" >> (s1= *_);
+    sregex const rx_flg = "flg=" >> (s1= *_);
+    sregex const rx_sub = "sub=" >> (s1= *_);
+    sregex const rx_res = "res=" >> (s1= *_);
+    sregex const rx_br = "br" >> (s1= +digit) >> '=' >> (s2= *_);
+
     while(in.good())
     {
         std::getline(in, line);
+
+        if(!line.empty() && '\r' == line[line.size()-1])
+        {
+            line.erase(line.size()-1);
+        }
 
         if(regex_match(line, what, rx_sec))
         {
@@ -272,11 +277,26 @@ void run_test_impl(xpr_test_case<Char> const &test)
         typedef typename std::basic_string<Char>::const_iterator iterator;
         basic_regex<iterator> rx = basic_regex<iterator>::compile(test.pat, test.syntax_flags);
 
+        // Build the same regex for use with C strings
+        basic_regex<Char const *> c_rx = basic_regex<Char const *>::compile(test.pat, test.syntax_flags);
+
         if(!test.res.empty())
         {
             // test regex_replace
             std::basic_string<Char> res = regex_replace(test.str, rx, test.sub, test.match_flags);
             BOOST_CHECK_MESSAGE(res == test.res, case_ << res << " != " << test.res );
+
+            // test regex_replace with NTBS format string
+            std::basic_string<Char> res2 = regex_replace(test.str, rx, test.sub.c_str(), test.match_flags);
+            BOOST_CHECK_MESSAGE(res2 == test.res, case_ << res2 << " != " << test.res );
+
+            // test regex_replace with NTBS input string
+            std::basic_string<Char> res3 = regex_replace(test.str.c_str(), c_rx, test.sub, test.match_flags);
+            BOOST_CHECK_MESSAGE(res3 == test.res, case_ << res3 << " != " << test.res );
+
+            // test regex_replace with NTBS input string and NTBS format string
+            std::basic_string<Char> res4 = regex_replace(test.str.c_str(), c_rx, test.sub.c_str(), test.match_flags);
+            BOOST_CHECK_MESSAGE(res4 == test.res, case_ << res4 << " != " << test.res );
         }
 
         if(0 == (test.match_flags & regex_constants::format_first_only))

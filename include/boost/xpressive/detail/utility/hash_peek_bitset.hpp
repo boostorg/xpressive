@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // hash_peek_bitset.hpp
 //
-//  Copyright 2004 Eric Niebler. Distributed under the Boost
+//  Copyright 2008 Eric Niebler. Distributed under the Boost
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -104,7 +104,10 @@ struct hash_peek_bitset
 
     void set_bitset(hash_peek_bitset<Char> const &that)
     {
-        this->bset_ |= that.bset_;
+        if(this->test_icase_(that.icase()))
+        {
+            this->bset_ |= that.bset_;
+        }
     }
 
     void set_charset(basic_chset_8bit<Char> const &that, bool icase)

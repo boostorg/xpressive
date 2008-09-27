@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // parser_enum.hpp
 //
-//  Copyright 2004 Eric Niebler. Distributed under the Boost
+//  Copyright 2008 Eric Niebler. Distributed under the Boost
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -35,6 +35,10 @@ enum compiler_token_type
     token_charset_backspace,            // \b
     token_posix_charset_begin,          // [:
     token_posix_charset_end,            // :]
+    token_equivalence_class_begin,      // [=
+    token_equivalence_class_end,        // =]
+    token_collation_element_begin,      // [.
+    token_collation_element_end,        // .]
 
     token_quote_meta_begin,             // \Q
     token_quote_meta_end,               // \E

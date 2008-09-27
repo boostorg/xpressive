@@ -4,7 +4,7 @@
 /// wrapper for the C locale functions that can be used to customize the
 /// behavior of static and dynamic regexes.
 //
-//  Copyright 2004 Eric Niebler. Distributed under the Boost
+//  Copyright 2008 Eric Niebler. Distributed under the Boost
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -16,6 +16,7 @@
 # pragma once
 #endif
 
+#include <cstdlib>
 #include <boost/config.hpp>
 #include <boost/assert.hpp>
 #include <boost/xpressive/traits/detail/c_ctype.hpp>
@@ -252,7 +253,7 @@ struct c_regex_traits
     /// such that if the character sequence [G1, G2) sorts before the character sequence [H1, H2)
     /// then v.transform(G1, G2) < v.transform(H1, H2).
     ///
-    /// \attention Not used in xpressive 1.0
+    /// \attention Not currently used
     template<typename FwdIter>
     static string_type transform(FwdIter begin, FwdIter end)
     {
@@ -264,7 +265,7 @@ struct c_regex_traits
     /// when character case is not considered then
     /// v.transform_primary(G1, G2) < v.transform_primary(H1, H2).
     ///
-    /// \attention Not used in xpressive 1.0
+    /// \attention Not currently used
     template<typename FwdIter>
     static string_type transform_primary(FwdIter begin, FwdIter end)
     {
@@ -275,7 +276,7 @@ struct c_regex_traits
     /// consisting of the character sequence designated by the iterator range [F1, F2).
     /// Returns an empty string if the character sequence is not a valid collating element.
     ///
-    /// \attention Not used in xpressive 1.0
+    /// \attention Not currently used
     template<typename FwdIter>
     static string_type lookup_collatename(FwdIter begin, FwdIter end)
     {

@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // width_of.hpp
 //
-//  Copyright 2004 Eric Niebler. Distributed under the Boost
+//  Copyright 2008 Eric Niebler. Distributed under the Boost
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -147,7 +147,7 @@ namespace boost { namespace xpressive { namespace detail
     // either (s1 = ...) or (a1 = ...) or (set = ...)
     template<typename Expr, typename Char>
     struct width_of<Expr, Char, proto::tag::assign>
-      : width_of_assign<Expr, Char, typename proto::result_of::arg<typename Expr::proto_arg0>::type>
+      : width_of_assign<Expr, Char, typename proto::result_of::arg<typename Expr::proto_arg0::proto_base_expr>::type>
     {};
 
     template<typename Expr, typename Char>
@@ -171,10 +171,10 @@ namespace boost { namespace xpressive { namespace detail
     struct width_of<Expr, Char, keeper_tag>
       : unknown_width
     {
-        // If this assert fires, you put something that doesn't require backtracking
-        // in a keep(). In that case, the keep() is not necessary and you should just
-        // remove it.
-        BOOST_MPL_ASSERT_RELATION((width_of<typename Expr::proto_arg0::proto_base_expr, Char>::value), ==, unknown_width::value);
+        // TODO: keep() now has a second meaning: execute actions immediately.
+        // In that sense, it is perfectly reasonable to put a fixed-width
+        // sub-expression in a keep. Can fixed-width keep() sub-expressions
+        // use the simple_repeat_matcher?
     };
 
     template<typename Expr, typename Char>

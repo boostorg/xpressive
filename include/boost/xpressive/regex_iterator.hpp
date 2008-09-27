@@ -3,7 +3,7 @@
 /// Contains the definition of the regex_iterator type, an STL-compatible iterator
 /// for stepping through all the matches in a sequence.
 //
-//  Copyright 2004 Eric Niebler. Distributed under the Boost
+//  Copyright 2008 Eric Niebler. Distributed under the Boost
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -39,23 +39,25 @@ struct regex_iterator_impl
         BidiIter begin
       , BidiIter cur
       , BidiIter end
-      , basic_regex<BidiIter> const *rex
+      , BidiIter next_search
+      , basic_regex<BidiIter> const &rex
       , regex_constants::match_flag_type flags
       , bool not_null = false
     )
-      : what_()
-      , state_(begin, end, what_, *access::get_regex_impl(*rex), flags)
-      , rex_(rex)
+      : rex_(rex)
+      , what_()
+      , state_(begin, end, what_, *access::get_regex_impl(rex_), flags)
       , flags_(flags)
       , not_null_(not_null)
     {
         this->state_.cur_ = cur;
+        this->state_.next_search_ = next_search;
     }
 
     bool next()
     {
-        this->state_.reset(this->what_, *access::get_regex_impl(*this->rex_));
-        if(!regex_search_impl(this->state_, *this->rex_, this->not_null_))
+        this->state_.reset(this->what_, *access::get_regex_impl(this->rex_));
+        if(!regex_search_impl(this->state_, this->rex_, this->not_null_))
         {
             return false;
         }
@@ -63,7 +65,7 @@ struct regex_iterator_impl
         // Report position() correctly by setting the base different from prefix().first
         access::set_base(this->what_, this->state_.begin_);
 
-        this->state_.cur_ = this->what_[0].second;
+        this->state_.cur_ = this->state_.next_search_ = this->what_[0].second;
         this->not_null_ = (0 == this->what_.length());
 
         return true;
@@ -71,17 +73,17 @@ struct regex_iterator_impl
 
     bool equal_to(regex_iterator_impl<BidiIter> const &that) const
     {
-        return this->rex_           == that.rex_
-            && this->state_.begin_  == that.state_.begin_
-            && this->state_.cur_    == that.state_.cur_
-            && this->state_.end_    == that.state_.end_
-            && this->flags_         == that.flags_
+        return this->rex_.regex_id()    == that.rex_.regex_id()
+            && this->state_.begin_      == that.state_.begin_
+            && this->state_.cur_        == that.state_.cur_
+            && this->state_.end_        == that.state_.end_
+            && this->flags_             == that.flags_
             ;
     }
 
+    basic_regex<BidiIter> rex_;
     match_results<BidiIter> what_;
     match_state<BidiIter> state_;
-    basic_regex<BidiIter> const *const rex_;
     regex_constants::match_flag_type const flags_;
     bool not_null_;
 };
@@ -116,7 +118,7 @@ struct regex_iterator
       , basic_regex<BidiIter> const &rex
       , regex_constants::match_flag_type flags = regex_constants::match_default
     )
-      : impl_(new impl_type_(begin, begin, end, &rex, flags))
+      : impl_(new impl_type_(begin, begin, end, begin, rex, flags))
     {
         this->next_();
     }
@@ -130,7 +132,7 @@ struct regex_iterator
       , detail::let_<LetExpr> const &args
       , regex_constants::match_flag_type flags = regex_constants::match_default
     )
-      : impl_(new impl_type_(begin, begin, end, &rex, flags))
+      : impl_(new impl_type_(begin, begin, end, begin, rex, flags))
     {
         detail::bind_args(args, this->impl_->what_);
         this->next_();
@@ -222,6 +224,7 @@ private:
                 that->state_.begin_
               , that->state_.cur_
               , that->state_.end_
+              , that->state_.next_search_
               , that->rex_
               , that->flags_
               , that->not_null_

@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // assert_eol_matcher.hpp
 //
-//  Copyright 2004 Eric Niebler. Distributed under the Boost
+//  Copyright 2008 Eric Niebler. Distributed under the Boost
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -13,6 +13,7 @@
 # pragma once
 #endif
 
+#include <boost/next_prior.hpp>
 #include <boost/xpressive/detail/detail_fwd.hpp>
 #include <boost/xpressive/detail/core/quant_style.hpp>
 #include <boost/xpressive/detail/core/state.hpp>
@@ -28,6 +29,8 @@ namespace boost { namespace xpressive { namespace detail
     struct assert_eol_matcher
       : assert_line_base<Traits>
     {
+        typedef typename Traits::char_type char_type;
+        
         assert_eol_matcher(Traits const &traits)
           : assert_line_base<Traits>(traits)
         {
@@ -43,9 +46,20 @@ namespace boost { namespace xpressive { namespace detail
                     return false;
                 }
             }
-            else if((state.bos() && !state.flags_.match_prev_avail_) || !this->is_line_break(state))
+            else
             {
-                return false;
+                char_type ch = *state.cur_;
+
+                // If the current character is not a newline, we're not at the end of a line
+                if(!traits_cast<Traits>(state).isctype(ch, this->newline_))
+                {
+                    return false;
+                }
+                // There is no line-break between \r and \n
+                else if(ch == this->nl_ && (!state.bos() || state.flags_.match_prev_avail_) && *boost::prior(state.cur_) == this->cr_)
+                {
+                    return false;
+                }
             }
 
             return next.match(state);

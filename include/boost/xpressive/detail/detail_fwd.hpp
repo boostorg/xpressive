@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // detail_fwd.hpp
 //
-//  Copyright 2004 Eric Niebler. Distributed under the Boost
+//  Copyright 2008 Eric Niebler. Distributed under the Boost
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -38,7 +38,12 @@ namespace boost { namespace xpressive { namespace detail
 
     struct type_info_less;
 
-    typedef std::map<std::type_info const *, void *, detail::type_info_less> action_args_type;
+    typedef std::map<std::type_info const *, void *, type_info_less> action_args_type;
+    
+    struct action_context;
+
+    template<typename BidiIter>
+    struct replacement_context;
 
     ///////////////////////////////////////////////////////////////////////////////
     // placeholders
@@ -69,6 +74,8 @@ namespace boost { namespace xpressive { namespace detail
     //
     struct end_matcher;
 
+    struct independent_end_matcher;
+
     struct assert_bos_matcher;
 
     struct assert_eos_matcher;
@@ -95,7 +102,7 @@ namespace boost { namespace xpressive { namespace detail
     template<typename BidiIter>
     struct sequence;
 
-    template<typename Traits, bool ICase>
+    template<typename Traits, typename ICase>
     struct mark_matcher;
 
     struct mark_begin_matcher;
@@ -111,27 +118,27 @@ namespace boost { namespace xpressive { namespace detail
     template<typename Traits>
     struct compound_charset;
 
-    template<typename Traits, bool ICase, typename CharSet = compound_charset<Traits> >
+    template<typename Traits, typename ICase, typename CharSet = compound_charset<Traits> >
     struct charset_matcher;
 
-    template<typename Traits, bool ICase>
+    template<typename Traits, typename ICase>
     struct range_matcher;
 
-    template<typename Traits, int Size>
+    template<typename Traits, typename Size>
     struct set_matcher;
 
-    template<typename Xpr, bool Greedy>
+    template<typename Xpr, typename Greedy>
     struct simple_repeat_matcher;
 
     struct repeat_begin_matcher;
 
-    template<bool Greedy>
+    template<typename Greedy>
     struct repeat_end_matcher;
 
-    template<typename Traits, bool ICase, bool Not>
+    template<typename Traits, typename ICase, typename Not>
     struct literal_matcher;
 
-    template<typename Traits, bool ICase>
+    template<typename Traits, typename ICase>
     struct string_matcher;
 
     template<typename Actor>
@@ -140,13 +147,13 @@ namespace boost { namespace xpressive { namespace detail
     template<typename Predicate>
     struct predicate_matcher;
 
-    template<typename Xpr, bool Greedy>
+    template<typename Xpr, typename Greedy>
     struct optional_matcher;
 
-    template<typename Xpr, bool Greedy>
+    template<typename Xpr, typename Greedy>
     struct optional_mark_matcher;
 
-    template<typename Matcher, typename Traits, bool ICase>
+    template<typename Matcher, typename Traits, typename ICase>
     struct attr_matcher;
 
     template<typename Nbr>
@@ -163,9 +170,6 @@ namespace boost { namespace xpressive { namespace detail
     template<typename Modifier>
     struct modifier_op;
 
-    template<typename Left, typename Right>
-    struct modifier_sequencer;
-
     struct icase_modifier;
 
     template<typename BidiIter, typename ICase, typename Traits>
@@ -173,9 +177,6 @@ namespace boost { namespace xpressive { namespace detail
 
     template<typename BidiIter>
     struct regex_impl;
-
-    template<typename BidiIter>
-    struct regex_matcher;
 
     struct epsilon_matcher;
 
@@ -194,10 +195,7 @@ namespace boost { namespace xpressive { namespace detail
     template<typename Xpr>
     struct lookbehind_matcher;
 
-    template<typename Cond>
-    struct assert_word_placeholder;
-
-    template<bool IsBoundary>
+    template<typename IsBoundary>
     struct word_boundary;
 
     template<typename BidiIter, typename Matcher>
@@ -273,6 +271,8 @@ namespace boost { namespace xpressive { namespace detail
 
     typedef static_xpression<alternate_end_matcher, no_next> alternate_end_xpression;
 
+    typedef static_xpression<independent_end_matcher, no_next> independent_end_xpression;
+
     typedef static_xpression<true_matcher, no_next> true_xpression;
 
     template<typename Matcher, typename Next = end_xpression>
@@ -305,7 +305,6 @@ namespace boost { namespace xpressive { namespace detail
     template<typename T, typename U>
     struct action_arg;
 
-    template<typename BidiIter>
     struct actionable;
 
     template<typename Char>
@@ -395,6 +394,79 @@ namespace boost { namespace xpressive { namespace detail
     #endif
 
 }}} // namespace boost::xpressive::detail
+
+namespace boost { namespace xpressive { namespace grammar_detail
+{
+    using proto::_;
+    using proto::or_;
+    using proto::if_;
+    using proto::call;
+    using proto::when;
+    using proto::otherwise;
+    using proto::switch_;
+    using proto::make;
+    using proto::_arg;
+    using proto::_left;
+    using proto::_right;
+    using proto::not_;
+    using proto::_state;
+    using proto::_visitor;
+    using proto::callable;
+    using proto::fold;
+    using proto::reverse_fold;
+    using proto::fold_tree;
+    using proto::reverse_fold_tree;
+    using proto::terminal;
+    using proto::shift_right;
+    using proto::bitwise_or;
+    using proto::logical_not;
+    using proto::dereference;
+    using proto::posit;
+    using proto::negate;
+    using proto::complement;
+    using proto::comma;
+    using proto::assign;
+    using proto::subscript;
+    using proto::nary_expr;
+    using proto::unary_expr;
+    using proto::binary_expr;
+    using proto::_deep_copy;
+    using proto::vararg;
+    namespace tag = proto::tag;
+}}}
+
+namespace boost { namespace xpressive { namespace op
+{
+    struct push;
+    struct push_back;
+    struct pop;
+    struct push_front;
+    struct pop_back;
+    struct pop_front;
+    struct back;
+    struct front;
+    struct top;
+    struct first;
+    struct second;
+    struct matched;
+    struct length;
+    struct str;
+    struct insert;
+    struct make_pair;
+
+    template<typename T>
+    struct as;
+    template<typename T>
+    struct static_cast_;
+    template<typename T>
+    struct dynamic_cast_;
+    template<typename T>
+    struct const_cast_;
+    template<typename T>
+    struct construct;
+    template<typename T>
+    struct throw_;
+}}} // namespace boost::xpressive::op
 
 /// INTERNAL ONLY
 namespace boost { namespace xpressive

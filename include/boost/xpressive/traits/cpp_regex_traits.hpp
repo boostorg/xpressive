@@ -4,7 +4,7 @@
 /// wrapper for std::locale that can be used to customize the behavior of
 /// static and dynamic regexes.
 //
-//  Copyright 2004 Eric Niebler. Distributed under the Boost
+//  Copyright 2008 Eric Niebler. Distributed under the Boost
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -16,6 +16,7 @@
 # pragma once
 #endif
 
+#include <ios>
 #include <string>
 #include <locale>
 #include <sstream>
@@ -23,6 +24,7 @@
 #include <boost/assert.hpp>
 #include <boost/integer.hpp>
 #include <boost/mpl/assert.hpp>
+#include <boost/detail/workaround.hpp>
 #include <boost/type_traits/is_same.hpp>
 #include <boost/xpressive/detail/detail_fwd.hpp>
 #include <boost/xpressive/detail/utility/literals.hpp>
@@ -117,6 +119,8 @@ namespace detail
     // Reserve some bits for the implementation
     #if defined(__GLIBCXX__)
     umaskex_t const std_ctype_reserved = 0x8000;
+    #elif defined(_CPPLIB_VER) && defined(BOOST_WINDOWS)
+    umaskex_t const std_ctype_reserved = 0x8200;
     #else
     umaskex_t const std_ctype_reserved = 0;
     #endif
@@ -447,7 +451,7 @@ struct cpp_regex_traits
     /// such that if the character sequence [G1, G2) sorts before the character sequence [H1, H2)
     /// then v.transform(G1, G2) \< v.transform(H1, H2).
     ///
-    /// \attention Not used in xpressive 1.0
+    /// \attention Not currently used
     template<typename FwdIter>
     string_type transform(FwdIter begin, FwdIter end) const
     {
@@ -463,7 +467,7 @@ struct cpp_regex_traits
     /// when character case is not considered then
     /// v.transform_primary(G1, G2) \< v.transform_primary(H1, H2).
     ///
-    /// \attention Not used in xpressive 1.0
+    /// \attention Not currently used
     template<typename FwdIter>
     string_type transform_primary(FwdIter begin, FwdIter end) const
     {
@@ -475,7 +479,7 @@ struct cpp_regex_traits
     /// consisting of the character sequence designated by the iterator range [F1, F2).
     /// Returns an empty string if the character sequence is not a valid collating element.
     ///
-    /// \attention Not used in xpressive 1.0
+    /// \attention Not currently used
     template<typename FwdIter>
     string_type lookup_collatename(FwdIter begin, FwdIter end) const
     {

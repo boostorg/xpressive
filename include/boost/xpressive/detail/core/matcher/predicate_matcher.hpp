@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // predicate_matcher.hpp
 //
-//  Copyright 2004 Eric Niebler. Distributed under the Boost
+//  Copyright 2008 Eric Niebler. Distributed under the Boost
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -35,7 +35,7 @@ namespace boost { namespace xpressive { namespace detail
         {}
 
         // eval_terminal
-        template<typename Expr, typename Arg = typename proto::result_of::arg<Expr>::type>
+        template<typename Expr, typename Arg>
         struct eval_terminal
           : proto::default_eval<Expr, predicate_context const>
         {};
@@ -78,7 +78,7 @@ namespace boost { namespace xpressive { namespace detail
 
         template<typename Expr>
         struct eval<Expr, proto::tag::terminal>
-          : eval_terminal<Expr>
+          : eval_terminal<Expr, typename proto::result_of::arg<Expr>::type>
         {};
 
         #if BOOST_VERSION >= 103500
@@ -122,7 +122,7 @@ namespace boost { namespace xpressive { namespace detail
         bool match(match_state<BidiIter> &state, Next const &next) const
         {
             // Predicate is check(assertion), where assertion can be
-            // a lambda or a function object. 
+            // a lambda or a function object.
             return this->match_(state, next, proto::matches<Predicate, AssertionFunctor>());
         }
 

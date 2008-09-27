@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // test_assert.cpp
 //
-//  Copyright 2004 Eric Niebler. Distributed under the Boost
+//  Copyright 2008 Eric Niebler. Distributed under the Boost
 //  Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -12,13 +12,10 @@
 
 using namespace boost::xpressive;
 
-struct three_or_six
+bool three_or_six(ssub_match const &sub)
 {
-    bool operator()(ssub_match const &sub) const
-    {
-        return sub.length() == 3 || sub.length() == 6;
-    }
-};
+    return sub.length() == 3 || sub.length() == 6;
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 // test1
@@ -27,7 +24,7 @@ void test1()
 {
     std::string str("foo barbaz fink");
     // match words of 3 characters or 6 characters.
-    sregex rx = (bow >> +_w >> eow)[ check(three_or_six()) ] ;
+    sregex rx = (bow >> +_w >> eow)[ check(&three_or_six) ] ;
 
     sregex_iterator first(str.begin(), str.end(), rx), last;
     BOOST_CHECK_EQUAL(std::distance(first, last), 2);
@@ -46,15 +43,6 @@ void test2()
     BOOST_CHECK_EQUAL(std::distance(first, last), 2);
 }
 
-struct days_per_month_type
-{
-    int operator[](int i) const
-    {
-        std::cout << "HERE " << i << std::endl;
-        return 29;
-    }
-};
-
 ///////////////////////////////////////////////////////////////////////////////
 // test3
 //  more complicated use of custom assertions to validate a date
@@ -65,7 +53,7 @@ void test3()
 
     mark_tag month(1), day(2);
     // find a valid date of the form month/day/year.
-    sregex date = 
+    sregex date =
         (
             // Month must be between 1 and 12 inclusive
             (month= _d >> !_d)     [ check(as<int>(_) >= 1
