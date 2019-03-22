@@ -49,8 +49,8 @@ struct boyer_moore_finder
     }
 
 private:
-    boyer_moore_finder(boyer_moore_finder const &);
-    boyer_moore_finder &operator =(boyer_moore_finder const &);
+    BOOST_DELETED_FUNCTION(boyer_moore_finder(boyer_moore_finder const &))
+    BOOST_DELETED_FUNCTION(boyer_moore_finder &operator =(boyer_moore_finder const &))
 
     boyer_moore<BidiIter, Traits> bm_;
 };
@@ -79,8 +79,8 @@ struct hash_peek_finder
     }
 
 private:
-    hash_peek_finder(hash_peek_finder const &);
-    hash_peek_finder &operator =(hash_peek_finder const &);
+    BOOST_DELETED_FUNCTION(hash_peek_finder(hash_peek_finder const &))
+    BOOST_DELETED_FUNCTION(hash_peek_finder &operator =(hash_peek_finder const &))
 
     template<typename ICase>
     BidiIter find_(BidiIter begin, BidiIter end, Traits const &tr, ICase) const
@@ -134,8 +134,8 @@ struct line_start_finder
     }
 
 private:
-    line_start_finder(line_start_finder const &);
-    line_start_finder &operator =(line_start_finder const &);
+    BOOST_DELETED_FUNCTION(line_start_finder(line_start_finder const &))
+    BOOST_DELETED_FUNCTION(line_start_finder &operator =(line_start_finder const &))
 
     char_class_type newline_;
 };
@@ -184,8 +184,8 @@ struct line_start_finder<BidiIter, Traits, 1u>
     }
 
 private:
-    line_start_finder(line_start_finder const &);
-    line_start_finder &operator =(line_start_finder const &);
+    BOOST_DELETED_FUNCTION(line_start_finder(line_start_finder const &))
+    BOOST_DELETED_FUNCTION(line_start_finder &operator =(line_start_finder const &))
 
     bool bits_[256];
 };
@@ -208,8 +208,8 @@ struct leading_simple_repeat_finder
     }
 
 private:
-    leading_simple_repeat_finder(leading_simple_repeat_finder const &);
-    leading_simple_repeat_finder &operator =(leading_simple_repeat_finder const &);
+    BOOST_DELETED_FUNCTION(leading_simple_repeat_finder(leading_simple_repeat_finder const &))
+    BOOST_DELETED_FUNCTION(leading_simple_repeat_finder &operator =(leading_simple_repeat_finder const &))
 };
 
 }}}
