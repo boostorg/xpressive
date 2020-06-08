@@ -55,7 +55,7 @@ namespace boost { namespace xpressive { namespace detail
                 || this->xpr_.BOOST_NESTED_TEMPLATE push_match<Next>(state);
         }
 
-        optional_matcher &operator =(optional_matcher const &);
+        BOOST_DELETED_FUNCTION(optional_matcher &operator =(optional_matcher const &))
     };
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -113,7 +113,7 @@ namespace boost { namespace xpressive { namespace detail
                 || this->xpr_.BOOST_NESTED_TEMPLATE push_match<Next>(state);
         }
 
-        optional_mark_matcher &operator =(optional_mark_matcher const &);
+        BOOST_DELETED_FUNCTION(optional_mark_matcher &operator =(optional_mark_matcher const &))
     };
 
 }}}

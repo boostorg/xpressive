@@ -63,7 +63,7 @@ struct xpression_adaptor
     }
 
 private:
-    xpression_adaptor &operator =(xpression_adaptor const &);
+    BOOST_DELETED_FUNCTION(xpression_adaptor &operator =(xpression_adaptor const &))
 };
 
 ///////////////////////////////////////////////////////////////////////////////

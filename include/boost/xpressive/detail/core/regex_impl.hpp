@@ -193,7 +193,7 @@ struct regex_impl
     #endif
 
 private:
-    regex_impl &operator =(regex_impl const &);
+    BOOST_DELETED_FUNCTION(regex_impl &operator =(regex_impl const &))
 };
 
 template<typename BidiIter>
