@@ -120,7 +120,7 @@ namespace boost { namespace xpressive { namespace grammar_detail
         }
 
     private:
-        merge_charset &operator =(merge_charset const &);
+        BOOST_DELETED_FUNCTION(merge_charset &operator =(merge_charset const &))
 
         template<typename Expr, typename Tag>
         void call_(Expr const &expr, Tag) const

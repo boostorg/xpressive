@@ -176,7 +176,7 @@ struct static_xpression
 
 private:
 
-    static_xpression &operator =(static_xpression const &);
+    BOOST_DELETED_FUNCTION(static_xpression &operator =(static_xpression const &))
 
     template<typename Char>
     void peek_next_(mpl::true_, xpression_peeker<Char> &peeker) const
