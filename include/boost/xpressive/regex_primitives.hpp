@@ -229,7 +229,7 @@ namespace boost { namespace xpressive { namespace detail
 } // namespace detail
 
 /// INTERNAL ONLY (for backwards compatibility)
-unsigned int const repeat_max = UINT_MAX-1;
+BOOST_INLINE_CONSTEXPR unsigned int repeat_max = UINT_MAX-1;
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief For infinite repetition of a sub-expression.
@@ -237,7 +237,7 @@ unsigned int const repeat_max = UINT_MAX-1;
 /// Magic value used with the repeat\<\>() function template
 /// to specify an unbounded repeat. Use as: repeat<17, inf>('a').
 /// The equivalent in perl is /a{17,}/.
-unsigned int const inf = UINT_MAX-1;
+BOOST_INLINE_CONSTEXPR unsigned int inf = UINT_MAX-1;
 
 /// INTERNAL ONLY (for backwards compatibility)
 BOOST_INLINE_CONSTEXPR proto::terminal<detail::epsilon_matcher>::type epsilon = {{}};
@@ -823,15 +823,15 @@ imbue(Locale const &loc)
     return mod;
 }
 
-proto::terminal<detail::attribute_placeholder<mpl::int_<1> > >::type const a1 = {{}};
-proto::terminal<detail::attribute_placeholder<mpl::int_<2> > >::type const a2 = {{}};
-proto::terminal<detail::attribute_placeholder<mpl::int_<3> > >::type const a3 = {{}};
-proto::terminal<detail::attribute_placeholder<mpl::int_<4> > >::type const a4 = {{}};
-proto::terminal<detail::attribute_placeholder<mpl::int_<5> > >::type const a5 = {{}};
-proto::terminal<detail::attribute_placeholder<mpl::int_<6> > >::type const a6 = {{}};
-proto::terminal<detail::attribute_placeholder<mpl::int_<7> > >::type const a7 = {{}};
-proto::terminal<detail::attribute_placeholder<mpl::int_<8> > >::type const a8 = {{}};
-proto::terminal<detail::attribute_placeholder<mpl::int_<9> > >::type const a9 = {{}};
+BOOST_INLINE_CONSTEXPR proto::terminal<detail::attribute_placeholder<mpl::int_<1> > >::type a1 = {{}};
+BOOST_INLINE_CONSTEXPR proto::terminal<detail::attribute_placeholder<mpl::int_<2> > >::type a2 = {{}};
+BOOST_INLINE_CONSTEXPR proto::terminal<detail::attribute_placeholder<mpl::int_<3> > >::type a3 = {{}};
+BOOST_INLINE_CONSTEXPR proto::terminal<detail::attribute_placeholder<mpl::int_<4> > >::type a4 = {{}};
+BOOST_INLINE_CONSTEXPR proto::terminal<detail::attribute_placeholder<mpl::int_<5> > >::type a5 = {{}};
+BOOST_INLINE_CONSTEXPR proto::terminal<detail::attribute_placeholder<mpl::int_<6> > >::type a6 = {{}};
+BOOST_INLINE_CONSTEXPR proto::terminal<detail::attribute_placeholder<mpl::int_<7> > >::type a7 = {{}};
+BOOST_INLINE_CONSTEXPR proto::terminal<detail::attribute_placeholder<mpl::int_<8> > >::type a8 = {{}};
+BOOST_INLINE_CONSTEXPR proto::terminal<detail::attribute_placeholder<mpl::int_<9> > >::type a9 = {{}};
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Specify which characters to skip when matching a regex.
