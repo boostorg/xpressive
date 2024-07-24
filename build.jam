@@ -5,36 +5,39 @@
 
 require-b2 5.2 ;
 
+constant boost_dependencies :
+    /boost/assert//boost_assert
+    /boost/config//boost_config
+    /boost/conversion//boost_conversion
+    /boost/core//boost_core
+    /boost/exception//boost_exception
+    /boost/fusion//boost_fusion
+    /boost/integer//boost_integer
+    /boost/iterator//boost_iterator
+    /boost/lexical_cast//boost_lexical_cast
+    /boost/mpl//boost_mpl
+    /boost/numeric_conversion//boost_numeric_conversion
+    /boost/optional//boost_optional
+    /boost/preprocessor//boost_preprocessor
+    /boost/proto//boost_proto
+    /boost/range//boost_range
+    /boost/smart_ptr//boost_smart_ptr
+    /boost/static_assert//boost_static_assert
+    /boost/throw_exception//boost_throw_exception
+    /boost/type_traits//boost_type_traits
+    /boost/typeof//boost_typeof
+    /boost/utility//boost_utility ;
+
 project /boost/xpressive
     : common-requirements
-        <library>/boost/assert//boost_assert
-        <library>/boost/config//boost_config
-        <library>/boost/conversion//boost_conversion
-        <library>/boost/core//boost_core
-        <library>/boost/exception//boost_exception
-        <library>/boost/fusion//boost_fusion
-        <library>/boost/integer//boost_integer
-        <library>/boost/iterator//boost_iterator
-        <library>/boost/lexical_cast//boost_lexical_cast
-        <library>/boost/mpl//boost_mpl
-        <library>/boost/numeric_conversion//boost_numeric_conversion
-        <library>/boost/optional//boost_optional
-        <library>/boost/preprocessor//boost_preprocessor
-        <library>/boost/proto//boost_proto
-        <library>/boost/range//boost_range
-        <library>/boost/smart_ptr//boost_smart_ptr
-        <library>/boost/static_assert//boost_static_assert
-        <library>/boost/throw_exception//boost_throw_exception
-        <library>/boost/type_traits//boost_type_traits
-        <library>/boost/typeof//boost_typeof
-        <library>/boost/utility//boost_utility
         <include>include
     ;
 
 explicit
-    [ alias boost_xpressive ]
+    [ alias boost_xpressive : : : : <library>$(boost_dependencies) ]
     [ alias all : boost_xpressive example perf test tools ]
     ;
 
 call-if : boost-library xpressive
     ;
+
