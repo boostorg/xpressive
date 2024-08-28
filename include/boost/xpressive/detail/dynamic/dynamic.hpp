@@ -75,23 +75,23 @@ struct dynamic_xpression
     {
     }
 
-    virtual bool match(match_state<BidiIter> &state) const
+    virtual bool match(match_state<BidiIter> &state) const override
     {
         return this->Matcher::match(state, *this->next_.matchable());
     }
 
-    virtual void link(xpression_linker<char_type> &linker) const
+    virtual void link(xpression_linker<char_type> &linker) const override
     {
         linker.accept(*static_cast<Matcher const *>(this), this->next_.matchable().get());
         this->next_.link(linker);
     }
 
-    virtual void peek(xpression_peeker<char_type> &peeker) const
+    virtual void peek(xpression_peeker<char_type> &peeker) const override
     {
         this->peek_next_(peeker.accept(*static_cast<Matcher const *>(this)), peeker);
     }
 
-    virtual void repeat(quant_spec const &spec, sequence<BidiIter> &seq) const
+    virtual void repeat(quant_spec const &spec, sequence<BidiIter> &seq) const override
     {
         this->repeat_(spec, seq, quant_type<Matcher>(), is_same<Matcher, mark_begin_matcher>());
     }
