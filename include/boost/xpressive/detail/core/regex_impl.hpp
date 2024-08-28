@@ -82,22 +82,22 @@ struct traits_holder
         return this->traits_;
     }
 
-    char_type tolower(char_type ch) const
+    char_type tolower(char_type ch) const override
     {
         return this->tolower_(ch, typename Traits::version_tag());
     }
 
-    char_type toupper(char_type ch) const
+    char_type toupper(char_type ch) const override
     {
         return this->toupper_(ch, typename Traits::version_tag());
     }
 
-    int value(char_type ch, int radix) const
+    int value(char_type ch, int radix) const override
     {
         return this->traits_.value(ch, radix);
     }
 
-    bool in_range(char_type from, char_type to, char_type ch) const
+    bool in_range(char_type from, char_type to, char_type ch) const override
     {
         return this->traits_.in_range(from, to, ch);
     }

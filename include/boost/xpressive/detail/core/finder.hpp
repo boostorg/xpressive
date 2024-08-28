@@ -36,12 +36,12 @@ struct boyer_moore_finder
     {
     }
 
-    bool ok_for_partial_matches() const
+    bool ok_for_partial_matches() const override
     {
         return false;
     }
 
-    bool operator ()(match_state<BidiIter> &state) const
+    bool operator ()(match_state<BidiIter> &state) const override
     {
         Traits const &tr = traits_cast<Traits>(state);
         state.cur_ = this->bm_.find(state.cur_, state.end_, tr);
@@ -69,7 +69,7 @@ struct hash_peek_finder
     {
     }
 
-    bool operator ()(match_state<BidiIter> &state) const
+    bool operator ()(match_state<BidiIter> &state) const override
     {
         Traits const &tr = traits_cast<Traits>(state);
         state.cur_ = (this->bset_.icase()
@@ -160,7 +160,7 @@ struct line_start_finder<BidiIter, Traits, 1u>
         }
     }
 
-    bool operator ()(match_state<BidiIter> &state) const
+    bool operator ()(match_state<BidiIter> &state) const override
     {
         if(state.bos() && state.flags_.match_bol_)
         {
@@ -201,7 +201,7 @@ struct leading_simple_repeat_finder
       : finder<BidiIter>()
     {}
 
-    bool operator ()(match_state<BidiIter> &state) const
+    bool operator ()(match_state<BidiIter> &state) const override
     {
         state.cur_ = state.next_search_;
         return true;
