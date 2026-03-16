@@ -216,7 +216,7 @@ namespace boost { namespace xpressive { namespace detail
         }
 
     private:
-        simple_repeat_matcher &operator =(simple_repeat_matcher const &);
+        BOOST_DELETED_FUNCTION(simple_repeat_matcher &operator =(simple_repeat_matcher const &))
     };
 
     // BUGBUG can all non-greedy quantification be done with the fixed width quantifier?

@@ -93,7 +93,7 @@ private:
         chunk *back_, *next_;
 
     private:
-        chunk &operator =(chunk const &);
+        BOOST_DELETED_FUNCTION(chunk &operator =(chunk const &))
     };
 
     chunk *current_chunk_;
